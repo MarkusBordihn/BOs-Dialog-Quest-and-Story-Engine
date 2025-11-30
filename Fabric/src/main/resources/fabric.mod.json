@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "id": "dialog_quest_and_story_engine",
+  "version": "${version}",
+  "name": "Dialog, Quest and Story Engine",
+  "description": "A lightweight framework for in-world dialogue, quests and story devices that you can attach to any entity or block. Designed for modpacks, adventure maps and RPG servers.",
+  "authors": [
+    "Markus Bordihn"
+  ],
+  "contact": {
+    "homepage": "https://www.curseforge.com/minecraft/mc-mods/dialog-quest-and-story-engine",
+    "issues": "https://github.com/MarkusBordihn/BOs-Dialog-Quest-and-Story-Engine"
+  },
+  "license": "MIT",
+  "icon": "logo.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "de.markusbordihn.dialogqueststoryengine.DialogQuestStoryEngine"
+    ],
+    "client": [
+      "de.markusbordihn.dialogqueststoryengine.DialogQuestStoryEngineClient"
+    ],
+    "fabric-gametest": [
+      "de.markusbordihn.dialogqueststoryengine.gametest.SmokeTest"
+    ]
+  },
+  "mixins": [],
+  "accessWidener": "dialogqueststoryengine.accesswidener",
+  "depends": {
+    "fabricloader": ">=0.15",
+    "fabric": "*",
+    "minecraft": "1.20.1",
+    "java": ">=17"
+  },
+  "suggests": {
+    "tooltipfix": "*"
+  }
+}

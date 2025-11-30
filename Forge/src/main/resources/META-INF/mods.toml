@@ -1,0 +1,28 @@
+modLoader = "javafml"
+loaderVersion = "[47,)"
+license = "MIT"
+issueTrackerURL = "https://github.com/MarkusBordihn/BOs-Dialog-Quest-and-Story-Engine"
+
+[[mods]]
+modId = "dialog_quest_and_story_engine"
+version = "${file.jarVersion}"
+displayName = "Dialog, Quest and Story Engine"
+displayURL = "https://www.curseforge.com/minecraft/mc-mods/dialog-quest-and-story-engine"
+logoFile = "logo.png"
+credits = ""
+authors = "Markus Bordihn"
+description = '''A lightweight framework for in-world dialogue, quests and story devices that you can attach to any entity or block. Designed for modpacks, adventure maps and RPG servers.'''
+
+[[dependencies.dialog_quest_and_story_engine]]
+modId = "forge"
+mandatory = true
+versionRange = "[47,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.dialog_quest_and_story_engine]]
+modId = "minecraft"
+mandatory = true
+versionRange = "[1.20.1,1.21)"
+ordering = "NONE"
+side = "BOTH"

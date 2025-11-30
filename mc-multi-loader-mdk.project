@@ -1,0 +1,16 @@
+{
+  "config_version": "1.0.0",
+  "game_version": "1.20.1",
+  "author": "Markus Bordihn",
+  "mod_name": "Dialog, Quest and Story Engine",
+  "license": "MIT",
+  "description": "A lightweight framework for in-world dialogue, quests and story devices that you can attach to any entity or block. Designed for modpacks, adventure maps and RPG servers.",
+  "mod_id": "dialog_quest_and_story_engine",
+  "class_name": "DialogQuestStoryEngine",
+  "class_namespace": "de.markusbordihn.dialogqueststoryengine",
+  "class_package_name": "dialogqueststoryengine",
+  "vendor_name": "markusbordihn",
+  "display_url": "https://www.curseforge.com/minecraft/mc-mods/dialog-quest-and-story-engine",
+  "issue_tracker_url": "https://github.com/MarkusBordihn/BOs-Dialog-Quest-and-Story-Engine",
+  "confirmed": true
+}
