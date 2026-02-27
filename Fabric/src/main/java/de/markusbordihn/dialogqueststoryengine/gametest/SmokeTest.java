@@ -19,10 +19,20 @@
 
 package de.markusbordihn.dialogqueststoryengine.gametest;
 
+import de.markusbordihn.dialogqueststoryengine.Constants;
+import de.markusbordihn.dialogqueststoryengine.data.interaction.InteractionDataEntry;
+import de.markusbordihn.dialogqueststoryengine.data.interaction.InteractionDataSet;
+import de.markusbordihn.dialogqueststoryengine.data.interaction.InteractionType;
+import de.markusbordihn.dialogqueststoryengine.data.interaction.TargetKind;
+import de.markusbordihn.dialogqueststoryengine.utils.BlockUUID;
+import java.util.UUID;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
-import de.markusbordihn.dialogqueststoryengine.Constants;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.Level;
 
 @SuppressWarnings("unused")
 public class SmokeTest {
@@ -33,6 +43,35 @@ public class SmokeTest {
         helper,
         "Mod " + Constants.MOD_ID + " is not available!",
         FabricLoader.getInstance().isModLoaded(Constants.MOD_ID));
+    helper.succeed();
+  }
+
+  @GameTest(template = "dialog_quest_and_story_engine:gametest.3x3x3")
+  public void testBlockUUIDDeterminism(GameTestHelper helper) {
+    BlockPos pos = new BlockPos(100, 64, -200);
+    ResourceKey<Level> dim = Level.OVERWORLD;
+    UUID first = BlockUUID.fromBlockPos(dim, pos);
+    UUID second = BlockUUID.fromBlockPos(dim, pos);
+    GameTestHelpers.assertEquals(helper, "Block UUID should be deterministic", first, second);
+  }
+
+  @GameTest(template = "dialog_quest_and_story_engine:gametest.3x3x3")
+  public void testInteractionDataSetRegisterAndLookup(GameTestHelper helper) {
+    InteractionDataSet dataSet = new InteractionDataSet();
+    UUID targetId = UUID.randomUUID();
+    InteractionDataEntry entry =
+        new InteractionDataEntry(
+            targetId,
+            InteractionType.RIGHT_CLICK,
+            TargetKind.ENTITY,
+            "test_label",
+            ResourceLocation.tryParse("minecraft:overworld"),
+            null);
+    dataSet.register(entry);
+    GameTestHelpers.assertTrue(
+        helper,
+        "InteractionDataSet should contain the registered interaction",
+        dataSet.hasInteraction(targetId, InteractionType.RIGHT_CLICK));
     helper.succeed();
   }
 }

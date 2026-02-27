@@ -17,24 +17,37 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package de.markusbordihn.dialogqueststoryengine;
+package de.markusbordihn.dialogqueststoryengine.commands;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import de.markusbordihn.dialogqueststoryengine.data.interaction.InteractionType;
+import java.util.WeakHashMap;
+import net.minecraft.world.entity.player.Player;
 
-public final class Constants {
+public final class BindManager {
 
-  public static final String MOD_ID = "dialog_quest_and_story_engine";
-  public static final String MOD_NAME = "Dialog, Quest and Story Engine";
-  public static final String MOD_COMMAND = "dqs";
-  public static final String MOD_PREFIX = MOD_ID + ".";
-  public static final String LOG_NAME = MOD_NAME;
-  public static final String LOG_REGISTER_PREFIX = "Register " + MOD_NAME;
+  private static final WeakHashMap<Player, BindContext> activeBinds = new WeakHashMap<>();
 
-  public static final String INTERACTION_WAND = "interaction_wand";
+  private BindManager() {}
 
-  public static Path GAME_DIR = Paths.get("").toAbsolutePath();
-  public static Path CONFIG_DIR = GAME_DIR.resolve("config");
+  public static void startBind(Player player, InteractionType type, String label) {
+    activeBinds.put(player, new BindContext(type, label, false));
+  }
 
-  private Constants() {}
+  public static void startUnbind(Player player) {
+    activeBinds.put(player, new BindContext(null, null, true));
+  }
+
+  public static void startUnbind(Player player, InteractionType type) {
+    activeBinds.put(player, new BindContext(type, null, true));
+  }
+
+  public static boolean isBinding(Player player) {
+    return activeBinds.containsKey(player);
+  }
+
+  public static BindContext consumeBind(Player player) {
+    return activeBinds.remove(player);
+  }
+
+  public record BindContext(InteractionType type, String label, boolean unbind) {}
 }

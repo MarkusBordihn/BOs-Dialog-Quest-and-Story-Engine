@@ -17,22 +17,34 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package de.markusbordihn.dialogqueststoryengine;
+package de.markusbordihn.dialogqueststoryengine.tabs;
 
-import de.markusbordihn.dialogqueststoryengine.client.ClientEventHandler;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.eventbus.api.IEventBus;
+import de.markusbordihn.dialogqueststoryengine.Constants;
+import de.markusbordihn.dialogqueststoryengine.item.ModItems;
+import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.CreativeModeTab;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-@SuppressWarnings("unused")
-public class DialogQuestStoryEngineClient {
+public class ModTabs {
 
   private static final Logger log = LogManager.getLogger(Constants.LOG_NAME);
 
-  @SuppressWarnings("java:S1118")
-  public DialogQuestStoryEngineClient(IEventBus modEventBus) {
-    log.info("Initializing {} (Forge-Client) ...", Constants.MOD_NAME);
-    MinecraftForge.EVENT_BUS.register(ClientEventHandler.class);
+  private ModTabs() {}
+
+  public static void registerCreativeTabs() {
+    log.info("{} Creative Tabs ...", Constants.LOG_REGISTER_PREFIX);
+    CreativeModeTab tab =
+        FabricItemGroup.builder()
+            .title(Component.translatable("itemGroup." + Constants.MOD_ID + ".main"))
+            .icon(() -> ModItems.INTERACTION_WAND.getDefaultInstance())
+            .displayItems((parameters, output) -> output.accept(ModItems.INTERACTION_WAND))
+            .build();
+    Registry.register(
+        BuiltInRegistries.CREATIVE_MODE_TAB, new ResourceLocation(Constants.MOD_ID, "main"), tab);
   }
 }

@@ -17,24 +17,17 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package de.markusbordihn.dialogqueststoryengine;
+package de.markusbordihn.dialogqueststoryengine.network;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.util.function.Function;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 
-public final class Constants {
+public interface NetworkHandlerInterface {
 
-  public static final String MOD_ID = "dialog_quest_and_story_engine";
-  public static final String MOD_NAME = "Dialog, Quest and Story Engine";
-  public static final String MOD_COMMAND = "dqs";
-  public static final String MOD_PREFIX = MOD_ID + ".";
-  public static final String LOG_NAME = MOD_NAME;
-  public static final String LOG_REGISTER_PREFIX = "Register " + MOD_NAME;
+  <M extends NetworkMessageRecord> void registerClientNetworkMessageHandler(
+      ResourceLocation messageId, Class<M> networkMessage, Function<FriendlyByteBuf, M> creator);
 
-  public static final String INTERACTION_WAND = "interaction_wand";
-
-  public static Path GAME_DIR = Paths.get("").toAbsolutePath();
-  public static Path CONFIG_DIR = GAME_DIR.resolve("config");
-
-  private Constants() {}
+  void sendToPlayer(ServerPlayer serverPlayer, NetworkMessageRecord networkMessageRecord);
 }

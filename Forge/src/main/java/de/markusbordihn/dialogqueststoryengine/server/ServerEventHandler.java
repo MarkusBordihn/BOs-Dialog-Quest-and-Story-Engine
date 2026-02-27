@@ -17,24 +17,35 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package de.markusbordihn.dialogqueststoryengine;
+package de.markusbordihn.dialogqueststoryengine.server;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import net.minecraft.server.MinecraftServer;
+import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.server.ServerStartingEvent;
+import net.minecraftforge.event.server.ServerStoppingEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 
-public final class Constants {
+@SuppressWarnings("unused")
+public class ServerEventHandler {
 
-  public static final String MOD_ID = "dialog_quest_and_story_engine";
-  public static final String MOD_NAME = "Dialog, Quest and Story Engine";
-  public static final String MOD_COMMAND = "dqs";
-  public static final String MOD_PREFIX = MOD_ID + ".";
-  public static final String LOG_NAME = MOD_NAME;
-  public static final String LOG_REGISTER_PREFIX = "Register " + MOD_NAME;
+  @SubscribeEvent
+  public static void handleServerStartingEvent(ServerStartingEvent event) {
+    ServerEvents.handleServerStarting(event.getServer());
+  }
 
-  public static final String INTERACTION_WAND = "interaction_wand";
+  @SubscribeEvent
+  public static void handleServerStoppingEvent(ServerStoppingEvent event) {
+    ServerEvents.handleServerStopping(event.getServer());
+  }
 
-  public static Path GAME_DIR = Paths.get("").toAbsolutePath();
-  public static Path CONFIG_DIR = GAME_DIR.resolve("config");
-
-  private Constants() {}
+  @SubscribeEvent
+  public static void handleServerTick(TickEvent.ServerTickEvent event) {
+    if (event.phase != TickEvent.Phase.END) {
+      return;
+    }
+    MinecraftServer server = ServerEvents.getServer();
+    if (server != null) {
+      ServerEvents.handleServerTick(server);
+    }
+  }
 }

@@ -19,6 +19,9 @@
 
 package de.markusbordihn.dialogqueststoryengine;
 
+import de.markusbordihn.dialogqueststoryengine.client.ClientEventHandler;
+import de.markusbordihn.dialogqueststoryengine.network.NetworkHandlerManager;
+import de.markusbordihn.dialogqueststoryengine.network.NetworkHandlerManagerType;
 import net.fabricmc.api.ClientModInitializer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -30,5 +33,7 @@ public class DialogQuestStoryEngineClient implements ClientModInitializer {
   @Override
   public void onInitializeClient() {
     log.info("Initializing {} (Fabric-Client) ...", Constants.MOD_NAME);
+    NetworkHandlerManager.registerNetworkMessages(NetworkHandlerManagerType.CLIENT);
+    ClientEventHandler.registerEvents();
   }
 }

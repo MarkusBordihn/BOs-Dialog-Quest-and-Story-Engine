@@ -19,7 +19,14 @@
 
 package de.markusbordihn.dialogqueststoryengine;
 
+import de.markusbordihn.dialogqueststoryengine.commands.CommandsEventHandler;
+import de.markusbordihn.dialogqueststoryengine.entity.InteractionEventHandler;
+import de.markusbordihn.dialogqueststoryengine.item.ModItems;
+import de.markusbordihn.dialogqueststoryengine.network.NetworkHandler;
+import de.markusbordihn.dialogqueststoryengine.server.ServerEventHandler;
+import de.markusbordihn.dialogqueststoryengine.tabs.ModTabs;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.common.Mod;
@@ -44,7 +51,21 @@ public class DialogQuestStoryEngine {
     Constants.GAME_DIR = FMLPaths.GAMEDIR.get();
     Constants.CONFIG_DIR = FMLPaths.CONFIGDIR.get();
 
-    // Initialize the client mod initializer
-    DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> new DialogQuestStoryEngineClient(modEventBus));
+    log.info("{} Items ...", Constants.LOG_REGISTER_PREFIX);
+    ModItems.ITEMS.register(modEventBus);
+
+    log.info("{} Creative Tabs ...", Constants.LOG_REGISTER_PREFIX);
+    ModTabs.CREATIVE_TABS.register(modEventBus);
+
+    log.info("{} Network ...", Constants.LOG_REGISTER_PREFIX);
+    NetworkHandler.register();
+
+    log.info("{} Forge Event Handlers ...", Constants.LOG_REGISTER_PREFIX);
+    MinecraftForge.EVENT_BUS.register(CommandsEventHandler.class);
+    MinecraftForge.EVENT_BUS.register(ServerEventHandler.class);
+    MinecraftForge.EVENT_BUS.register(InteractionEventHandler.class);
+
+    DistExecutor.unsafeRunWhenOn(
+        Dist.CLIENT, () -> () -> new DialogQuestStoryEngineClient(modEventBus));
   }
 }

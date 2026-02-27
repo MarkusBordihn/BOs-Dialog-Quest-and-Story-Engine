@@ -37,3 +37,4 @@ generated
 *.log
 *.patch.txt
 *.stackdump
+.vscode/settings.json

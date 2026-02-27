@@ -19,7 +19,16 @@
 
 package de.markusbordihn.dialogqueststoryengine;
 
+import de.markusbordihn.dialogqueststoryengine.commands.manager.CommandManager;
+import de.markusbordihn.dialogqueststoryengine.entity.InteractionEventHandler;
+import de.markusbordihn.dialogqueststoryengine.item.ModItems;
+import de.markusbordihn.dialogqueststoryengine.network.NetworkHandler;
+import de.markusbordihn.dialogqueststoryengine.server.ServerEvents;
+import de.markusbordihn.dialogqueststoryengine.tabs.ModTabs;
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.loader.api.FabricLoader;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -35,5 +44,21 @@ public class DialogQuestStoryEngine implements ModInitializer {
     log.info("{} Constants ...", Constants.LOG_REGISTER_PREFIX);
     Constants.GAME_DIR = FabricLoader.getInstance().getGameDir();
     Constants.CONFIG_DIR = FabricLoader.getInstance().getConfigDir();
+
+    ModItems.registerModItems();
+    ModTabs.registerCreativeTabs();
+
+    log.info("{} Network ...", Constants.LOG_REGISTER_PREFIX);
+    NetworkHandler.register();
+
+    CommandRegistrationCallback.EVENT.register(
+        (dispatcher, registryAccess, environment) -> CommandManager.registerCommands(dispatcher));
+
+    ServerLifecycleEvents.SERVER_STARTED.register(ServerEvents::handleServerStarting);
+    ServerLifecycleEvents.SERVER_STOPPING.register(ServerEvents::handleServerStopping);
+
+    InteractionEventHandler.registerEvents();
+
+    ServerTickEvents.END_SERVER_TICK.register(ServerEvents::handleServerTick);
   }
 }

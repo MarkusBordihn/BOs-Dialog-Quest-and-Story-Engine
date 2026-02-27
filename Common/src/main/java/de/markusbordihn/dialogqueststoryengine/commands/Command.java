@@ -17,24 +17,27 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package de.markusbordihn.dialogqueststoryengine;
+package de.markusbordihn.dialogqueststoryengine.commands;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import net.minecraft.ChatFormatting;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.network.chat.Component;
 
-public final class Constants {
+public class Command {
 
-  public static final String MOD_ID = "dialog_quest_and_story_engine";
-  public static final String MOD_NAME = "Dialog, Quest and Story Engine";
-  public static final String MOD_COMMAND = "dqs";
-  public static final String MOD_PREFIX = MOD_ID + ".";
-  public static final String LOG_NAME = MOD_NAME;
-  public static final String LOG_REGISTER_PREFIX = "Register " + MOD_NAME;
+  public static final int PERMISSION_LEVEL = 2;
 
-  public static final String INTERACTION_WAND = "interaction_wand";
+  protected Command() {}
 
-  public static Path GAME_DIR = Paths.get("").toAbsolutePath();
-  public static Path CONFIG_DIR = GAME_DIR.resolve("config");
+  protected static void sendSuccessMessage(CommandSourceStack source, String message) {
+    source.sendSuccess(() -> Component.literal(message).withStyle(ChatFormatting.GREEN), false);
+  }
 
-  private Constants() {}
+  protected static void sendFailureMessage(CommandSourceStack source, String message) {
+    source.sendFailure(Component.literal(message).withStyle(ChatFormatting.RED));
+  }
+
+  protected static void sendInfoMessage(CommandSourceStack source, String message) {
+    source.sendSuccess(() -> Component.literal(message).withStyle(ChatFormatting.AQUA), false);
+  }
 }

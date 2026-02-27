@@ -20,13 +20,8 @@
 package de.markusbordihn.dialogqueststoryengine.gametest;
 
 import net.minecraft.gametest.framework.GameTestHelper;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import de.markusbordihn.dialogqueststoryengine.Constants;
 
 public class GameTestHelpers {
-
-  private static final Logger log = LogManager.getLogger(Constants.LOG_NAME);
 
   private GameTestHelpers() {}
 
@@ -38,7 +33,14 @@ public class GameTestHelpers {
     }
   }
 
-  public static void assertNotNull(GameTestHelper helper, String message, Object object) {
-    assertTrue(helper, message, object != null);
+  public static void assertEquals(
+      GameTestHelper helper, String message, Object expected, Object actual) {
+    if (expected == null && actual == null) {
+      helper.succeed();
+    } else if (expected != null && expected.equals(actual)) {
+      helper.succeed();
+    } else {
+      helper.fail(message + " (expected: " + expected + ", actual: " + actual + ")");
+    }
   }
 }

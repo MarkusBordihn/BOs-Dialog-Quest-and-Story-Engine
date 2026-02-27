@@ -17,24 +17,28 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package de.markusbordihn.dialogqueststoryengine;
+package de.markusbordihn.dialogqueststoryengine.data.interaction;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
 
-public final class Constants {
+public enum InteractionType {
+  RIGHT_CLICK,
+  STEP_ON;
 
-  public static final String MOD_ID = "dialog_quest_and_story_engine";
-  public static final String MOD_NAME = "Dialog, Quest and Story Engine";
-  public static final String MOD_COMMAND = "dqs";
-  public static final String MOD_PREFIX = MOD_ID + ".";
-  public static final String LOG_NAME = MOD_NAME;
-  public static final String LOG_REGISTER_PREFIX = "Register " + MOD_NAME;
+  private static final Map<String, InteractionType> BY_NAME = new HashMap<>();
 
-  public static final String INTERACTION_WAND = "interaction_wand";
+  static {
+    for (InteractionType type : values()) {
+      BY_NAME.put(type.name().toLowerCase(Locale.ROOT), type);
+    }
+  }
 
-  public static Path GAME_DIR = Paths.get("").toAbsolutePath();
-  public static Path CONFIG_DIR = GAME_DIR.resolve("config");
-
-  private Constants() {}
+  public static InteractionType fromName(String name) {
+    if (name == null) {
+      return null;
+    }
+    return BY_NAME.get(name.toLowerCase(Locale.ROOT));
+  }
 }

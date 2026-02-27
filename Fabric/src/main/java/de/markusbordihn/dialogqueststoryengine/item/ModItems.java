@@ -17,24 +17,28 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package de.markusbordihn.dialogqueststoryengine;
+package de.markusbordihn.dialogqueststoryengine.item;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import de.markusbordihn.dialogqueststoryengine.Constants;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Item;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-public final class Constants {
+public class ModItems {
 
-  public static final String MOD_ID = "dialog_quest_and_story_engine";
-  public static final String MOD_NAME = "Dialog, Quest and Story Engine";
-  public static final String MOD_COMMAND = "dqs";
-  public static final String MOD_PREFIX = MOD_ID + ".";
-  public static final String LOG_NAME = MOD_NAME;
-  public static final String LOG_REGISTER_PREFIX = "Register " + MOD_NAME;
+  public static final Item INTERACTION_WAND = new InteractionWandItem();
+  private static final Logger log = LogManager.getLogger(Constants.LOG_NAME);
 
-  public static final String INTERACTION_WAND = "interaction_wand";
+  private ModItems() {}
 
-  public static Path GAME_DIR = Paths.get("").toAbsolutePath();
-  public static Path CONFIG_DIR = GAME_DIR.resolve("config");
-
-  private Constants() {}
+  public static void registerModItems() {
+    log.info("{} Items ...", Constants.LOG_REGISTER_PREFIX);
+    Registry.register(
+        BuiltInRegistries.ITEM,
+        new ResourceLocation(Constants.MOD_ID, Constants.INTERACTION_WAND),
+        INTERACTION_WAND);
+  }
 }

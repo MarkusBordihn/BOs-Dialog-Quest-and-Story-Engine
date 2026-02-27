@@ -17,24 +17,17 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package de.markusbordihn.dialogqueststoryengine;
+package de.markusbordihn.dialogqueststoryengine.commands;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import de.markusbordihn.dialogqueststoryengine.commands.manager.CommandManager;
+import net.minecraftforge.event.RegisterCommandsEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 
-public final class Constants {
+@SuppressWarnings("unused")
+public class CommandsEventHandler {
 
-  public static final String MOD_ID = "dialog_quest_and_story_engine";
-  public static final String MOD_NAME = "Dialog, Quest and Story Engine";
-  public static final String MOD_COMMAND = "dqs";
-  public static final String MOD_PREFIX = MOD_ID + ".";
-  public static final String LOG_NAME = MOD_NAME;
-  public static final String LOG_REGISTER_PREFIX = "Register " + MOD_NAME;
-
-  public static final String INTERACTION_WAND = "interaction_wand";
-
-  public static Path GAME_DIR = Paths.get("").toAbsolutePath();
-  public static Path CONFIG_DIR = GAME_DIR.resolve("config");
-
-  private Constants() {}
+  @SubscribeEvent
+  public static void handleRegisterCommandsEvent(RegisterCommandsEvent event) {
+    CommandManager.registerCommands(event.getDispatcher());
+  }
 }

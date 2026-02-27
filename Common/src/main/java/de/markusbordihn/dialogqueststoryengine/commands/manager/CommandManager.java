@@ -17,22 +17,32 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package de.markusbordihn.dialogqueststoryengine;
+package de.markusbordihn.dialogqueststoryengine.commands.manager;
 
-import de.markusbordihn.dialogqueststoryengine.client.ClientEventHandler;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.eventbus.api.IEventBus;
+import com.mojang.brigadier.CommandDispatcher;
+import de.markusbordihn.dialogqueststoryengine.Constants;
+import de.markusbordihn.dialogqueststoryengine.server.commands.BindCommand;
+import de.markusbordihn.dialogqueststoryengine.server.commands.ClearCommand;
+import de.markusbordihn.dialogqueststoryengine.server.commands.ListCommand;
+import de.markusbordihn.dialogqueststoryengine.server.commands.UnbindCommand;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-@SuppressWarnings("unused")
-public class DialogQuestStoryEngineClient {
+public final class CommandManager {
 
   private static final Logger log = LogManager.getLogger(Constants.LOG_NAME);
 
-  @SuppressWarnings("java:S1118")
-  public DialogQuestStoryEngineClient(IEventBus modEventBus) {
-    log.info("Initializing {} (Forge-Client) ...", Constants.MOD_NAME);
-    MinecraftForge.EVENT_BUS.register(ClientEventHandler.class);
+  private CommandManager() {}
+
+  public static void registerCommands(CommandDispatcher<CommandSourceStack> dispatcher) {
+    log.info("{} Commands ...", Constants.LOG_REGISTER_PREFIX);
+    dispatcher.register(
+        Commands.literal(Constants.MOD_COMMAND)
+            .then(BindCommand.register())
+            .then(UnbindCommand.register())
+            .then(ListCommand.register())
+            .then(ClearCommand.register()));
   }
 }

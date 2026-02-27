@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/handheld",
+  "textures": {
+    "layer0": "dialog_quest_and_story_engine:item/interaction_wand"
+  }
+}

@@ -1,4 +1,4 @@
 {
-  "dialog_quest_and_story_engine.item.example_item": "Beispielgegenstand",
-  "dialog_quest_and_story_engine.block.example_block": "Beispielblock"
+  "item.dialog_quest_and_story_engine.interaction_wand": "Interaktionsstab",
+  "itemGroup.dialog_quest_and_story_engine.main": "Dialog-, Quest- und Story-Engine"
 }

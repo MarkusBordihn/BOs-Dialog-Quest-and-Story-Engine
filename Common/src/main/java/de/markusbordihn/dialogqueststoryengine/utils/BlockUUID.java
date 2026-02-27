@@ -17,24 +17,20 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package de.markusbordihn.dialogqueststoryengine;
+package de.markusbordihn.dialogqueststoryengine.utils;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.charset.StandardCharsets;
+import java.util.UUID;
+import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.Level;
 
-public final class Constants {
+public final class BlockUUID {
 
-  public static final String MOD_ID = "dialog_quest_and_story_engine";
-  public static final String MOD_NAME = "Dialog, Quest and Story Engine";
-  public static final String MOD_COMMAND = "dqs";
-  public static final String MOD_PREFIX = MOD_ID + ".";
-  public static final String LOG_NAME = MOD_NAME;
-  public static final String LOG_REGISTER_PREFIX = "Register " + MOD_NAME;
+  private BlockUUID() {}
 
-  public static final String INTERACTION_WAND = "interaction_wand";
-
-  public static Path GAME_DIR = Paths.get("").toAbsolutePath();
-  public static Path CONFIG_DIR = GAME_DIR.resolve("config");
-
-  private Constants() {}
+  public static UUID fromBlockPos(ResourceKey<Level> dimension, BlockPos pos) {
+    String key = dimension.location() + ":" + pos.getX() + "," + pos.getY() + "," + pos.getZ();
+    return UUID.nameUUIDFromBytes(key.getBytes(StandardCharsets.UTF_8));
+  }
 }

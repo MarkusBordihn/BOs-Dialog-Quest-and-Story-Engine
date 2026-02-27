@@ -17,24 +17,27 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package de.markusbordihn.dialogqueststoryengine;
+package de.markusbordihn.dialogqueststoryengine.client;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import de.markusbordihn.dialogqueststoryengine.data.interaction.InteractionDataEntry;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
-public final class Constants {
+public final class InteractionClientData {
 
-  public static final String MOD_ID = "dialog_quest_and_story_engine";
-  public static final String MOD_NAME = "Dialog, Quest and Story Engine";
-  public static final String MOD_COMMAND = "dqs";
-  public static final String MOD_PREFIX = MOD_ID + ".";
-  public static final String LOG_NAME = MOD_NAME;
-  public static final String LOG_REGISTER_PREFIX = "Register " + MOD_NAME;
+  private static List<InteractionDataEntry> entries = Collections.emptyList();
 
-  public static final String INTERACTION_WAND = "interaction_wand";
+  private InteractionClientData() {}
 
-  public static Path GAME_DIR = Paths.get("").toAbsolutePath();
-  public static Path CONFIG_DIR = GAME_DIR.resolve("config");
+  public static List<InteractionDataEntry> getEntries() {
+    return entries;
+  }
 
-  private Constants() {}
+  public static void setEntries(List<InteractionDataEntry> newEntries) {
+    entries =
+        newEntries != null
+            ? Collections.unmodifiableList(new ArrayList<>(newEntries))
+            : Collections.emptyList();
+  }
 }

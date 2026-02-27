@@ -17,24 +17,50 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package de.markusbordihn.dialogqueststoryengine;
+package de.markusbordihn.dialogqueststoryengine.data.interaction;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
+public enum TargetKind {
+  ENTITY(0.2f, 1.0f, 0.2f, 0xFF55FF55),
+  BLOCK(1.0f, 0.2f, 0.2f, 0xFFFF5555),
+  BLOCK_ENTITY(0.2f, 0.6f, 1.0f, 0xFF55AAFF);
 
-public final class Constants {
+  private final float red;
+  private final float green;
+  private final float blue;
+  private final int labelColor;
 
-  public static final String MOD_ID = "dialog_quest_and_story_engine";
-  public static final String MOD_NAME = "Dialog, Quest and Story Engine";
-  public static final String MOD_COMMAND = "dqs";
-  public static final String MOD_PREFIX = MOD_ID + ".";
-  public static final String LOG_NAME = MOD_NAME;
-  public static final String LOG_REGISTER_PREFIX = "Register " + MOD_NAME;
+  TargetKind(float red, float green, float blue, int labelColor) {
+    this.red = red;
+    this.green = green;
+    this.blue = blue;
+    this.labelColor = labelColor;
+  }
 
-  public static final String INTERACTION_WAND = "interaction_wand";
+  public static TargetKind fromName(String name) {
+    if (name == null) {
+      return null;
+    }
+    for (TargetKind kind : values()) {
+      if (kind.name().equalsIgnoreCase(name)) {
+        return kind;
+      }
+    }
+    return null;
+  }
 
-  public static Path GAME_DIR = Paths.get("").toAbsolutePath();
-  public static Path CONFIG_DIR = GAME_DIR.resolve("config");
+  public float getRed() {
+    return red;
+  }
 
-  private Constants() {}
+  public float getGreen() {
+    return green;
+  }
+
+  public float getBlue() {
+    return blue;
+  }
+
+  public int getLabelColor() {
+    return labelColor;
+  }
 }
