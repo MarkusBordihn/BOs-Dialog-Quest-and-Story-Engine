@@ -17,22 +17,31 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package de.markusbordihn.dialogqueststoryengine.network;
+package de.markusbordihn.dialogqueststoryengine.data.interaction;
 
-import java.util.function.Function;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
 
-public interface NetworkHandlerInterface {
+public enum ActionType {
+  NONE,
+  START_DIALOG,
+  GIVE_QUEST,
+  TRIGGER_EVENT,
+  RUN_COMMAND;
 
-  <M extends NetworkMessageRecord> void registerClientNetworkMessageHandler(
-      ResourceLocation messageId, Class<M> networkMessage, Function<FriendlyByteBuf, M> creator);
+  private static final Map<String, ActionType> BY_NAME = new HashMap<>();
 
-  <M extends NetworkMessageRecord> void registerServerNetworkMessageHandler(
-      ResourceLocation messageId, Class<M> networkMessage, Function<FriendlyByteBuf, M> creator);
+  static {
+    for (ActionType type : values()) {
+      BY_NAME.put(type.name().toLowerCase(Locale.ROOT), type);
+    }
+  }
 
-  void sendToPlayer(ServerPlayer serverPlayer, NetworkMessageRecord networkMessageRecord);
-
-  void sendToServer(NetworkMessageRecord networkMessageRecord);
+  public static ActionType fromName(String name) {
+    if (name == null) {
+      return null;
+    }
+    return BY_NAME.getOrDefault(name.toLowerCase(Locale.ROOT), NONE);
+  }
 }

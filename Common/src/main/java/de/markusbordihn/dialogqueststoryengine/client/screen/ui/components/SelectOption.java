@@ -10,29 +10,18 @@
  * The above copyright notice and this permission notice shall be included in all copies or
  * substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY IS OR IMPLIED, INCLUDING BUT
  * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
  * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
  * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package de.markusbordihn.dialogqueststoryengine.network;
+package de.markusbordihn.dialogqueststoryengine.client.screen.ui.components;
 
-import java.util.function.Function;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
+public record SelectOption<T>(String label, T value) {
 
-public interface NetworkHandlerInterface {
-
-  <M extends NetworkMessageRecord> void registerClientNetworkMessageHandler(
-      ResourceLocation messageId, Class<M> networkMessage, Function<FriendlyByteBuf, M> creator);
-
-  <M extends NetworkMessageRecord> void registerServerNetworkMessageHandler(
-      ResourceLocation messageId, Class<M> networkMessage, Function<FriendlyByteBuf, M> creator);
-
-  void sendToPlayer(ServerPlayer serverPlayer, NetworkMessageRecord networkMessageRecord);
-
-  void sendToServer(NetworkMessageRecord networkMessageRecord);
+  public static <T> SelectOption<T> of(String label, T value) {
+    return new SelectOption<>(label, value);
+  }
 }

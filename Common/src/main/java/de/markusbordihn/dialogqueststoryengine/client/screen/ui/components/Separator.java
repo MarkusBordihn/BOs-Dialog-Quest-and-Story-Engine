@@ -17,22 +17,28 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package de.markusbordihn.dialogqueststoryengine.network;
+package de.markusbordihn.dialogqueststoryengine.client.screen.ui.components;
 
-import java.util.function.Function;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
+import de.markusbordihn.dialogqueststoryengine.client.screen.ui.Widget;
+import de.markusbordihn.dialogqueststoryengine.client.screen.ui.color.ColorPalette;
+import net.minecraft.client.gui.GuiGraphics;
 
-public interface NetworkHandlerInterface {
+public class Separator extends Widget {
 
-  <M extends NetworkMessageRecord> void registerClientNetworkMessageHandler(
-      ResourceLocation messageId, Class<M> networkMessage, Function<FriendlyByteBuf, M> creator);
+  private boolean horizontal;
 
-  <M extends NetworkMessageRecord> void registerServerNetworkMessageHandler(
-      ResourceLocation messageId, Class<M> networkMessage, Function<FriendlyByteBuf, M> creator);
+  public Separator(int posX, int posY, int length, boolean horizontal) {
+    super(posX, posY, horizontal ? length : 1, horizontal ? 1 : length);
+    this.horizontal = horizontal;
+  }
 
-  void sendToPlayer(ServerPlayer serverPlayer, NetworkMessageRecord networkMessageRecord);
-
-  void sendToServer(NetworkMessageRecord networkMessageRecord);
+  @Override
+  public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+    if (!visible) {
+      return;
+    }
+    int x = getX();
+    int y = getY();
+    graphics.fill(x, y, x + width, y + height, ColorPalette.current().outline());
+  }
 }

@@ -45,9 +45,27 @@ public final class NetworkHandler implements NetworkHandlerInterface {
   }
 
   @Override
+  public <M extends NetworkMessageRecord> void registerServerNetworkMessageHandler(
+      ResourceLocation messageId, Class<M> networkMessage, Function<FriendlyByteBuf, M> creator) {
+    ServerPlayNetworking.registerGlobalReceiver(
+        messageId,
+        (server, player, channelHandler, buffer, responseSender) -> {
+          M message = creator.apply(buffer);
+          server.execute(() -> message.handleServer(player));
+        });
+  }
+
+  @Override
   public void sendToPlayer(ServerPlayer player, NetworkMessageRecord message) {
     FriendlyByteBuf buffer = PacketByteBufs.create();
     message.write(buffer);
     ServerPlayNetworking.send(player, message.id(), buffer);
+  }
+
+  @Override
+  public void sendToServer(NetworkMessageRecord message) {
+    FriendlyByteBuf buffer = PacketByteBufs.create();
+    message.write(buffer);
+    ClientPlayNetworking.send(message.id(), buffer);
   }
 }

@@ -20,6 +20,12 @@
 package de.markusbordihn.dialogqueststoryengine.network;
 
 import de.markusbordihn.dialogqueststoryengine.Constants;
+import de.markusbordihn.dialogqueststoryengine.network.message.InteractionListMessage;
+import de.markusbordihn.dialogqueststoryengine.network.message.InteractionScreenDataMessage;
+import de.markusbordihn.dialogqueststoryengine.network.message.OpenInteractionScreenMessage;
+import de.markusbordihn.dialogqueststoryengine.network.message.OpenOverviewScreenMessage;
+import de.markusbordihn.dialogqueststoryengine.network.message.RemoveInteractionMessage;
+import de.markusbordihn.dialogqueststoryengine.network.message.SaveInteractionMessage;
 import de.markusbordihn.dialogqueststoryengine.network.message.SyncInteractionDataMessage;
 import net.minecraft.server.level.ServerPlayer;
 import org.apache.logging.log4j.LogManager;
@@ -44,10 +50,16 @@ public final class NetworkHandlerManager {
     log.info("Registering network messages for {} side ...", type);
     networkHandlerManagerType = type;
     registerClientMessages();
+    registerServerMessages();
   }
 
   public static boolean isClientNetworkHandler() {
     return networkHandlerManagerType == NetworkHandlerManagerType.CLIENT
+        || networkHandlerManagerType == NetworkHandlerManagerType.BOTH;
+  }
+
+  public static boolean isServerNetworkHandler() {
+    return networkHandlerManagerType == NetworkHandlerManagerType.SERVER
         || networkHandlerManagerType == NetworkHandlerManagerType.BOTH;
   }
 
@@ -63,11 +75,51 @@ public final class NetworkHandlerManager {
         SyncInteractionDataMessage.MESSAGE_ID,
         SyncInteractionDataMessage.class,
         SyncInteractionDataMessage::create);
+    networkHandler.registerClientNetworkMessageHandler(
+        InteractionScreenDataMessage.MESSAGE_ID,
+        InteractionScreenDataMessage.class,
+        InteractionScreenDataMessage::create);
+    networkHandler.registerClientNetworkMessageHandler(
+        OpenOverviewScreenMessage.MESSAGE_ID,
+        OpenOverviewScreenMessage.class,
+        OpenOverviewScreenMessage::create);
+    networkHandler.registerClientNetworkMessageHandler(
+        InteractionListMessage.MESSAGE_ID,
+        InteractionListMessage.class,
+        InteractionListMessage::create);
+  }
+
+  private static void registerServerMessages() {
+    if (networkHandler == null) {
+      log.error("Cannot register server messages: no network handler registered.");
+      return;
+    }
+    if (!isServerNetworkHandler()) {
+      return;
+    }
+    networkHandler.registerServerNetworkMessageHandler(
+        OpenInteractionScreenMessage.MESSAGE_ID,
+        OpenInteractionScreenMessage.class,
+        OpenInteractionScreenMessage::create);
+    networkHandler.registerServerNetworkMessageHandler(
+        SaveInteractionMessage.MESSAGE_ID,
+        SaveInteractionMessage.class,
+        SaveInteractionMessage::create);
+    networkHandler.registerServerNetworkMessageHandler(
+        RemoveInteractionMessage.MESSAGE_ID,
+        RemoveInteractionMessage.class,
+        RemoveInteractionMessage::create);
   }
 
   public static void sendToPlayer(ServerPlayer player, NetworkMessageRecord message) {
     if (networkHandler != null) {
       networkHandler.sendToPlayer(player, message);
+    }
+  }
+
+  public static void sendToServer(NetworkMessageRecord message) {
+    if (networkHandler != null) {
+      networkHandler.sendToServer(message);
     }
   }
 }

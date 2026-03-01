@@ -23,6 +23,7 @@ import com.mojang.brigadier.CommandDispatcher;
 import de.markusbordihn.dialogqueststoryengine.Constants;
 import de.markusbordihn.dialogqueststoryengine.server.commands.BindCommand;
 import de.markusbordihn.dialogqueststoryengine.server.commands.ClearCommand;
+import de.markusbordihn.dialogqueststoryengine.server.commands.InteractionsCommand;
 import de.markusbordihn.dialogqueststoryengine.server.commands.ListCommand;
 import de.markusbordihn.dialogqueststoryengine.server.commands.UnbindCommand;
 import net.minecraft.commands.CommandSourceStack;
@@ -43,6 +44,7 @@ public final class CommandManager {
             .then(BindCommand.register())
             .then(UnbindCommand.register())
             .then(ListCommand.register())
-            .then(ClearCommand.register()));
+            .then(ClearCommand.register())
+            .then(InteractionsCommand.register()));
   }
 }

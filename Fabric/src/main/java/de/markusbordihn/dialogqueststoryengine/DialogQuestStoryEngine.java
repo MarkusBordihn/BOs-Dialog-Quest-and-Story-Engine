@@ -23,6 +23,8 @@ import de.markusbordihn.dialogqueststoryengine.commands.manager.CommandManager;
 import de.markusbordihn.dialogqueststoryengine.entity.InteractionEventHandler;
 import de.markusbordihn.dialogqueststoryengine.item.ModItems;
 import de.markusbordihn.dialogqueststoryengine.network.NetworkHandler;
+import de.markusbordihn.dialogqueststoryengine.network.NetworkHandlerManager;
+import de.markusbordihn.dialogqueststoryengine.network.NetworkHandlerManagerType;
 import de.markusbordihn.dialogqueststoryengine.server.ServerEvents;
 import de.markusbordihn.dialogqueststoryengine.tabs.ModTabs;
 import net.fabricmc.api.ModInitializer;
@@ -50,6 +52,7 @@ public class DialogQuestStoryEngine implements ModInitializer {
 
     log.info("{} Network ...", Constants.LOG_REGISTER_PREFIX);
     NetworkHandler.register();
+    NetworkHandlerManager.registerNetworkMessages(NetworkHandlerManagerType.SERVER);
 
     CommandRegistrationCallback.EVENT.register(
         (dispatcher, registryAccess, environment) -> CommandManager.registerCommands(dispatcher));

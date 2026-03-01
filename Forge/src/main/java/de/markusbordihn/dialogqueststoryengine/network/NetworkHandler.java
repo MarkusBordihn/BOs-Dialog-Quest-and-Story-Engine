@@ -63,7 +63,30 @@ public final class NetworkHandler implements NetworkHandlerInterface {
   }
 
   @Override
+  public <M extends NetworkMessageRecord> void registerServerNetworkMessageHandler(
+      ResourceLocation messageId, Class<M> networkMessage, Function<FriendlyByteBuf, M> creator) {
+    CHANNEL.registerMessage(
+        registrationId++,
+        networkMessage,
+        NetworkMessageRecord::write,
+        creator::apply,
+        (message, contextSupplier) -> {
+          ServerPlayer sender = contextSupplier.get().getSender();
+          if (sender != null) {
+            contextSupplier.get().enqueueWork(() -> message.handleServer(sender));
+          }
+          contextSupplier.get().setPacketHandled(true);
+        },
+        Optional.of(NetworkDirection.PLAY_TO_SERVER));
+  }
+
+  @Override
   public void sendToPlayer(ServerPlayer player, NetworkMessageRecord message) {
     CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), message);
+  }
+
+  @Override
+  public void sendToServer(NetworkMessageRecord message) {
+    CHANNEL.sendToServer(message);
   }
 }

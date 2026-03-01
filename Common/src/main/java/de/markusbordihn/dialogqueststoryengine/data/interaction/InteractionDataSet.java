@@ -21,6 +21,7 @@ package de.markusbordihn.dialogqueststoryengine.data.interaction;
 
 import de.markusbordihn.dialogqueststoryengine.Constants;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -98,6 +99,22 @@ public class InteractionDataSet {
       }
     }
     return null;
+  }
+
+  public InteractionDataEntry getFirstInteraction(UUID targetId) {
+    List<InteractionDataEntry> list = entries.get(targetId);
+    if (list == null || list.isEmpty()) {
+      return null;
+    }
+    return list.get(0);
+  }
+
+  public List<InteractionDataEntry> getInteractions(UUID targetId) {
+    List<InteractionDataEntry> list = entries.get(targetId);
+    if (list == null) {
+      return Collections.emptyList();
+    }
+    return Collections.unmodifiableList(list);
   }
 
   public List<InteractionDataEntry> getAllEntries() {

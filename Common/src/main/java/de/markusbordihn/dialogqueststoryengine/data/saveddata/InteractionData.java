@@ -98,6 +98,14 @@ public class InteractionData extends SavedData {
     return dataSet.getInteraction(targetId, type);
   }
 
+  public InteractionDataEntry getFirstInteraction(UUID targetId) {
+    return dataSet.getFirstInteraction(targetId);
+  }
+
+  public List<InteractionDataEntry> getInteractions(UUID targetId) {
+    return dataSet.getInteractions(targetId);
+  }
+
   public List<InteractionDataEntry> getAllEntries() {
     return dataSet.getAllEntries();
   }

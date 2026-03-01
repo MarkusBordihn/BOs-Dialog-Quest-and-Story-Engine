@@ -17,22 +17,40 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package de.markusbordihn.dialogqueststoryengine.network;
+package de.markusbordihn.dialogqueststoryengine.network.message;
 
-import java.util.function.Function;
+import de.markusbordihn.dialogqueststoryengine.Constants;
+import de.markusbordihn.dialogqueststoryengine.client.screen.InteractionConfigScreen;
+import de.markusbordihn.dialogqueststoryengine.data.interaction.InteractionDataEntry;
+import de.markusbordihn.dialogqueststoryengine.network.NetworkMessageRecord;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
 
-public interface NetworkHandlerInterface {
+public record InteractionScreenDataMessage(InteractionDataEntry entry, boolean isNew)
+    implements NetworkMessageRecord {
 
-  <M extends NetworkMessageRecord> void registerClientNetworkMessageHandler(
-      ResourceLocation messageId, Class<M> networkMessage, Function<FriendlyByteBuf, M> creator);
+  public static final ResourceLocation MESSAGE_ID =
+      ResourceLocation.tryParse(Constants.MOD_ID + ":interaction_screen_data");
 
-  <M extends NetworkMessageRecord> void registerServerNetworkMessageHandler(
-      ResourceLocation messageId, Class<M> networkMessage, Function<FriendlyByteBuf, M> creator);
+  public static InteractionScreenDataMessage create(FriendlyByteBuf buffer) {
+    InteractionDataEntry entry = InteractionDataEntry.readFromBuf(buffer);
+    boolean isNew = buffer.readBoolean();
+    return new InteractionScreenDataMessage(entry, isNew);
+  }
 
-  void sendToPlayer(ServerPlayer serverPlayer, NetworkMessageRecord networkMessageRecord);
+  @Override
+  public void write(FriendlyByteBuf buffer) {
+    entry.writeToBuf(buffer);
+    buffer.writeBoolean(isNew);
+  }
 
-  void sendToServer(NetworkMessageRecord networkMessageRecord);
+  @Override
+  public ResourceLocation id() {
+    return MESSAGE_ID;
+  }
+
+  @Override
+  public void handleClient() {
+    InteractionConfigScreen.openWithData(entry, isNew);
+  }
 }
