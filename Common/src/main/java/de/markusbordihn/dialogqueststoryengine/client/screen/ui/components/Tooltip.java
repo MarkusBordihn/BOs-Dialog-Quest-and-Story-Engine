@@ -40,25 +40,31 @@ public final class Tooltip {
       int mouseY,
       int screenW,
       int screenH) {
-    if (text == null || text.isEmpty()) return;
+    if (text == null || text.isEmpty()) {
+      return;
+    }
 
     ColorPalette palette = ColorPalette.current();
-    int boxW = font.width(text) + PADDING_H * 2;
-    int boxH = font.lineHeight + PADDING_V * 2;
+    int boxWidth = font.width(text) + PADDING_H * 2;
+    int boxHeight = font.lineHeight + PADDING_V * 2;
 
-    int bx = mouseX + HORIZONTAL_OFFSET;
-    int by = mouseY + VERTICAL_OFFSET;
-    if (bx + boxW > screenW - 4) bx = mouseX - boxW - 4;
-    if (by + boxH > screenH - 4) by = mouseY - boxH - 4;
-    bx = Math.max(2, bx);
-    by = Math.max(2, by);
+    int boxX = mouseX + HORIZONTAL_OFFSET;
+    int boxY = mouseY + VERTICAL_OFFSET;
+    if (boxX + boxWidth > screenW - 4) {
+      boxX = mouseX - boxWidth - 4;
+    }
+    if (boxY + boxHeight > screenH - 4) {
+      boxY = mouseY - boxHeight - 4;
+    }
+    boxX = Math.max(2, boxX);
+    boxY = Math.max(2, boxY);
 
-    graphics.fill(bx + 2, by + 2, bx + boxW + 2, by + boxH + 2, 0x55000000);
-    graphics.fill(bx, by, bx + boxW, by + boxH, palette.surfaceContainer());
-    graphics.fill(bx, by, bx + boxW, by + 1, palette.outline());
-    graphics.fill(bx, by + boxH - 1, bx + boxW, by + boxH, palette.outline());
-    graphics.fill(bx, by, bx + 1, by + boxH, palette.outline());
-    graphics.fill(bx + boxW - 1, by, bx + boxW, by + boxH, palette.outline());
-    graphics.drawString(font, text, bx + PADDING_H, by + PADDING_V, palette.onSurface(), false);
+    graphics.fill(boxX + 2, boxY + 2, boxX + boxWidth + 2, boxY + boxHeight + 2, 0x55000000);
+    graphics.fill(boxX, boxY, boxX + boxWidth, boxY + boxHeight, palette.surfaceContainer());
+    graphics.fill(boxX, boxY, boxX + boxWidth, boxY + 1, palette.outline());
+    graphics.fill(boxX, boxY + boxHeight - 1, boxX + boxWidth, boxY + boxHeight, palette.outline());
+    graphics.fill(boxX, boxY, boxX + 1, boxY + boxHeight, palette.outline());
+    graphics.fill(boxX + boxWidth - 1, boxY, boxX + boxWidth, boxY + boxHeight, palette.outline());
+    graphics.drawString(font, text, boxX + PADDING_H, boxY + PADDING_V, palette.onSurface(), false);
   }
 }

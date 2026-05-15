@@ -43,7 +43,6 @@ public class RadioGroup extends Panel {
     button.groupIndex = buttons.size();
     button.ownerGroup = this;
     if (button.isSelected()) {
-      // If multiple buttons claim selected, last wins
       if (selectedIndex >= 0) {
         buttons.get(selectedIndex).setSelected(false);
       }
@@ -54,7 +53,10 @@ public class RadioGroup extends Panel {
   }
 
   public void selectIndex(int index) {
-    if (index < 0 || index >= buttons.size()) return;
+    if (index < 0 || index >= buttons.size()) {
+      return;
+    }
+
     if (selectedIndex >= 0 && selectedIndex < buttons.size()) {
       buttons.get(selectedIndex).setSelected(false);
     }

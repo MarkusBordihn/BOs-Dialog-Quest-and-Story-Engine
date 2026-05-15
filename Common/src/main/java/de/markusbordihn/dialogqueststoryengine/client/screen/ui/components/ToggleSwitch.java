@@ -19,7 +19,6 @@
 
 package de.markusbordihn.dialogqueststoryengine.client.screen.ui.components;
 
-import de.markusbordihn.dialogqueststoryengine.client.screen.ui.ScaledText;
 import de.markusbordihn.dialogqueststoryengine.client.screen.ui.color.ColorPalette;
 import java.util.function.Consumer;
 import net.minecraft.client.Minecraft;
@@ -81,7 +80,10 @@ public class ToggleSwitch extends AbstractButton {
 
   @Override
   public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-    if (!visible) return;
+    if (!visible) {
+      return;
+    }
+
     ColorPalette palette = ColorPalette.current();
     int x = getX();
     int y = getY();

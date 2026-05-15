@@ -20,7 +20,6 @@
 package de.markusbordihn.dialogqueststoryengine.client.screen.ui.components;
 
 import de.markusbordihn.dialogqueststoryengine.client.screen.ui.Panel;
-import de.markusbordihn.dialogqueststoryengine.client.screen.ui.ScaledText;
 import de.markusbordihn.dialogqueststoryengine.client.screen.ui.color.ColorPalette;
 import java.util.ArrayList;
 import java.util.List;
@@ -60,7 +59,9 @@ public class SelectBox<T> extends AbstractButton {
   public void setOptions(List<SelectOption<T>> options) {
     this.options.clear();
     this.options.addAll(options);
-    if (selectedIndex >= this.options.size()) selectedIndex = -1;
+    if (selectedIndex >= this.options.size()) {
+      selectedIndex = -1;
+    }
   }
 
   public int getSelectedIndex() {
@@ -84,12 +85,16 @@ public class SelectBox<T> extends AbstractButton {
         return;
       }
     }
+
     selectedIndex = -1;
   }
 
   @Override
   public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-    if (!visible) return;
+    if (!visible) {
+      return;
+    }
+
     ColorPalette palette = ColorPalette.current();
     int x = getX();
     int y = getY();
@@ -125,7 +130,10 @@ public class SelectBox<T> extends AbstractButton {
 
   @Override
   protected void onPress() {
-    if (openOverlay == null) return;
+    if (openOverlay == null) {
+      return;
+    }
+
     int absX = getX();
     int absY = getY() + height;
     int dropH = Math.min(options.size(), MAX_DROPDOWN_ENTRIES) * ENTRY_H + 2;
@@ -175,7 +183,10 @@ public class SelectBox<T> extends AbstractButton {
 
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-      if (!visible) return;
+      if (!visible) {
+        return;
+      }
+
       ColorPalette palette = ColorPalette.current();
       int x = posX;
       int y = posY;
@@ -188,13 +199,16 @@ public class SelectBox<T> extends AbstractButton {
 
       enableScissor(graphics);
       for (int i = 0; i < items.size(); i++) {
-        int ey = y + 1 + i * ENTRY_H;
+        int entryY = posY + 1 + i * ENTRY_H;
         boolean itemHovered =
-            mouseX >= x && mouseX < x + width && mouseY >= ey && mouseY < ey + ENTRY_H;
+            mouseX >= x && mouseX < x + width && mouseY >= entryY && mouseY < entryY + ENTRY_H;
         if (itemHovered) hoveredIndex = i;
         int bg = itemHovered ? palette.listHover() : 0x00000000;
-        if (bg != 0) graphics.fill(x + 1, ey, x + width - 1, ey + ENTRY_H, bg);
-        int textY = ey + (ENTRY_H - ScaledText.getScaledHeight(font, ScaledText.SCALE_BODY)) / 2;
+        if (bg != 0) {
+          graphics.fill(x + 1, entryY, x + width - 1, entryY + ENTRY_H, bg);
+        }
+        int textY =
+            entryY + (ENTRY_H - ScaledText.getScaledHeight(font, ScaledText.SCALE_BODY)) / 2;
         ScaledText.draw(
             graphics,
             font,
@@ -209,12 +223,16 @@ public class SelectBox<T> extends AbstractButton {
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-      if (!isMouseOver(mouseX, mouseY)) return false;
+      if (!isMouseOver(mouseX, mouseY)) {
+        return false;
+      }
+
       int clickedIdx = (int) ((mouseY - posY - 1) / ENTRY_H);
       if (clickedIdx >= 0 && clickedIdx < items.size()) {
         onSelect.accept(clickedIdx);
         return true;
       }
+
       return false;
     }
   }

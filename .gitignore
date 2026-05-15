@@ -17,8 +17,9 @@ out
 # Gradle
 build
 run
-NeoForge/runs
+runs
 .gradle
+.gradle-*
 *local.properties
 
 # NodeJs
@@ -28,6 +29,10 @@ npm-debug.log
 
 # VSCode
 .vscode/launch.json
+.vscode/settings.json
+
+# Ghost Reference Index
+.ghost-reference-index
 
 # Other
 .DS_Store
@@ -37,4 +42,3 @@ generated
 *.log
 *.patch.txt
 *.stackdump
-.vscode/settings.json

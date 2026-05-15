@@ -19,7 +19,6 @@
 
 package de.markusbordihn.dialogqueststoryengine.client.screen.ui.components;
 
-import de.markusbordihn.dialogqueststoryengine.client.screen.ui.ScaledText;
 import de.markusbordihn.dialogqueststoryengine.client.screen.ui.Widget;
 import de.markusbordihn.dialogqueststoryengine.client.screen.ui.color.ColorPalette;
 import java.util.function.Consumer;
@@ -63,6 +62,7 @@ public class Slider extends Widget {
     if (v == Math.floor(v) && !Float.isInfinite(v)) {
       return String.valueOf((int) v);
     }
+
     return String.format("%.1f", v);
   }
 
@@ -94,7 +94,10 @@ public class Slider extends Widget {
 
   @Override
   public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-    if (!visible) return;
+    if (!visible) {
+      return;
+    }
+
     ColorPalette palette = ColorPalette.current();
     int x = getX();
     int y = getY();
@@ -135,7 +138,9 @@ public class Slider extends Widget {
       int labelW = ScaledText.getScaledWidth(font, label, ScaledText.SCALE_BODY);
       int labelX = thumbX - labelW / 2;
       int labelY = thumbTop - ScaledText.getScaledHeight(font, ScaledText.SCALE_BODY) - 2;
-      if (labelY < 0) labelY = thumbTop + THUMB_D + 2;
+      if (labelY < 0) {
+        labelY = thumbTop + THUMB_D + 2;
+      }
       ScaledText.draw(
           graphics, font, label, labelX, labelY, palette.onSurface(), ScaledText.SCALE_BODY);
     }
@@ -148,6 +153,7 @@ public class Slider extends Widget {
       setValueFromX((int) mouseX);
       return true;
     }
+
     return false;
   }
 
@@ -157,6 +163,7 @@ public class Slider extends Widget {
       dragging = false;
       return true;
     }
+
     return false;
   }
 
@@ -167,6 +174,7 @@ public class Slider extends Widget {
       setValueFromX((int) mouseX);
       return true;
     }
+
     return false;
   }
 
@@ -180,6 +188,7 @@ public class Slider extends Widget {
       }
       return true;
     }
+
     return false;
   }
 

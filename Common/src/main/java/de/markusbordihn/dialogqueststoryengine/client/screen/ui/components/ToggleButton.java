@@ -19,7 +19,6 @@
 
 package de.markusbordihn.dialogqueststoryengine.client.screen.ui.components;
 
-import de.markusbordihn.dialogqueststoryengine.client.screen.ui.ScaledText;
 import de.markusbordihn.dialogqueststoryengine.client.screen.ui.color.ColorPalette;
 import java.util.function.Consumer;
 import net.minecraft.client.Minecraft;
@@ -62,6 +61,7 @@ public class ToggleButton extends AbstractButton {
     if (!visible) {
       return;
     }
+
     ColorPalette palette = ColorPalette.current();
     int x = getX();
     int y = getY();
@@ -92,6 +92,7 @@ public class ToggleButton extends AbstractButton {
       }
       return true;
     }
+
     return false;
   }
 }

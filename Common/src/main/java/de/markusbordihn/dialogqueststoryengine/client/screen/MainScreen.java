@@ -21,10 +21,11 @@ package de.markusbordihn.dialogqueststoryengine.client.screen;
 
 import de.markusbordihn.dialogqueststoryengine.Constants;
 import de.markusbordihn.dialogqueststoryengine.client.screen.ui.BaseScreen;
-import de.markusbordihn.dialogqueststoryengine.client.screen.ui.ScaledText;
 import de.markusbordihn.dialogqueststoryengine.client.screen.ui.components.BreadcrumbBar;
 import de.markusbordihn.dialogqueststoryengine.client.screen.ui.components.Label;
+import de.markusbordihn.dialogqueststoryengine.client.screen.ui.components.ScaledText;
 import de.markusbordihn.dialogqueststoryengine.client.screen.ui.components.TextButton;
+import de.markusbordihn.dialogqueststoryengine.client.screen.ui.components.TextComponent;
 import de.markusbordihn.dialogqueststoryengine.client.screen.ui.layout.GridLayout;
 import java.util.List;
 import net.minecraft.client.Minecraft;
@@ -32,15 +33,15 @@ import net.minecraft.network.chat.Component;
 
 public class MainScreen extends BaseScreen {
 
-  private static final String SUBTITLE = "gui.dialog_quest_and_story_engine.subtitle";
+  private static final String SUBTITLE = "subtitle";
 
   private static final String[][] SECTIONS = {
-    {"Interactions", "gui.dialog_quest_and_story_engine.section.interactions.desc"},
-    {"Dialogs", "gui.dialog_quest_and_story_engine.section.dialogs.desc"},
-    {"Quests", "gui.dialog_quest_and_story_engine.section.quests.desc"},
-    {"Tasks", "gui.dialog_quest_and_story_engine.section.tasks.desc"},
-    {"Stories", "gui.dialog_quest_and_story_engine.section.stories.desc"},
-    {"Actions", "gui.dialog_quest_and_story_engine.section.actions.desc"},
+    {"Interactions", "section.interactions.desc"},
+    {"Dialogs", "section.dialogs.desc"},
+    {"Quests", "section.quests.desc"},
+    {"Tasks", "section.tasks.desc"},
+    {"Stories", "section.stories.desc"},
+    {"Actions", "section.actions.desc"},
   };
 
   public MainScreen() {
@@ -59,7 +60,7 @@ public class MainScreen extends BaseScreen {
 
   @Override
   protected Component getTitle() {
-    return Component.literal(Constants.MOD_NAME);
+    return TextComponent.of(Constants.MOD_NAME);
   }
 
   @Override
@@ -70,35 +71,26 @@ public class MainScreen extends BaseScreen {
 
   @Override
   protected void addWidgets() {
-    int innerW = getInnerWidth();
+    int innerWidth = getInnerWidth();
     int row = 0;
 
     addWidget(new Label(0, row + 2, SUBTITLE, 0, ScaledText.SCALE_SMALL, Label.Alignment.LEFT));
     row += 16;
 
-    int tileH = 46;
-    int gapX = 8;
-    int gapY = 6;
-    GridLayout grid = GridLayout.of(0, row, innerW, 2, gapX, gapY);
+    int tileHeight = 46;
+    GridLayout grid = GridLayout.of(0, row, innerWidth, 2, 8, 6);
 
     for (int i = 0; i < SECTIONS.length; i++) {
-      int col = i % 2;
-      int line = i / 2;
       String sectionLabel = SECTIONS[i][0];
-      String sectionDesc = SECTIONS[i][1];
-
       TextButton tile =
-          new TextButton(0, 0, 0, tileH, sectionLabel, btn -> openSection(sectionLabel));
-      grid.fill(tile, col, line, tileH);
-      int relativeTileX = tile.getX();
-      int relativeTileY = tile.getY();
+          new TextButton(0, 0, 0, tileHeight, sectionLabel, btn -> openSection(sectionLabel));
+      grid.fill(tile, i % 2, i / 2, tileHeight);
       addWidget(tile);
-
       addWidget(
           new Label(
-              relativeTileX + 4,
-              relativeTileY + tileH - 12,
-              sectionDesc,
+              tile.getX() + 4,
+              tile.getY() + tileHeight - 12,
+              SECTIONS[i][1],
               0,
               ScaledText.SCALE_SMALL,
               Label.Alignment.LEFT));

@@ -19,7 +19,6 @@
 
 package de.markusbordihn.dialogqueststoryengine.client.screen.ui.components;
 
-import de.markusbordihn.dialogqueststoryengine.client.screen.ui.ScaledText;
 import de.markusbordihn.dialogqueststoryengine.client.screen.ui.color.ColorPalette;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;

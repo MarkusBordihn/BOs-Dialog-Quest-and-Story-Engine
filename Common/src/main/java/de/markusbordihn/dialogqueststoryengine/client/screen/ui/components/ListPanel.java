@@ -19,7 +19,6 @@
 
 package de.markusbordihn.dialogqueststoryengine.client.screen.ui.components;
 
-import de.markusbordihn.dialogqueststoryengine.client.screen.ui.ScaledText;
 import de.markusbordihn.dialogqueststoryengine.client.screen.ui.Widget;
 import de.markusbordihn.dialogqueststoryengine.client.screen.ui.color.ColorPalette;
 import java.util.ArrayList;
@@ -165,13 +164,14 @@ public class ListPanel<T> extends ScrollPanel {
     if (!visible || !active || !isMouseOver(mouseX, mouseY)) {
       return false;
     }
+
     if (super.mouseClicked(mouseX, mouseY, button)) {
       return true;
     }
+
     int contentX = getContentX();
     int contentY = getContentY();
     int listWidth = getInnerWidth() - SCROLLBAR_INSET;
-
     if (mouseX >= contentX && mouseX < contentX + listWidth) {
       int clickedIndex = (int) ((mouseY - contentY) / entryHeight);
       if (clickedIndex >= 0 && clickedIndex < items.size()) {

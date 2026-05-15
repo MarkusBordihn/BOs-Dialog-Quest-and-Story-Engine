@@ -19,7 +19,6 @@
 
 package de.markusbordihn.dialogqueststoryengine.client.screen.ui.components;
 
-import de.markusbordihn.dialogqueststoryengine.client.screen.ui.ScaledText;
 import de.markusbordihn.dialogqueststoryengine.client.screen.ui.Widget;
 import de.markusbordihn.dialogqueststoryengine.client.screen.ui.color.ColorPalette;
 import java.util.function.Supplier;
@@ -45,6 +44,7 @@ public class TitleBar extends Widget {
     if (!visible) {
       return;
     }
+
     ColorPalette palette = ColorPalette.current();
     int x = getX();
     int y = getY();

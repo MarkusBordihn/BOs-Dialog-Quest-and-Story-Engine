@@ -19,30 +19,39 @@
 
 package de.markusbordihn.dialogqueststoryengine.client.screen.ui.components;
 
-import de.markusbordihn.dialogqueststoryengine.client.screen.ui.ScaledText;
 import de.markusbordihn.dialogqueststoryengine.client.screen.ui.color.ColorPalette;
 import java.util.function.Consumer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.network.chat.Component;
 
 public class TextButton extends AbstractButton {
 
-  private String label;
+  private Component label;
   private Consumer<TextButton> onPressCallback;
 
   public TextButton(
       int posX, int posY, int width, int height, String label, Consumer<TextButton> onPress) {
+    this(posX, posY, width, height, TextComponent.of(label), onPress);
+  }
+
+  public TextButton(
+      int posX, int posY, int width, int height, Component label, Consumer<TextButton> onPress) {
     super(posX, posY, width, height);
     this.label = label;
     this.onPressCallback = onPress;
   }
 
-  public String getLabel() {
+  public Component getLabel() {
     return label;
   }
 
   public void setLabel(String label) {
+    this.label = TextComponent.of(label);
+  }
+
+  public void setLabel(Component label) {
     this.label = label;
   }
 
@@ -55,6 +64,7 @@ public class TextButton extends AbstractButton {
     if (!visible) {
       return;
     }
+
     ColorPalette palette = ColorPalette.current();
     int x = getX();
     int y = getY();

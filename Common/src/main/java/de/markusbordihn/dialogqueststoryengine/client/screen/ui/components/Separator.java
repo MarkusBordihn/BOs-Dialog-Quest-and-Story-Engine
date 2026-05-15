@@ -25,11 +25,8 @@ import net.minecraft.client.gui.GuiGraphics;
 
 public class Separator extends Widget {
 
-  private boolean horizontal;
-
   public Separator(int posX, int posY, int length, boolean horizontal) {
     super(posX, posY, horizontal ? length : 1, horizontal ? 1 : length);
-    this.horizontal = horizontal;
   }
 
   @Override
@@ -37,6 +34,7 @@ public class Separator extends Widget {
     if (!visible) {
       return;
     }
+
     int x = getX();
     int y = getY();
     graphics.fill(x, y, x + width, y + height, ColorPalette.current().outline());

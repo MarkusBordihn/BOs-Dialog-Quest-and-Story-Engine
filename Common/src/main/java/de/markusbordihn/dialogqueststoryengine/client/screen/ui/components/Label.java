@@ -19,29 +19,33 @@
 
 package de.markusbordihn.dialogqueststoryengine.client.screen.ui.components;
 
-import de.markusbordihn.dialogqueststoryengine.client.screen.ui.ScaledText;
 import de.markusbordihn.dialogqueststoryengine.client.screen.ui.Widget;
 import de.markusbordihn.dialogqueststoryengine.client.screen.ui.color.ColorPalette;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.network.chat.Component;
 
 public class Label extends Widget {
 
-  private String text;
+  private Component text;
   private int color;
   private float scale;
   private Alignment alignment;
 
   public Label(int posX, int posY, String text) {
-    this(posX, posY, text, 0, ScaledText.SCALE_NORMAL, Alignment.LEFT);
+    this(posX, posY, TextComponent.of(text), 0, ScaledText.SCALE_NORMAL, Alignment.LEFT);
   }
 
   public Label(int posX, int posY, String text, int color) {
-    this(posX, posY, text, color, ScaledText.SCALE_NORMAL, Alignment.LEFT);
+    this(posX, posY, TextComponent.of(text), color, ScaledText.SCALE_NORMAL, Alignment.LEFT);
   }
 
   public Label(int posX, int posY, String text, int color, float scale, Alignment alignment) {
+    this(posX, posY, TextComponent.of(text), color, scale, alignment);
+  }
+
+  public Label(int posX, int posY, Component text, int color, float scale, Alignment alignment) {
     super(posX, posY, 0, 0);
     this.text = text;
     this.color = color;
@@ -50,11 +54,16 @@ public class Label extends Widget {
     recalculateSize();
   }
 
-  public String getText() {
+  public Component getText() {
     return text;
   }
 
   public void setText(String text) {
+    this.text = TextComponent.of(text);
+    recalculateSize();
+  }
+
+  public void setText(Component text) {
     this.text = text;
     recalculateSize();
   }
@@ -80,9 +89,10 @@ public class Label extends Widget {
 
   @Override
   public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-    if (!visible || text == null || text.isEmpty()) {
+    if (!visible || text == null || text.getString().isEmpty()) {
       return;
     }
+
     Font font = Minecraft.getInstance().font;
     int effectiveColor = color != 0 ? color : ColorPalette.current().onSurface();
     int x = getX();

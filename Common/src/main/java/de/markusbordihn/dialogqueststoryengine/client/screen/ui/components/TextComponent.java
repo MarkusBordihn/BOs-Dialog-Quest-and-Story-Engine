@@ -17,25 +17,32 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package de.markusbordihn.dialogqueststoryengine;
+package de.markusbordihn.dialogqueststoryengine.client.screen.ui.components;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import de.markusbordihn.dialogqueststoryengine.Constants;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 
-public final class Constants {
+public final class TextComponent {
 
-  public static final String MOD_ID = "dialog_quest_and_story_engine";
-  public static final String MOD_NAME = "Dialog, Quest and Story Engine";
-  public static final String MOD_COMMAND = "dqs";
-  public static final String MOD_PREFIX = MOD_ID + ".";
-  public static final String GUI_PREFIX = "gui." + MOD_ID + ".";
-  public static final String LOG_NAME = MOD_NAME;
-  public static final String LOG_REGISTER_PREFIX = "Register " + MOD_NAME;
+  private TextComponent() {}
 
-  public static final String INTERACTION_WAND = "interaction_wand";
+  /**
+   * Lowercase strings without a colon are treated as short GUI translation keys and prefixed with
+   * {@link Constants#GUI_PREFIX}. All other strings are returned as literals.
+   */
+  public static MutableComponent of(String text) {
+    if (text != null
+        && !text.isBlank()
+        && Character.isLowerCase(text.codePointAt(0))
+        && !text.contains(":")) {
+      return Component.translatable(Constants.GUI_PREFIX + text);
+    }
 
-  public static Path GAME_DIR = Paths.get("").toAbsolutePath();
-  public static Path CONFIG_DIR = GAME_DIR.resolve("config");
+    return Component.literal(text != null ? text : "");
+  }
 
-  private Constants() {}
+  public static MutableComponent ofKey(String fullKey) {
+    return Component.translatable(fullKey);
+  }
 }

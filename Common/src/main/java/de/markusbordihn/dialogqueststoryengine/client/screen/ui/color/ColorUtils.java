@@ -41,12 +41,19 @@ public final class ColorUtils {
 
   public static int blend(int bg, int fg) {
     int fgA = (fg >> 24) & 0xFF;
-    if (fgA == 0xFF) return fg;
-    if (fgA == 0x00) return bg;
+    if (fgA == 0xFF) {
+      return fg;
+    }
+
+    if (fgA == 0x00) {
+      return bg;
+    }
+
     float alpha = fgA / 255f;
     int r = (int) (((fg >> 16) & 0xFF) * alpha + ((bg >> 16) & 0xFF) * (1f - alpha));
     int g = (int) (((fg >> 8) & 0xFF) * alpha + ((bg >> 8) & 0xFF) * (1f - alpha));
     int b = (int) ((fg & 0xFF) * alpha + (bg & 0xFF) * (1f - alpha));
+
     return 0xFF000000 | (r << 16) | (g << 8) | b;
   }
 

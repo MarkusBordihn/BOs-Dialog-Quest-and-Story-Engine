@@ -84,15 +84,15 @@ public final class InteractionEvents {
     UUID targetId = target.getUUID();
 
     if (BindManager.isBinding(player)) {
-      BindContext ctx = BindManager.consumeBind(player);
-      if (ctx.unbind()) {
-        if (ctx.type() != null) {
-          boolean removed = data.unregister(targetId, ctx.type());
+      BindContext bindContext = BindManager.consumeBind(player);
+      if (bindContext.unbind()) {
+        if (bindContext.type() != null) {
+          boolean removed = data.unregister(targetId, bindContext.type());
           if (removed) {
             player.sendSystemMessage(
                 Component.literal(
                         "\u2716 Removed "
-                            + ctx.type()
+                            + bindContext.type()
                             + " interaction from "
                             + TargetKind.ENTITY
                             + ".")
@@ -101,7 +101,7 @@ public final class InteractionEvents {
             player.sendSystemMessage(
                 Component.literal(
                         "No "
-                            + ctx.type()
+                            + bindContext.type()
                             + " interaction found on this "
                             + TargetKind.ENTITY
                             + ".")
@@ -128,18 +128,18 @@ public final class InteractionEvents {
         InteractionDataEntry entry =
             new InteractionDataEntry(
                 targetId,
-                ctx.type(),
+                bindContext.type(),
                 TargetKind.ENTITY,
-                ctx.label(),
+                bindContext.label(),
                 target.level().dimension().location(),
                 null);
         data.register(entry);
         player.sendSystemMessage(
             Component.literal(
                     "âœ” Registered "
-                        + ctx.type()
+                        + bindContext.type()
                         + " interaction '"
-                        + ctx.label()
+                        + bindContext.label()
                         + "' on "
                         + TargetKind.ENTITY
                         + ".")
@@ -158,26 +158,27 @@ public final class InteractionEvents {
     if (level.isClientSide()) {
       return;
     }
+
     if (player.getMainHandItem().getItem() instanceof InteractionWandItem) {
       return;
     }
+
     InteractionData data = InteractionData.get();
     if (data == null) {
       return;
     }
 
     UUID targetId = BlockUUID.fromBlockPos(level.dimension(), pos);
-
     if (BindManager.isBinding(player)) {
-      BindContext ctx = BindManager.consumeBind(player);
-      if (ctx.unbind()) {
-        if (ctx.type() != null) {
-          boolean removed = data.unregister(targetId, ctx.type());
+      BindContext bindContext = BindManager.consumeBind(player);
+      if (bindContext.unbind()) {
+        if (bindContext.type() != null) {
+          boolean removed = data.unregister(targetId, bindContext.type());
           if (removed) {
             player.sendSystemMessage(
                 Component.literal(
                         "\u2716 Removed "
-                            + ctx.type()
+                            + bindContext.type()
                             + " interaction from block at "
                             + pos.toShortString()
                             + ".")
@@ -186,7 +187,7 @@ public final class InteractionEvents {
             player.sendSystemMessage(
                 Component.literal(
                         "No "
-                            + ctx.type()
+                            + bindContext.type()
                             + " interaction found on block at "
                             + pos.toShortString()
                             + ".")
@@ -214,14 +215,19 @@ public final class InteractionEvents {
             level.getBlockEntity(pos) != null ? TargetKind.BLOCK_ENTITY : TargetKind.BLOCK;
         InteractionDataEntry entry =
             new InteractionDataEntry(
-                targetId, ctx.type(), kind, ctx.label(), level.dimension().location(), pos);
+                targetId,
+                bindContext.type(),
+                kind,
+                bindContext.label(),
+                level.dimension().location(),
+                pos);
         data.register(entry);
         player.sendSystemMessage(
             Component.literal(
                     "âœ” Registered "
-                        + ctx.type()
+                        + bindContext.type()
                         + " interaction '"
-                        + ctx.label()
+                        + bindContext.label()
                         + "' on "
                         + kind
                         + " at "
@@ -242,13 +248,13 @@ public final class InteractionEvents {
     if (level.isClientSide() || !(entity instanceof Player player)) {
       return;
     }
+
     InteractionData data = InteractionData.get();
     if (data == null) {
       return;
     }
 
     UUID targetId = BlockUUID.fromBlockPos(level.dimension(), pos);
-
     if (data.hasInteraction(targetId, InteractionType.STEP_ON)) {
       InteractionDataEntry entry = data.getInteraction(targetId, InteractionType.STEP_ON);
       triggerInteraction(player, entry);

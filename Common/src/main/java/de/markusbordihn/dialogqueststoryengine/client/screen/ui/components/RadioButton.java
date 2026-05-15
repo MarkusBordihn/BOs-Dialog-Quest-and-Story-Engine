@@ -19,11 +19,11 @@
 
 package de.markusbordihn.dialogqueststoryengine.client.screen.ui.components;
 
-import de.markusbordihn.dialogqueststoryengine.client.screen.ui.ScaledText;
 import de.markusbordihn.dialogqueststoryengine.client.screen.ui.color.ColorPalette;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.network.chat.Component;
 
 public class RadioButton extends AbstractButton {
 
@@ -32,13 +32,17 @@ public class RadioButton extends AbstractButton {
   int groupIndex = -1;
   RadioGroup ownerGroup;
   private boolean selected;
-  private String label;
+  private Component label;
 
   public RadioButton(int posX, int posY, boolean initialSelected) {
-    this(posX, posY, null, initialSelected);
+    this(posX, posY, (Component) null, initialSelected);
   }
 
   public RadioButton(int posX, int posY, String label, boolean initialSelected) {
+    this(posX, posY, label != null ? TextComponent.of(label) : null, initialSelected);
+  }
+
+  public RadioButton(int posX, int posY, Component label, boolean initialSelected) {
     super(posX, posY, CIRCLE_SIZE, CIRCLE_SIZE);
     this.label = label;
     this.selected = initialSelected;
@@ -53,11 +57,16 @@ public class RadioButton extends AbstractButton {
     this.selected = selected;
   }
 
-  public String getLabel() {
+  public Component getLabel() {
     return label;
   }
 
   public void setLabel(String label) {
+    this.label = label != null ? TextComponent.of(label) : null;
+    updateWidth();
+  }
+
+  public void setLabel(Component label) {
     this.label = label;
     updateWidth();
   }
@@ -73,26 +82,25 @@ public class RadioButton extends AbstractButton {
 
   @Override
   public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-    if (!visible) return;
+    if (!visible) {
+      return;
+    }
     ColorPalette palette = ColorPalette.current();
     int x = getX();
     int y = getY();
     hovered = isMouseOver(mouseX, mouseY);
 
-    // Outer circle ring
     int ringColor =
         !active
             ? palette.onSurfaceLow()
             : selected ? palette.primary() : (hovered ? palette.primary() : palette.outline());
     drawBorderRounded(graphics, x, y, CIRCLE_SIZE, CIRCLE_SIZE, ringColor);
 
-    // Inner fill
     if (hovered && !selected && active) {
       fillRoundedRect(
           graphics, x + 1, y + 1, CIRCLE_SIZE - 2, CIRCLE_SIZE - 2, palette.listHover());
     }
 
-    // Selection dot
     if (selected) {
       int dotColor = active ? palette.primary() : palette.onSurfaceLow();
       int innerPad = 3;
@@ -105,8 +113,7 @@ public class RadioButton extends AbstractButton {
           dotColor);
     }
 
-    // Inline label
-    if (label != null && !label.isEmpty()) {
+    if (label != null && !label.getString().isEmpty()) {
       Font font = Minecraft.getInstance().font;
       int textColor = active ? palette.onSurface() : palette.onSurfaceLow();
       ScaledText.draw(
@@ -121,7 +128,7 @@ public class RadioButton extends AbstractButton {
   }
 
   private void updateWidth() {
-    if (label != null && !label.isEmpty()) {
+    if (label != null && !label.getString().isEmpty()) {
       Font font = Minecraft.getInstance().font;
       width =
           CIRCLE_SIZE + LABEL_GAP + ScaledText.getScaledWidth(font, label, ScaledText.SCALE_BODY);

@@ -20,7 +20,6 @@
 package de.markusbordihn.dialogqueststoryengine.client.screen.ui.components;
 
 import de.markusbordihn.dialogqueststoryengine.client.screen.MainScreen;
-import de.markusbordihn.dialogqueststoryengine.client.screen.ui.ScaledText;
 import de.markusbordihn.dialogqueststoryengine.client.screen.ui.Widget;
 import de.markusbordihn.dialogqueststoryengine.client.screen.ui.color.ColorPalette;
 import java.util.ArrayList;
@@ -84,25 +83,28 @@ public class BreadcrumbBar extends Widget {
     homeBtn.setPosition(x + 2, y + 2);
     homeBtn.render(graphics, mouseX, mouseY, partialTick);
 
-    for (Segment seg : ancestors) {
-      int segW = ScaledText.getScaledWidth(font, seg.label, SCALE);
+    for (Segment segment : ancestors) {
+      int segmentWidth = ScaledText.getScaledWidth(font, segment.label, SCALE);
       boolean hovered =
-          mouseX >= cursorX && mouseX < cursorX + segW && mouseY >= y && mouseY < y + height;
+          mouseX >= cursorX
+              && mouseX < cursorX + segmentWidth
+              && mouseY >= y
+              && mouseY < y + height;
 
       int color = hovered ? palette.onSurface() : palette.onSurfaceLow();
-      ScaledText.draw(graphics, font, seg.label, cursorX, textY, color, SCALE);
+      ScaledText.draw(graphics, font, segment.label, cursorX, textY, color, SCALE);
 
       if (hovered) {
         int lineY = textY + ScaledText.getScaledHeight(font, SCALE);
-        graphics.fill(cursorX, lineY, cursorX + segW, lineY + 1, color);
+        graphics.fill(cursorX, lineY, cursorX + segmentWidth, lineY + 1, color);
       }
 
-      segmentBounds.add(new int[] {cursorX, cursorX + segW});
-      cursorX += segW;
+      segmentBounds.add(new int[] {cursorX, cursorX + segmentWidth});
+      cursorX += segmentWidth;
 
-      int sepW = ScaledText.getScaledWidth(font, SEPARATOR, SCALE);
+      int separatorWidth = ScaledText.getScaledWidth(font, SEPARATOR, SCALE);
       ScaledText.draw(graphics, font, SEPARATOR, cursorX, textY, palette.onSurfaceLow(), SCALE);
-      cursorX += sepW;
+      cursorX += separatorWidth;
     }
 
     ScaledText.draw(graphics, font, currentLabel, cursorX, textY, palette.onSurface(), SCALE);
@@ -142,7 +144,10 @@ public class BreadcrumbBar extends Widget {
 
   @Override
   public boolean mouseReleased(double mouseX, double mouseY, int button) {
-    if (homeBtn.mouseReleased(mouseX, mouseY, button)) return true;
+    if (homeBtn.mouseReleased(mouseX, mouseY, button)) {
+      return true;
+    }
+
     return closeBtn.mouseReleased(mouseX, mouseY, button);
   }
 

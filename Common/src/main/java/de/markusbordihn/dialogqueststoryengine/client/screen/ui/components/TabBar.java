@@ -20,7 +20,6 @@
 package de.markusbordihn.dialogqueststoryengine.client.screen.ui.components;
 
 import de.markusbordihn.dialogqueststoryengine.client.screen.ui.Panel;
-import de.markusbordihn.dialogqueststoryengine.client.screen.ui.ScaledText;
 import de.markusbordihn.dialogqueststoryengine.client.screen.ui.Widget;
 import de.markusbordihn.dialogqueststoryengine.client.screen.ui.color.ColorPalette;
 import java.util.ArrayList;
@@ -68,6 +67,7 @@ public class TabBar extends Widget {
     if (selectedIndex >= 0 && selectedIndex < tabs.size()) {
       return tabs.get(selectedIndex).panel;
     }
+
     return null;
   }
 
@@ -82,6 +82,7 @@ public class TabBar extends Widget {
     if (!visible || tabs.isEmpty()) {
       return;
     }
+
     ColorPalette palette = ColorPalette.current();
     Font font = Minecraft.getInstance().font;
     int x = getX();
@@ -111,13 +112,11 @@ public class TabBar extends Widget {
 
       int borderLight = lighten(palette.outline(), 0.30f);
       int borderDark = darken(palette.outline(), 0.20f);
-      graphics.fill(tabX + 1, y, tabX + tabWidth - 1, y + 1, borderLight); // top
-      graphics.fill(tabX, y + 1, tabX + 1, y + tabHeight - 1, borderLight); // left
-      graphics.fill(
-          tabX + tabWidth - 1, y + 1, tabX + tabWidth, y + tabHeight - 1, borderDark); // right
+      graphics.fill(tabX + 1, y, tabX + tabWidth - 1, y + 1, borderLight);
+      graphics.fill(tabX, y + 1, tabX + 1, y + tabHeight - 1, borderLight);
+      graphics.fill(tabX + tabWidth - 1, y + 1, tabX + tabWidth, y + tabHeight - 1, borderDark);
       if (!isSelected) {
-        graphics.fill(
-            tabX + 1, y + tabHeight - 1, tabX + tabWidth - 1, y + tabHeight, borderDark); // bottom
+        graphics.fill(tabX + 1, y + tabHeight - 1, tabX + tabWidth - 1, y + tabHeight, borderDark);
       }
 
       int textColor = isSelected ? palette.onSurface() : palette.onSurfaceLow();
@@ -150,6 +149,7 @@ public class TabBar extends Widget {
         return true;
       }
     }
+
     return false;
   }
 

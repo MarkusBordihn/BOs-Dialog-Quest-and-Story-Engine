@@ -27,16 +27,17 @@ public final class GridLayout {
   private final int originY;
   private final int totalWidth;
   private final int columns;
-  private final int gapX;
-  private final int gapY;
+  private final int columnGap;
+  private final int rowGap;
 
-  private GridLayout(int originX, int originY, int totalWidth, int columns, int gapX, int gapY) {
+  private GridLayout(
+      int originX, int originY, int totalWidth, int columns, int columnGap, int rowGap) {
     this.originX = originX;
     this.originY = originY;
     this.totalWidth = totalWidth;
     this.columns = columns;
-    this.gapX = gapX;
-    this.gapY = gapY;
+    this.columnGap = columnGap;
+    this.rowGap = rowGap;
   }
 
   public static GridLayout of(int originX, int originY, int totalWidth, int columns, int gap) {
@@ -44,20 +45,20 @@ public final class GridLayout {
   }
 
   public static GridLayout of(
-      int originX, int originY, int totalWidth, int columns, int gapX, int gapY) {
-    return new GridLayout(originX, originY, totalWidth, columns, gapX, gapY);
+      int originX, int originY, int totalWidth, int columns, int columnGap, int rowGap) {
+    return new GridLayout(originX, originY, totalWidth, columns, columnGap, rowGap);
   }
 
   public int cellWidth() {
-    return (totalWidth - gapX * (columns - 1)) / columns;
+    return (totalWidth - columnGap * (columns - 1)) / columns;
   }
 
   public int cellX(int col) {
-    return originX + col * (cellWidth() + gapX);
+    return originX + col * (cellWidth() + columnGap);
   }
 
   public int cellY(int row, int rowHeight) {
-    return originY + row * (rowHeight + gapY);
+    return originY + row * (rowHeight + rowGap);
   }
 
   public void fill(Widget widget, int col, int row, int rowHeight) {

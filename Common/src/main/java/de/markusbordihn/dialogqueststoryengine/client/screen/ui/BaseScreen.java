@@ -33,6 +33,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+import org.lwjgl.glfw.GLFW;
 
 public abstract class BaseScreen extends Panel {
 
@@ -65,17 +66,26 @@ public abstract class BaseScreen extends Panel {
     Minecraft.getInstance().setScreen(null);
   }
 
-  private static Widget findDeepestHoveredWithTooltip(Panel panel, double mx, double my) {
+  private static Widget findDeepestHoveredWithTooltip(Panel panel, double mouseX, double mouseY) {
     List<Widget> list = panel.getChildren();
     for (int i = list.size() - 1; i >= 0; i--) {
       Widget child = list.get(i);
-      if (!child.isVisible() || !child.isMouseOver(mx, my)) continue;
-      if (child instanceof Panel p) {
-        Widget deeper = findDeepestHoveredWithTooltip(p, mx, my);
-        if (deeper != null) return deeper;
+      if (!child.isVisible() || !child.isMouseOver(mouseX, mouseY)) {
+        continue;
       }
-      if (child.getTooltipText() != null) return child;
+
+      if (child instanceof Panel p) {
+        Widget deeper = findDeepestHoveredWithTooltip(p, mouseX, mouseY);
+        if (deeper != null) {
+          return deeper;
+        }
+      }
+
+      if (child.getTooltipText() != null) {
+        return child;
+      }
     }
+
     return null;
   }
 
@@ -89,6 +99,7 @@ public abstract class BaseScreen extends Panel {
     child.add(
         new BreadcrumbBar.Segment(
             myLabel, () -> Minecraft.getInstance().setScreen(getScreenWrapper())));
+
     return child;
   }
 
@@ -97,15 +108,15 @@ public abstract class BaseScreen extends Panel {
   }
 
   public void openScreen() {
-    Minecraft mc = Minecraft.getInstance();
-    previousScreen = mc.screen;
+    Minecraft minecraft = Minecraft.getInstance();
+    previousScreen = minecraft.screen;
     wrapper = new ScreenWrapper(this);
-    mc.setScreen(wrapper);
+    minecraft.setScreen(wrapper);
   }
 
   public void closeScreen() {
-    Minecraft mc = Minecraft.getInstance();
-    mc.setScreen(previousScreen);
+    Minecraft minecraft = Minecraft.getInstance();
+    minecraft.setScreen(previousScreen);
   }
 
   public Screen getScreenWrapper() {
@@ -152,24 +163,24 @@ public abstract class BaseScreen extends Panel {
   }
 
   public void setSizeProportional(float widthFraction, float heightFraction) {
-    Minecraft mc = Minecraft.getInstance();
-    int screenW = mc.getWindow().getGuiScaledWidth();
-    int screenH = mc.getWindow().getGuiScaledHeight();
-    this.width = (int) (screenW * widthFraction);
-    this.height = (int) (screenH * heightFraction);
-    this.posX = (screenW - this.width) / 2;
-    this.posY = (screenH - this.height) / 2;
+    Minecraft minecraft = Minecraft.getInstance();
+    int screenWidth = minecraft.getWindow().getGuiScaledWidth();
+    int screenHeight = minecraft.getWindow().getGuiScaledHeight();
+    this.width = (int) (screenWidth * widthFraction);
+    this.height = (int) (screenHeight * heightFraction);
+    this.posX = (screenWidth - this.width) / 2;
+    this.posY = (screenHeight - this.height) / 2;
   }
 
   public void setSizeCentered(int fixedWidth, int fixedHeight) {
-    Minecraft mc = Minecraft.getInstance();
-    int screenW = mc.getWindow().getGuiScaledWidth();
-    int screenH = mc.getWindow().getGuiScaledHeight();
-    int availH = screenH - BREADCRUMB_HEIGHT - BOTTOM_BAR_HEIGHT - 4;
-    this.width = Math.min(fixedWidth, screenW - 10);
-    this.height = Math.min(fixedHeight, availH);
-    this.posX = (screenW - this.width) / 2;
-    this.posY = BREADCRUMB_HEIGHT + 2 + (availH - this.height) / 2;
+    Minecraft minecraft = Minecraft.getInstance();
+    int screenWidth = minecraft.getWindow().getGuiScaledWidth();
+    int screenHeight = minecraft.getWindow().getGuiScaledHeight();
+    int availableHeight = screenHeight - BREADCRUMB_HEIGHT - BOTTOM_BAR_HEIGHT - 4;
+    this.width = Math.min(fixedWidth, screenWidth - 10);
+    this.height = Math.min(fixedHeight, availableHeight);
+    this.posX = (screenWidth - this.width) / 2;
+    this.posY = BREADCRUMB_HEIGHT + 2 + (availableHeight - this.height) / 2;
   }
 
   public void onScreenInit(int screenWidth, int screenHeight) {
@@ -179,20 +190,25 @@ public abstract class BaseScreen extends Panel {
     refreshWidgets();
   }
 
-  private void initOverlays(int screenW, int screenH) {
+  private void initOverlays(int screenWidth, int screenHeight) {
     breadcrumbBar =
         new BreadcrumbBar(
-            0, 0, screenW, breadcrumbAncestors, breadcrumbLabel, BaseScreen::closeAll);
+            0, 0, screenWidth, breadcrumbAncestors, breadcrumbLabel, BaseScreen::closeAll);
     titleBar = new TitleBar(0, 0, 0, this::getPanelTitle, this::closeScreen);
     bottomBar =
         new BottomBar(
-            0, screenH - BOTTOM_BAR_HEIGHT, screenW, BOTTOM_BAR_HEIGHT, this::onThemeChange);
+            0,
+            screenHeight - BOTTOM_BAR_HEIGHT,
+            screenWidth,
+            BOTTOM_BAR_HEIGHT,
+            this::onThemeChange);
   }
 
   private void onThemeChange() {
     ColorPalette.toggle();
-    Minecraft mc = Minecraft.getInstance();
-    initOverlays(mc.getWindow().getGuiScaledWidth(), mc.getWindow().getGuiScaledHeight());
+    Minecraft minecraft = Minecraft.getInstance();
+    initOverlays(
+        minecraft.getWindow().getGuiScaledWidth(), minecraft.getWindow().getGuiScaledHeight());
     refreshWidgets();
   }
 
@@ -247,6 +263,7 @@ public abstract class BaseScreen extends Panel {
       tooltipHoverTicks = 0;
       return;
     }
+
     if (candidate != tooltipCandidate) {
       tooltipCandidate = candidate;
       tooltipHoverTicks = 0;
@@ -255,7 +272,7 @@ public abstract class BaseScreen extends Panel {
     if (tooltipHoverTicks >= 10) {
       Tooltip.render(
           graphics,
-          net.minecraft.client.Minecraft.getInstance().font,
+          Minecraft.getInstance().font,
           candidate.getTooltipText(),
           mouseX,
           mouseY,
@@ -288,17 +305,21 @@ public abstract class BaseScreen extends Panel {
       closeOverlay();
       return true;
     }
+
     if (breadcrumbBar != null && breadcrumbBar.isMouseOver(mouseX, mouseY)) {
       return breadcrumbBar.mouseClicked(mouseX, mouseY, button);
     }
+
     if (bottomBar != null
         && bottomBar.isMouseOver(mouseX, mouseY)
         && bottomBar.mouseClicked(mouseX, mouseY, button)) {
       return true;
     }
+
     if (titleBar != null && titleBar.mouseClicked(mouseX, mouseY, button)) {
       return true;
     }
+
     if (hasModal()) {
       Panel top = modalPanels.peek();
       if (top != null && top.isVisible()) {
@@ -307,14 +328,18 @@ public abstract class BaseScreen extends Panel {
             : closeModalAndReturn();
       }
     }
+
     return super.mouseClicked(mouseX, mouseY, button);
   }
 
   @Override
   public boolean mouseReleased(double mouseX, double mouseY, int button) {
     if (overlayPanel != null && overlayPanel.isVisible()) {
-      if (overlayPanel.mouseReleased(mouseX, mouseY, button)) return true;
+      if (overlayPanel.mouseReleased(mouseX, mouseY, button)) {
+        return true;
+      }
     }
+
     if (breadcrumbBar != null) {
       breadcrumbBar.mouseReleased(mouseX, mouseY, button);
     }
@@ -330,6 +355,7 @@ public abstract class BaseScreen extends Panel {
         top.mouseReleased(mouseX, mouseY, button);
       }
     }
+
     return super.mouseReleased(mouseX, mouseY, button);
   }
 
@@ -340,7 +366,7 @@ public abstract class BaseScreen extends Panel {
 
   @Override
   public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-    if (keyCode == 256) { // Escape
+    if (keyCode == GLFW.GLFW_KEY_ESCAPE) {
       if (hasModal()) {
         closeModal();
         return true;
@@ -348,10 +374,12 @@ public abstract class BaseScreen extends Panel {
       closeScreen();
       return true;
     }
+
     Panel top = activeModal();
     if (top != null) {
       return top.keyPressed(keyCode, scanCode, modifiers);
     }
+
     return super.keyPressed(keyCode, scanCode, modifiers);
   }
 
@@ -393,7 +421,7 @@ public abstract class BaseScreen extends Panel {
     }
 
     @Override
-    public void resize(net.minecraft.client.Minecraft mc, int width, int height) {
+    public void resize(net.minecraft.client.Minecraft minecraft, int width, int height) {
       this.width = width;
       this.height = height;
       this.init();

@@ -19,12 +19,12 @@
 
 package de.markusbordihn.dialogqueststoryengine.client.screen.ui.components;
 
-import de.markusbordihn.dialogqueststoryengine.client.screen.ui.ScaledText;
 import de.markusbordihn.dialogqueststoryengine.client.screen.ui.color.ColorPalette;
 import java.util.function.Consumer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.network.chat.Component;
 
 public class Checkbox extends AbstractButton {
 
@@ -33,15 +33,20 @@ public class Checkbox extends AbstractButton {
   private static final String CHECK_MARK = "\u2713";
 
   private boolean checked;
-  private String label;
+  private Component label;
   private Consumer<Boolean> onChange;
 
   public Checkbox(int posX, int posY, boolean initialState, Consumer<Boolean> onChange) {
-    this(posX, posY, null, initialState, onChange);
+    this(posX, posY, (Component) null, initialState, onChange);
   }
 
   public Checkbox(
       int posX, int posY, String label, boolean initialState, Consumer<Boolean> onChange) {
+    this(posX, posY, label != null ? TextComponent.of(label) : null, initialState, onChange);
+  }
+
+  public Checkbox(
+      int posX, int posY, Component label, boolean initialState, Consumer<Boolean> onChange) {
     super(posX, posY, BOX_SIZE, BOX_SIZE);
     this.label = label;
     this.checked = initialState;
@@ -57,11 +62,16 @@ public class Checkbox extends AbstractButton {
     this.checked = checked;
   }
 
-  public String getLabel() {
+  public Component getLabel() {
     return label;
   }
 
   public void setLabel(String label) {
+    this.label = label != null ? TextComponent.of(label) : null;
+    updateWidth();
+  }
+
+  public void setLabel(Component label) {
     this.label = label;
     updateWidth();
   }
@@ -80,7 +90,9 @@ public class Checkbox extends AbstractButton {
 
   @Override
   public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-    if (!visible) return;
+    if (!visible) {
+      return;
+    }
     ColorPalette palette = ColorPalette.current();
     int x = getX();
     int y = getY();
@@ -114,7 +126,7 @@ public class Checkbox extends AbstractButton {
           ScaledText.SCALE_NORMAL);
     }
 
-    if (label != null && !label.isEmpty()) {
+    if (label != null && !label.getString().isEmpty()) {
       Font font = Minecraft.getInstance().font;
       int textColor = active ? palette.onSurface() : palette.onSurfaceLow();
       ScaledText.draw(
@@ -129,7 +141,7 @@ public class Checkbox extends AbstractButton {
   }
 
   private void updateWidth() {
-    if (label != null && !label.isEmpty()) {
+    if (label != null && !label.getString().isEmpty()) {
       Font font = Minecraft.getInstance().font;
       width = BOX_SIZE + LABEL_GAP + ScaledText.getScaledWidth(font, label, ScaledText.SCALE_BODY);
     } else {

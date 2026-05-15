@@ -53,13 +53,13 @@ public final class InteractionHighlightRenderer {
   private InteractionHighlightRenderer() {}
 
   public static void renderHighlights(PoseStack poseStack, Camera camera) {
-    Minecraft mc = Minecraft.getInstance();
-    if (mc.player == null || mc.level == null) {
+    Minecraft minecraft = Minecraft.getInstance();
+    if (minecraft.player == null || minecraft.level == null) {
       return;
     }
 
-    if (!(mc.player.getMainHandItem().getItem() instanceof InteractionWandItem)
-        && !(mc.player.getOffhandItem().getItem() instanceof InteractionWandItem)) {
+    if (!(minecraft.player.getMainHandItem().getItem() instanceof InteractionWandItem)
+        && !(minecraft.player.getOffhandItem().getItem() instanceof InteractionWandItem)) {
       return;
     }
 
@@ -68,8 +68,8 @@ public final class InteractionHighlightRenderer {
       return;
     }
 
-    Vec3 cam = camera.getPosition();
-    Player player = mc.player;
+    Vec3 cameraPos = camera.getPosition();
+    Player player = minecraft.player;
 
     boolean hasEntityEntries = false;
     for (InteractionDataEntry entry : entries) {
@@ -78,17 +78,18 @@ public final class InteractionHighlightRenderer {
         break;
       }
     }
+
     Map<UUID, Entity> entityMap;
     if (hasEntityEntries) {
       entityMap = new HashMap<>();
-      for (Entity entity : mc.level.entitiesForRendering()) {
+      for (Entity entity : minecraft.level.entitiesForRendering()) {
         entityMap.put(entity.getUUID(), entity);
       }
     } else {
       entityMap = Map.of();
     }
 
-    MultiBufferSource.BufferSource bufferSource = mc.renderBuffers().bufferSource();
+    MultiBufferSource.BufferSource bufferSource = minecraft.renderBuffers().bufferSource();
     VertexConsumer consumer = bufferSource.getBuffer(RenderType.lines());
 
     AABB[] cachedAABBs = new AABB[entries.size()];
@@ -99,20 +100,27 @@ public final class InteractionHighlightRenderer {
       if (aabb == null) {
         continue;
       }
-      AABB relative = aabb.move(-cam.x, -cam.y, -cam.z).inflate(BLOCK_INFLATE);
+
       TargetKind kind = entry.kind();
       LevelRenderer.renderLineBox(
-          poseStack, consumer, relative, kind.getRed(), kind.getGreen(), kind.getBlue(), ALPHA);
+          poseStack,
+          consumer,
+          aabb.move(-cameraPos.x, -cameraPos.y, -cameraPos.z).inflate(BLOCK_INFLATE),
+          kind.getRed(),
+          kind.getGreen(),
+          kind.getBlue(),
+          ALPHA);
     }
 
     bufferSource.endBatch(RenderType.lines());
 
-    Font font = mc.font;
+    Font font = minecraft.font;
     for (int i = 0; i < entries.size(); i++) {
       AABB aabb = cachedAABBs[i];
       if (aabb == null) {
         continue;
       }
+
       renderLabel(poseStack, bufferSource, font, camera, aabb, entries.get(i));
     }
   }
@@ -125,40 +133,37 @@ public final class InteractionHighlightRenderer {
       AABB aabb,
       InteractionDataEntry entry) {
     Component line1 = Component.literal(entry.type().name() + " | " + entry.kind().name());
-    String detail =
-        entry.label() != null && !entry.label().isEmpty()
-            ? entry.label()
-            : entry.targetId().toString().substring(0, 8);
-    Component line2 = Component.literal(detail);
+    Component line2 =
+        Component.literal(
+            entry.label() != null && !entry.label().isEmpty()
+                ? entry.label()
+                : entry.targetId().toString().substring(0, 8));
 
-    double cx = aabb.getCenter().x;
-    double cy = aabb.maxY + 0.5;
-    double cz = aabb.getCenter().z;
-    Vec3 cam = camera.getPosition();
+    double centerX = aabb.getCenter().x;
+    double centerY = aabb.maxY + 0.5;
+    double centerZ = aabb.getCenter().z;
+    Vec3 cameraPos = camera.getPosition();
 
     poseStack.pushPose();
-    poseStack.translate(cx - cam.x, cy - cam.y, cz - cam.z);
+    poseStack.translate(centerX - cameraPos.x, centerY - cameraPos.y, centerZ - cameraPos.z);
     poseStack.mulPose(Axis.YP.rotationDegrees(-camera.getYRot()));
     poseStack.mulPose(Axis.XP.rotationDegrees(camera.getXRot()));
     poseStack.scale(-LABEL_SCALE, -LABEL_SCALE, LABEL_SCALE);
 
-    int textColor = entry.kind().getLabelColor();
-    float halfWidth1 = font.width(line1) / 2.0f;
     font.drawInBatch(
         line1,
-        -halfWidth1,
+        -font.width(line1) / 2.0f,
         0,
-        textColor,
+        entry.kind().getLabelColor(),
         false,
         poseStack.last().pose(),
         bufferSource,
         Font.DisplayMode.SEE_THROUGH,
         LABEL_BG_COLOR,
         0xF000F0);
-    float halfWidth2 = font.width(line2) / 2.0f;
     font.drawInBatch(
         line2,
-        -halfWidth2,
+        -font.width(line2) / 2.0f,
         font.lineHeight + 1,
         0xFFCCCCCC,
         false,
@@ -179,6 +184,7 @@ public final class InteractionHighlightRenderer {
       if (player.blockPosition().distSqr(pos) > MAX_RENDER_DISTANCE_SQ) {
         return null;
       }
+
       return new AABB(pos);
     } else if (entry.kind() == TargetKind.ENTITY) {
       Entity entity = entityMap.get(entry.targetId());
@@ -186,6 +192,7 @@ public final class InteractionHighlightRenderer {
         return entity.getBoundingBox();
       }
     }
+
     return null;
   }
 }

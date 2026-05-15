@@ -66,23 +66,26 @@ public class ModalPanel extends Panel {
     layoutActionButtons();
   }
 
-  public void centerOn(int screenW, int screenH) {
-    posX = (screenW - width) / 2;
-    posY = (screenH - height) / 2;
+  public void centerOn(int screenWidth, int screenHeight) {
+    posX = (screenWidth - width) / 2;
+    posY = (screenHeight - height) / 2;
   }
 
   private void layoutActionButtons() {
-    int totalW = actionButtons.size() * ACTION_BTN_W + (actionButtons.size() - 1) * ACTION_GAP;
-    int startX = (width - totalW) / 2;
-    int btnY = TITLE_H + 2 + contentPanel.getHeight() + 4;
+    int totalButtonWidth =
+        actionButtons.size() * ACTION_BTN_W + (actionButtons.size() - 1) * ACTION_GAP;
+    int startX = (width - totalButtonWidth) / 2;
+    int buttonY = TITLE_H + 2 + contentPanel.getHeight() + 4;
     for (int i = 0; i < actionButtons.size(); i++) {
-      actionButtons.get(i).setPosition(startX + i * (ACTION_BTN_W + ACTION_GAP), btnY);
+      actionButtons.get(i).setPosition(startX + i * (ACTION_BTN_W + ACTION_GAP), buttonY);
     }
   }
 
   @Override
   public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-    if (!visible) return;
+    if (!visible) {
+      return;
+    }
     ColorPalette palette = ColorPalette.current();
     int x = getX();
     int y = getY();
@@ -119,7 +122,9 @@ public class ModalPanel extends Panel {
 
   @Override
   public boolean mouseClicked(double mouseX, double mouseY, int button) {
-    if (titleBar.mouseClicked(mouseX, mouseY, button)) return true;
+    if (titleBar.mouseClicked(mouseX, mouseY, button)) {
+      return true;
+    }
     for (TextButton btn : actionButtons) {
       if (btn.isVisible()
           && btn.isActive()
@@ -128,13 +133,16 @@ public class ModalPanel extends Panel {
         return true;
       }
     }
+
     return contentPanel.mouseClicked(mouseX, mouseY, button);
   }
 
   @Override
   public boolean mouseReleased(double mouseX, double mouseY, int button) {
     for (TextButton btn : actionButtons) {
-      if (btn.mouseReleased(mouseX, mouseY, button)) return true;
+      if (btn.mouseReleased(mouseX, mouseY, button)) {
+        return true;
+      }
     }
     return contentPanel.mouseReleased(mouseX, mouseY, button);
   }
@@ -150,6 +158,7 @@ public class ModalPanel extends Panel {
       onClose.run();
       return true;
     }
+
     return contentPanel.keyPressed(keyCode, scanCode, modifiers);
   }
 

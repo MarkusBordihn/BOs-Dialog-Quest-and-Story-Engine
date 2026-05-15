@@ -25,50 +25,54 @@ public final class StackLayout {
 
   private final int startX;
   private final int startY;
-  private final int gap;
+  private final int spacing;
   private final boolean vertical;
 
-  private StackLayout(int startX, int startY, int gap, boolean vertical) {
+  private StackLayout(int startX, int startY, int spacing, boolean vertical) {
     this.startX = startX;
     this.startY = startY;
-    this.gap = gap;
+    this.spacing = spacing;
     this.vertical = vertical;
   }
 
-  public static StackLayout vertical(int x, int y, int gap) {
-    return new StackLayout(x, y, gap, true);
+  public static StackLayout vertical(int x, int y, int spacing) {
+    return new StackLayout(x, y, spacing, true);
   }
 
-  public static StackLayout horizontal(int x, int y, int gap) {
-    return new StackLayout(x, y, gap, false);
+  public static StackLayout horizontal(int x, int y, int spacing) {
+    return new StackLayout(x, y, spacing, false);
   }
 
   public int apply(Widget... widgets) {
     int cursor = vertical ? startY : startX;
-    for (Widget w : widgets) {
+    for (Widget widget : widgets) {
       if (vertical) {
-        w.setPosition(startX, cursor);
-        cursor += w.getHeight() + gap;
+        widget.setPosition(startX, cursor);
+        cursor += widget.getHeight() + spacing;
       } else {
-        w.setPosition(cursor, startY);
-        cursor += w.getWidth() + gap;
+        widget.setPosition(cursor, startY);
+        cursor += widget.getWidth() + spacing;
       }
     }
-    return cursor - gap; // return end of last widget, not the trailing gap
+
+    return cursor - spacing;
   }
 
   public int applyVisible(Widget... widgets) {
     int cursor = vertical ? startY : startX;
-    for (Widget w : widgets) {
-      if (!w.isVisible()) continue;
+    for (Widget widget : widgets) {
+      if (!widget.isVisible()) {
+        continue;
+      }
       if (vertical) {
-        w.setPosition(startX, cursor);
-        cursor += w.getHeight() + gap;
+        widget.setPosition(startX, cursor);
+        cursor += widget.getHeight() + spacing;
       } else {
-        w.setPosition(cursor, startY);
-        cursor += w.getWidth() + gap;
+        widget.setPosition(cursor, startY);
+        cursor += widget.getWidth() + spacing;
       }
     }
-    return cursor > (vertical ? startY : startX) ? cursor - gap : cursor;
+
+    return cursor > (vertical ? startY : startX) ? cursor - spacing : cursor;
   }
 }

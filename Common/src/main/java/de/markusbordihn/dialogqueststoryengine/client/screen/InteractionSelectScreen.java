@@ -20,11 +20,12 @@
 package de.markusbordihn.dialogqueststoryengine.client.screen;
 
 import de.markusbordihn.dialogqueststoryengine.client.screen.ui.BaseScreen;
-import de.markusbordihn.dialogqueststoryengine.client.screen.ui.ScaledText;
 import de.markusbordihn.dialogqueststoryengine.client.screen.ui.color.ColorPalette;
 import de.markusbordihn.dialogqueststoryengine.client.screen.ui.components.BreadcrumbBar;
 import de.markusbordihn.dialogqueststoryengine.client.screen.ui.components.ListPanel;
+import de.markusbordihn.dialogqueststoryengine.client.screen.ui.components.ScaledText;
 import de.markusbordihn.dialogqueststoryengine.client.screen.ui.components.TextButton;
+import de.markusbordihn.dialogqueststoryengine.client.screen.ui.components.TextComponent;
 import de.markusbordihn.dialogqueststoryengine.data.interaction.InteractionDataEntry;
 import de.markusbordihn.dialogqueststoryengine.data.interaction.InteractionType;
 import de.markusbordihn.dialogqueststoryengine.data.interaction.TargetKind;
@@ -72,10 +73,10 @@ public class InteractionSelectScreen extends BaseScreen {
       ResourceLocation dimension,
       BlockPos blockPos,
       List<BreadcrumbBar.Segment> ancestors) {
-    Minecraft mc = Minecraft.getInstance();
-    mc.execute(
+    Minecraft minecraft = Minecraft.getInstance();
+    minecraft.execute(
         () -> {
-          if (mc.screen instanceof BaseScreen.ScreenWrapper) {
+          if (minecraft.screen instanceof BaseScreen.ScreenWrapper) {
             return;
           }
           InteractionSelectScreen screen =
@@ -87,23 +88,22 @@ public class InteractionSelectScreen extends BaseScreen {
 
   @Override
   protected Component getTitle() {
-    return Component.translatable("screen.dialog_quest_and_story_engine.interaction_select");
+    return TextComponent.ofKey("screen.dialog_quest_and_story_engine.interaction_select");
   }
 
   @Override
   public void onScreenInit(int screenWidth, int screenHeight) {
-    int listH = Math.min(entries.size() * 22 + 70, 220);
-    setSizeCentered(260, listH);
+    setSizeCentered(260, Math.min(entries.size() * 22 + 70, 220));
     refreshWidgets();
   }
 
   @Override
   protected void addWidgets() {
-    int innerW = getInnerWidth();
+    int innerWidth = getInnerWidth();
     int row = 0;
 
     int listHeight = getInnerHeight() - 28;
-    ListPanel<InteractionDataEntry> listPanel = new ListPanel<>(0, row, innerW, listHeight);
+    ListPanel<InteractionDataEntry> listPanel = new ListPanel<>(0, row, innerWidth, listHeight);
     listPanel.setEntryHeight(20);
     listPanel.setEntryRenderer(this::renderEntry);
     listPanel.setOnSelect(
@@ -117,15 +117,14 @@ public class InteractionSelectScreen extends BaseScreen {
     addWidget(listPanel);
     row += listHeight + 4;
 
-    int btnW = 120;
-    int btnX = (innerW - btnW) / 2;
+    int buttonWidth = 120;
     addWidget(
         new TextButton(
-            btnX,
+            (innerWidth - buttonWidth) / 2,
             row,
-            btnW,
+            buttonWidth,
             20,
-            "gui.dialog_quest_and_story_engine.button.new_interaction",
+            "button.new_interaction",
             btn -> {
               InteractionDataEntry template =
                   new InteractionDataEntry(
@@ -152,7 +151,13 @@ public class InteractionSelectScreen extends BaseScreen {
     String labelStr = entry.label().isEmpty() ? "(no label)" : entry.label();
 
     ScaledText.draw(graphics, font, typeStr, x, y + 3, palette.onSurface(), scale);
-    int typeW = ScaledText.getScaledWidth(font, typeStr, scale);
-    ScaledText.draw(graphics, font, " - " + labelStr, x + typeW, y + 3, palette.onSurface(), scale);
+    ScaledText.draw(
+        graphics,
+        font,
+        " - " + labelStr,
+        x + ScaledText.getScaledWidth(font, typeStr, scale),
+        y + 3,
+        palette.onSurface(),
+        scale);
   }
 }

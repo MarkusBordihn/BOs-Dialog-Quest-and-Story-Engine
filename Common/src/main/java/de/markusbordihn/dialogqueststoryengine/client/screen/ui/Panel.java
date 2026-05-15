@@ -94,13 +94,9 @@ public class Panel extends Widget {
     alignWidgets();
   }
 
-  protected void addWidgets() {
-    // Override in subclasses to populate children
-  }
+  protected void addWidgets() {}
 
-  protected void alignWidgets() {
-    // Override in subclasses to layout children
-  }
+  protected void alignWidgets() {}
 
   public void alignVertical(int startY, int spacing) {
     int y = startY;
@@ -185,6 +181,7 @@ public class Panel extends Widget {
     if (!visible || !active) {
       return false;
     }
+
     for (int i = children.size() - 1; i >= 0; i--) {
       Widget child = children.get(i);
       if (child.isVisible() && child.isActive() && child.isMouseOver(mouseX, mouseY)) {
@@ -194,6 +191,7 @@ public class Panel extends Widget {
         }
       }
     }
+
     return false;
   }
 
@@ -202,12 +200,14 @@ public class Panel extends Widget {
     if (focusedChild != null && focusedChild.mouseReleased(mouseX, mouseY, button)) {
       return true;
     }
+
     for (int i = children.size() - 1; i >= 0; i--) {
       Widget child = children.get(i);
       if (child.isVisible() && child.isActive() && child.mouseReleased(mouseX, mouseY, button)) {
         return true;
       }
     }
+
     return false;
   }
 
@@ -217,6 +217,7 @@ public class Panel extends Widget {
     if (focusedChild != null) {
       return focusedChild.mouseDragged(mouseX, mouseY, button, dragX, dragY);
     }
+
     return false;
   }
 
@@ -225,6 +226,7 @@ public class Panel extends Widget {
     if (!visible || !active || !isMouseOver(mouseX, mouseY)) {
       return false;
     }
+
     for (int i = children.size() - 1; i >= 0; i--) {
       Widget child = children.get(i);
       if (child.isVisible()
@@ -234,6 +236,7 @@ public class Panel extends Widget {
         return true;
       }
     }
+
     if (getMaxScrollY() > 0) {
       setScrollY(scrollY - (int) (delta * 10));
       return true;
@@ -243,18 +246,12 @@ public class Panel extends Widget {
 
   @Override
   public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-    if (focusedChild != null && focusedChild.keyPressed(keyCode, scanCode, modifiers)) {
-      return true;
-    }
-    return false;
+    return focusedChild != null && focusedChild.keyPressed(keyCode, scanCode, modifiers);
   }
 
   @Override
   public boolean charTyped(char codePoint, int modifiers) {
-    if (focusedChild != null && focusedChild.charTyped(codePoint, modifiers)) {
-      return true;
-    }
-    return false;
+    return focusedChild != null && focusedChild.charTyped(codePoint, modifiers);
   }
 
   @Override

@@ -34,10 +34,6 @@ public class TextInput extends Widget {
   private String value = "";
   private int maxLength = 256;
   private Consumer<String> onChange;
-  private int cachedX = Integer.MIN_VALUE;
-  private int cachedY = Integer.MIN_VALUE;
-  private int cachedW = Integer.MIN_VALUE;
-  private boolean cachedActive = true;
 
   public TextInput(int posX, int posY, int width, int height) {
     this(posX, posY, width, height, null);
@@ -80,25 +76,6 @@ public class TextInput extends Widget {
       if (onChange != null) {
         editBox.setResponder(onChange);
       }
-      // Invalidate cache so syncEditBoxBounds() will run
-      cachedX = Integer.MIN_VALUE;
-    }
-  }
-
-  private void syncEditBoxBounds() {
-    int x = getX();
-    int y = getY();
-    int w = width;
-    boolean a = active;
-    if (x != cachedX || y != cachedY || w != cachedW || a != cachedActive) {
-      editBox.setX(x + 2);
-      editBox.setY(y + (height - 8) / 2);
-      editBox.setWidth(w - 4);
-      editBox.setEditable(a);
-      cachedX = x;
-      cachedY = y;
-      cachedW = w;
-      cachedActive = a;
     }
   }
 
@@ -108,7 +85,10 @@ public class TextInput extends Widget {
       return;
     }
     ensureEditBox();
-    syncEditBoxBounds();
+    editBox.setX(getX() + 2);
+    editBox.setY(getY() + (height - 8) / 2);
+    editBox.setWidth(width - 4);
+    editBox.setEditable(active);
     ColorPalette palette = ColorPalette.current();
     int x = getX();
     int y = getY();
@@ -128,6 +108,7 @@ public class TextInput extends Widget {
     } else if (editBox != null) {
       editBox.setFocused(false);
     }
+
     return false;
   }
 
@@ -136,6 +117,7 @@ public class TextInput extends Widget {
     if (editBox != null && editBox.isFocused()) {
       return editBox.keyPressed(keyCode, scanCode, modifiers);
     }
+
     return false;
   }
 
@@ -144,6 +126,7 @@ public class TextInput extends Widget {
     if (editBox != null && editBox.isFocused()) {
       return editBox.charTyped(codePoint, modifiers);
     }
+
     return false;
   }
 

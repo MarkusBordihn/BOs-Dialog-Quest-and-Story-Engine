@@ -31,18 +31,20 @@ public abstract class AbstractButton extends Widget {
     super(posX, posY, width, height);
   }
 
-  protected int resolveBgColor(ColorPalette p) {
+  protected int resolveBgColor(ColorPalette palette) {
     if (!active) {
-      return p.surfaceContainerLow();
+      return palette.surfaceContainerLow();
     }
+
     if (pressed || hovered) {
-      return p.surfaceContainerHigh();
+      return palette.surfaceContainerHigh();
     }
-    return p.surfaceContainer();
+
+    return palette.surfaceContainer();
   }
 
-  protected int resolveTextColor(ColorPalette p) {
-    return active ? p.onSurface() : p.onSurfaceLow();
+  protected int resolveTextColor(ColorPalette palette) {
+    return active ? palette.onSurface() : palette.onSurfaceLow();
   }
 
   protected void onPress() {}
@@ -53,6 +55,7 @@ public abstract class AbstractButton extends Widget {
       pressed = true;
       return true;
     }
+
     return false;
   }
 
@@ -65,6 +68,7 @@ public abstract class AbstractButton extends Widget {
       }
       return true;
     }
+
     return false;
   }
 }

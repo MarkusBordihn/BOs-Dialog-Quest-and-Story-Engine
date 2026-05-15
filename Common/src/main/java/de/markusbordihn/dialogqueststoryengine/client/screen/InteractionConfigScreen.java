@@ -21,13 +21,14 @@ package de.markusbordihn.dialogqueststoryengine.client.screen;
 
 import de.markusbordihn.dialogqueststoryengine.Constants;
 import de.markusbordihn.dialogqueststoryengine.client.screen.ui.BaseScreen;
-import de.markusbordihn.dialogqueststoryengine.client.screen.ui.ScaledText;
 import de.markusbordihn.dialogqueststoryengine.client.screen.ui.components.BreadcrumbBar;
 import de.markusbordihn.dialogqueststoryengine.client.screen.ui.components.Label;
+import de.markusbordihn.dialogqueststoryengine.client.screen.ui.components.ScaledText;
 import de.markusbordihn.dialogqueststoryengine.client.screen.ui.components.SelectBox;
 import de.markusbordihn.dialogqueststoryengine.client.screen.ui.components.SelectOption;
 import de.markusbordihn.dialogqueststoryengine.client.screen.ui.components.Separator;
 import de.markusbordihn.dialogqueststoryengine.client.screen.ui.components.TextButton;
+import de.markusbordihn.dialogqueststoryengine.client.screen.ui.components.TextComponent;
 import de.markusbordihn.dialogqueststoryengine.client.screen.ui.components.TextInput;
 import de.markusbordihn.dialogqueststoryengine.data.interaction.InteractionDataEntry;
 import de.markusbordihn.dialogqueststoryengine.data.interaction.InteractionType;
@@ -80,6 +81,7 @@ public class InteractionConfigScreen extends BaseScreen {
       String shortId = entry.targetId() != null ? entry.targetId().toString().substring(0, 8) : "?";
       return "Entity (" + shortId + ")";
     }
+
     String kindName = entry.kind() == TargetKind.BLOCK_ENTITY ? "Block Entity" : "Block";
     return entry.blockPos() != null
         ? kindName + " (" + entry.blockPos().toShortString() + ")"
@@ -92,10 +94,10 @@ public class InteractionConfigScreen extends BaseScreen {
 
   public static void openWithData(
       InteractionDataEntry entry, boolean isNew, List<BreadcrumbBar.Segment> ancestors) {
-    Minecraft mc = Minecraft.getInstance();
-    mc.execute(
+    Minecraft minecraft = Minecraft.getInstance();
+    minecraft.execute(
         () -> {
-          if (mc.screen instanceof BaseScreen.ScreenWrapper) {
+          if (minecraft.screen instanceof BaseScreen.ScreenWrapper) {
             return;
           }
           InteractionConfigScreen screen = new InteractionConfigScreen(entry, isNew, ancestors);
@@ -105,7 +107,7 @@ public class InteractionConfigScreen extends BaseScreen {
 
   @Override
   protected Component getTitle() {
-    return Component.translatable("screen.dialog_quest_and_story_engine.interaction_config");
+    return TextComponent.ofKey("screen.dialog_quest_and_story_engine.interaction_config");
   }
 
   @Override
@@ -116,26 +118,21 @@ public class InteractionConfigScreen extends BaseScreen {
 
   @Override
   protected void addWidgets() {
-    int innerW = getInnerWidth();
-    int col1 = 0;
-    int col2 = 70;
-    int fieldW = innerW - col2 - 10;
+    int innerWidth = getInnerWidth();
+    int labelColumnX = 0;
+    int fieldColumnX = 70;
+    int fieldWidth = innerWidth - fieldColumnX - 10;
     int row = 0;
-    int rowH = 22;
+    int rowHeight = 22;
 
     addWidget(
         new Label(
-            col1,
-            row + 4,
-            "gui.dialog_quest_and_story_engine.field.label",
-            0,
-            ScaledText.SCALE_SMALL,
-            Label.Alignment.LEFT));
-    labelInput = new TextInput(col2, row, fieldW, 16, value -> editLabel = value);
+            labelColumnX, row + 4, "field.label", 0, ScaledText.SCALE_SMALL, Label.Alignment.LEFT));
+    labelInput = new TextInput(fieldColumnX, row, fieldWidth, 16, value -> editLabel = value);
     labelInput.setValue(editLabel);
     labelInput.setMaxLength(128);
     addWidget(labelInput);
-    row += rowH;
+    row += rowHeight;
 
     List<SelectOption<InteractionType>> typeOptions =
         Arrays.stream(InteractionType.values())
@@ -143,17 +140,12 @@ public class InteractionConfigScreen extends BaseScreen {
             .collect(Collectors.toList());
     addWidget(
         new Label(
-            col1,
-            row + 4,
-            "gui.dialog_quest_and_story_engine.field.type",
-            0,
-            ScaledText.SCALE_SMALL,
-            Label.Alignment.LEFT));
+            labelColumnX, row + 4, "field.type", 0, ScaledText.SCALE_SMALL, Label.Alignment.LEFT));
     typeSelect =
         new SelectBox<>(
-            col2,
+            fieldColumnX,
             row,
-            Math.min(fieldW, 120),
+            Math.min(fieldWidth, 120),
             16,
             typeOptions,
             type -> editType = type,
@@ -161,69 +153,74 @@ public class InteractionConfigScreen extends BaseScreen {
             this::closeOverlay);
     typeSelect.selectByValue(editType);
     addWidget(typeSelect);
-    row += rowH;
+    row += rowHeight;
 
     addWidget(
         new Label(
-            col1,
+            labelColumnX,
             row + 4,
-            "gui.dialog_quest_and_story_engine.field.target",
+            "field.target",
             0,
             ScaledText.SCALE_SMALL,
             Label.Alignment.LEFT));
     addWidget(
         new Label(
-            col2, row + 4, entry.kind().name(), 0, ScaledText.SCALE_SMALL, Label.Alignment.LEFT));
-    row += rowH;
+            fieldColumnX,
+            row + 4,
+            entry.kind().name(),
+            0,
+            ScaledText.SCALE_SMALL,
+            Label.Alignment.LEFT));
+    row += rowHeight;
 
     if (entry.blockPos() != null) {
       addWidget(
           new Label(
-              col1,
+              labelColumnX,
               row + 4,
-              "gui.dialog_quest_and_story_engine.field.position",
+              "field.position",
               0,
               ScaledText.SCALE_SMALL,
               Label.Alignment.LEFT));
       addWidget(
           new Label(
-              col2,
+              fieldColumnX,
               row + 4,
               entry.blockPos().toShortString(),
               0,
               ScaledText.SCALE_SMALL,
               Label.Alignment.LEFT));
-      row += rowH;
+      row += rowHeight;
     }
 
     addWidget(
         new Label(
-            col1,
+            labelColumnX,
             row + 4,
-            "gui.dialog_quest_and_story_engine.field.dimension",
+            "field.dimension",
             0,
             ScaledText.SCALE_SMALL,
             Label.Alignment.LEFT));
     addWidget(
         new Label(
-            col2,
+            fieldColumnX,
             row + 4,
             entry.dimension().toString(),
             0,
             ScaledText.SCALE_SMALL,
             Label.Alignment.LEFT));
-    row += rowH;
+    row += rowHeight;
 
-    addWidget(new Separator(0, row, innerW, true));
+    addWidget(new Separator(0, row, innerWidth, true));
     row += 6;
 
     TextButton actionsButton =
         new TextButton(
-            col1,
+            labelColumnX,
             row,
-            Math.min(innerW, 160),
+            Math.min(innerWidth, 160),
             20,
-            "gui.dialog_quest_and_story_engine.button.edit_actions",
+            "button.edit_actions",
             btn -> {
               List<BreadcrumbBar.Segment> childAncestors = buildChildAncestors();
               ActionEditorScreen editorScreen = new ActionEditorScreen(entry, childAncestors);
@@ -232,37 +229,31 @@ public class InteractionConfigScreen extends BaseScreen {
     addWidget(actionsButton);
     row += 28;
 
-    int btnW = 70;
+    int buttonWidth = 70;
     int btnSpacing = 8;
     int buttonCount = isNew ? 2 : 3;
-    int totalBtnW = btnW * buttonCount + btnSpacing * (buttonCount - 1);
-    int btnStartX = (innerW - totalBtnW) / 2;
+    int totalButtonWidth = buttonWidth * buttonCount + btnSpacing * (buttonCount - 1);
+    int buttonStartX = (innerWidth - totalButtonWidth) / 2;
 
     addWidget(
-        new TextButton(
-            btnStartX,
-            row,
-            btnW,
-            20,
-            "gui.dialog_quest_and_story_engine.button.save",
-            btn -> saveAndClose()));
+        new TextButton(buttonStartX, row, buttonWidth, 20, "button.save", btn -> saveAndClose()));
     addWidget(
         new TextButton(
-            btnStartX + btnW + btnSpacing,
+            buttonStartX + buttonWidth + btnSpacing,
             row,
-            btnW,
+            buttonWidth,
             20,
-            "gui.dialog_quest_and_story_engine.button.cancel",
+            "button.cancel",
             btn -> closeScreen()));
 
     if (!isNew) {
       TextButton removeBtn =
           new TextButton(
-              btnStartX + (btnW + btnSpacing) * 2,
+              buttonStartX + (buttonWidth + btnSpacing) * 2,
               row,
-              btnW,
+              buttonWidth,
               20,
-              "gui.dialog_quest_and_story_engine.button.remove",
+              "button.remove",
               btn -> {
                 NetworkHandlerManager.sendToServer(new RemoveInteractionMessage(entry));
                 closeScreen();

@@ -17,11 +17,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package de.markusbordihn.dialogqueststoryengine.client.screen.ui;
+package de.markusbordihn.dialogqueststoryengine.client.screen.ui.components;
 
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Component;
 
 public final class ScaledText {
@@ -31,27 +30,18 @@ public final class ScaledText {
   public static final float SCALE_COMPACT = 0.5f;
 
   public static final float SCALE_HEADING = SCALE_NORMAL;
-
   public static final float SCALE_BODY = SCALE_SMALL;
-
   public static final float SCALE_CAPTION = SCALE_COMPACT;
 
   private ScaledText() {}
 
-  public static String resolveText(String text) {
-    if (text != null && text.matches("[a-z][a-z0-9_]*(\\.[a-z0-9_]+)+")) {
-      return I18n.get(text);
-    }
-    return text;
-  }
-
   public static void draw(
       GuiGraphics graphics, Font font, String text, int x, int y, int color, float scale) {
-    text = resolveText(text);
     if (scale == SCALE_NORMAL) {
       graphics.drawString(font, text, x, y, color, false);
       return;
     }
+
     graphics.pose().pushPose();
     graphics.pose().translate(x, y, 0);
     graphics.pose().scale(scale, scale, 1.0f);
@@ -65,6 +55,7 @@ public final class ScaledText {
       graphics.drawString(font, text, x, y, color, false);
       return;
     }
+
     graphics.pose().pushPose();
     graphics.pose().translate(x, y, 0);
     graphics.pose().scale(scale, scale, 1.0f);
@@ -74,11 +65,11 @@ public final class ScaledText {
 
   public static void drawShadow(
       GuiGraphics graphics, Font font, String text, int x, int y, int color, float scale) {
-    text = resolveText(text);
     if (scale == SCALE_NORMAL) {
       graphics.drawString(font, text, x, y, color, true);
       return;
     }
+
     graphics.pose().pushPose();
     graphics.pose().translate(x, y, 0);
     graphics.pose().scale(scale, scale, 1.0f);
@@ -88,7 +79,6 @@ public final class ScaledText {
 
   public static void drawCentered(
       GuiGraphics graphics, Font font, String text, int centerX, int y, int color, float scale) {
-    text = resolveText(text);
     int textWidth = getScaledWidth(font, text, scale);
     draw(graphics, font, text, centerX - textWidth / 2, y, color, scale);
   }
@@ -100,7 +90,7 @@ public final class ScaledText {
   }
 
   public static int getScaledWidth(Font font, String text, float scale) {
-    return (int) (font.width(resolveText(text)) * scale);
+    return (int) (font.width(text) * scale);
   }
 
   public static int getScaledWidth(Font font, Component text, float scale) {

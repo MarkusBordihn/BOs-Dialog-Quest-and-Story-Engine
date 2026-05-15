@@ -20,9 +20,10 @@
 package de.markusbordihn.dialogqueststoryengine.client.screen;
 
 import de.markusbordihn.dialogqueststoryengine.client.screen.ui.BaseScreen;
-import de.markusbordihn.dialogqueststoryengine.client.screen.ui.ScaledText;
 import de.markusbordihn.dialogqueststoryengine.client.screen.ui.components.BreadcrumbBar;
 import de.markusbordihn.dialogqueststoryengine.client.screen.ui.components.Label;
+import de.markusbordihn.dialogqueststoryengine.client.screen.ui.components.ScaledText;
+import de.markusbordihn.dialogqueststoryengine.client.screen.ui.components.TextComponent;
 import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
@@ -44,7 +45,7 @@ public class StoryOverviewScreen extends BaseScreen {
 
   @Override
   protected Component getTitle() {
-    return Component.translatable("screen.dialog_quest_and_story_engine.story_overview");
+    return TextComponent.ofKey("screen.dialog_quest_and_story_engine.story_overview");
   }
 
   @Override
@@ -55,12 +56,11 @@ public class StoryOverviewScreen extends BaseScreen {
 
   @Override
   protected void addWidgets() {
-    int innerW = getInnerWidth();
     addWidget(
         new Label(
-            innerW / 2,
+            getInnerWidth() / 2,
             16,
-            "gui.dialog_quest_and_story_engine.coming_soon",
+            "coming_soon",
             0,
             ScaledText.SCALE_NORMAL,
             Label.Alignment.CENTER));

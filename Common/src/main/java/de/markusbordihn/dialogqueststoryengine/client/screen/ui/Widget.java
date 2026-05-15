@@ -24,6 +24,9 @@ import net.minecraft.client.gui.GuiGraphics;
 
 public class Widget {
 
+  private static final float BEVEL_LIGHTEN = 0.30f;
+  private static final float BEVEL_DARKEN = 0.20f;
+
   protected int posX;
   protected int posY;
   protected int width;
@@ -40,54 +43,59 @@ public class Widget {
     this.height = height;
   }
 
-  protected static void fillRect(GuiGraphics g, int x, int y, int w, int h, int color) {
-    g.fill(x, y, x + w, y + h, color);
+  protected static void fillRect(
+      GuiGraphics graphics, int x, int y, int width, int height, int color) {
+    graphics.fill(x, y, x + width, y + height, color);
   }
 
-  protected static void fillRoundedRect(GuiGraphics g, int x, int y, int w, int h, int color) {
-    g.fill(x + 2, y + 1, x + w - 2, y + h - 1, color);
-    g.fill(x + 1, y + 2, x + w - 1, y + h - 2, color);
+  protected static void fillRoundedRect(
+      GuiGraphics graphics, int x, int y, int width, int height, int color) {
+    graphics.fill(x + 2, y + 1, x + width - 2, y + height - 1, color);
+    graphics.fill(x + 1, y + 2, x + width - 1, y + height - 2, color);
   }
 
-  protected static void drawBorder(GuiGraphics g, int x, int y, int w, int h, int color) {
-    g.fill(x, y, x + w, y + 1, color);
-    g.fill(x, y + h - 1, x + w, y + h, color);
-    g.fill(x, y, x + 1, y + h, color);
-    g.fill(x + w - 1, y, x + w, y + h, color);
+  protected static void drawBorder(
+      GuiGraphics graphics, int x, int y, int width, int height, int color) {
+    graphics.fill(x, y, x + width, y + 1, color);
+    graphics.fill(x, y + height - 1, x + width, y + height, color);
+    graphics.fill(x, y, x + 1, y + height, color);
+    graphics.fill(x + width - 1, y, x + width, y + height, color);
   }
 
-  protected static void drawBorderBevel(GuiGraphics g, int x, int y, int w, int h, int color) {
-    int light = lighten(color, 0.30f);
-    int dark = darken(color, 0.20f);
-    g.fill(x, y, x + w, y + 1, light);
-    g.fill(x, y, x + 1, y + h, light);
-    g.fill(x, y + h - 1, x + w, y + h, dark);
-    g.fill(x + w - 1, y, x + w, y + h, dark);
+  protected static void drawBorderBevel(
+      GuiGraphics graphics, int x, int y, int width, int height, int color) {
+    int light = lighten(color, BEVEL_LIGHTEN);
+    int dark = darken(color, BEVEL_DARKEN);
+    graphics.fill(x, y, x + width, y + 1, light);
+    graphics.fill(x, y, x + 1, y + height, light);
+    graphics.fill(x, y + height - 1, x + width, y + height, dark);
+    graphics.fill(x + width - 1, y, x + width, y + height, dark);
   }
 
-  protected static void drawBorderRounded(GuiGraphics g, int x, int y, int w, int h, int color) {
-    g.fill(x + 2, y, x + w - 2, y + 1, color);
-    g.fill(x + 2, y + h - 1, x + w - 2, y + h, color);
-    g.fill(x, y + 2, x + 1, y + h - 2, color);
-    g.fill(x + w - 1, y + 2, x + w, y + h - 2, color);
-    g.fill(x + 1, y + 1, x + 2, y + 2, color);
-    g.fill(x + w - 2, y + 1, x + w - 1, y + 2, color);
-    g.fill(x + 1, y + h - 2, x + 2, y + h - 1, color);
-    g.fill(x + w - 2, y + h - 2, x + w - 1, y + h - 1, color);
+  protected static void drawBorderRounded(
+      GuiGraphics graphics, int x, int y, int width, int height, int color) {
+    graphics.fill(x + 2, y, x + width - 2, y + 1, color);
+    graphics.fill(x + 2, y + height - 1, x + width - 2, y + height, color);
+    graphics.fill(x, y + 2, x + 1, y + height - 2, color);
+    graphics.fill(x + width - 1, y + 2, x + width, y + height - 2, color);
+    graphics.fill(x + 1, y + 1, x + 2, y + 2, color);
+    graphics.fill(x + width - 2, y + 1, x + width - 1, y + 2, color);
+    graphics.fill(x + 1, y + height - 2, x + 2, y + height - 1, color);
+    graphics.fill(x + width - 2, y + height - 2, x + width - 1, y + height - 1, color);
   }
 
   protected static void drawBorderRoundedBevel(
-      GuiGraphics g, int x, int y, int w, int h, int color) {
-    int light = lighten(color, 0.30f);
-    int dark = darken(color, 0.20f);
-    g.fill(x + 2, y, x + w - 2, y + 1, light);
-    g.fill(x, y + 2, x + 1, y + h - 2, light);
-    g.fill(x + 2, y + h - 1, x + w - 2, y + h, dark);
-    g.fill(x + w - 1, y + 2, x + w, y + h - 2, dark);
-    g.fill(x + 1, y + 1, x + 2, y + 2, light);
-    g.fill(x + w - 2, y + 1, x + w - 1, y + 2, color);
-    g.fill(x + 1, y + h - 2, x + 2, y + h - 1, color);
-    g.fill(x + w - 2, y + h - 2, x + w - 1, y + h - 1, dark);
+      GuiGraphics graphics, int x, int y, int width, int height, int color) {
+    int light = lighten(color, BEVEL_LIGHTEN);
+    int dark = darken(color, BEVEL_DARKEN);
+    graphics.fill(x + 2, y, x + width - 2, y + 1, light);
+    graphics.fill(x, y + 2, x + 1, y + height - 2, light);
+    graphics.fill(x + 2, y + height - 1, x + width - 2, y + height, dark);
+    graphics.fill(x + width - 1, y + 2, x + width, y + height - 2, dark);
+    graphics.fill(x + 1, y + 1, x + 2, y + 2, light);
+    graphics.fill(x + width - 2, y + 1, x + width - 1, y + 2, color);
+    graphics.fill(x + 1, y + height - 2, x + 2, y + height - 1, color);
+    graphics.fill(x + width - 2, y + height - 2, x + width - 1, y + height - 1, dark);
   }
 
   protected static int lighten(int argb, float factor) {
