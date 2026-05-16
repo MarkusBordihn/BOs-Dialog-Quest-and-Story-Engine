@@ -6,15 +6,15 @@
   "required": ["schema", "id", "type"],
   "additionalProperties": false,
   "properties": {
-    "$schema": { "type": "string" },
-    "schema": { "type": "integer", "const": 1 },
+    "$schema": {"type": "string"},
+    "schema": {"type": "integer", "const": 1},
     "id": {
       "type": "string",
       "pattern": "^[a-z0-9_.-]+:[a-z0-9_./-]+$",
       "description": "ResourceLocation ID, e.g. 'mymod:npc/greeting'"
     },
-    "type": { "type": "string", "const": "dialog" },
-    "entry_node": { "type": "string" },
+    "type": {"type": "string", "const": "dialog"},
+    "entry_node": {"type": "string"},
     "nodes": {
       "type": "array",
       "items": {
@@ -22,12 +22,12 @@
         "required": ["node_id", "text_key"],
         "additionalProperties": true,
         "properties": {
-          "node_id": { "type": "string" },
-          "text_key": { "type": "string" },
-          "conditions": { "type": "array", "items": { "type": "object" } },
-          "actions": { "type": "array", "items": { "type": "object" } },
-          "choices": { "type": "array", "items": { "type": "object" } },
-          "next": { "type": "string" }
+          "node_id": {"type": "string"},
+          "text_key": {"type": "string"},
+          "conditions": {"type": "array", "items": {"type": "object"}},
+          "actions": {"type": "array", "items": {"type": "object"}},
+          "choices": {"type": "array", "items": {"type": "object"}},
+          "next": {"type": "string"}
         }
       }
     }

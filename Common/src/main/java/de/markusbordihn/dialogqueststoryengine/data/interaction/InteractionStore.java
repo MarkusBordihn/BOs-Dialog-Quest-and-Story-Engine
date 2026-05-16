@@ -32,49 +32,49 @@ import net.minecraft.nbt.Tag;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class InteractionDataSet {
+public class InteractionStore {
 
   private static final Logger log = LogManager.getLogger(Constants.LOG_NAME);
   private static final String TAG_ENTRIES = "Entries";
 
-  private final Map<UUID, List<InteractionDataEntry>> entries = new HashMap<>();
-  private List<InteractionDataEntry> cachedAllEntries;
+  private final Map<UUID, List<InteractionEntry>> entries = new HashMap<>();
+  private List<InteractionEntry> cachedAllEntries;
   private int totalSize;
   private boolean hasStepOnInteractions;
 
-  public InteractionDataSet() {}
+  public InteractionStore() {}
 
-  public InteractionDataSet(CompoundTag tag) {
+  public InteractionStore(CompoundTag tag) {
     load(tag);
   }
 
-  public void register(InteractionDataEntry entry) {
-    List<InteractionDataEntry> list =
-        entries.computeIfAbsent(entry.targetId(), k -> new ArrayList<>());
-    list.removeIf(existing -> existing.type() == entry.type());
+  public void register(InteractionEntry entry) {
+    List<InteractionEntry> list =
+        this.entries.computeIfAbsent(entry.targetId(), targetId -> new ArrayList<>());
+    list.removeIf(existing -> existing.eventType().equals(entry.eventType()));
     list.add(entry);
     invalidateCache();
     log.info("Registered interaction: {}", entry);
   }
 
-  public boolean unregister(UUID targetId, InteractionType type) {
-    List<InteractionDataEntry> list = entries.get(targetId);
+  public boolean unregister(UUID targetId, InteractionEventType eventType) {
+    List<InteractionEntry> list = this.entries.get(targetId);
     if (list == null) {
       return false;
     }
-    boolean removed = list.removeIf(e -> e.type() == type);
+    boolean removed = list.removeIf(entry -> entry.eventType().equals(eventType));
     if (list.isEmpty()) {
-      entries.remove(targetId);
+      this.entries.remove(targetId);
     }
     if (removed) {
       invalidateCache();
-      log.info("Unregistered interaction {} for target {}", type, targetId);
+      log.info("Unregistered interaction {} for target {}", eventType, targetId);
     }
     return removed;
   }
 
   public int unregisterAll(UUID targetId) {
-    List<InteractionDataEntry> list = entries.remove(targetId);
+    List<InteractionEntry> list = this.entries.remove(targetId);
     if (list == null || list.isEmpty()) {
       return 0;
     }
@@ -84,60 +84,60 @@ public class InteractionDataSet {
     return count;
   }
 
-  public boolean hasInteraction(UUID targetId, InteractionType type) {
-    return getInteraction(targetId, type) != null;
+  public boolean hasInteraction(UUID targetId, InteractionEventType eventType) {
+    return getInteraction(targetId, eventType) != null;
   }
 
-  public InteractionDataEntry getInteraction(UUID targetId, InteractionType type) {
-    List<InteractionDataEntry> list = entries.get(targetId);
+  public InteractionEntry getInteraction(UUID targetId, InteractionEventType eventType) {
+    List<InteractionEntry> list = this.entries.get(targetId);
     if (list == null) {
       return null;
     }
-    for (InteractionDataEntry entry : list) {
-      if (entry.type() == type) {
+    for (InteractionEntry entry : list) {
+      if (entry.eventType().equals(eventType)) {
         return entry;
       }
     }
     return null;
   }
 
-  public InteractionDataEntry getFirstInteraction(UUID targetId) {
-    List<InteractionDataEntry> list = entries.get(targetId);
+  public InteractionEntry getFirstInteraction(UUID targetId) {
+    List<InteractionEntry> list = this.entries.get(targetId);
     if (list == null || list.isEmpty()) {
       return null;
     }
     return list.get(0);
   }
 
-  public List<InteractionDataEntry> getInteractions(UUID targetId) {
-    List<InteractionDataEntry> list = entries.get(targetId);
+  public List<InteractionEntry> getInteractionsForTarget(UUID targetId) {
+    List<InteractionEntry> list = this.entries.get(targetId);
     if (list == null) {
       return Collections.emptyList();
     }
     return Collections.unmodifiableList(list);
   }
 
-  public List<InteractionDataEntry> getAllEntries() {
-    if (cachedAllEntries == null) {
-      List<InteractionDataEntry> all = new ArrayList<>(totalSize);
-      for (List<InteractionDataEntry> list : entries.values()) {
+  public List<InteractionEntry> getAllEntries() {
+    if (this.cachedAllEntries == null) {
+      List<InteractionEntry> all = new ArrayList<>(this.totalSize);
+      for (List<InteractionEntry> list : this.entries.values()) {
         all.addAll(list);
       }
-      cachedAllEntries = all;
+      this.cachedAllEntries = all;
     }
-    return cachedAllEntries;
+    return this.cachedAllEntries;
   }
 
   public int size() {
-    return totalSize;
+    return this.totalSize;
   }
 
   public boolean hasStepOnInteractions() {
-    return hasStepOnInteractions;
+    return this.hasStepOnInteractions;
   }
 
   public void clearAll() {
-    entries.clear();
+    this.entries.clear();
     invalidateCache();
     log.info("Cleared all interaction mappings.");
   }
@@ -145,8 +145,8 @@ public class InteractionDataSet {
   public CompoundTag save() {
     CompoundTag tag = new CompoundTag();
     ListTag listTag = new ListTag();
-    for (List<InteractionDataEntry> list : entries.values()) {
-      for (InteractionDataEntry entry : list) {
+    for (List<InteractionEntry> list : this.entries.values()) {
+      for (InteractionEntry entry : list) {
         listTag.add(entry.save());
       }
     }
@@ -155,30 +155,30 @@ public class InteractionDataSet {
   }
 
   public void load(CompoundTag tag) {
-    entries.clear();
+    this.entries.clear();
     if (tag.contains(TAG_ENTRIES, Tag.TAG_LIST)) {
       ListTag listTag = tag.getList(TAG_ENTRIES, Tag.TAG_COMPOUND);
       for (int i = 0; i < listTag.size(); i++) {
-        InteractionDataEntry entry = InteractionDataEntry.load(listTag.getCompound(i));
+        InteractionEntry entry = InteractionEntry.load(listTag.getCompound(i));
         if (entry != null) {
-          entries.computeIfAbsent(entry.targetId(), k -> new ArrayList<>()).add(entry);
+          this.entries.computeIfAbsent(entry.targetId(), targetId -> new ArrayList<>()).add(entry);
         }
       }
     }
     invalidateCache();
-    log.info("Loaded {} interaction mapping(s).", totalSize);
+    log.info("Loaded {} interaction mapping(s).", this.totalSize);
   }
 
   private void invalidateCache() {
-    cachedAllEntries = null;
-    totalSize = 0;
-    hasStepOnInteractions = false;
-    for (List<InteractionDataEntry> list : entries.values()) {
-      totalSize += list.size();
-      if (!hasStepOnInteractions) {
-        for (InteractionDataEntry entry : list) {
-          if (entry.type() == InteractionType.STEP_ON) {
-            hasStepOnInteractions = true;
+    this.cachedAllEntries = null;
+    this.totalSize = 0;
+    this.hasStepOnInteractions = false;
+    for (List<InteractionEntry> list : this.entries.values()) {
+      this.totalSize += list.size();
+      if (!this.hasStepOnInteractions) {
+        for (InteractionEntry entry : list) {
+          if (entry.eventType() == InteractionEventType.ON_STEP_ON) {
+            this.hasStepOnInteractions = true;
             break;
           }
         }

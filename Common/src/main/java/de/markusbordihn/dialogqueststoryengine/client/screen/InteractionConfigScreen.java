@@ -30,7 +30,7 @@ import de.markusbordihn.dialogqueststoryengine.client.screen.ui.components.Separ
 import de.markusbordihn.dialogqueststoryengine.client.screen.ui.components.TextButton;
 import de.markusbordihn.dialogqueststoryengine.client.screen.ui.components.TextComponent;
 import de.markusbordihn.dialogqueststoryengine.client.screen.ui.components.TextInput;
-import de.markusbordihn.dialogqueststoryengine.data.interaction.InteractionDataEntry;
+import de.markusbordihn.dialogqueststoryengine.data.interaction.InteractionEntry;
 import de.markusbordihn.dialogqueststoryengine.data.interaction.InteractionType;
 import de.markusbordihn.dialogqueststoryengine.data.interaction.TargetKind;
 import de.markusbordihn.dialogqueststoryengine.network.NetworkHandlerManager;
@@ -48,7 +48,7 @@ public class InteractionConfigScreen extends BaseScreen {
 
   private static final Logger log = LogManager.getLogger(Constants.LOG_NAME);
   private final boolean isNew;
-  private InteractionDataEntry entry;
+  private InteractionEntry entry;
   private String editLabel;
   private InteractionType editType;
 
@@ -56,44 +56,44 @@ public class InteractionConfigScreen extends BaseScreen {
   private SelectBox<InteractionType> typeSelect;
 
   public InteractionConfigScreen(
-      InteractionDataEntry entry,
+      InteractionEntry entry,
       boolean isNew,
       List<BreadcrumbBar.Segment> ancestors,
       String currentLabel) {
     this.entry = entry;
     this.isNew = isNew;
     this.editLabel = entry.label();
-    this.editType = entry.type();
+    this.editType = entry.interactionType();
     setBreadcrumb(ancestors, currentLabel);
   }
 
   public InteractionConfigScreen(
-      InteractionDataEntry entry, boolean isNew, List<BreadcrumbBar.Segment> ancestors) {
+      InteractionEntry entry, boolean isNew, List<BreadcrumbBar.Segment> ancestors) {
     this(entry, isNew, ancestors, targetContextLabel(entry));
   }
 
-  public InteractionConfigScreen(InteractionDataEntry entry, boolean isNew) {
+  public InteractionConfigScreen(InteractionEntry entry, boolean isNew) {
     this(entry, isNew, List.of());
   }
 
-  public static String targetContextLabel(InteractionDataEntry entry) {
-    if (entry.kind() == TargetKind.ENTITY) {
+  public static String targetContextLabel(InteractionEntry entry) {
+    if (entry.targetKind() == TargetKind.ENTITY) {
       String shortId = entry.targetId() != null ? entry.targetId().toString().substring(0, 8) : "?";
       return "Entity (" + shortId + ")";
     }
 
-    String kindName = entry.kind() == TargetKind.BLOCK_ENTITY ? "Block Entity" : "Block";
+    String kindName = entry.targetKind() == TargetKind.BLOCK_ENTITY ? "Block Entity" : "Block";
     return entry.blockPos() != null
         ? kindName + " (" + entry.blockPos().toShortString() + ")"
         : kindName;
   }
 
-  public static void openWithData(InteractionDataEntry entry, boolean isNew) {
+  public static void openWithData(InteractionEntry entry, boolean isNew) {
     openWithData(entry, isNew, List.of());
   }
 
   public static void openWithData(
-      InteractionDataEntry entry, boolean isNew, List<BreadcrumbBar.Segment> ancestors) {
+      InteractionEntry entry, boolean isNew, List<BreadcrumbBar.Segment> ancestors) {
     Minecraft minecraft = Minecraft.getInstance();
     minecraft.execute(
         () -> {
@@ -167,7 +167,7 @@ public class InteractionConfigScreen extends BaseScreen {
         new Label(
             fieldColumnX,
             row + 4,
-            entry.kind().name(),
+            entry.targetKind().name(),
             0,
             ScaledText.SCALE_SMALL,
             Label.Alignment.LEFT));
@@ -267,9 +267,7 @@ public class InteractionConfigScreen extends BaseScreen {
     if (label.isEmpty()) {
       label = editLabel;
     }
-    InteractionDataEntry updatedEntry =
-        new InteractionDataEntry(
-            entry.targetId(), editType, entry.kind(), label, entry.dimension(), entry.blockPos());
+    InteractionEntry updatedEntry = entry.withEdits(editType, label);
     NetworkHandlerManager.sendToServer(new SaveInteractionMessage(updatedEntry));
     closeScreen();
   }

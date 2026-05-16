@@ -17,29 +17,22 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package de.markusbordihn.dialogqueststoryengine.server.commands;
+package de.markusbordihn.dialogqueststoryengine.interaction.handler;
 
-import com.mojang.brigadier.builder.ArgumentBuilder;
-import de.markusbordihn.dialogqueststoryengine.commands.Command;
-import de.markusbordihn.dialogqueststoryengine.data.saveddata.InteractionSavedData;
-import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.commands.Commands;
+import de.markusbordihn.dialogqueststoryengine.interaction.InteractionContext;
+import de.markusbordihn.dialogqueststoryengine.registry.InteractionHandler;
 
-public class ClearCommand extends Command {
+public final class StepOnInteractHandler implements InteractionHandler {
 
-  private ClearCommand() {}
+  public static final StepOnInteractHandler INSTANCE = new StepOnInteractHandler();
 
-  public static ArgumentBuilder<CommandSourceStack, ?> register() {
-    return Commands.literal("clear")
-        .requires(source -> source.hasPermission(PERMISSION_LEVEL))
-        .executes(context -> executeClear(context.getSource()));
-  }
+  private StepOnInteractHandler() {}
 
-  private static int executeClear(CommandSourceStack source) {
-    InteractionSavedData data = InteractionSavedData.get(source.getServer());
-    int count = data.size();
-    data.clearAll();
-    sendSuccessMessage(source, "Cleared " + count + " interaction mapping(s).");
-    return 1;
+  @Override
+  public void handle(InteractionContext context) {
+    log.debug(
+        "Step-on trigger fired for {} by {}",
+        context.entry().targetId(),
+        context.player().getDisplayName().getString());
   }
 }

@@ -26,8 +26,7 @@ import de.markusbordihn.dialogqueststoryengine.client.screen.ui.components.ListP
 import de.markusbordihn.dialogqueststoryengine.client.screen.ui.components.ScaledText;
 import de.markusbordihn.dialogqueststoryengine.client.screen.ui.components.TextButton;
 import de.markusbordihn.dialogqueststoryengine.client.screen.ui.components.TextComponent;
-import de.markusbordihn.dialogqueststoryengine.data.interaction.InteractionDataEntry;
-import de.markusbordihn.dialogqueststoryengine.data.interaction.InteractionType;
+import de.markusbordihn.dialogqueststoryengine.data.interaction.InteractionEntry;
 import de.markusbordihn.dialogqueststoryengine.data.interaction.TargetKind;
 import java.util.List;
 import java.util.UUID;
@@ -40,7 +39,7 @@ import net.minecraft.resources.ResourceLocation;
 
 public class InteractionSelectScreen extends BaseScreen {
 
-  private final List<InteractionDataEntry> entries;
+  private final List<InteractionEntry> entries;
   private final UUID targetId;
   private final TargetKind targetKind;
   private final ResourceLocation dimension;
@@ -48,7 +47,7 @@ public class InteractionSelectScreen extends BaseScreen {
   private final String targetLabel;
 
   public InteractionSelectScreen(
-      List<InteractionDataEntry> entries,
+      List<InteractionEntry> entries,
       UUID targetId,
       TargetKind targetKind,
       ResourceLocation dimension,
@@ -67,7 +66,7 @@ public class InteractionSelectScreen extends BaseScreen {
   }
 
   public static void openWithEntries(
-      List<InteractionDataEntry> entries,
+      List<InteractionEntry> entries,
       UUID targetId,
       TargetKind targetKind,
       ResourceLocation dimension,
@@ -103,7 +102,7 @@ public class InteractionSelectScreen extends BaseScreen {
     int row = 0;
 
     int listHeight = getInnerHeight() - 28;
-    ListPanel<InteractionDataEntry> listPanel = new ListPanel<>(0, row, innerWidth, listHeight);
+    ListPanel<InteractionEntry> listPanel = new ListPanel<>(0, row, innerWidth, listHeight);
     listPanel.setEntryHeight(20);
     listPanel.setEntryRenderer(this::renderEntry);
     listPanel.setOnSelect(
@@ -126,9 +125,8 @@ public class InteractionSelectScreen extends BaseScreen {
             20,
             "button.new_interaction",
             btn -> {
-              InteractionDataEntry template =
-                  new InteractionDataEntry(
-                      targetId, InteractionType.RIGHT_CLICK, targetKind, "", dimension, blockPos);
+              InteractionEntry template =
+                  InteractionEntry.createTemplate(targetId, targetKind, blockPos, dimension);
               List<BreadcrumbBar.Segment> childAncestors = buildChildAncestors(targetLabel);
               InteractionConfigScreen configScreen =
                   new InteractionConfigScreen(template, true, childAncestors);
@@ -139,7 +137,7 @@ public class InteractionSelectScreen extends BaseScreen {
   private void renderEntry(
       GuiGraphics graphics,
       Font font,
-      InteractionDataEntry entry,
+      InteractionEntry entry,
       int index,
       int x,
       int y,
@@ -147,7 +145,7 @@ public class InteractionSelectScreen extends BaseScreen {
       int height,
       ColorPalette palette) {
     float scale = ScaledText.SCALE_SMALL;
-    String typeStr = entry.type().name();
+    String typeStr = entry.interactionType().name();
     String labelStr = entry.label().isEmpty() ? "(no label)" : entry.label();
 
     ScaledText.draw(graphics, font, typeStr, x, y + 3, palette.onSurface(), scale);

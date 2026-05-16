@@ -17,37 +17,29 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package de.markusbordihn.dialogqueststoryengine.migration;
+package de.markusbordihn.dialogqueststoryengine.data.interaction;
 
-import de.markusbordihn.dialogqueststoryengine.data.ContentType;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.EnumMap;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
-public final class ContentMigrationRegistry {
+public enum InteractionSource {
+  WAND,
+  DATAPACK,
+  API;
 
-  public static final ContentMigrationRegistry INSTANCE = new ContentMigrationRegistry();
+  private static final Map<String, InteractionSource> BY_NAME = new HashMap<>();
 
-  private final Map<ContentType, List<DataMigration>> migrations = new EnumMap<>(ContentType.class);
-
-  private ContentMigrationRegistry() {}
-
-  public void register(ContentType contentType, DataMigration migration) {
-    List<DataMigration> migrations =
-        this.migrations.computeIfAbsent(contentType, ignored -> new ArrayList<>());
-    migrations.add(migration);
-    migrations.sort(Comparator.comparingInt(DataMigration::sourceSchema));
+  static {
+    for (InteractionSource source : values()) {
+      BY_NAME.put(source.name().toLowerCase(Locale.ROOT), source);
+    }
   }
 
-  public List<DataMigration> getMigrations(ContentType contentType) {
-    List<DataMigration> migrations = this.migrations.get(contentType);
-    if (migrations == null) {
-      return Collections.emptyList();
+  public static InteractionSource fromName(String name) {
+    if (name == null) {
+      return null;
     }
-
-    return Collections.unmodifiableList(migrations);
+    return BY_NAME.get(name.toLowerCase(Locale.ROOT));
   }
 }

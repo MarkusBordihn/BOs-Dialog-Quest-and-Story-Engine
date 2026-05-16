@@ -17,29 +17,17 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package de.markusbordihn.dialogqueststoryengine.server.commands;
+package de.markusbordihn.dialogqueststoryengine.registry;
 
-import com.mojang.brigadier.builder.ArgumentBuilder;
-import de.markusbordihn.dialogqueststoryengine.commands.Command;
-import de.markusbordihn.dialogqueststoryengine.data.saveddata.InteractionSavedData;
-import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.commands.Commands;
+import de.markusbordihn.dialogqueststoryengine.Constants;
+import de.markusbordihn.dialogqueststoryengine.interaction.InteractionContext;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-public class ClearCommand extends Command {
+@FunctionalInterface
+public interface InteractionHandler {
 
-  private ClearCommand() {}
+  Logger log = LogManager.getLogger(Constants.LOG_NAME);
 
-  public static ArgumentBuilder<CommandSourceStack, ?> register() {
-    return Commands.literal("clear")
-        .requires(source -> source.hasPermission(PERMISSION_LEVEL))
-        .executes(context -> executeClear(context.getSource()));
-  }
-
-  private static int executeClear(CommandSourceStack source) {
-    InteractionSavedData data = InteractionSavedData.get(source.getServer());
-    int count = data.size();
-    data.clearAll();
-    sendSuccessMessage(source, "Cleared " + count + " interaction mapping(s).");
-    return 1;
-  }
+  void handle(InteractionContext context);
 }

@@ -44,11 +44,19 @@ public final class ExtensionRegistry<V> {
   public void register(ResourceLocation id, V handler) {
     if (this.frozen) {
       throw new IllegalStateException(
-          Constants.LOG_PREFIX + " Registry '" + this.registryType.displayName() + "' is frozen — cannot register " + id);
+          Constants.LOG_PREFIX
+              + " Registry '"
+              + this.registryType.displayName()
+              + "' is frozen — cannot register "
+              + id);
     }
 
     if (this.entries.containsKey(id)) {
-      log.warn("{} Registry '{}': duplicate id {} — overwriting.", Constants.LOG_PREFIX, this.registryType.displayName(), id);
+      log.warn(
+          "{} Registry '{}': duplicate id {} — overwriting.",
+          Constants.LOG_PREFIX,
+          this.registryType.displayName(),
+          id);
     }
     this.entries.put(id, handler);
   }
@@ -79,7 +87,11 @@ public final class ExtensionRegistry<V> {
     }
 
     this.frozen = true;
-    log.info("{} Registry '{}' frozen with {} entries.", Constants.LOG_PREFIX, this.registryType.displayName(), this.entries.size());
+    log.info(
+        "{} Registry '{}' frozen with {} entries.",
+        Constants.LOG_PREFIX,
+        this.registryType.displayName(),
+        this.entries.size());
   }
 
   public String name() {

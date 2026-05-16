@@ -30,7 +30,7 @@ import de.markusbordihn.dialogqueststoryengine.client.screen.ui.components.Selec
 import de.markusbordihn.dialogqueststoryengine.client.screen.ui.components.SelectOption;
 import de.markusbordihn.dialogqueststoryengine.client.screen.ui.components.TextComponent;
 import de.markusbordihn.dialogqueststoryengine.data.interaction.ActionType;
-import de.markusbordihn.dialogqueststoryengine.data.interaction.InteractionDataEntry;
+import de.markusbordihn.dialogqueststoryengine.data.interaction.InteractionEntry;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -43,11 +43,11 @@ public class ActionEditorScreen extends BaseScreen {
 
   private static final Logger log = LogManager.getLogger(Constants.LOG_NAME);
 
-  private final InteractionDataEntry entry;
+  private final InteractionEntry entry;
   private ActionType selectedAction = ActionType.NONE;
   private Panel configPanel;
 
-  public ActionEditorScreen(InteractionDataEntry entry, List<BreadcrumbBar.Segment> ancestors) {
+  public ActionEditorScreen(InteractionEntry entry, List<BreadcrumbBar.Segment> ancestors) {
     this.entry = entry;
     setBreadcrumb(ancestors, "Actions");
     setScreenType(ScreenType.ACTIONS);

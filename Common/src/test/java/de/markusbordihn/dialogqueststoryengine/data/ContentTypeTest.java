@@ -28,8 +28,7 @@ class ContentTypeTest {
   @Test
   void allContentTypesHaveValidCurrentSchema() {
     for (ContentType type : ContentType.values()) {
-      assertTrue(
-          type.currentSchema() >= 1, type.name() + " must have currentSchema >= 1");
+      assertTrue(type.currentSchema() >= 1, type.name() + " must have currentSchema >= 1");
     }
   }
 

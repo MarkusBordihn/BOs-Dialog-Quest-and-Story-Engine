@@ -17,6 +17,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package de.markusbordihn.dialogqueststoryengine.registry;
+package de.markusbordihn.dialogqueststoryengine.interaction;
 
-public interface TriggerHandler {}
+import de.markusbordihn.dialogqueststoryengine.data.interaction.InteractionEntry;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+
+public record InteractionContext(InteractionEntry entry, ServerPlayer player, ServerLevel level) {}

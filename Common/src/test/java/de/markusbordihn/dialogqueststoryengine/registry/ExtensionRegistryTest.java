@@ -31,8 +31,10 @@ import org.junit.jupiter.api.Test;
 
 class ExtensionRegistryTest {
 
-  private static final ResourceLocation TEST_ID = new ResourceLocation(Constants.MOD_ID, "test_entry");
-  private static final ResourceLocation OTHER_ID = new ResourceLocation(Constants.MOD_ID, "other_entry");
+  private static final ResourceLocation TEST_ID =
+      new ResourceLocation(Constants.MOD_ID, "test_entry");
+  private static final ResourceLocation OTHER_ID =
+      new ResourceLocation(Constants.MOD_ID, "other_entry");
 
   @Test
   void registerAndGetReturnsValue() {

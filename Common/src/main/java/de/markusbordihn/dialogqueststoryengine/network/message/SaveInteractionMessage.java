@@ -20,8 +20,8 @@
 package de.markusbordihn.dialogqueststoryengine.network.message;
 
 import de.markusbordihn.dialogqueststoryengine.Constants;
-import de.markusbordihn.dialogqueststoryengine.data.interaction.InteractionDataEntry;
-import de.markusbordihn.dialogqueststoryengine.data.saveddata.InteractionData;
+import de.markusbordihn.dialogqueststoryengine.data.interaction.InteractionEntry;
+import de.markusbordihn.dialogqueststoryengine.data.saveddata.InteractionSavedData;
 import de.markusbordihn.dialogqueststoryengine.network.NetworkMessageRecord;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.FriendlyByteBuf;
@@ -31,14 +31,14 @@ import net.minecraft.server.level.ServerPlayer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public record SaveInteractionMessage(InteractionDataEntry entry) implements NetworkMessageRecord {
+public record SaveInteractionMessage(InteractionEntry entry) implements NetworkMessageRecord {
 
   public static final ResourceLocation MESSAGE_ID =
       ResourceLocation.tryParse(Constants.MOD_ID + ":save_interaction");
   private static final Logger log = LogManager.getLogger(Constants.LOG_NAME);
 
   public static SaveInteractionMessage create(FriendlyByteBuf buffer) {
-    InteractionDataEntry entry = InteractionDataEntry.readFromBuf(buffer);
+    InteractionEntry entry = InteractionEntry.readFromBuf(buffer);
     return new SaveInteractionMessage(entry);
   }
 
@@ -58,12 +58,8 @@ public record SaveInteractionMessage(InteractionDataEntry entry) implements Netw
       log.warn("Player {} lacks permission to save interaction.", serverPlayer.getName());
       return;
     }
-    InteractionData data = InteractionData.get();
-    if (data == null) {
-      log.warn("InteractionData not available.");
-      return;
-    }
-    data.unregister(entry.targetId(), entry.type());
+    InteractionSavedData data = InteractionSavedData.get(serverPlayer.server);
+    data.unregister(entry.targetId(), entry.eventType());
     data.register(entry);
     serverPlayer.sendSystemMessage(
         Component.literal("✔ Saved interaction '" + entry.label() + "'.")

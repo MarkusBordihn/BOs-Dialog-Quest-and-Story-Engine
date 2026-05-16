@@ -20,9 +20,9 @@
 package de.markusbordihn.dialogqueststoryengine.network.message;
 
 import de.markusbordihn.dialogqueststoryengine.Constants;
-import de.markusbordihn.dialogqueststoryengine.data.interaction.InteractionDataEntry;
-import de.markusbordihn.dialogqueststoryengine.data.interaction.InteractionType;
-import de.markusbordihn.dialogqueststoryengine.data.saveddata.InteractionData;
+import de.markusbordihn.dialogqueststoryengine.data.interaction.InteractionEntry;
+import de.markusbordihn.dialogqueststoryengine.data.interaction.InteractionEventType;
+import de.markusbordihn.dialogqueststoryengine.data.saveddata.InteractionSavedData;
 import de.markusbordihn.dialogqueststoryengine.network.NetworkHandlerManager;
 import de.markusbordihn.dialogqueststoryengine.network.NetworkMessageRecord;
 import java.util.UUID;
@@ -32,7 +32,7 @@ import net.minecraft.server.level.ServerPlayer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public record OpenInteractionScreenMessage(UUID targetId, InteractionType type)
+public record OpenInteractionScreenMessage(UUID targetId, InteractionEventType eventType)
     implements NetworkMessageRecord {
 
   public static final ResourceLocation MESSAGE_ID =
@@ -41,14 +41,14 @@ public record OpenInteractionScreenMessage(UUID targetId, InteractionType type)
 
   public static OpenInteractionScreenMessage create(FriendlyByteBuf buffer) {
     UUID targetId = buffer.readUUID();
-    InteractionType type = buffer.readEnum(InteractionType.class);
-    return new OpenInteractionScreenMessage(targetId, type);
+    InteractionEventType eventType = buffer.readEnum(InteractionEventType.class);
+    return new OpenInteractionScreenMessage(targetId, eventType);
   }
 
   @Override
   public void write(FriendlyByteBuf buffer) {
     buffer.writeUUID(targetId);
-    buffer.writeEnum(type);
+    buffer.writeEnum(eventType);
   }
 
   @Override
@@ -62,17 +62,13 @@ public record OpenInteractionScreenMessage(UUID targetId, InteractionType type)
       log.warn("Player {} lacks permission to open interaction screen.", serverPlayer.getName());
       return;
     }
-    InteractionData data = InteractionData.get();
-    if (data == null) {
-      log.warn("InteractionData not available.");
-      return;
-    }
-    InteractionDataEntry match = data.getInteraction(targetId, type);
+    InteractionEntry match =
+        InteractionSavedData.get(serverPlayer.server).getInteraction(targetId, eventType);
     if (match != null) {
       NetworkHandlerManager.sendToPlayer(
           serverPlayer, new InteractionScreenDataMessage(match, false));
     } else {
-      log.warn("No interaction found for target {} with type {}.", targetId, type);
+      log.warn("No interaction found for target {} with type {}.", targetId, eventType);
     }
   }
 }

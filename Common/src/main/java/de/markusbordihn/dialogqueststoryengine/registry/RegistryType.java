@@ -22,7 +22,7 @@ package de.markusbordihn.dialogqueststoryengine.registry;
 public enum RegistryType {
   CONDITIONS("ConditionType"),
   ACTIONS("ActionType"),
-  TRIGGERS("TriggerType"),
+  INTERACTIONS("InteractionEvent"),
   QUEST_STEPS("QuestStepType"),
   THEMES("ThemeProvider"),
   VALIDATORS("ContentValidator");

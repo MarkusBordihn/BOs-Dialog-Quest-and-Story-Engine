@@ -20,12 +20,14 @@
 package de.markusbordihn.dialogqueststoryengine.server;
 
 import de.markusbordihn.dialogqueststoryengine.Constants;
-import de.markusbordihn.dialogqueststoryengine.registry.Registries;
-import de.markusbordihn.dialogqueststoryengine.data.saveddata.InteractionData;
+import de.markusbordihn.dialogqueststoryengine.data.saveddata.InteractionSavedData;
 import de.markusbordihn.dialogqueststoryengine.entity.InteractionEvents;
+import de.markusbordihn.dialogqueststoryengine.interaction.InteractionManager;
+import de.markusbordihn.dialogqueststoryengine.interaction.InteractionRegistry;
 import de.markusbordihn.dialogqueststoryengine.item.InteractionWandItem;
 import de.markusbordihn.dialogqueststoryengine.network.NetworkHandlerManager;
 import de.markusbordihn.dialogqueststoryengine.network.message.SyncInteractionDataMessage;
+import de.markusbordihn.dialogqueststoryengine.registry.Registries;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -49,16 +51,16 @@ public final class ServerEvents {
   public static void handleServerStarting(MinecraftServer server) {
     log.info("{} server is starting ...", Constants.MOD_NAME);
     currentServer = server;
+    InteractionRegistry.registerBuiltIns();
     Registries.freezeAll();
     syncStates.clear();
-    InteractionData.init(server);
   }
 
   public static void handleServerStopping(MinecraftServer server) {
     log.info("{} server is stopping ...", Constants.MOD_NAME);
     currentServer = null;
     syncStates.clear();
-    InteractionData.reset();
+    InteractionManager.onServerStopping();
     InteractionEvents.clearTrackingData();
   }
 
@@ -70,11 +72,7 @@ public final class ServerEvents {
     if (server.getTickCount() % SYNC_INTERVAL != 0) {
       return;
     }
-    InteractionData data = InteractionData.get();
-    if (data == null) {
-      return;
-    }
-
+    InteractionSavedData data = InteractionSavedData.get(server);
     long currentVersion = data.getSyncVersion();
     SyncInteractionDataMessage syncMessage = null;
 

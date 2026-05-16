@@ -6,38 +6,38 @@
   "required": ["schema", "id", "type"],
   "additionalProperties": false,
   "properties": {
-    "$schema": { "type": "string" },
-    "schema": { "type": "integer", "const": 1 },
+    "$schema": {"type": "string"},
+    "schema": {"type": "integer", "const": 1},
     "id": {
       "type": "string",
       "pattern": "^[a-z0-9_.-]+:[a-z0-9_./-]+$",
       "description": "ResourceLocation ID, e.g. 'mymod:dark_fantasy'"
     },
-    "type": { "type": "string", "const": "theme" },
+    "type": {"type": "string", "const": "theme"},
     "background": {
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "texture": { "type": "string" },
-        "color": { "type": "string", "pattern": "^#[0-9A-Fa-f]{6}$" }
+        "texture": {"type": "string"},
+        "color": {"type": "string", "pattern": "^#[0-9A-Fa-f]{6}$"}
       }
     },
     "text": {
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "primary_color": { "type": "string", "pattern": "^#[0-9A-Fa-f]{6}$" },
-        "secondary_color": { "type": "string", "pattern": "^#[0-9A-Fa-f]{6}$" },
-        "font": { "type": "string" }
+        "primary_color": {"type": "string", "pattern": "^#[0-9A-Fa-f]{6}$"},
+        "secondary_color": {"type": "string", "pattern": "^#[0-9A-Fa-f]{6}$"},
+        "font": {"type": "string"}
       }
     },
     "buttons": {
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "texture": { "type": "string" },
-        "hover_texture": { "type": "string" },
-        "label_color": { "type": "string", "pattern": "^#[0-9A-Fa-f]{6}$" }
+        "texture": {"type": "string"},
+        "hover_texture": {"type": "string"},
+        "label_color": {"type": "string", "pattern": "^#[0-9A-Fa-f]{6}$"}
       }
     }
   }

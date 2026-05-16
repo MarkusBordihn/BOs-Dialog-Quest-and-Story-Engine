@@ -21,19 +21,19 @@ package de.markusbordihn.dialogqueststoryengine.network.message;
 
 import de.markusbordihn.dialogqueststoryengine.Constants;
 import de.markusbordihn.dialogqueststoryengine.client.screen.InteractionConfigScreen;
-import de.markusbordihn.dialogqueststoryengine.data.interaction.InteractionDataEntry;
+import de.markusbordihn.dialogqueststoryengine.data.interaction.InteractionEntry;
 import de.markusbordihn.dialogqueststoryengine.network.NetworkMessageRecord;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 
-public record InteractionScreenDataMessage(InteractionDataEntry entry, boolean isNew)
+public record InteractionScreenDataMessage(InteractionEntry entry, boolean isNew)
     implements NetworkMessageRecord {
 
   public static final ResourceLocation MESSAGE_ID =
       ResourceLocation.tryParse(Constants.MOD_ID + ":interaction_screen_data");
 
   public static InteractionScreenDataMessage create(FriendlyByteBuf buffer) {
-    InteractionDataEntry entry = InteractionDataEntry.readFromBuf(buffer);
+    InteractionEntry entry = InteractionEntry.readFromBuf(buffer);
     boolean isNew = buffer.readBoolean();
     return new InteractionScreenDataMessage(entry, isNew);
   }

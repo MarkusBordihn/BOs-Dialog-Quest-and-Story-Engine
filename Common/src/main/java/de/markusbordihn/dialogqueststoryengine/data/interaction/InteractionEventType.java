@@ -17,29 +17,37 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package de.markusbordihn.dialogqueststoryengine.server.commands;
+package de.markusbordihn.dialogqueststoryengine.data.interaction;
 
-import com.mojang.brigadier.builder.ArgumentBuilder;
-import de.markusbordihn.dialogqueststoryengine.commands.Command;
-import de.markusbordihn.dialogqueststoryengine.data.saveddata.InteractionSavedData;
-import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.commands.Commands;
+import de.markusbordihn.dialogqueststoryengine.Constants;
+import java.util.Locale;
+import net.minecraft.resources.ResourceLocation;
 
-public class ClearCommand extends Command {
+public enum InteractionEventType {
+  ON_ENTITY_INTERACT,
+  ON_BLOCK_INTERACT,
+  ON_STEP_ON,
+  ON_COMMAND,
+  ON_HOLOPAD_USE,
+  ON_EASY_NPC_INTERACT;
 
-  private ClearCommand() {}
+  private final ResourceLocation resourceLocation;
 
-  public static ArgumentBuilder<CommandSourceStack, ?> register() {
-    return Commands.literal("clear")
-        .requires(source -> source.hasPermission(PERMISSION_LEVEL))
-        .executes(context -> executeClear(context.getSource()));
+  InteractionEventType() {
+    this.resourceLocation =
+        new ResourceLocation(Constants.MOD_ID, this.name().toLowerCase(Locale.ROOT));
   }
 
-  private static int executeClear(CommandSourceStack source) {
-    InteractionSavedData data = InteractionSavedData.get(source.getServer());
-    int count = data.size();
-    data.clearAll();
-    sendSuccessMessage(source, "Cleared " + count + " interaction mapping(s).");
-    return 1;
+  public static InteractionEventType fromName(String name) {
+    for (InteractionEventType type : values()) {
+      if (type.name().equals(name)) {
+        return type;
+      }
+    }
+    return null;
+  }
+
+  public ResourceLocation resourceLocation() {
+    return this.resourceLocation;
   }
 }

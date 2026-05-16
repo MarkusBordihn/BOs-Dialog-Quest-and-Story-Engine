@@ -19,9 +19,9 @@
 
 package de.markusbordihn.dialogqueststoryengine.item;
 
-import de.markusbordihn.dialogqueststoryengine.data.interaction.InteractionDataEntry;
+import de.markusbordihn.dialogqueststoryengine.data.interaction.InteractionEntry;
 import de.markusbordihn.dialogqueststoryengine.data.interaction.TargetKind;
-import de.markusbordihn.dialogqueststoryengine.data.saveddata.InteractionData;
+import de.markusbordihn.dialogqueststoryengine.data.saveddata.InteractionSavedData;
 import de.markusbordihn.dialogqueststoryengine.network.NetworkHandlerManager;
 import de.markusbordihn.dialogqueststoryengine.network.message.InteractionListMessage;
 import de.markusbordihn.dialogqueststoryengine.utils.BlockUUID;
@@ -64,17 +64,13 @@ public class InteractionWandItem extends Item {
       return InteractionResult.FAIL;
     }
 
-    InteractionData data = InteractionData.get();
-    if (data == null) {
-      return InteractionResult.FAIL;
-    }
-
     BlockPos pos = context.getClickedPos();
     UUID targetId = BlockUUID.fromBlockPos(level.dimension(), pos);
     TargetKind kind =
         level.getBlockEntity(pos) != null ? TargetKind.BLOCK_ENTITY : TargetKind.BLOCK;
 
-    List<InteractionDataEntry> existing = data.getInteractions(targetId);
+    List<InteractionEntry> existing =
+        InteractionSavedData.get(((ServerPlayer) player).server).getInteractionsForTarget(targetId);
     NetworkHandlerManager.sendToPlayer(
         (ServerPlayer) player,
         new InteractionListMessage(existing, targetId, kind, level.dimension().location(), pos));
@@ -93,14 +89,10 @@ public class InteractionWandItem extends Item {
       return InteractionResult.FAIL;
     }
 
-    InteractionData data = InteractionData.get();
-    if (data == null) {
-      return InteractionResult.FAIL;
-    }
-
     UUID targetId = target.getUUID();
 
-    List<InteractionDataEntry> existing = data.getInteractions(targetId);
+    List<InteractionEntry> existing =
+        InteractionSavedData.get(((ServerPlayer) player).server).getInteractionsForTarget(targetId);
     NetworkHandlerManager.sendToPlayer(
         (ServerPlayer) player,
         new InteractionListMessage(

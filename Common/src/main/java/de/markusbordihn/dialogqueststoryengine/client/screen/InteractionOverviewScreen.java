@@ -30,7 +30,7 @@ import de.markusbordihn.dialogqueststoryengine.client.screen.ui.components.Scale
 import de.markusbordihn.dialogqueststoryengine.client.screen.ui.components.Separator;
 import de.markusbordihn.dialogqueststoryengine.client.screen.ui.components.TextComponent;
 import de.markusbordihn.dialogqueststoryengine.client.screen.ui.components.TextInput;
-import de.markusbordihn.dialogqueststoryengine.data.interaction.InteractionDataEntry;
+import de.markusbordihn.dialogqueststoryengine.data.interaction.InteractionEntry;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -45,7 +45,7 @@ public class InteractionOverviewScreen extends BaseScreen {
 
   private static final Logger log = LogManager.getLogger(Constants.LOG_NAME);
 
-  private ListPanel<InteractionDataEntry> listPanel;
+  private ListPanel<InteractionEntry> listPanel;
   private TextInput searchInput;
   private String searchFilter = "";
 
@@ -138,16 +138,16 @@ public class InteractionOverviewScreen extends BaseScreen {
   }
 
   private void updateListItems() {
-    List<InteractionDataEntry> all = InteractionClientData.getEntries();
+    List<InteractionEntry> all = InteractionClientData.getEntries();
     if (searchFilter == null || searchFilter.isEmpty()) {
       listPanel.setItems(all);
     } else {
       String filter = searchFilter.toLowerCase(Locale.ROOT);
-      List<InteractionDataEntry> filtered = new ArrayList<>();
-      for (InteractionDataEntry entry : all) {
+      List<InteractionEntry> filtered = new ArrayList<>();
+      for (InteractionEntry entry : all) {
         if (entry.label().toLowerCase(Locale.ROOT).contains(filter)
-            || entry.type().name().toLowerCase(Locale.ROOT).contains(filter)
-            || entry.kind().name().toLowerCase(Locale.ROOT).contains(filter)) {
+            || entry.interactionType().name().toLowerCase(Locale.ROOT).contains(filter)
+            || entry.targetKind().name().toLowerCase(Locale.ROOT).contains(filter)) {
           filtered.add(entry);
         }
       }
@@ -158,7 +158,7 @@ public class InteractionOverviewScreen extends BaseScreen {
   private void renderEntry(
       GuiGraphics graphics,
       Font font,
-      InteractionDataEntry entry,
+      InteractionEntry entry,
       int index,
       int x,
       int y,
@@ -170,11 +170,17 @@ public class InteractionOverviewScreen extends BaseScreen {
 
     ScaledText.draw(graphics, font, entry.label(), x, y + 3, palette.onSurface(), scale);
     ScaledText.draw(
-        graphics, font, entry.type().name(), x + columnWidth, y + 3, palette.onSurfaceLow(), scale);
+        graphics,
+        font,
+        entry.interactionType().name(),
+        x + columnWidth,
+        y + 3,
+        palette.onSurfaceLow(),
+        scale);
     ScaledText.draw(
         graphics,
         font,
-        entry.kind().name(),
+        entry.targetKind().name(),
         x + columnWidth * 2,
         y + 3,
         palette.onSurfaceLow(),

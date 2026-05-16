@@ -20,10 +20,10 @@
 package de.markusbordihn.dialogqueststoryengine.gametest;
 
 import de.markusbordihn.dialogqueststoryengine.Constants;
-import de.markusbordihn.dialogqueststoryengine.data.interaction.InteractionDataEntry;
-import de.markusbordihn.dialogqueststoryengine.data.interaction.InteractionDataSet;
+import de.markusbordihn.dialogqueststoryengine.data.interaction.InteractionEntry;
+import de.markusbordihn.dialogqueststoryengine.data.interaction.InteractionEventType;
+import de.markusbordihn.dialogqueststoryengine.data.interaction.InteractionStore;
 import de.markusbordihn.dialogqueststoryengine.data.interaction.InteractionType;
-import de.markusbordihn.dialogqueststoryengine.data.interaction.TargetKind;
 import de.markusbordihn.dialogqueststoryengine.utils.BlockUUID;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
@@ -61,21 +61,19 @@ public class SmokeTest {
 
   @GameTest(template = "gametest.3x3x3")
   public void testInteractionDataSetRegisterAndLookup(GameTestHelper helper) {
-    InteractionDataSet dataSet = new InteractionDataSet();
+    InteractionStore store = new InteractionStore();
     UUID targetId = UUID.randomUUID();
-    InteractionDataEntry entry =
-        new InteractionDataEntry(
+    InteractionEntry entry =
+        InteractionEntry.forEntityInteract(
             targetId,
             InteractionType.RIGHT_CLICK,
-            TargetKind.ENTITY,
             "test_label",
-            ResourceLocation.tryParse("minecraft:overworld"),
-            null);
-    dataSet.register(entry);
+            ResourceLocation.tryParse("minecraft:overworld"));
+    store.register(entry);
     GameTestHelpers.assertTrue(
         helper,
-        "InteractionDataSet should contain the registered interaction",
-        dataSet.hasInteraction(targetId, InteractionType.RIGHT_CLICK));
+        "InteractionStore should contain the registered interaction",
+        store.hasInteraction(targetId, InteractionEventType.ON_ENTITY_INTERACT));
     helper.succeed();
   }
 }

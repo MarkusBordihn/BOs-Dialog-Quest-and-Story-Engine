@@ -7,8 +7,8 @@
   "required": ["schema", "player_uuid"],
   "additionalProperties": false,
   "properties": {
-    "$schema": { "type": "string" },
-    "schema": { "type": "integer", "const": 1 },
+    "$schema": {"type": "string"},
+    "schema": {"type": "integer", "const": 1},
     "player_uuid": {
       "type": "string",
       "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
@@ -18,18 +18,18 @@
       "additionalProperties": {
         "type": "object",
         "properties": {
-          "status": { "type": "string", "enum": ["active", "completed", "failed"] },
-          "completed_steps": { "type": "array", "items": { "type": "string" } }
+          "status": {"type": "string", "enum": ["active", "completed", "failed"]},
+          "completed_steps": {"type": "array", "items": {"type": "string"}}
         }
       }
     },
     "story_flags": {
       "type": "object",
-      "additionalProperties": { "type": "boolean" }
+      "additionalProperties": {"type": "boolean"}
     },
     "triggered_once": {
       "type": "array",
-      "items": { "type": "string", "pattern": "^[a-z0-9_.-]+:[a-z0-9_./-]+$" }
+      "items": {"type": "string", "pattern": "^[a-z0-9_.-]+:[a-z0-9_./-]+$"}
     }
   }
 }

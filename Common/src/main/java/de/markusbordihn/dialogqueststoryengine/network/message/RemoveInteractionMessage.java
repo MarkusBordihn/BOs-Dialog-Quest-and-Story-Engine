@@ -20,8 +20,8 @@
 package de.markusbordihn.dialogqueststoryengine.network.message;
 
 import de.markusbordihn.dialogqueststoryengine.Constants;
-import de.markusbordihn.dialogqueststoryengine.data.interaction.InteractionDataEntry;
-import de.markusbordihn.dialogqueststoryengine.data.saveddata.InteractionData;
+import de.markusbordihn.dialogqueststoryengine.data.interaction.InteractionEntry;
+import de.markusbordihn.dialogqueststoryengine.data.saveddata.InteractionSavedData;
 import de.markusbordihn.dialogqueststoryengine.network.NetworkMessageRecord;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.FriendlyByteBuf;
@@ -31,14 +31,14 @@ import net.minecraft.server.level.ServerPlayer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public record RemoveInteractionMessage(InteractionDataEntry entry) implements NetworkMessageRecord {
+public record RemoveInteractionMessage(InteractionEntry entry) implements NetworkMessageRecord {
 
   public static final ResourceLocation MESSAGE_ID =
       ResourceLocation.tryParse(Constants.MOD_ID + ":remove_interaction");
   private static final Logger log = LogManager.getLogger(Constants.LOG_NAME);
 
   public static RemoveInteractionMessage create(FriendlyByteBuf buffer) {
-    InteractionDataEntry entry = InteractionDataEntry.readFromBuf(buffer);
+    InteractionEntry entry = InteractionEntry.readFromBuf(buffer);
     return new RemoveInteractionMessage(entry);
   }
 
@@ -58,13 +58,9 @@ public record RemoveInteractionMessage(InteractionDataEntry entry) implements Ne
       log.warn("Player {} lacks permission to remove interaction.", serverPlayer.getName());
       return;
     }
-    InteractionData data = InteractionData.get();
-    if (data == null) {
-      log.warn("InteractionData not available.");
-      return;
-    }
-    if (data.hasInteraction(entry.targetId(), entry.type())) {
-      data.unregister(entry.targetId(), entry.type());
+    InteractionSavedData data = InteractionSavedData.get(serverPlayer.server);
+    if (data.hasInteraction(entry.targetId(), entry.eventType())) {
+      data.unregister(entry.targetId(), entry.eventType());
       serverPlayer.sendSystemMessage(
           Component.literal("✖ Removed interaction '" + entry.label() + "'.")
               .withStyle(ChatFormatting.YELLOW));

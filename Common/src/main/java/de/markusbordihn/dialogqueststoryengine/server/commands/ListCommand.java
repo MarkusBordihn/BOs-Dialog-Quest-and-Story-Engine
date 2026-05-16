@@ -21,8 +21,8 @@ package de.markusbordihn.dialogqueststoryengine.server.commands;
 
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import de.markusbordihn.dialogqueststoryengine.commands.Command;
-import de.markusbordihn.dialogqueststoryengine.data.interaction.InteractionDataEntry;
-import de.markusbordihn.dialogqueststoryengine.data.saveddata.InteractionData;
+import de.markusbordihn.dialogqueststoryengine.data.interaction.InteractionEntry;
+import de.markusbordihn.dialogqueststoryengine.data.saveddata.InteractionSavedData;
 import java.util.List;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -38,18 +38,14 @@ public class ListCommand extends Command {
   }
 
   private static int executeList(CommandSourceStack source) {
-    InteractionData data = InteractionData.get();
-    if (data == null) {
-      sendFailureMessage(source, "Interaction data not available.");
-      return 0;
-    }
-    List<InteractionDataEntry> entries = data.getAllEntries();
+    InteractionSavedData data = InteractionSavedData.get(source.getServer());
+    List<InteractionEntry> entries = data.getAllEntries();
     if (entries.isEmpty()) {
       sendInfoMessage(source, "No interaction mappings registered.");
       return 1;
     }
     sendInfoMessage(source, "Interaction mappings (" + entries.size() + "):");
-    for (InteractionDataEntry entry : entries) {
+    for (InteractionEntry entry : entries) {
       sendInfoMessage(source, "  " + entry);
     }
     return 1;

@@ -26,8 +26,7 @@ import de.markusbordihn.dialogqueststoryengine.client.screen.InteractionSelectSc
 import de.markusbordihn.dialogqueststoryengine.client.screen.MainScreen;
 import de.markusbordihn.dialogqueststoryengine.client.screen.ui.BaseScreen;
 import de.markusbordihn.dialogqueststoryengine.client.screen.ui.components.BreadcrumbBar;
-import de.markusbordihn.dialogqueststoryengine.data.interaction.InteractionDataEntry;
-import de.markusbordihn.dialogqueststoryengine.data.interaction.InteractionType;
+import de.markusbordihn.dialogqueststoryengine.data.interaction.InteractionEntry;
 import de.markusbordihn.dialogqueststoryengine.data.interaction.TargetKind;
 import de.markusbordihn.dialogqueststoryengine.network.NetworkMessageRecord;
 import java.util.ArrayList;
@@ -40,7 +39,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 
 public record InteractionListMessage(
-    List<InteractionDataEntry> entries,
+    List<InteractionEntry> entries,
     UUID targetId,
     TargetKind targetKind,
     ResourceLocation dimension,
@@ -51,7 +50,7 @@ public record InteractionListMessage(
       ResourceLocation.tryParse(Constants.MOD_ID + ":interaction_list");
 
   public InteractionListMessage(
-      List<InteractionDataEntry> entries,
+      List<InteractionEntry> entries,
       UUID targetId,
       TargetKind targetKind,
       ResourceLocation dimension,
@@ -65,9 +64,9 @@ public record InteractionListMessage(
 
   public static InteractionListMessage create(FriendlyByteBuf buffer) {
     int count = buffer.readInt();
-    List<InteractionDataEntry> entries = new ArrayList<>(count);
+    List<InteractionEntry> entries = new ArrayList<>(count);
     for (int i = 0; i < count; i++) {
-      entries.add(InteractionDataEntry.readFromBuf(buffer));
+      entries.add(InteractionEntry.readFromBuf(buffer));
     }
     UUID targetId = buffer.readUUID();
     TargetKind targetKind = buffer.readEnum(TargetKind.class);
@@ -79,7 +78,7 @@ public record InteractionListMessage(
   @Override
   public void write(FriendlyByteBuf buffer) {
     buffer.writeInt(entries.size());
-    for (InteractionDataEntry entry : entries) {
+    for (InteractionEntry entry : entries) {
       entry.writeToBuf(buffer);
     }
     buffer.writeUUID(targetId);
@@ -98,11 +97,9 @@ public record InteractionListMessage(
 
   @Override
   public void handleClient() {
-    // Wand always navigates: Home > Interactions > TARGET
-    String targetLabel =
-        InteractionConfigScreen.targetContextLabel(
-            new InteractionDataEntry(
-                targetId, InteractionType.RIGHT_CLICK, targetKind, "", dimension, blockPos));
+    InteractionEntry templateEntry =
+        InteractionEntry.createTemplate(targetId, targetKind, blockPos, dimension);
+    String targetLabel = InteractionConfigScreen.targetContextLabel(templateEntry);
 
     List<BreadcrumbBar.Segment> baseAncestors =
         List.of(
@@ -111,15 +108,13 @@ public record InteractionListMessage(
 
     Minecraft minecraft = Minecraft.getInstance();
     if (entries.isEmpty()) {
-      InteractionDataEntry template =
-          new InteractionDataEntry(
-              targetId, InteractionType.RIGHT_CLICK, targetKind, "", dimension, blockPos);
       minecraft.execute(
           () -> {
             if (minecraft.screen instanceof BaseScreen.ScreenWrapper) {
               return;
             }
-            new InteractionConfigScreen(template, true, baseAncestors, targetLabel).openScreen();
+            new InteractionConfigScreen(templateEntry, true, baseAncestors, targetLabel)
+                .openScreen();
           });
     } else if (entries.size() == 1) {
       minecraft.execute(

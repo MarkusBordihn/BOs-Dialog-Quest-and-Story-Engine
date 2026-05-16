@@ -29,8 +29,8 @@ public final class Registries {
       new ExtensionRegistry<>(RegistryType.CONDITIONS);
   public static final ExtensionRegistry<ActionHandler> ACTIONS =
       new ExtensionRegistry<>(RegistryType.ACTIONS);
-  public static final ExtensionRegistry<TriggerHandler> TRIGGERS =
-      new ExtensionRegistry<>(RegistryType.TRIGGERS);
+  public static final ExtensionRegistry<InteractionHandler> INTERACTIONS =
+      new ExtensionRegistry<>(RegistryType.INTERACTIONS);
   public static final ExtensionRegistry<QuestStepHandler> QUEST_STEPS =
       new ExtensionRegistry<>(RegistryType.QUEST_STEPS);
   public static final ExtensionRegistry<ThemeProvider> THEMES =
@@ -44,7 +44,7 @@ public final class Registries {
   static {
     ALL.put(RegistryType.CONDITIONS, CONDITIONS);
     ALL.put(RegistryType.ACTIONS, ACTIONS);
-    ALL.put(RegistryType.TRIGGERS, TRIGGERS);
+    ALL.put(RegistryType.INTERACTIONS, INTERACTIONS);
     ALL.put(RegistryType.QUEST_STEPS, QUEST_STEPS);
     ALL.put(RegistryType.THEMES, THEMES);
     ALL.put(RegistryType.VALIDATORS, VALIDATORS);

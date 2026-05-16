@@ -17,29 +17,25 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package de.markusbordihn.dialogqueststoryengine.server.commands;
+package de.markusbordihn.dialogqueststoryengine.interaction;
 
-import com.mojang.brigadier.builder.ArgumentBuilder;
-import de.markusbordihn.dialogqueststoryengine.commands.Command;
-import de.markusbordihn.dialogqueststoryengine.data.saveddata.InteractionSavedData;
-import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.commands.Commands;
+import de.markusbordihn.dialogqueststoryengine.data.interaction.InteractionEventType;
+import java.util.UUID;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerPlayer;
 
-public class ClearCommand extends Command {
+public final class InteractionDispatcher {
 
-  private ClearCommand() {}
+  private InteractionDispatcher() {}
 
-  public static ArgumentBuilder<CommandSourceStack, ?> register() {
-    return Commands.literal("clear")
-        .requires(source -> source.hasPermission(PERMISSION_LEVEL))
-        .executes(context -> executeClear(context.getSource()));
-  }
-
-  private static int executeClear(CommandSourceStack source) {
-    InteractionSavedData data = InteractionSavedData.get(source.getServer());
-    int count = data.size();
-    data.clearAll();
-    sendSuccessMessage(source, "Cleared " + count + " interaction mapping(s).");
-    return 1;
+  public static void dispatchFor(
+      MinecraftServer server, UUID targetId, InteractionEventType eventType, ServerPlayer player) {
+    InteractionManager.allForTarget(server, targetId).stream()
+        .filter(entry -> entry.eventType() == eventType)
+        .findFirst()
+        .ifPresent(
+            entry ->
+                InteractionRegistry.dispatch(
+                    new InteractionContext(entry, player, player.serverLevel())));
   }
 }

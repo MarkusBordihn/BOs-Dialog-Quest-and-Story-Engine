@@ -22,8 +22,8 @@ package de.markusbordihn.dialogqueststoryengine.server.commands;
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import de.markusbordihn.dialogqueststoryengine.client.screen.ScreenType;
 import de.markusbordihn.dialogqueststoryengine.commands.Command;
-import de.markusbordihn.dialogqueststoryengine.data.interaction.InteractionDataEntry;
-import de.markusbordihn.dialogqueststoryengine.data.saveddata.InteractionData;
+import de.markusbordihn.dialogqueststoryengine.data.interaction.InteractionEntry;
+import de.markusbordihn.dialogqueststoryengine.data.saveddata.InteractionSavedData;
 import de.markusbordihn.dialogqueststoryengine.network.NetworkHandlerManager;
 import de.markusbordihn.dialogqueststoryengine.network.message.OpenOverviewScreenMessage;
 import de.markusbordihn.dialogqueststoryengine.network.message.SyncInteractionDataMessage;
@@ -49,13 +49,7 @@ public class InteractionsCommand extends Command {
       return 0;
     }
 
-    InteractionData data = InteractionData.get();
-    if (data == null) {
-      sendFailureMessage(source, "Interaction data not available.");
-      return 0;
-    }
-
-    List<InteractionDataEntry> entries = data.getAllEntries();
+    List<InteractionEntry> entries = InteractionSavedData.get(source.getServer()).getAllEntries();
     NetworkHandlerManager.sendToPlayer(player, new SyncInteractionDataMessage(entries));
     NetworkHandlerManager.sendToPlayer(
         player, new OpenOverviewScreenMessage(ScreenType.INTERACTIONS));

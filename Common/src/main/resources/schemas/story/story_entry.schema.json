@@ -6,17 +6,17 @@
   "required": ["schema", "id", "type"],
   "additionalProperties": false,
   "properties": {
-    "$schema": { "type": "string" },
-    "schema": { "type": "integer", "const": 1 },
+    "$schema": {"type": "string"},
+    "schema": {"type": "integer", "const": 1},
     "id": {
       "type": "string",
       "pattern": "^[a-z0-9_.-]+:[a-z0-9_./-]+$",
       "description": "ResourceLocation ID, e.g. 'mymod:chapter1/intro'"
     },
-    "type": { "type": "string", "const": "story_entry" },
-    "text_key": { "type": "string" },
-    "tags": { "type": "array", "items": { "type": "string" } },
-    "conditions": { "type": "array", "items": { "type": "object" } },
-    "actions": { "type": "array", "items": { "type": "object" } }
+    "type": {"type": "string", "const": "story_entry"},
+    "text_key": {"type": "string"},
+    "tags": {"type": "array", "items": {"type": "string"}},
+    "conditions": {"type": "array", "items": {"type": "object"}},
+    "actions": {"type": "array", "items": {"type": "object"}}
   }
 }

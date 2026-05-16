@@ -22,7 +22,7 @@ package de.markusbordihn.dialogqueststoryengine.client;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
-import de.markusbordihn.dialogqueststoryengine.data.interaction.InteractionDataEntry;
+import de.markusbordihn.dialogqueststoryengine.data.interaction.InteractionEntry;
 import de.markusbordihn.dialogqueststoryengine.data.interaction.TargetKind;
 import de.markusbordihn.dialogqueststoryengine.item.InteractionWandItem;
 import java.util.HashMap;
@@ -63,7 +63,7 @@ public final class InteractionHighlightRenderer {
       return;
     }
 
-    List<InteractionDataEntry> entries = InteractionClientData.getEntries();
+    List<InteractionEntry> entries = InteractionClientData.getEntries();
     if (entries.isEmpty()) {
       return;
     }
@@ -72,8 +72,8 @@ public final class InteractionHighlightRenderer {
     Player player = minecraft.player;
 
     boolean hasEntityEntries = false;
-    for (InteractionDataEntry entry : entries) {
-      if (entry.kind() == TargetKind.ENTITY) {
+    for (InteractionEntry entry : entries) {
+      if (entry.targetKind() == TargetKind.ENTITY) {
         hasEntityEntries = true;
         break;
       }
@@ -94,14 +94,14 @@ public final class InteractionHighlightRenderer {
 
     AABB[] cachedAABBs = new AABB[entries.size()];
     for (int i = 0; i < entries.size(); i++) {
-      InteractionDataEntry entry = entries.get(i);
+      InteractionEntry entry = entries.get(i);
       AABB aabb = getAABB(entry, entityMap, player);
       cachedAABBs[i] = aabb;
       if (aabb == null) {
         continue;
       }
 
-      TargetKind kind = entry.kind();
+      TargetKind kind = entry.targetKind();
       LevelRenderer.renderLineBox(
           poseStack,
           consumer,
@@ -131,8 +131,9 @@ public final class InteractionHighlightRenderer {
       Font font,
       Camera camera,
       AABB aabb,
-      InteractionDataEntry entry) {
-    Component line1 = Component.literal(entry.type().name() + " | " + entry.kind().name());
+      InteractionEntry entry) {
+    Component line1 =
+        Component.literal(entry.interactionType().name() + " | " + entry.targetKind().name());
     Component line2 =
         Component.literal(
             entry.label() != null && !entry.label().isEmpty()
@@ -154,7 +155,7 @@ public final class InteractionHighlightRenderer {
         line1,
         -font.width(line1) / 2.0f,
         0,
-        entry.kind().getLabelColor(),
+        entry.targetKind().getLabelColor(),
         false,
         poseStack.last().pose(),
         bufferSource,
@@ -176,9 +177,8 @@ public final class InteractionHighlightRenderer {
     poseStack.popPose();
   }
 
-  private static AABB getAABB(
-      InteractionDataEntry entry, Map<UUID, Entity> entityMap, Player player) {
-    if ((entry.kind() == TargetKind.BLOCK || entry.kind() == TargetKind.BLOCK_ENTITY)
+  private static AABB getAABB(InteractionEntry entry, Map<UUID, Entity> entityMap, Player player) {
+    if ((entry.targetKind() == TargetKind.BLOCK || entry.targetKind() == TargetKind.BLOCK_ENTITY)
         && entry.blockPos() != null) {
       BlockPos pos = entry.blockPos();
       if (player.blockPosition().distSqr(pos) > MAX_RENDER_DISTANCE_SQ) {
@@ -186,7 +186,7 @@ public final class InteractionHighlightRenderer {
       }
 
       return new AABB(pos);
-    } else if (entry.kind() == TargetKind.ENTITY) {
+    } else if (entry.targetKind() == TargetKind.ENTITY) {
       Entity entity = entityMap.get(entry.targetId());
       if (entity != null) {
         return entity.getBoundingBox();

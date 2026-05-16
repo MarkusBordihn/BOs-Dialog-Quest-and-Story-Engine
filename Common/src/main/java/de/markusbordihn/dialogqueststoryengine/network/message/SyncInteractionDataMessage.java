@@ -21,7 +21,7 @@ package de.markusbordihn.dialogqueststoryengine.network.message;
 
 import de.markusbordihn.dialogqueststoryengine.Constants;
 import de.markusbordihn.dialogqueststoryengine.client.InteractionClientData;
-import de.markusbordihn.dialogqueststoryengine.data.interaction.InteractionDataEntry;
+import de.markusbordihn.dialogqueststoryengine.data.interaction.InteractionEntry;
 import de.markusbordihn.dialogqueststoryengine.network.NetworkMessageRecord;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -29,21 +29,21 @@ import java.util.List;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 
-public record SyncInteractionDataMessage(List<InteractionDataEntry> entries)
+public record SyncInteractionDataMessage(List<InteractionEntry> entries)
     implements NetworkMessageRecord {
 
   public static final ResourceLocation MESSAGE_ID =
       ResourceLocation.tryParse(Constants.MOD_ID + ":sync_interaction_data");
 
-  public SyncInteractionDataMessage(List<InteractionDataEntry> entries) {
+  public SyncInteractionDataMessage(List<InteractionEntry> entries) {
     this.entries = entries != null ? entries : Collections.emptyList();
   }
 
   public static SyncInteractionDataMessage create(FriendlyByteBuf buffer) {
     int count = buffer.readInt();
-    List<InteractionDataEntry> entries = new ArrayList<>(count);
+    List<InteractionEntry> entries = new ArrayList<>(count);
     for (int i = 0; i < count; i++) {
-      entries.add(InteractionDataEntry.readFromBuf(buffer));
+      entries.add(InteractionEntry.readFromBuf(buffer));
     }
     return new SyncInteractionDataMessage(entries);
   }
@@ -51,7 +51,7 @@ public record SyncInteractionDataMessage(List<InteractionDataEntry> entries)
   @Override
   public void write(FriendlyByteBuf buffer) {
     buffer.writeInt(entries.size());
-    for (InteractionDataEntry entry : entries) {
+    for (InteractionEntry entry : entries) {
       entry.writeToBuf(buffer);
     }
   }

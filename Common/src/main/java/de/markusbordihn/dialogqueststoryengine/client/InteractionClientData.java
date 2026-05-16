@@ -19,22 +19,22 @@
 
 package de.markusbordihn.dialogqueststoryengine.client;
 
-import de.markusbordihn.dialogqueststoryengine.data.interaction.InteractionDataEntry;
+import de.markusbordihn.dialogqueststoryengine.data.interaction.InteractionEntry;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 public final class InteractionClientData {
 
-  private static List<InteractionDataEntry> entries = Collections.emptyList();
+  private static List<InteractionEntry> entries = Collections.emptyList();
 
   private InteractionClientData() {}
 
-  public static List<InteractionDataEntry> getEntries() {
+  public static List<InteractionEntry> getEntries() {
     return entries;
   }
 
-  public static void setEntries(List<InteractionDataEntry> newEntries) {
+  public static void setEntries(List<InteractionEntry> newEntries) {
     entries =
         newEntries != null
             ? Collections.unmodifiableList(new ArrayList<>(newEntries))

@@ -22,10 +22,13 @@ package de.markusbordihn.dialogqueststoryengine.entity;
 import de.markusbordihn.dialogqueststoryengine.Constants;
 import de.markusbordihn.dialogqueststoryengine.commands.BindManager;
 import de.markusbordihn.dialogqueststoryengine.commands.BindManager.BindContext;
-import de.markusbordihn.dialogqueststoryengine.data.interaction.InteractionDataEntry;
+import de.markusbordihn.dialogqueststoryengine.data.interaction.InteractionEntry;
+import de.markusbordihn.dialogqueststoryengine.data.interaction.InteractionEventType;
 import de.markusbordihn.dialogqueststoryengine.data.interaction.InteractionType;
 import de.markusbordihn.dialogqueststoryengine.data.interaction.TargetKind;
-import de.markusbordihn.dialogqueststoryengine.data.saveddata.InteractionData;
+import de.markusbordihn.dialogqueststoryengine.data.saveddata.InteractionSavedData;
+import de.markusbordihn.dialogqueststoryengine.interaction.InteractionDispatcher;
+import de.markusbordihn.dialogqueststoryengine.interaction.InteractionManager;
 import de.markusbordihn.dialogqueststoryengine.item.InteractionWandItem;
 import de.markusbordihn.dialogqueststoryengine.utils.BlockUUID;
 import java.util.HashMap;
@@ -34,6 +37,9 @@ import java.util.UUID;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -51,8 +57,8 @@ public final class InteractionEvents {
     if (player.level().isClientSide()) {
       return;
     }
-    InteractionData data = InteractionData.get();
-    if (data == null || !data.hasStepOnInteractions()) {
+    MinecraftServer server = ((ServerPlayer) player).server;
+    if (!InteractionManager.hasStepOnInteractions(server)) {
       return;
     }
     BlockPos currentPos = player.blockPosition().below();
@@ -70,218 +76,140 @@ public final class InteractionEvents {
   }
 
   public static void handleRightClickEntity(Player player, Entity target) {
-    if (player.level().isClientSide()) {
+    if (player.level().isClientSide()
+        || player.getMainHandItem().getItem() instanceof InteractionWandItem) {
       return;
     }
-    if (player.getMainHandItem().getItem() instanceof InteractionWandItem) {
-      return;
-    }
-    InteractionData data = InteractionData.get();
-    if (data == null) {
-      return;
-    }
-
+    ServerPlayer serverPlayer = (ServerPlayer) player;
     UUID targetId = target.getUUID();
+    ResourceLocation dimension = target.level().dimension().location();
 
     if (BindManager.isBinding(player)) {
-      BindContext bindContext = BindManager.consumeBind(player);
-      if (bindContext.unbind()) {
-        if (bindContext.type() != null) {
-          boolean removed = data.unregister(targetId, bindContext.type());
-          if (removed) {
-            player.sendSystemMessage(
-                Component.literal(
-                        "\u2716 Removed "
-                            + bindContext.type()
-                            + " interaction from "
-                            + TargetKind.ENTITY
-                            + ".")
-                    .withStyle(ChatFormatting.YELLOW));
-          } else {
-            player.sendSystemMessage(
-                Component.literal(
-                        "No "
-                            + bindContext.type()
-                            + " interaction found on this "
-                            + TargetKind.ENTITY
-                            + ".")
-                    .withStyle(ChatFormatting.RED));
-          }
-        } else {
-          int removed = data.unregisterAll(targetId);
-          if (removed > 0) {
-            player.sendSystemMessage(
-                Component.literal(
-                        "\u2716 Removed "
-                            + removed
-                            + " interaction(s) from "
-                            + TargetKind.ENTITY
-                            + ".")
-                    .withStyle(ChatFormatting.YELLOW));
-          } else {
-            player.sendSystemMessage(
-                Component.literal("No interactions found on this " + TargetKind.ENTITY + ".")
-                    .withStyle(ChatFormatting.RED));
-          }
-        }
-      } else {
-        InteractionDataEntry entry =
-            new InteractionDataEntry(
-                targetId,
-                bindContext.type(),
-                TargetKind.ENTITY,
-                bindContext.label(),
-                target.level().dimension().location(),
-                null);
-        data.register(entry);
-        player.sendSystemMessage(
-            Component.literal(
-                    "âœ” Registered "
-                        + bindContext.type()
-                        + " interaction '"
-                        + bindContext.label()
-                        + "' on "
-                        + TargetKind.ENTITY
-                        + ".")
-                .withStyle(ChatFormatting.GREEN));
-      }
+      handleBind(serverPlayer, targetId, TargetKind.ENTITY, null, dimension);
       return;
     }
-
-    if (data.hasInteraction(targetId, InteractionType.RIGHT_CLICK)) {
-      InteractionDataEntry entry = data.getInteraction(targetId, InteractionType.RIGHT_CLICK);
-      triggerInteraction(player, entry);
-    }
+    InteractionDispatcher.dispatchFor(
+        serverPlayer.server, targetId, InteractionEventType.ON_ENTITY_INTERACT, serverPlayer);
   }
 
   public static void handleRightClickBlock(Player player, BlockPos pos, Level level) {
-    if (level.isClientSide()) {
+    if (level.isClientSide() || player.getMainHandItem().getItem() instanceof InteractionWandItem) {
       return;
     }
-
-    if (player.getMainHandItem().getItem() instanceof InteractionWandItem) {
-      return;
-    }
-
-    InteractionData data = InteractionData.get();
-    if (data == null) {
-      return;
-    }
-
+    ServerPlayer serverPlayer = (ServerPlayer) player;
     UUID targetId = BlockUUID.fromBlockPos(level.dimension(), pos);
+    ResourceLocation dimension = level.dimension().location();
+
     if (BindManager.isBinding(player)) {
-      BindContext bindContext = BindManager.consumeBind(player);
-      if (bindContext.unbind()) {
-        if (bindContext.type() != null) {
-          boolean removed = data.unregister(targetId, bindContext.type());
-          if (removed) {
-            player.sendSystemMessage(
-                Component.literal(
-                        "\u2716 Removed "
-                            + bindContext.type()
-                            + " interaction from block at "
-                            + pos.toShortString()
-                            + ".")
-                    .withStyle(ChatFormatting.YELLOW));
-          } else {
-            player.sendSystemMessage(
-                Component.literal(
-                        "No "
-                            + bindContext.type()
-                            + " interaction found on block at "
-                            + pos.toShortString()
-                            + ".")
-                    .withStyle(ChatFormatting.RED));
-          }
-        } else {
-          int removed = data.unregisterAll(targetId);
-          if (removed > 0) {
-            player.sendSystemMessage(
-                Component.literal(
-                        "\u2716 Removed "
-                            + removed
-                            + " interaction(s) from block at "
-                            + pos.toShortString()
-                            + ".")
-                    .withStyle(ChatFormatting.YELLOW));
-          } else {
-            player.sendSystemMessage(
-                Component.literal("No interactions found on block at " + pos.toShortString() + ".")
-                    .withStyle(ChatFormatting.RED));
-          }
-        }
-      } else {
-        TargetKind kind =
-            level.getBlockEntity(pos) != null ? TargetKind.BLOCK_ENTITY : TargetKind.BLOCK;
-        InteractionDataEntry entry =
-            new InteractionDataEntry(
-                targetId,
-                bindContext.type(),
-                kind,
-                bindContext.label(),
-                level.dimension().location(),
-                pos);
-        data.register(entry);
-        player.sendSystemMessage(
-            Component.literal(
-                    "âœ” Registered "
-                        + bindContext.type()
-                        + " interaction '"
-                        + bindContext.label()
-                        + "' on "
-                        + kind
-                        + " at "
-                        + pos.toShortString()
-                        + ".")
-                .withStyle(ChatFormatting.GREEN));
-      }
+      TargetKind kind =
+          level.getBlockEntity(pos) != null ? TargetKind.BLOCK_ENTITY : TargetKind.BLOCK;
+      handleBind(serverPlayer, targetId, kind, pos, dimension);
       return;
     }
-
-    if (data.hasInteraction(targetId, InteractionType.RIGHT_CLICK)) {
-      InteractionDataEntry entry = data.getInteraction(targetId, InteractionType.RIGHT_CLICK);
-      triggerInteraction(player, entry);
-    }
+    InteractionDispatcher.dispatchFor(
+        serverPlayer.server, targetId, InteractionEventType.ON_BLOCK_INTERACT, serverPlayer);
   }
 
   public static void handleStepOnBlock(Entity entity, BlockPos pos, Level level) {
     if (level.isClientSide() || !(entity instanceof Player player)) {
       return;
     }
-
-    InteractionData data = InteractionData.get();
-    if (data == null) {
-      return;
-    }
-
+    ServerPlayer serverPlayer = (ServerPlayer) player;
     UUID targetId = BlockUUID.fromBlockPos(level.dimension(), pos);
-    if (data.hasInteraction(targetId, InteractionType.STEP_ON)) {
-      InteractionDataEntry entry = data.getInteraction(targetId, InteractionType.STEP_ON);
-      triggerInteraction(player, entry);
+    InteractionDispatcher.dispatchFor(
+        serverPlayer.server, targetId, InteractionEventType.ON_STEP_ON, serverPlayer);
+  }
+
+  private static void handleBind(
+      ServerPlayer player,
+      UUID targetId,
+      TargetKind targetKind,
+      BlockPos blockPos,
+      ResourceLocation dimension) {
+    BindContext bindContext = BindManager.consumeBind(player);
+    MinecraftServer server = player.server;
+    InteractionSavedData data = InteractionSavedData.get(server);
+
+    if (bindContext.unbind()) {
+      InteractionEventType eventType = resolveEventType(targetKind, bindContext.type());
+      if (eventType != null) {
+        boolean removed = data.unregister(targetId, eventType);
+        player.sendSystemMessage(
+            removed
+                ? Component.literal(
+                        "\u2716 Removed "
+                            + eventType.resourceLocation().getPath()
+                            + " trigger from "
+                            + targetKind
+                            + locationStr(blockPos)
+                            + ".")
+                    .withStyle(ChatFormatting.YELLOW)
+                : Component.literal(
+                        "No "
+                            + eventType.resourceLocation().getPath()
+                            + " trigger found on "
+                            + targetKind
+                            + locationStr(blockPos)
+                            + ".")
+                    .withStyle(ChatFormatting.RED));
+      } else {
+        int count = data.unregisterAll(targetId);
+        player.sendSystemMessage(
+            count > 0
+                ? Component.literal(
+                        "\u2716 Removed "
+                            + count
+                            + " trigger(s) from "
+                            + targetKind
+                            + locationStr(blockPos)
+                            + ".")
+                    .withStyle(ChatFormatting.YELLOW)
+                : Component.literal(
+                        "No INTERACTIONS found on " + targetKind + locationStr(blockPos) + ".")
+                    .withStyle(ChatFormatting.RED));
+      }
+    } else {
+      InteractionEntry entry =
+          targetKind == TargetKind.ENTITY
+              ? InteractionEntry.forEntityInteract(
+                  targetId, bindContext.type(), bindContext.label(), dimension)
+              : InteractionEntry.forBlockInteract(
+                  targetId,
+                  blockPos,
+                  targetKind,
+                  bindContext.type(),
+                  bindContext.label(),
+                  dimension);
+      data.register(entry);
+      player.sendSystemMessage(
+          Component.literal(
+                  "\u2714 Registered "
+                      + entry.eventType().resourceLocation().getPath()
+                      + " trigger '"
+                      + bindContext.label()
+                      + "' on "
+                      + targetKind
+                      + locationStr(blockPos)
+                      + ".")
+              .withStyle(ChatFormatting.GREEN));
+      log.info("Player {} registered trigger: {}", player.getName().getString(), entry);
     }
   }
 
-  private static void triggerInteraction(Player player, InteractionDataEntry entry) {
-    log.info(
-        "Interaction {} on {} '{}' (UUID: {}) triggered by player {}",
-        entry.type(),
-        entry.kind(),
-        entry.label(),
-        entry.targetId(),
-        player.getName().getString());
-    String posInfo = entry.blockPos() != null ? " at " + entry.blockPos().toShortString() : "";
-    player.sendSystemMessage(
-        Component.literal(
-                "\u25B6 "
-                    + entry.type()
-                    + " | "
-                    + entry.kind()
-                    + " '"
-                    + entry.label()
-                    + "'"
-                    + posInfo)
-            .withStyle(ChatFormatting.GOLD));
-    player.sendSystemMessage(
-        Component.literal("  UUID: " + entry.targetId()).withStyle(ChatFormatting.DARK_GRAY));
+  private static InteractionEventType resolveEventType(
+      TargetKind targetKind, InteractionType interactionType) {
+    if (interactionType == null) {
+      return null;
+    }
+    if (targetKind == TargetKind.ENTITY) {
+      return InteractionEventType.ON_ENTITY_INTERACT;
+    }
+    return interactionType == InteractionType.STEP_ON
+        ? InteractionEventType.ON_STEP_ON
+        : InteractionEventType.ON_BLOCK_INTERACT;
+  }
+
+  private static String locationStr(BlockPos blockPos) {
+    return blockPos != null ? " at " + blockPos.toShortString() : "";
   }
 }
