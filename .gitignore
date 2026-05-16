@@ -37,6 +37,7 @@ npm-debug.log
 # Other
 .DS_Store
 generated
+logs
 *.bak
 *.clip
 *.log

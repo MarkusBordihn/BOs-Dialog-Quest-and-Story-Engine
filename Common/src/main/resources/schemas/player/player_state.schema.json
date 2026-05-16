@@ -1,0 +1,35 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "dqse://schemas/player_state",
+  "title": "DQSE Player State",
+  "description": "Serialized per-player progress data managed by DQSE",
+  "type": "object",
+  "required": ["schema", "player_uuid"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "schema": { "type": "integer", "const": 1 },
+    "player_uuid": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+    },
+    "quest_progress": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "status": { "type": "string", "enum": ["active", "completed", "failed"] },
+          "completed_steps": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    },
+    "story_flags": {
+      "type": "object",
+      "additionalProperties": { "type": "boolean" }
+    },
+    "triggered_once": {
+      "type": "array",
+      "items": { "type": "string", "pattern": "^[a-z0-9_.-]+:[a-z0-9_./-]+$" }
+    }
+  }
+}

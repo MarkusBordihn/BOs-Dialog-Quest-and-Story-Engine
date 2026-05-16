@@ -17,26 +17,23 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package de.markusbordihn.dialogqueststoryengine;
+package de.markusbordihn.dialogqueststoryengine.registry;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
+public enum RegistryType {
+  CONDITIONS("ConditionType"),
+  ACTIONS("ActionType"),
+  TRIGGERS("TriggerType"),
+  QUEST_STEPS("QuestStepType"),
+  THEMES("ThemeProvider"),
+  VALIDATORS("ContentValidator");
 
-public final class Constants {
+  private final String displayName;
 
-  public static final String MOD_ID = "dialog_quest_and_story_engine";
-  public static final String MOD_NAME = "Dialog, Quest and Story Engine";
-  public static final String MOD_COMMAND = "dqs";
-  public static final String MOD_PREFIX = MOD_ID + ".";
-  public static final String GUI_PREFIX = "gui." + MOD_ID + ".";
-  public static final String LOG_NAME = MOD_NAME;
-  public static final String LOG_PREFIX = "[DQSE]";
-  public static final String LOG_REGISTER_PREFIX = "Register " + MOD_NAME;
+  RegistryType(String displayName) {
+    this.displayName = displayName;
+  }
 
-  public static final String INTERACTION_WAND = "interaction_wand";
-
-  public static Path GAME_DIR = Paths.get("").toAbsolutePath();
-  public static Path CONFIG_DIR = GAME_DIR.resolve("config");
-
-  private Constants() {}
+  public String displayName() {
+    return this.displayName;
+  }
 }

@@ -1,0 +1,30 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "dqse://schemas/trigger",
+  "title": "DQSE Trigger Definition",
+  "type": "object",
+  "required": ["schema", "id", "type"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "schema": { "type": "integer", "const": 1 },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9_.-]+:[a-z0-9_./-]+$",
+      "description": "ResourceLocation ID, e.g. 'mymod:on_npc_interact'"
+    },
+    "type": { "type": "string", "const": "trigger" },
+    "trigger_type": {
+      "type": "string",
+      "pattern": "^[a-z0-9_.-]+:[a-z0-9_./-]+$",
+      "description": "ResourceLocation referencing a registered TriggerHandler"
+    },
+    "conditions": { "type": "array", "items": { "type": "object" } },
+    "actions": { "type": "array", "items": { "type": "object" } },
+    "once": {
+      "type": "boolean",
+      "default": false,
+      "description": "If true, this trigger fires at most once per player"
+    }
+  }
+}

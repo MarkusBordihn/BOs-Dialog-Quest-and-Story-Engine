@@ -20,6 +20,7 @@
 package de.markusbordihn.dialogqueststoryengine.server;
 
 import de.markusbordihn.dialogqueststoryengine.Constants;
+import de.markusbordihn.dialogqueststoryengine.registry.Registries;
 import de.markusbordihn.dialogqueststoryengine.data.saveddata.InteractionData;
 import de.markusbordihn.dialogqueststoryengine.entity.InteractionEvents;
 import de.markusbordihn.dialogqueststoryengine.item.InteractionWandItem;
@@ -48,6 +49,7 @@ public final class ServerEvents {
   public static void handleServerStarting(MinecraftServer server) {
     log.info("{} server is starting ...", Constants.MOD_NAME);
     currentServer = server;
+    Registries.freezeAll();
     syncStates.clear();
     InteractionData.init(server);
   }
