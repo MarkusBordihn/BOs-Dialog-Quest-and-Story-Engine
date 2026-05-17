@@ -17,29 +17,32 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package de.markusbordihn.dialogqueststoryengine;
+package de.markusbordihn.dialogqueststoryengine.theme;
 
-import de.markusbordihn.dialogqueststoryengine.client.ClientEventHandler;
-import de.markusbordihn.dialogqueststoryengine.client.ResourceClientEvents;
-import net.minecraftforge.client.event.RegisterClientReloadListenersEvent;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.eventbus.api.IEventBus;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import de.markusbordihn.dialogqueststoryengine.Constants;
+import java.util.Optional;
+import net.minecraft.resources.ResourceLocation;
 
-@SuppressWarnings("unused")
-public class DialogQuestStoryEngineClient {
+public enum ThemeLayout {
+  HOLOPAD(new ResourceLocation(Constants.MOD_ID, "holopad"));
 
-  private static final Logger log = LogManager.getLogger(Constants.LOG_NAME);
+  private final ResourceLocation id;
 
-  @SuppressWarnings("java:S1118")
-  public DialogQuestStoryEngineClient(IEventBus modEventBus) {
-    log.info("Initializing {} (Forge-Client) ...", Constants.MOD_NAME);
-    MinecraftForge.EVENT_BUS.register(ClientEventHandler.class);
-    modEventBus.addListener(this::registerClientReloadListeners);
+  ThemeLayout(ResourceLocation id) {
+    this.id = id;
   }
 
-  private void registerClientReloadListeners(RegisterClientReloadListenersEvent event) {
-    ResourceClientEvents.registerReloadListeners(event::registerReloadListener);
+  public static Optional<ThemeLayout> fromResourceLocation(ResourceLocation resourceLocation) {
+    for (ThemeLayout layout : values()) {
+      if (layout.id.equals(resourceLocation)) {
+        return Optional.of(layout);
+      }
+    }
+
+    return Optional.empty();
+  }
+
+  public ResourceLocation id() {
+    return this.id;
   }
 }

@@ -17,29 +17,27 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package de.markusbordihn.dialogqueststoryengine;
+package de.markusbordihn.dialogqueststoryengine.data.json;
 
-import de.markusbordihn.dialogqueststoryengine.client.ClientEventHandler;
-import de.markusbordihn.dialogqueststoryengine.client.ResourceClientEvents;
-import net.minecraftforge.client.event.RegisterClientReloadListenersEvent;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.eventbus.api.IEventBus;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import de.markusbordihn.dialogqueststoryengine.data.issue.ContentIssue;
+import java.util.List;
+import java.util.Optional;
 
-@SuppressWarnings("unused")
-public class DialogQuestStoryEngineClient {
+public record ParseResult<T>(Optional<T> value, List<ContentIssue> issues) {
 
-  private static final Logger log = LogManager.getLogger(Constants.LOG_NAME);
-
-  @SuppressWarnings("java:S1118")
-  public DialogQuestStoryEngineClient(IEventBus modEventBus) {
-    log.info("Initializing {} (Forge-Client) ...", Constants.MOD_NAME);
-    MinecraftForge.EVENT_BUS.register(ClientEventHandler.class);
-    modEventBus.addListener(this::registerClientReloadListeners);
+  public ParseResult {
+    issues = List.copyOf(issues);
   }
 
-  private void registerClientReloadListeners(RegisterClientReloadListenersEvent event) {
-    ResourceClientEvents.registerReloadListeners(event::registerReloadListener);
+  public static <T> ParseResult<T> success(T value, List<ContentIssue> issues) {
+    return new ParseResult<>(Optional.of(value), issues);
+  }
+
+  public static <T> ParseResult<T> failure(List<ContentIssue> issues) {
+    return new ParseResult<>(Optional.empty(), issues);
+  }
+
+  public boolean isSuccess() {
+    return this.value.isPresent();
   }
 }

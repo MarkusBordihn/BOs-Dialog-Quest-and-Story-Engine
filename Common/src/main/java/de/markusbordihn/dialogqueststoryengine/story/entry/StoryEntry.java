@@ -17,29 +17,22 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package de.markusbordihn.dialogqueststoryengine;
+package de.markusbordihn.dialogqueststoryengine.story.entry;
 
-import de.markusbordihn.dialogqueststoryengine.client.ClientEventHandler;
-import de.markusbordihn.dialogqueststoryengine.client.ResourceClientEvents;
-import net.minecraftforge.client.event.RegisterClientReloadListenersEvent;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.eventbus.api.IEventBus;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import java.util.List;
+import java.util.UUID;
+import net.minecraft.resources.ResourceLocation;
 
-@SuppressWarnings("unused")
-public class DialogQuestStoryEngineClient {
+public record StoryEntry(
+    UUID uuid,
+    ResourceLocation id,
+    int schema,
+    StoryEntryType type,
+    String titleKey,
+    ResourceLocation themeId,
+    List<StoryPage> pages) {
 
-  private static final Logger log = LogManager.getLogger(Constants.LOG_NAME);
-
-  @SuppressWarnings("java:S1118")
-  public DialogQuestStoryEngineClient(IEventBus modEventBus) {
-    log.info("Initializing {} (Forge-Client) ...", Constants.MOD_NAME);
-    MinecraftForge.EVENT_BUS.register(ClientEventHandler.class);
-    modEventBus.addListener(this::registerClientReloadListeners);
-  }
-
-  private void registerClientReloadListeners(RegisterClientReloadListenersEvent event) {
-    ResourceClientEvents.registerReloadListeners(event::registerReloadListener);
+  public StoryEntry {
+    pages = List.copyOf(pages);
   }
 }

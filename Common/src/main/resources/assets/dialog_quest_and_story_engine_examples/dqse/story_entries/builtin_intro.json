@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "type": "holopad",
+  "title_key": "story.dialog_quest_and_story_engine_examples.builtin_intro.title",
+  "theme": "dialog_quest_and_story_engine_examples:builtin_holopad",
+  "pages": [
+    {
+      "text_key": "story.dialog_quest_and_story_engine_examples.builtin_intro.page_1"
+    },
+    {
+      "text_key": "story.dialog_quest_and_story_engine_examples.builtin_intro.page_2"
+    }
+  ]
+}

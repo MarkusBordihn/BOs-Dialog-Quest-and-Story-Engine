@@ -17,28 +17,51 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package de.markusbordihn.dialogqueststoryengine;
+package de.markusbordihn.dialogqueststoryengine.theme;
 
-import de.markusbordihn.dialogqueststoryengine.client.ClientEventHandler;
-import de.markusbordihn.dialogqueststoryengine.client.ResourceClientEventsFabric;
-import de.markusbordihn.dialogqueststoryengine.network.NetworkHandlerManager;
-import de.markusbordihn.dialogqueststoryengine.network.NetworkHandlerManagerType;
-import net.fabricmc.api.ClientModInitializer;
-import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
-import net.minecraft.server.packs.PackType;
+import de.markusbordihn.dialogqueststoryengine.Constants;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import net.minecraft.resources.ResourceLocation;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class DialogQuestStoryEngineClient implements ClientModInitializer {
+public final class ThemeClientRegistry {
 
   private static final Logger log = LogManager.getLogger(Constants.LOG_NAME);
+  private static final Map<ResourceLocation, Theme> entries = new LinkedHashMap<>();
 
-  @Override
-  public void onInitializeClient() {
-    log.info("Initializing {} (Fabric-Client) ...", Constants.MOD_NAME);
-    NetworkHandlerManager.registerNetworkMessages(NetworkHandlerManagerType.CLIENT);
-    ClientEventHandler.registerEvents();
-    ResourceClientEventsFabric.registerReloadListeners(
-        ResourceManagerHelper.get(PackType.CLIENT_RESOURCES));
+  private ThemeClientRegistry() {}
+
+  public static void put(Theme theme) {
+    if (entries.containsKey(theme.id())) {
+      log.warn(
+          "{} Theme registry: duplicate id {} — overwriting.", Constants.LOG_PREFIX, theme.id());
+    }
+
+    entries.put(theme.id(), theme);
+  }
+
+  public static Optional<Theme> get(ResourceLocation id) {
+    return Optional.ofNullable(entries.get(id));
+  }
+
+  public static boolean contains(ResourceLocation id) {
+    return entries.containsKey(id);
+  }
+
+  public static int size() {
+    return entries.size();
+  }
+
+  public static Set<ResourceLocation> ids() {
+    return Collections.unmodifiableSet(entries.keySet());
+  }
+
+  public static void clear() {
+    entries.clear();
   }
 }

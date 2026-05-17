@@ -25,32 +25,32 @@ import de.markusbordihn.dialogqueststoryengine.client.screen.ui.components.Bread
 import de.markusbordihn.dialogqueststoryengine.client.screen.ui.components.ColumnListPanel;
 import de.markusbordihn.dialogqueststoryengine.client.screen.ui.components.ScaledText;
 import de.markusbordihn.dialogqueststoryengine.client.screen.ui.components.TextComponent;
-import de.markusbordihn.dialogqueststoryengine.story.entry.StoryEntry;
-import de.markusbordihn.dialogqueststoryengine.story.entry.StoryEntryClientRegistry;
+import de.markusbordihn.dialogqueststoryengine.theme.Theme;
+import de.markusbordihn.dialogqueststoryengine.theme.ThemeClientRegistry;
 import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 
-public class StoryOverviewScreen extends BaseScreen {
+public class ThemeOverviewScreen extends BaseScreen {
 
-  public StoryOverviewScreen(List<BreadcrumbBar.Segment> ancestors) {
-    setBreadcrumb(ancestors, "Stories");
+  public ThemeOverviewScreen(List<BreadcrumbBar.Segment> ancestors) {
+    setBreadcrumb(ancestors, "Themes");
   }
 
   public static void open(List<BreadcrumbBar.Segment> ancestors) {
     Minecraft.getInstance()
         .execute(
             () -> {
-              StoryOverviewScreen screen = new StoryOverviewScreen(ancestors);
+              ThemeOverviewScreen screen = new ThemeOverviewScreen(ancestors);
               screen.openScreen();
             });
   }
 
   @Override
   protected Component getTitle() {
-    return TextComponent.ofKey("screen.dialog_quest_and_story_engine.story_overview");
+    return TextComponent.ofKey("screen.dialog_quest_and_story_engine.theme_overview");
   }
 
   @Override
@@ -61,15 +61,14 @@ public class StoryOverviewScreen extends BaseScreen {
 
   @Override
   protected void addWidgets() {
-    ColumnListPanel<StoryEntry> table =
-        new ColumnListPanel<>(0, 0, getInnerWidth(), getInnerHeight());
+    ColumnListPanel<Theme> table = new ColumnListPanel<>(0, 0, getInnerWidth(), getInnerHeight());
     table.addColumn("column.id", 0.75f);
-    table.addColumn("column.type", 0.25f);
+    table.addColumn("column.layout", 0.25f);
     table.setEntryHeight(20);
     table.setEntryRenderer(this::renderEntry);
     table.setItems(
-        StoryEntryClientRegistry.ids().stream()
-            .map(id -> StoryEntryClientRegistry.get(id).orElseThrow())
+        ThemeClientRegistry.ids().stream()
+            .map(id -> ThemeClientRegistry.get(id).orElseThrow())
             .toList());
     addWidget(table);
   }
@@ -77,7 +76,7 @@ public class StoryOverviewScreen extends BaseScreen {
   private void renderEntry(
       GuiGraphics graphics,
       Font font,
-      StoryEntry entry,
+      Theme theme,
       int index,
       int x,
       int y,
@@ -89,7 +88,7 @@ public class StoryOverviewScreen extends BaseScreen {
     ScaledText.draw(
         graphics,
         font,
-        entry.id().toString(),
+        theme.id().toString(),
         x + columnOffsets[0],
         y + 3,
         palette.onSurface(),
@@ -97,7 +96,7 @@ public class StoryOverviewScreen extends BaseScreen {
     ScaledText.draw(
         graphics,
         font,
-        entry.type().name(),
+        theme.layout().name(),
         x + columnOffsets[1],
         y + 3,
         palette.onSurfaceLow(),

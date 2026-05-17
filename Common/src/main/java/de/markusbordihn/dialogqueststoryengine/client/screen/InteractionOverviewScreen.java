@@ -19,33 +19,26 @@
 
 package de.markusbordihn.dialogqueststoryengine.client.screen;
 
-import de.markusbordihn.dialogqueststoryengine.Constants;
 import de.markusbordihn.dialogqueststoryengine.client.InteractionClientData;
 import de.markusbordihn.dialogqueststoryengine.client.screen.ui.BaseScreen;
 import de.markusbordihn.dialogqueststoryengine.client.screen.ui.color.ColorPalette;
 import de.markusbordihn.dialogqueststoryengine.client.screen.ui.components.BreadcrumbBar;
+import de.markusbordihn.dialogqueststoryengine.client.screen.ui.components.ColumnListPanel;
 import de.markusbordihn.dialogqueststoryengine.client.screen.ui.components.Label;
-import de.markusbordihn.dialogqueststoryengine.client.screen.ui.components.ListPanel;
 import de.markusbordihn.dialogqueststoryengine.client.screen.ui.components.ScaledText;
-import de.markusbordihn.dialogqueststoryengine.client.screen.ui.components.Separator;
 import de.markusbordihn.dialogqueststoryengine.client.screen.ui.components.TextComponent;
 import de.markusbordihn.dialogqueststoryengine.client.screen.ui.components.TextInput;
 import de.markusbordihn.dialogqueststoryengine.data.interaction.InteractionEntry;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 public class InteractionOverviewScreen extends BaseScreen {
 
-  private static final Logger log = LogManager.getLogger(Constants.LOG_NAME);
-
-  private ListPanel<InteractionEntry> listPanel;
+  private ColumnListPanel<InteractionEntry> table;
   private TextInput searchInput;
   private String searchFilter = "";
 
@@ -91,26 +84,16 @@ public class InteractionOverviewScreen extends BaseScreen {
     int innerWidth = getInnerWidth();
     int innerHeight = getInnerHeight();
     int searchHeight = 16;
-    int row = 0;
-
-    float headerScale = ScaledText.SCALE_SMALL;
-    addWidget(new Label(0, row, "column.label", 0, headerScale, Label.Alignment.LEFT));
-    addWidget(new Label(innerWidth / 4, row, "column.type", 0, headerScale, Label.Alignment.LEFT));
-    addWidget(
-        new Label(innerWidth / 4 * 2, row, "column.target", 0, headerScale, Label.Alignment.LEFT));
-    addWidget(
-        new Label(
-            innerWidth / 4 * 3, row, "column.position", 0, headerScale, Label.Alignment.LEFT));
-    row += 12;
-    addWidget(new Separator(0, row, innerWidth, true));
-    row += 2;
-
     int searchBarY = innerHeight - searchHeight;
-    int listHeight = searchBarY - row - 4;
-    listPanel = new ListPanel<>(0, row, innerWidth, listHeight);
-    listPanel.setEntryHeight(20);
-    listPanel.setEntryRenderer(this::renderEntry);
-    listPanel.setOnSelect(
+
+    this.table = new ColumnListPanel<>(0, 0, innerWidth, searchBarY - 4);
+    this.table.addColumn("column.label", 0.25f);
+    this.table.addColumn("column.type", 0.25f);
+    this.table.addColumn("column.target", 0.25f);
+    this.table.addColumn("column.position", 0.25f);
+    this.table.setEntryHeight(20);
+    this.table.setEntryRenderer(this::renderEntry);
+    this.table.setOnSelect(
         entry -> {
           List<BreadcrumbBar.Segment> childAncestors = buildChildAncestors("Interactions");
           String targetLabel = InteractionConfigScreen.targetContextLabel(entry);
@@ -118,41 +101,41 @@ public class InteractionOverviewScreen extends BaseScreen {
               new InteractionConfigScreen(entry, false, childAncestors, targetLabel);
           configScreen.openScreen();
         });
-    addWidget(listPanel);
+    addWidget(this.table);
     updateListItems();
 
     addWidget(
         new Label(0, searchBarY + 4, "search", 0, ScaledText.SCALE_SMALL, Label.Alignment.LEFT));
-    searchInput =
+    this.searchInput =
         new TextInput(
             50,
             searchBarY,
             innerWidth - 50,
             searchHeight,
             value -> {
-              searchFilter = value;
+              this.searchFilter = value;
               updateListItems();
             });
-    searchInput.setValue(searchFilter);
-    addWidget(searchInput);
+    this.searchInput.setValue(this.searchFilter);
+    addWidget(this.searchInput);
   }
 
   private void updateListItems() {
     List<InteractionEntry> all = InteractionClientData.getEntries();
-    if (searchFilter == null || searchFilter.isEmpty()) {
-      listPanel.setItems(all);
-    } else {
-      String filter = searchFilter.toLowerCase(Locale.ROOT);
-      List<InteractionEntry> filtered = new ArrayList<>();
-      for (InteractionEntry entry : all) {
-        if (entry.label().toLowerCase(Locale.ROOT).contains(filter)
-            || entry.interactionType().name().toLowerCase(Locale.ROOT).contains(filter)
-            || entry.targetKind().name().toLowerCase(Locale.ROOT).contains(filter)) {
-          filtered.add(entry);
-        }
-      }
-      listPanel.setItems(filtered);
+    if (this.searchFilter.isEmpty()) {
+      this.table.setItems(all);
+      return;
     }
+
+    String filter = this.searchFilter.toLowerCase(Locale.ROOT);
+    this.table.setItems(
+        all.stream()
+            .filter(
+                entry ->
+                    entry.label().toLowerCase(Locale.ROOT).contains(filter)
+                        || entry.interactionType().name().toLowerCase(Locale.ROOT).contains(filter)
+                        || entry.targetKind().name().toLowerCase(Locale.ROOT).contains(filter))
+            .toList());
   }
 
   private void renderEntry(
@@ -164,16 +147,18 @@ public class InteractionOverviewScreen extends BaseScreen {
       int y,
       int width,
       int height,
-      ColorPalette palette) {
-    int columnWidth = width / 4;
+      ColorPalette palette,
+      int[] columnOffsets) {
     float scale = ScaledText.SCALE_SMALL;
+    String posStr = entry.blockPos() != null ? entry.blockPos().toShortString() : "N/A";
 
-    ScaledText.draw(graphics, font, entry.label(), x, y + 3, palette.onSurface(), scale);
+    ScaledText.draw(
+        graphics, font, entry.label(), x + columnOffsets[0], y + 3, palette.onSurface(), scale);
     ScaledText.draw(
         graphics,
         font,
         entry.interactionType().name(),
-        x + columnWidth,
+        x + columnOffsets[1],
         y + 3,
         palette.onSurfaceLow(),
         scale);
@@ -181,13 +166,11 @@ public class InteractionOverviewScreen extends BaseScreen {
         graphics,
         font,
         entry.targetKind().name(),
-        x + columnWidth * 2,
+        x + columnOffsets[2],
         y + 3,
         palette.onSurfaceLow(),
         scale);
-
-    String posStr = entry.blockPos() != null ? entry.blockPos().toShortString() : "N/A";
     ScaledText.draw(
-        graphics, font, posStr, x + columnWidth * 3, y + 3, palette.onSurfaceLow(), scale);
+        graphics, font, posStr, x + columnOffsets[3], y + 3, palette.onSurfaceLow(), scale);
   }
 }

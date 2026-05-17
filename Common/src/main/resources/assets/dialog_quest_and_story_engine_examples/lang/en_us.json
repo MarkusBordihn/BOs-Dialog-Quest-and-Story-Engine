@@ -1,0 +1,5 @@
+{
+  "story.dialog_quest_and_story_engine_examples.builtin_intro.title": "Welcome to DQSE",
+  "story.dialog_quest_and_story_engine_examples.builtin_intro.page_1": "The Dialog, Quest and Story Engine is ready.",
+  "story.dialog_quest_and_story_engine_examples.builtin_intro.page_2": "Create your own story entries in your Resource Pack under assets/<namespace>/dqse/story_entries/."
+}

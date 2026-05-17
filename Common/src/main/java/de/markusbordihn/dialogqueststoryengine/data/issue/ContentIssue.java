@@ -17,29 +17,37 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package de.markusbordihn.dialogqueststoryengine;
+package de.markusbordihn.dialogqueststoryengine.data.issue;
 
-import de.markusbordihn.dialogqueststoryengine.client.ClientEventHandler;
-import de.markusbordihn.dialogqueststoryengine.client.ResourceClientEvents;
-import net.minecraftforge.client.event.RegisterClientReloadListenersEvent;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.eventbus.api.IEventBus;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import de.markusbordihn.dialogqueststoryengine.data.ContentType;
+import java.util.Map;
+import net.minecraft.resources.ResourceLocation;
 
-@SuppressWarnings("unused")
-public class DialogQuestStoryEngineClient {
+public record ContentIssue(
+    IssueSeverity severity,
+    IssueCode code,
+    ContentType contentType,
+    ResourceLocation id,
+    String file,
+    String field,
+    Map<String, String> details) {
 
-  private static final Logger log = LogManager.getLogger(Constants.LOG_NAME);
-
-  @SuppressWarnings("java:S1118")
-  public DialogQuestStoryEngineClient(IEventBus modEventBus) {
-    log.info("Initializing {} (Forge-Client) ...", Constants.MOD_NAME);
-    MinecraftForge.EVENT_BUS.register(ClientEventHandler.class);
-    modEventBus.addListener(this::registerClientReloadListeners);
+  public ContentIssue {
+    details = Map.copyOf(details);
   }
 
-  private void registerClientReloadListeners(RegisterClientReloadListenersEvent event) {
-    ResourceClientEvents.registerReloadListeners(event::registerReloadListener);
+  public static ContentIssue of(
+      IssueCode code, ContentType contentType, ResourceLocation id, String file, String field) {
+    return new ContentIssue(code.defaultSeverity(), code, contentType, id, file, field, Map.of());
+  }
+
+  public static ContentIssue of(
+      IssueCode code,
+      ContentType contentType,
+      ResourceLocation id,
+      String file,
+      String field,
+      Map<String, String> details) {
+    return new ContentIssue(code.defaultSeverity(), code, contentType, id, file, field, details);
   }
 }

@@ -17,28 +17,16 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package de.markusbordihn.dialogqueststoryengine;
+package de.markusbordihn.dialogqueststoryengine.client;
 
-import de.markusbordihn.dialogqueststoryengine.client.ClientEventHandler;
-import de.markusbordihn.dialogqueststoryengine.client.ResourceClientEventsFabric;
-import de.markusbordihn.dialogqueststoryengine.network.NetworkHandlerManager;
-import de.markusbordihn.dialogqueststoryengine.network.NetworkHandlerManagerType;
-import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
-import net.minecraft.server.packs.PackType;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
-public class DialogQuestStoryEngineClient implements ClientModInitializer {
+public final class ResourceClientEventsFabric {
 
-  private static final Logger log = LogManager.getLogger(Constants.LOG_NAME);
+  private ResourceClientEventsFabric() {}
 
-  @Override
-  public void onInitializeClient() {
-    log.info("Initializing {} (Fabric-Client) ...", Constants.MOD_NAME);
-    NetworkHandlerManager.registerNetworkMessages(NetworkHandlerManagerType.CLIENT);
-    ClientEventHandler.registerEvents();
-    ResourceClientEventsFabric.registerReloadListeners(
-        ResourceManagerHelper.get(PackType.CLIENT_RESOURCES));
+  public static void registerReloadListeners(ResourceManagerHelper helper) {
+    helper.registerReloadListener(new StoryEntryLoaderFabric());
+    helper.registerReloadListener(new ThemeLoaderFabric());
   }
 }

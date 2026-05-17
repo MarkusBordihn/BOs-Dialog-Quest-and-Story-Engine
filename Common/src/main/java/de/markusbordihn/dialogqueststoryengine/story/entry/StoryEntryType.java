@@ -17,29 +17,30 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package de.markusbordihn.dialogqueststoryengine;
+package de.markusbordihn.dialogqueststoryengine.story.entry;
 
-import de.markusbordihn.dialogqueststoryengine.client.ClientEventHandler;
-import de.markusbordihn.dialogqueststoryengine.client.ResourceClientEvents;
-import net.minecraftforge.client.event.RegisterClientReloadListenersEvent;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.eventbus.api.IEventBus;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import java.util.Optional;
 
-@SuppressWarnings("unused")
-public class DialogQuestStoryEngineClient {
+public enum StoryEntryType {
+  HOLOPAD("holopad");
 
-  private static final Logger log = LogManager.getLogger(Constants.LOG_NAME);
+  private final String key;
 
-  @SuppressWarnings("java:S1118")
-  public DialogQuestStoryEngineClient(IEventBus modEventBus) {
-    log.info("Initializing {} (Forge-Client) ...", Constants.MOD_NAME);
-    MinecraftForge.EVENT_BUS.register(ClientEventHandler.class);
-    modEventBus.addListener(this::registerClientReloadListeners);
+  StoryEntryType(String key) {
+    this.key = key;
   }
 
-  private void registerClientReloadListeners(RegisterClientReloadListenersEvent event) {
-    ResourceClientEvents.registerReloadListeners(event::registerReloadListener);
+  public static Optional<StoryEntryType> fromKey(String key) {
+    for (StoryEntryType type : values()) {
+      if (type.key.equalsIgnoreCase(key)) {
+        return Optional.of(type);
+      }
+    }
+
+    return Optional.empty();
+  }
+
+  public String key() {
+    return this.key;
   }
 }

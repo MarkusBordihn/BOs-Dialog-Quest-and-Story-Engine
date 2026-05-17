@@ -41,6 +41,7 @@ public class MainScreen extends BaseScreen {
     {"Quests", "section.quests.desc"},
     {"Tasks", "section.tasks.desc"},
     {"Stories", "section.stories.desc"},
+    {"Themes", "section.themes.desc"},
     {"Actions", "section.actions.desc"},
   };
 
@@ -65,7 +66,7 @@ public class MainScreen extends BaseScreen {
 
   @Override
   public void onScreenInit(int screenWidth, int screenHeight) {
-    setSizeCentered(480, 320);
+    setSizeCentered(480, 360);
     refreshWidgets();
   }
 
@@ -77,8 +78,10 @@ public class MainScreen extends BaseScreen {
     addWidget(new Label(0, row + 2, SUBTITLE, 0, ScaledText.SCALE_SMALL, Label.Alignment.LEFT));
     row += 16;
 
-    int tileHeight = 46;
-    GridLayout grid = GridLayout.of(0, row, innerWidth, 2, 8, 6);
+    int rowGap = 6;
+    int maxRows = (int) Math.ceil(SECTIONS.length / 2.0);
+    int tileHeight = Math.min(40, (getInnerHeight() - row - (maxRows - 1) * rowGap) / maxRows);
+    GridLayout grid = GridLayout.of(0, row, innerWidth, 2, 8, rowGap);
 
     for (int i = 0; i < SECTIONS.length; i++) {
       String sectionLabel = SECTIONS[i][0];
@@ -100,33 +103,14 @@ public class MainScreen extends BaseScreen {
   private void openSection(String section) {
     List<BreadcrumbBar.Segment> ancestors = buildChildAncestors("Home");
     switch (section) {
-      case "Interactions" -> {
-        InteractionOverviewScreen screen = new InteractionOverviewScreen(ancestors);
-        screen.openScreen();
-      }
-      case "Dialogs" -> {
-        DialogOverviewScreen screen = new DialogOverviewScreen(ancestors);
-        screen.openScreen();
-      }
-      case "Quests" -> {
-        QuestOverviewScreen screen = new QuestOverviewScreen(ancestors);
-        screen.openScreen();
-      }
-      case "Tasks" -> {
-        TaskOverviewScreen screen = new TaskOverviewScreen(ancestors);
-        screen.openScreen();
-      }
-      case "Stories" -> {
-        StoryOverviewScreen screen = new StoryOverviewScreen(ancestors);
-        screen.openScreen();
-      }
-      case "Actions" -> {
-        ActionOverviewScreen screen = new ActionOverviewScreen(ancestors);
-        screen.openScreen();
-      }
-      default -> {
-        /* no-op */
-      }
+      case "Interactions" -> new InteractionOverviewScreen(ancestors).openScreen();
+      case "Dialogs" -> new DialogOverviewScreen(ancestors).openScreen();
+      case "Quests" -> new QuestOverviewScreen(ancestors).openScreen();
+      case "Tasks" -> new TaskOverviewScreen(ancestors).openScreen();
+      case "Stories" -> new StoryOverviewScreen(ancestors).openScreen();
+      case "Themes" -> new ThemeOverviewScreen(ancestors).openScreen();
+      case "Actions" -> new ActionOverviewScreen(ancestors).openScreen();
+      default -> {}
     }
   }
 }

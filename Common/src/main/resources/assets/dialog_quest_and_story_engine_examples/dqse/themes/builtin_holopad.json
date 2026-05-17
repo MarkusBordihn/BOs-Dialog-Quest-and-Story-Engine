@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "layout": "dialog_quest_and_story_engine:holopad",
+  "frame_texture": "dialog_quest_and_story_engine:textures/gui/holopad/frame.png",
+  "background_texture": "dialog_quest_and_story_engine:textures/gui/holopad/background.png",
+  "show_page_numbers": true,
+  "show_close_button": true,
+  "text_area": {
+    "x": 24,
+    "y": 32,
+    "width": 176,
+    "height": 120
+  }
+}
