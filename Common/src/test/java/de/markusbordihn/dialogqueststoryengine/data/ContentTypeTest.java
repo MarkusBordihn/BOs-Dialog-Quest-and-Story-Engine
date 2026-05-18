@@ -19,8 +19,11 @@
 
 package de.markusbordihn.dialogqueststoryengine.data;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.Arrays;
 import org.junit.jupiter.api.Test;
 
 class ContentTypeTest {
@@ -35,5 +38,33 @@ class ContentTypeTest {
   @Test
   void playerStateSchemaCurrentIsValid() {
     assertTrue(PlayerStateSchema.CURRENT >= 1);
+  }
+
+  @Test
+  void interactionContentTypeIsPresent() {
+    assertNotNull(ContentType.valueOf("INTERACTION"));
+  }
+
+  @Test
+  void triggerContentTypeDoesNotExist() {
+    assertThrows(IllegalArgumentException.class, () -> ContentType.valueOf("TRIGGER"));
+  }
+
+  @Test
+  void interactionHasCurrentSchemaOne() {
+    assertTrue(ContentType.INTERACTION.currentSchema() >= 1);
+  }
+
+  @Test
+  void allFourDataPackContentTypesPresent() {
+    boolean hasDialog =
+        Arrays.stream(ContentType.values()).anyMatch(t -> t.name().equals("DIALOG"));
+    boolean hasQuest = Arrays.stream(ContentType.values()).anyMatch(t -> t.name().equals("QUEST"));
+    boolean hasInteractiveStory =
+        Arrays.stream(ContentType.values()).anyMatch(t -> t.name().equals("INTERACTIVE_STORY"));
+    boolean hasInteraction =
+        Arrays.stream(ContentType.values()).anyMatch(t -> t.name().equals("INTERACTION"));
+
+    assertTrue(hasDialog && hasQuest && hasInteractiveStory && hasInteraction);
   }
 }

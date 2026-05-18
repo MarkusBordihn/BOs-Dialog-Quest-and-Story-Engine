@@ -38,7 +38,6 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -57,10 +56,11 @@ public final class InteractionEvents {
     if (player.level().isClientSide()) {
       return;
     }
-    MinecraftServer server = ((ServerPlayer) player).server;
-    if (!InteractionManager.hasStepOnInteractions(server)) {
+
+    if (!InteractionManager.hasStepOnInteractions(((ServerPlayer) player).server)) {
       return;
     }
+
     BlockPos currentPos = player.blockPosition().below();
     BlockPos lastPos = lastPlayerBlockPos.get(player.getUUID());
     if (lastPos == null || !lastPos.equals(currentPos)) {
@@ -80,12 +80,13 @@ public final class InteractionEvents {
         || player.getMainHandItem().getItem() instanceof InteractionWandItem) {
       return;
     }
+
     ServerPlayer serverPlayer = (ServerPlayer) player;
     UUID targetId = target.getUUID();
-    ResourceLocation dimension = target.level().dimension().location();
 
     if (BindManager.isBinding(player)) {
-      handleBind(serverPlayer, targetId, TargetKind.ENTITY, null, dimension);
+      handleBind(
+          serverPlayer, targetId, TargetKind.ENTITY, null, target.level().dimension().location());
       return;
     }
     InteractionDispatcher.dispatchFor(
@@ -96,16 +97,17 @@ public final class InteractionEvents {
     if (level.isClientSide() || player.getMainHandItem().getItem() instanceof InteractionWandItem) {
       return;
     }
+
     ServerPlayer serverPlayer = (ServerPlayer) player;
     UUID targetId = BlockUUID.fromBlockPos(level.dimension(), pos);
-    ResourceLocation dimension = level.dimension().location();
 
     if (BindManager.isBinding(player)) {
       TargetKind kind =
           level.getBlockEntity(pos) != null ? TargetKind.BLOCK_ENTITY : TargetKind.BLOCK;
-      handleBind(serverPlayer, targetId, kind, pos, dimension);
+      handleBind(serverPlayer, targetId, kind, pos, level.dimension().location());
       return;
     }
+
     InteractionDispatcher.dispatchFor(
         serverPlayer.server, targetId, InteractionEventType.ON_BLOCK_INTERACT, serverPlayer);
   }
@@ -114,10 +116,13 @@ public final class InteractionEvents {
     if (level.isClientSide() || !(entity instanceof Player player)) {
       return;
     }
+
     ServerPlayer serverPlayer = (ServerPlayer) player;
-    UUID targetId = BlockUUID.fromBlockPos(level.dimension(), pos);
     InteractionDispatcher.dispatchFor(
-        serverPlayer.server, targetId, InteractionEventType.ON_STEP_ON, serverPlayer);
+        serverPlayer.server,
+        BlockUUID.fromBlockPos(level.dimension(), pos),
+        InteractionEventType.ON_STEP_ON,
+        serverPlayer);
   }
 
   private static void handleBind(
@@ -127,15 +132,13 @@ public final class InteractionEvents {
       BlockPos blockPos,
       ResourceLocation dimension) {
     BindContext bindContext = BindManager.consumeBind(player);
-    MinecraftServer server = player.server;
-    InteractionSavedData data = InteractionSavedData.get(server);
+    InteractionSavedData data = InteractionSavedData.get(player.server);
 
     if (bindContext.unbind()) {
       InteractionEventType eventType = resolveEventType(targetKind, bindContext.type());
       if (eventType != null) {
-        boolean removed = data.unregister(targetId, eventType);
         player.sendSystemMessage(
-            removed
+            data.unregister(targetId, eventType)
                 ? Component.literal(
                         "\u2716 Removed "
                             + eventType.resourceLocation().getPath()
@@ -201,9 +204,11 @@ public final class InteractionEvents {
     if (interactionType == null) {
       return null;
     }
+
     if (targetKind == TargetKind.ENTITY) {
       return InteractionEventType.ON_ENTITY_INTERACT;
     }
+
     return interactionType == InteractionType.STEP_ON
         ? InteractionEventType.ON_STEP_ON
         : InteractionEventType.ON_BLOCK_INTERACT;

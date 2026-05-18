@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "event": "on_entity_interact",
+  "binding": {
+    "kind": "entity",
+    "target_id": "00000000-0000-0000-0000-000000000001",
+    "dimension": "minecraft:overworld"
+  },
+  "conditions": [],
+  "actions": [
+    {"type": "dialog.open", "dialog": "dialog_quest_and_story_engine_examples:hello"}
+  ]
+}

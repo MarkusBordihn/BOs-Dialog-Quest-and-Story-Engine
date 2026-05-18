@@ -64,18 +64,18 @@ public final class JsonFieldReader {
   }
 
   public static Optional<Integer> readSchema(
-      JsonObject json,
+      JsonObject jsonObject,
       ContentType contentType,
       int expectedSchema,
       ResourceLocation id,
       String file,
       List<ContentIssue> issues) {
-    if (!json.has(FIELD_SCHEMA)) {
+    if (!jsonObject.has(FIELD_SCHEMA)) {
       issues.add(ContentIssue.of(IssueCode.MISSING_SCHEMA, contentType, id, file, FIELD_SCHEMA));
       return Optional.empty();
     }
 
-    JsonElement element = json.get(FIELD_SCHEMA);
+    JsonElement element = jsonObject.get(FIELD_SCHEMA);
     if (!element.isJsonPrimitive() || !element.getAsJsonPrimitive().isNumber()) {
       reportInvalidType(contentType, id, file, FIELD_SCHEMA, "integer", issues);
       return Optional.empty();
@@ -98,18 +98,18 @@ public final class JsonFieldReader {
   }
 
   public static Optional<String> readString(
-      JsonObject json,
+      JsonObject jsonObject,
       String field,
       ContentType contentType,
       ResourceLocation id,
       String file,
       List<ContentIssue> issues) {
-    if (!json.has(field)) {
+    if (!jsonObject.has(field)) {
       reportMissing(contentType, id, file, field, issues);
       return Optional.empty();
     }
 
-    JsonElement element = json.get(field);
+    JsonElement element = jsonObject.get(field);
     if (!element.isJsonPrimitive() || !element.getAsJsonPrimitive().isString()) {
       reportInvalidType(contentType, id, file, field, "string", issues);
       return Optional.empty();
@@ -132,18 +132,18 @@ public final class JsonFieldReader {
   }
 
   public static Optional<Integer> readInt(
-      JsonObject json,
+      JsonObject jsonObject,
       String field,
       ContentType contentType,
       ResourceLocation id,
       String file,
       List<ContentIssue> issues) {
-    if (!json.has(field)) {
+    if (!jsonObject.has(field)) {
       reportMissing(contentType, id, file, field, issues);
       return Optional.empty();
     }
 
-    JsonElement element = json.get(field);
+    JsonElement element = jsonObject.get(field);
     if (!element.isJsonPrimitive() || !element.getAsJsonPrimitive().isNumber()) {
       reportInvalidType(contentType, id, file, field, "integer", issues);
       return Optional.empty();
@@ -153,18 +153,18 @@ public final class JsonFieldReader {
   }
 
   public static Optional<Boolean> readBoolean(
-      JsonObject json,
+      JsonObject jsonObject,
       String field,
       ContentType contentType,
       ResourceLocation id,
       String file,
       List<ContentIssue> issues) {
-    if (!json.has(field)) {
+    if (!jsonObject.has(field)) {
       reportMissing(contentType, id, file, field, issues);
       return Optional.empty();
     }
 
-    JsonElement element = json.get(field);
+    JsonElement element = jsonObject.get(field);
     if (!element.isJsonPrimitive() || !element.getAsJsonPrimitive().isBoolean()) {
       reportInvalidType(contentType, id, file, field, "boolean", issues);
       return Optional.empty();
@@ -174,18 +174,18 @@ public final class JsonFieldReader {
   }
 
   public static Optional<JsonObject> readObject(
-      JsonObject json,
+      JsonObject jsonObject,
       String field,
       ContentType contentType,
       ResourceLocation id,
       String file,
       List<ContentIssue> issues) {
-    if (!json.has(field)) {
+    if (!jsonObject.has(field)) {
       reportMissing(contentType, id, file, field, issues);
       return Optional.empty();
     }
 
-    JsonElement element = json.get(field);
+    JsonElement element = jsonObject.get(field);
     if (!element.isJsonObject()) {
       reportInvalidType(contentType, id, file, field, "object", issues);
       return Optional.empty();
@@ -195,18 +195,18 @@ public final class JsonFieldReader {
   }
 
   public static Optional<JsonArray> readArray(
-      JsonObject json,
+      JsonObject jsonObject,
       String field,
       ContentType contentType,
       ResourceLocation id,
       String file,
       List<ContentIssue> issues) {
-    if (!json.has(field)) {
+    if (!jsonObject.has(field)) {
       reportMissing(contentType, id, file, field, issues);
       return Optional.empty();
     }
 
-    JsonElement element = json.get(field);
+    JsonElement element = jsonObject.get(field);
     if (!element.isJsonArray()) {
       reportInvalidType(contentType, id, file, field, "array", issues);
       return Optional.empty();
@@ -216,13 +216,13 @@ public final class JsonFieldReader {
   }
 
   public static Optional<ResourceLocation> readResourceLocation(
-      JsonObject json,
+      JsonObject jsonObject,
       String field,
       ContentType contentType,
       ResourceLocation id,
       String file,
       List<ContentIssue> issues) {
-    Optional<String> rawValue = readString(json, field, contentType, id, file, issues);
+    Optional<String> rawValue = readString(jsonObject, field, contentType, id, file, issues);
     if (rawValue.isEmpty()) {
       return Optional.empty();
     }

@@ -20,6 +20,7 @@
 package de.markusbordihn.dialogqueststoryengine;
 
 import de.markusbordihn.dialogqueststoryengine.commands.manager.CommandManager;
+import de.markusbordihn.dialogqueststoryengine.content.ResourceServerEventsFabric;
 import de.markusbordihn.dialogqueststoryengine.entity.InteractionEventHandler;
 import de.markusbordihn.dialogqueststoryengine.item.ModItems;
 import de.markusbordihn.dialogqueststoryengine.network.NetworkHandler;
@@ -31,7 +32,9 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.server.packs.PackType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -61,6 +64,9 @@ public class DialogQuestStoryEngine implements ModInitializer {
     ServerLifecycleEvents.SERVER_STOPPING.register(ServerEvents::handleServerStopping);
 
     InteractionEventHandler.registerEvents();
+
+    ResourceServerEventsFabric.registerReloadListeners(
+        ResourceManagerHelper.get(PackType.SERVER_DATA));
 
     ServerTickEvents.END_SERVER_TICK.register(ServerEvents::handleServerTick);
   }

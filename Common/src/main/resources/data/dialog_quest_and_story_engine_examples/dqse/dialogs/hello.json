@@ -1,0 +1,41 @@
+{
+  "schema": 1,
+  "start_node": "greeting",
+  "nodes": {
+    "greeting": {
+      "speaker_key": "example.villager.name",
+      "text_key": "example.dialog.greeting.text",
+      "choices": [
+        {
+          "id": "ask_quest",
+          "label_key": "example.dialog.greeting.choice.ask_quest",
+          "next": "quest_info"
+        },
+        {
+          "id": "goodbye",
+          "label_key": "example.dialog.greeting.choice.goodbye",
+          "action": "close"
+        }
+      ]
+    },
+    "quest_info": {
+      "speaker_key": "example.villager.name",
+      "text_key": "example.dialog.quest_info.text",
+      "choices": [
+        {
+          "id": "accept",
+          "label_key": "example.dialog.quest_info.choice.accept",
+          "actions": [
+            {"type": "quest.start", "quest": "dialog_quest_and_story_engine_examples:first_quest"}
+          ],
+          "action": "close"
+        },
+        {
+          "id": "decline",
+          "label_key": "example.dialog.quest_info.choice.decline",
+          "action": "close"
+        }
+      ]
+    }
+  }
+}

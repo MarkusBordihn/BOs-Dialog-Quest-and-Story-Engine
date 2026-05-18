@@ -84,15 +84,17 @@ public class MainScreen extends BaseScreen {
     GridLayout grid = GridLayout.of(0, row, innerWidth, 2, 8, rowGap);
 
     for (int i = 0; i < SECTIONS.length; i++) {
+      int col = i % 2;
+      int gridRow = i / 2;
       String sectionLabel = SECTIONS[i][0];
       TextButton tile =
           new TextButton(0, 0, 0, tileHeight, sectionLabel, btn -> openSection(sectionLabel));
-      grid.fill(tile, i % 2, i / 2, tileHeight);
+      grid.fill(tile, col, gridRow, tileHeight);
       addWidget(tile);
       addWidget(
           new Label(
-              tile.getX() + 4,
-              tile.getY() + tileHeight - 12,
+              grid.getX(col) + 4,
+              grid.getY(gridRow, tileHeight) + tileHeight - 12,
               SECTIONS[i][1],
               0,
               ScaledText.SCALE_SMALL,

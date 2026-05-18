@@ -21,11 +21,11 @@ package de.markusbordihn.dialogqueststoryengine.data;
 
 public enum ContentType {
   DIALOG(1),
+  INTERACTION(1),
   INTERACTIVE_STORY(1),
   QUEST(1),
   STORY_ENTRY(1),
-  THEME(1),
-  TRIGGER(1);
+  THEME(1);
 
   private final int currentSchema;
 

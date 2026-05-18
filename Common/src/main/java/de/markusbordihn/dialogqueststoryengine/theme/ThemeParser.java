@@ -44,19 +44,20 @@ public final class ThemeParser {
 
   private ThemeParser() {}
 
-  public static ParseResult<Theme> parse(ResourceLocation id, String filePath, JsonObject json) {
+  public static ParseResult<Theme> parse(
+      ResourceLocation id, String filePath, JsonObject jsonObject) {
     List<ContentIssue> issues = new ArrayList<>();
 
     Optional<Integer> schema =
         JsonFieldReader.readSchema(
-            json, ContentType.THEME, ContentType.THEME.currentSchema(), id, filePath, issues);
+            jsonObject, ContentType.THEME, ContentType.THEME.currentSchema(), id, filePath, issues);
     if (schema.isEmpty()) {
       return ParseResult.failure(issues);
     }
 
     Optional<ResourceLocation> layoutRL =
         JsonFieldReader.readResourceLocation(
-            json, FIELD_LAYOUT, ContentType.THEME, id, filePath, issues);
+            jsonObject, FIELD_LAYOUT, ContentType.THEME, id, filePath, issues);
     if (layoutRL.isEmpty()) {
       return ParseResult.failure(issues);
     }
@@ -76,34 +77,35 @@ public final class ThemeParser {
 
     Optional<ResourceLocation> frameTexture =
         JsonFieldReader.readResourceLocation(
-            json, FIELD_FRAME_TEXTURE, ContentType.THEME, id, filePath, issues);
+            jsonObject, FIELD_FRAME_TEXTURE, ContentType.THEME, id, filePath, issues);
     if (frameTexture.isEmpty()) {
       return ParseResult.failure(issues);
     }
 
     Optional<ResourceLocation> backgroundTexture =
         JsonFieldReader.readResourceLocation(
-            json, FIELD_BACKGROUND_TEXTURE, ContentType.THEME, id, filePath, issues);
+            jsonObject, FIELD_BACKGROUND_TEXTURE, ContentType.THEME, id, filePath, issues);
     if (backgroundTexture.isEmpty()) {
       return ParseResult.failure(issues);
     }
 
     Optional<Boolean> showPageNumbers =
         JsonFieldReader.readBoolean(
-            json, FIELD_SHOW_PAGE_NUMBERS, ContentType.THEME, id, filePath, issues);
+            jsonObject, FIELD_SHOW_PAGE_NUMBERS, ContentType.THEME, id, filePath, issues);
     if (showPageNumbers.isEmpty()) {
       return ParseResult.failure(issues);
     }
 
     Optional<Boolean> showCloseButton =
         JsonFieldReader.readBoolean(
-            json, FIELD_SHOW_CLOSE_BUTTON, ContentType.THEME, id, filePath, issues);
+            jsonObject, FIELD_SHOW_CLOSE_BUTTON, ContentType.THEME, id, filePath, issues);
     if (showCloseButton.isEmpty()) {
       return ParseResult.failure(issues);
     }
 
     Optional<JsonObject> textAreaObj =
-        JsonFieldReader.readObject(json, FIELD_TEXT_AREA, ContentType.THEME, id, filePath, issues);
+        JsonFieldReader.readObject(
+            jsonObject, FIELD_TEXT_AREA, ContentType.THEME, id, filePath, issues);
     if (textAreaObj.isEmpty()) {
       return ParseResult.failure(issues);
     }

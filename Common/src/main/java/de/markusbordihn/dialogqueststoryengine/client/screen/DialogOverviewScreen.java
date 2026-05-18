@@ -20,12 +20,17 @@
 package de.markusbordihn.dialogqueststoryengine.client.screen;
 
 import de.markusbordihn.dialogqueststoryengine.client.screen.ui.BaseScreen;
+import de.markusbordihn.dialogqueststoryengine.client.screen.ui.color.ColorPalette;
 import de.markusbordihn.dialogqueststoryengine.client.screen.ui.components.BreadcrumbBar;
-import de.markusbordihn.dialogqueststoryengine.client.screen.ui.components.Label;
+import de.markusbordihn.dialogqueststoryengine.client.screen.ui.components.ColumnListPanel;
 import de.markusbordihn.dialogqueststoryengine.client.screen.ui.components.ScaledText;
 import de.markusbordihn.dialogqueststoryengine.client.screen.ui.components.TextComponent;
+import de.markusbordihn.dialogqueststoryengine.content.dialog.DialogClientRegistry;
+import de.markusbordihn.dialogqueststoryengine.content.dialog.DialogDefinition;
 import java.util.List;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 
 public class DialogOverviewScreen extends BaseScreen {
@@ -56,13 +61,55 @@ public class DialogOverviewScreen extends BaseScreen {
 
   @Override
   protected void addWidgets() {
-    addWidget(
-        new Label(
-            getInnerWidth() / 2,
-            16,
-            "coming_soon",
-            0,
-            ScaledText.SCALE_NORMAL,
-            Label.Alignment.CENTER));
+    ColumnListPanel<DialogDefinition> table =
+        new ColumnListPanel<>(0, 0, getInnerWidth(), getInnerHeight());
+    table.addColumn("column.id", 0.5f);
+    table.addColumn("column.start_node", 0.3f);
+    table.addColumn("column.nodes", 0.2f);
+    table.setEntryHeight(20);
+    table.setEntryRenderer(this::renderEntry);
+    table.setItems(
+        DialogClientRegistry.ids().stream()
+            .map(id -> DialogClientRegistry.get(id).orElseThrow())
+            .toList());
+    addWidget(table);
+  }
+
+  private void renderEntry(
+      GuiGraphics graphics,
+      Font font,
+      DialogDefinition definition,
+      int index,
+      int x,
+      int y,
+      int width,
+      int height,
+      ColorPalette palette,
+      int[] columnOffsets) {
+    float scale = ScaledText.SCALE_SMALL;
+    ScaledText.draw(
+        graphics,
+        font,
+        definition.id().toString(),
+        x + columnOffsets[0],
+        y + 3,
+        palette.onSurface(),
+        scale);
+    ScaledText.draw(
+        graphics,
+        font,
+        definition.startNode(),
+        x + columnOffsets[1],
+        y + 3,
+        palette.onSurfaceLow(),
+        scale);
+    ScaledText.draw(
+        graphics,
+        font,
+        String.valueOf(definition.nodes().size()),
+        x + columnOffsets[2],
+        y + 3,
+        palette.onSurfaceLow(),
+        scale);
   }
 }

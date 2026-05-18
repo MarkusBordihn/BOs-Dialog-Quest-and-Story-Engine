@@ -20,6 +20,7 @@
 package de.markusbordihn.dialogqueststoryengine;
 
 import de.markusbordihn.dialogqueststoryengine.commands.CommandsEventHandler;
+import de.markusbordihn.dialogqueststoryengine.content.DataPackReloadEventHandler;
 import de.markusbordihn.dialogqueststoryengine.entity.InteractionEventHandler;
 import de.markusbordihn.dialogqueststoryengine.item.ModItems;
 import de.markusbordihn.dialogqueststoryengine.network.NetworkHandler;
@@ -62,6 +63,7 @@ public class DialogQuestStoryEngine {
 
     log.info("{} Forge Event Handlers ...", Constants.LOG_REGISTER_PREFIX);
     MinecraftForge.EVENT_BUS.register(CommandsEventHandler.class);
+    MinecraftForge.EVENT_BUS.register(DataPackReloadEventHandler.class);
     MinecraftForge.EVENT_BUS.register(ServerEventHandler.class);
     MinecraftForge.EVENT_BUS.register(InteractionEventHandler.class);
 

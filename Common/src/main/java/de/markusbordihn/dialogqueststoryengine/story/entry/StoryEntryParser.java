@@ -46,12 +46,12 @@ public final class StoryEntryParser {
   private StoryEntryParser() {}
 
   public static ParseResult<StoryEntry> parse(
-      ResourceLocation id, String filePath, JsonObject json) {
+      ResourceLocation id, String filePath, JsonObject jsonObject) {
     List<ContentIssue> issues = new ArrayList<>();
 
     Optional<Integer> schema =
         JsonFieldReader.readSchema(
-            json,
+            jsonObject,
             ContentType.STORY_ENTRY,
             ContentType.STORY_ENTRY.currentSchema(),
             id,
@@ -62,7 +62,8 @@ public final class StoryEntryParser {
     }
 
     Optional<String> typeStr =
-        JsonFieldReader.readString(json, FIELD_TYPE, ContentType.STORY_ENTRY, id, filePath, issues);
+        JsonFieldReader.readString(
+            jsonObject, FIELD_TYPE, ContentType.STORY_ENTRY, id, filePath, issues);
     if (typeStr.isEmpty()) {
       return ParseResult.failure(issues);
     }
@@ -82,20 +83,21 @@ public final class StoryEntryParser {
 
     Optional<String> titleKey =
         JsonFieldReader.readString(
-            json, FIELD_TITLE_KEY, ContentType.STORY_ENTRY, id, filePath, issues);
+            jsonObject, FIELD_TITLE_KEY, ContentType.STORY_ENTRY, id, filePath, issues);
     if (titleKey.isEmpty()) {
       return ParseResult.failure(issues);
     }
 
     Optional<ResourceLocation> themeId =
         JsonFieldReader.readResourceLocation(
-            json, FIELD_THEME, ContentType.STORY_ENTRY, id, filePath, issues);
+            jsonObject, FIELD_THEME, ContentType.STORY_ENTRY, id, filePath, issues);
     if (themeId.isEmpty()) {
       return ParseResult.failure(issues);
     }
 
     Optional<JsonArray> pagesArray =
-        JsonFieldReader.readArray(json, FIELD_PAGES, ContentType.STORY_ENTRY, id, filePath, issues);
+        JsonFieldReader.readArray(
+            jsonObject, FIELD_PAGES, ContentType.STORY_ENTRY, id, filePath, issues);
     if (pagesArray.isEmpty()) {
       return ParseResult.failure(issues);
     }

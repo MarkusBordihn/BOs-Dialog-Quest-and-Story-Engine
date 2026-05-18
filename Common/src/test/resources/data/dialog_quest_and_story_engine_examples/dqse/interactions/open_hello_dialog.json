@@ -1,0 +1,11 @@
+{
+  "schema": 1,
+  "event": "on_entity_interact",
+  "binding": {
+    "kind": "unbound"
+  },
+  "conditions": [],
+  "actions": [
+    {"type": "dialog.open", "dialog": "dialog_quest_and_story_engine_examples:hello"}
+  ]
+}

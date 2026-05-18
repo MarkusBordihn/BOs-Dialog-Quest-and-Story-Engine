@@ -44,7 +44,16 @@ public enum InteractionEventType {
         return type;
       }
     }
+
     return null;
+  }
+
+  public static InteractionEventType fromJsonKey(String key) {
+    if (key == null) {
+      return null;
+    }
+
+    return fromName(key.toUpperCase(Locale.ROOT));
   }
 
   public ResourceLocation resourceLocation() {
