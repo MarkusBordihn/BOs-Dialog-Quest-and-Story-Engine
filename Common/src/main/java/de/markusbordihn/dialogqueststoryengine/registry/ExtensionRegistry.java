@@ -20,6 +20,7 @@
 package de.markusbordihn.dialogqueststoryengine.registry;
 
 import de.markusbordihn.dialogqueststoryengine.Constants;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -75,6 +76,10 @@ public final class ExtensionRegistry<V> {
 
   public Set<ResourceLocation> keys() {
     return Collections.unmodifiableSet(this.entries.keySet());
+  }
+
+  public Collection<V> values() {
+    return Collections.unmodifiableCollection(this.entries.values());
   }
 
   public boolean isFrozen() {

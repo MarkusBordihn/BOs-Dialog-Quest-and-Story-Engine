@@ -32,12 +32,17 @@ public enum IssueCode {
   INVALID_RESOURCE_LOCATION(IssueSeverity.ERROR, "Value is not a valid ResourceLocation"),
   INVALID_UUID(IssueSeverity.ERROR, "Value is not a valid UUID"),
   JSON_PARSE_FAILED(IssueSeverity.ERROR, "JSON could not be parsed"),
+  MISSING_DIALOG_NODE(
+      IssueSeverity.ERROR, "Choice next field references a non-existent dialog node"),
   MISSING_FIELD(IssueSeverity.ERROR, "Required field is missing"),
   MISSING_SCHEMA(IssueSeverity.ERROR, "Missing required 'schema' field"),
   MISSING_START_NODE(
       IssueSeverity.ERROR, "Dialog start_node references a node that does not exist"),
   MISSING_THEME_REFERENCE(
       IssueSeverity.WARNING, "Referenced theme does not exist in any loaded registry"),
+  CIRCULAR_DIALOG_FLOW(
+      IssueSeverity.WARNING, "Dialog graph contains a cycle reachable from start_node"),
+  UNREACHABLE_DIALOG_NODE(IssueSeverity.WARNING, "Dialog node has no path from start_node"),
   UNKNOWN_BINDING_KIND(IssueSeverity.ERROR, "Unknown interaction binding kind"),
   UNKNOWN_INTERACTION_EVENT(IssueSeverity.ERROR, "Unknown interaction event type"),
   UNKNOWN_STORY_MODE(IssueSeverity.ERROR, "Unknown interactive story mode"),

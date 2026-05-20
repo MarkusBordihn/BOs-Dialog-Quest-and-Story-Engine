@@ -28,6 +28,7 @@ import de.markusbordihn.dialogqueststoryengine.item.InteractionWandItem;
 import de.markusbordihn.dialogqueststoryengine.network.NetworkHandlerManager;
 import de.markusbordihn.dialogqueststoryengine.network.message.SyncInteractionDataMessage;
 import de.markusbordihn.dialogqueststoryengine.registry.Registries;
+import de.markusbordihn.dialogqueststoryengine.state.PlayerStateService;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -58,6 +59,7 @@ public final class ServerEvents {
 
   public static void handleServerStopping(MinecraftServer server) {
     log.info("{} server is stopping ...", Constants.MOD_NAME);
+    PlayerStateService.onServerStopping(server);
     currentServer = null;
     syncStates.clear();
     InteractionManager.onServerStopping();
@@ -92,7 +94,7 @@ public final class ServerEvents {
               || player.getOffhandItem().getItem() instanceof InteractionWandItem;
 
       PlayerSyncState state =
-          syncStates.computeIfAbsent(player.getUUID(), k -> new PlayerSyncState());
+          syncStates.computeIfAbsent(player.getUUID(), ignoredUuid -> new PlayerSyncState());
 
       if (holdsWand) {
         if ((!state.wasHoldingWand || state.lastSyncedVersion != currentVersion)

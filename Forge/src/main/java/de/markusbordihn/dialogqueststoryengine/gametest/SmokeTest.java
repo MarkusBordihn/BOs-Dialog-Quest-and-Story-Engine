@@ -20,18 +20,8 @@
 package de.markusbordihn.dialogqueststoryengine.gametest;
 
 import de.markusbordihn.dialogqueststoryengine.Constants;
-import de.markusbordihn.dialogqueststoryengine.data.interaction.InteractionEntry;
-import de.markusbordihn.dialogqueststoryengine.data.interaction.InteractionEventType;
-import de.markusbordihn.dialogqueststoryengine.data.interaction.InteractionStore;
-import de.markusbordihn.dialogqueststoryengine.data.interaction.InteractionType;
-import de.markusbordihn.dialogqueststoryengine.utils.BlockUUID;
-import java.util.UUID;
-import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.Level;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.gametest.GameTestHolder;
 import net.minecraftforge.gametest.PrefixGameTestTemplate;
@@ -47,33 +37,6 @@ public class SmokeTest {
         helper,
         "Mod " + Constants.MOD_ID + " is not available!",
         ModList.get().isLoaded(Constants.MOD_ID));
-    helper.succeed();
-  }
-
-  @GameTest(template = "gametest.3x3x3")
-  public void testBlockUUIDDeterminism(GameTestHelper helper) {
-    BlockPos pos = new BlockPos(100, 64, -200);
-    ResourceKey<Level> dim = Level.OVERWORLD;
-    UUID first = BlockUUID.fromBlockPos(dim, pos);
-    UUID second = BlockUUID.fromBlockPos(dim, pos);
-    GameTestHelpers.assertEquals(helper, "Block UUID should be deterministic", first, second);
-  }
-
-  @GameTest(template = "gametest.3x3x3")
-  public void testInteractionDataSetRegisterAndLookup(GameTestHelper helper) {
-    InteractionStore store = new InteractionStore();
-    UUID targetId = UUID.randomUUID();
-    InteractionEntry entry =
-        InteractionEntry.forEntityInteract(
-            targetId,
-            InteractionType.RIGHT_CLICK,
-            "test_label",
-            ResourceLocation.tryParse("minecraft:overworld"));
-    store.register(entry);
-    GameTestHelpers.assertTrue(
-        helper,
-        "InteractionStore should contain the registered interaction",
-        store.hasInteraction(targetId, InteractionEventType.ON_ENTITY_INTERACT));
     helper.succeed();
   }
 }

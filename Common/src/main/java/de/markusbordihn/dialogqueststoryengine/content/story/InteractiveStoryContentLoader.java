@@ -39,6 +39,8 @@ import org.apache.logging.log4j.Logger;
 
 public class InteractiveStoryContentLoader extends SimpleJsonResourceReloadListener {
 
+  public static final ResourceLocation ID =
+      new ResourceLocation(Constants.MOD_ID, "interactive_stories");
   static final String DIRECTORY = "dqse/interactive_story";
   private static final Logger log = LogManager.getLogger(Constants.LOG_NAME);
   private static final Gson GSON = new Gson();
@@ -47,8 +49,14 @@ public class InteractiveStoryContentLoader extends SimpleJsonResourceReloadListe
     super(GSON, DIRECTORY);
   }
 
-  private static String buildFilePath(ResourceLocation id) {
-    return "data/" + id.getNamespace() + "/" + DIRECTORY + "/" + id.getPath() + ".json";
+  private static String buildFilePath(ResourceLocation resourceLocation) {
+    return "data/"
+        + resourceLocation.getNamespace()
+        + "/"
+        + DIRECTORY
+        + "/"
+        + resourceLocation.getPath()
+        + ".json";
   }
 
   @Override
@@ -60,32 +68,37 @@ public class InteractiveStoryContentLoader extends SimpleJsonResourceReloadListe
     Map<ResourceLocation, InteractiveStoryDefinition> loaded = new LinkedHashMap<>();
 
     for (Map.Entry<ResourceLocation, JsonElement> fileEntry : jsonEntries.entrySet()) {
-      ResourceLocation id = fileEntry.getKey();
-      String filePath = buildFilePath(id);
+      ResourceLocation resourceLocation = fileEntry.getKey();
+      String filePath = buildFilePath(resourceLocation);
 
       if (!fileEntry.getValue().isJsonObject()) {
         ContentIssueTracker.record(
             ContentIssue.of(
-                IssueCode.JSON_PARSE_FAILED, ContentType.INTERACTIVE_STORY, id, filePath, null));
+                IssueCode.JSON_PARSE_FAILED,
+                ContentType.INTERACTIVE_STORY,
+                resourceLocation,
+                filePath,
+                null));
         log.error(
             "{} Interactive story {} — root element is not a JSON object, skipping.",
             Constants.LOG_PREFIX,
-            id);
+            resourceLocation);
         continue;
       }
 
       ParseResult<InteractiveStoryDefinition> result =
-          InteractiveStoryContentParser.parse(id, filePath, fileEntry.getValue().getAsJsonObject());
+          InteractiveStoryContentParser.parse(
+              resourceLocation, filePath, fileEntry.getValue().getAsJsonObject());
 
       result.issues().forEach(ContentIssueTracker::record);
 
       if (result.isSuccess()) {
-        loaded.put(id, result.value().get());
+        loaded.put(resourceLocation, result.value().get());
       } else {
         log.error(
             "{} Skipped interactive story {} — see issues above for details.",
             Constants.LOG_PREFIX,
-            id);
+            resourceLocation);
       }
     }
 

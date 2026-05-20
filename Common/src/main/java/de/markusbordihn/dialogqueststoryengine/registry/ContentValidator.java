@@ -19,4 +19,13 @@
 
 package de.markusbordihn.dialogqueststoryengine.registry;
 
-public interface ContentValidator {}
+import de.markusbordihn.dialogqueststoryengine.data.ContentType;
+import de.markusbordihn.dialogqueststoryengine.data.issue.ContentIssue;
+import java.util.List;
+
+public interface ContentValidator {
+
+  ContentType contentType();
+
+  List<ContentIssue> validate();
+}

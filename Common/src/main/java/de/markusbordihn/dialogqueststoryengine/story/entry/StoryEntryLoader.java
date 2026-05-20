@@ -37,6 +37,7 @@ import org.apache.logging.log4j.Logger;
 
 public class StoryEntryLoader extends SimpleJsonResourceReloadListener {
 
+  public static final ResourceLocation ID = new ResourceLocation(Constants.MOD_ID, "story_entries");
   static final String DIRECTORY = "dqse/story_entries";
   private static final Logger log = LogManager.getLogger(Constants.LOG_NAME);
   private static final Gson GSON = new Gson();
@@ -45,8 +46,14 @@ public class StoryEntryLoader extends SimpleJsonResourceReloadListener {
     super(GSON, DIRECTORY);
   }
 
-  private static String buildFilePath(ResourceLocation id) {
-    return "assets/" + id.getNamespace() + "/" + DIRECTORY + "/" + id.getPath() + ".json";
+  private static String buildFilePath(ResourceLocation resourceLocation) {
+    return "assets/"
+        + resourceLocation.getNamespace()
+        + "/"
+        + DIRECTORY
+        + "/"
+        + resourceLocation.getPath()
+        + ".json";
   }
 
   @Override
@@ -58,22 +65,27 @@ public class StoryEntryLoader extends SimpleJsonResourceReloadListener {
     ContentIssueTracker.clearFor(ContentType.STORY_ENTRY);
 
     for (Map.Entry<ResourceLocation, JsonElement> fileEntry : jsonEntries.entrySet()) {
-      ResourceLocation id = fileEntry.getKey();
-      String filePath = buildFilePath(id);
+      ResourceLocation resourceLocation = fileEntry.getKey();
+      String filePath = buildFilePath(resourceLocation);
 
       if (!fileEntry.getValue().isJsonObject()) {
         ContentIssueTracker.record(
             ContentIssue.of(
-                IssueCode.JSON_PARSE_FAILED, ContentType.STORY_ENTRY, id, filePath, null));
+                IssueCode.JSON_PARSE_FAILED,
+                ContentType.STORY_ENTRY,
+                resourceLocation,
+                filePath,
+                null));
         log.error(
             "{} Story entry {} — root element is not a JSON object, skipping.",
             Constants.LOG_PREFIX,
-            id);
+            resourceLocation);
         continue;
       }
 
       ParseResult<StoryEntry> result =
-          StoryEntryParser.parse(id, filePath, fileEntry.getValue().getAsJsonObject());
+          StoryEntryParser.parse(
+              resourceLocation, filePath, fileEntry.getValue().getAsJsonObject());
 
       result.issues().forEach(ContentIssueTracker::record);
 
@@ -81,7 +93,9 @@ public class StoryEntryLoader extends SimpleJsonResourceReloadListener {
         StoryEntryClientRegistry.put(result.value().get());
       } else {
         log.error(
-            "{} Skipped story entry {} — see issues above for details.", Constants.LOG_PREFIX, id);
+            "{} Skipped story entry {} — see issues above for details.",
+            Constants.LOG_PREFIX,
+            resourceLocation);
       }
     }
 

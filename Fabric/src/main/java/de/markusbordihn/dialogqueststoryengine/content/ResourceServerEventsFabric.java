@@ -34,5 +34,6 @@ public final class ResourceServerEventsFabric {
     helper.registerReloadListener(new QuestContentLoaderFabric());
     helper.registerReloadListener(new InteractiveStoryContentLoaderFabric());
     helper.registerReloadListener(new InteractionContentLoaderFabric());
+    helper.registerReloadListener(new ValidationReloadListenerFabric());
   }
 }

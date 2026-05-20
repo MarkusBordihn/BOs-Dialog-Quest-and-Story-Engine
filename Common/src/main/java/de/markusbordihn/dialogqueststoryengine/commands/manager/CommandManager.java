@@ -23,9 +23,16 @@ import com.mojang.brigadier.CommandDispatcher;
 import de.markusbordihn.dialogqueststoryengine.Constants;
 import de.markusbordihn.dialogqueststoryengine.server.commands.BindCommand;
 import de.markusbordihn.dialogqueststoryengine.server.commands.ClearCommand;
+import de.markusbordihn.dialogqueststoryengine.server.commands.DebugCommand;
+import de.markusbordihn.dialogqueststoryengine.server.commands.DialogCommand;
+import de.markusbordihn.dialogqueststoryengine.server.commands.FactCommand;
 import de.markusbordihn.dialogqueststoryengine.server.commands.InteractionsCommand;
 import de.markusbordihn.dialogqueststoryengine.server.commands.ListCommand;
+import de.markusbordihn.dialogqueststoryengine.server.commands.QuestCommand;
+import de.markusbordihn.dialogqueststoryengine.server.commands.ReloadCommand;
+import de.markusbordihn.dialogqueststoryengine.server.commands.StoryCommand;
 import de.markusbordihn.dialogqueststoryengine.server.commands.UnbindCommand;
+import de.markusbordihn.dialogqueststoryengine.server.commands.ValidateCommand;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import org.apache.logging.log4j.LogManager;
@@ -45,6 +52,13 @@ public final class CommandManager {
             .then(UnbindCommand.register())
             .then(ListCommand.register())
             .then(ClearCommand.register())
-            .then(InteractionsCommand.register()));
+            .then(InteractionsCommand.register())
+            .then(ReloadCommand.register())
+            .then(ValidateCommand.register())
+            .then(StoryCommand.register())
+            .then(DialogCommand.register())
+            .then(QuestCommand.register())
+            .then(FactCommand.register())
+            .then(DebugCommand.register()));
   }
 }

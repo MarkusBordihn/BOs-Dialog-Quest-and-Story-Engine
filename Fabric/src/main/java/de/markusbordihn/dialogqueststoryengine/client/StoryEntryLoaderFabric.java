@@ -19,7 +19,6 @@
 
 package de.markusbordihn.dialogqueststoryengine.client;
 
-import de.markusbordihn.dialogqueststoryengine.Constants;
 import de.markusbordihn.dialogqueststoryengine.story.entry.StoryEntryLoader;
 import net.fabricmc.fabric.api.resource.IdentifiableResourceReloadListener;
 import net.minecraft.resources.ResourceLocation;
@@ -29,6 +28,6 @@ public final class StoryEntryLoaderFabric extends StoryEntryLoader
 
   @Override
   public ResourceLocation getFabricId() {
-    return new ResourceLocation(Constants.MOD_ID, "story_entries");
+    return StoryEntryLoader.ID;
   }
 }

@@ -19,7 +19,6 @@
 
 package de.markusbordihn.dialogqueststoryengine.content.dialog;
 
-import de.markusbordihn.dialogqueststoryengine.Constants;
 import net.fabricmc.fabric.api.resource.IdentifiableResourceReloadListener;
 import net.minecraft.resources.ResourceLocation;
 
@@ -28,6 +27,6 @@ public final class DialogContentLoaderFabric extends DialogContentLoader
 
   @Override
   public ResourceLocation getFabricId() {
-    return new ResourceLocation(Constants.MOD_ID, "dialogs");
+    return DialogContentLoader.ID;
   }
 }

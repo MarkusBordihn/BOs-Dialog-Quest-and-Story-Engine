@@ -41,5 +41,6 @@ public final class ResourceServerEvents {
     registrar.accept(new QuestContentLoader());
     registrar.accept(new InteractiveStoryContentLoader());
     registrar.accept(new InteractionContentLoader());
+    registrar.accept(new ValidationReloadListener());
   }
 }

@@ -39,6 +39,7 @@ import org.apache.logging.log4j.Logger;
 
 public class QuestContentLoader extends SimpleJsonResourceReloadListener {
 
+  public static final ResourceLocation ID = new ResourceLocation(Constants.MOD_ID, "quests");
   static final String DIRECTORY = "dqse/quests";
   private static final Logger log = LogManager.getLogger(Constants.LOG_NAME);
   private static final Gson GSON = new Gson();
@@ -47,8 +48,14 @@ public class QuestContentLoader extends SimpleJsonResourceReloadListener {
     super(GSON, DIRECTORY);
   }
 
-  private static String buildFilePath(ResourceLocation id) {
-    return "data/" + id.getNamespace() + "/" + DIRECTORY + "/" + id.getPath() + ".json";
+  private static String buildFilePath(ResourceLocation resourceLocation) {
+    return "data/"
+        + resourceLocation.getNamespace()
+        + "/"
+        + DIRECTORY
+        + "/"
+        + resourceLocation.getPath()
+        + ".json";
   }
 
   @Override
@@ -61,28 +68,35 @@ public class QuestContentLoader extends SimpleJsonResourceReloadListener {
     Map<ResourceLocation, QuestDefinition> loaded = new LinkedHashMap<>();
 
     for (Map.Entry<ResourceLocation, JsonElement> fileEntry : jsonEntries.entrySet()) {
-      ResourceLocation id = fileEntry.getKey();
-      String filePath = buildFilePath(id);
+      ResourceLocation resourceLocation = fileEntry.getKey();
+      String filePath = buildFilePath(resourceLocation);
 
       if (!fileEntry.getValue().isJsonObject()) {
         ContentIssueTracker.record(
-            ContentIssue.of(IssueCode.JSON_PARSE_FAILED, ContentType.QUEST, id, filePath, null));
+            ContentIssue.of(
+                IssueCode.JSON_PARSE_FAILED, ContentType.QUEST, resourceLocation, filePath, null));
         log.error(
-            "{} Quest {} — root element is not a JSON object, skipping.", Constants.LOG_PREFIX, id);
+            "{} Quest {} — root element is not a JSON object, skipping.",
+            Constants.LOG_PREFIX,
+            resourceLocation);
         continue;
       }
 
       ParseResult<QuestDefinition> result =
-          QuestContentParser.parse(id, filePath, fileEntry.getValue().getAsJsonObject());
+          QuestContentParser.parse(
+              resourceLocation, filePath, fileEntry.getValue().getAsJsonObject());
 
       result.issues().forEach(ContentIssueTracker::record);
 
       if (result.isSuccess()) {
         QuestDefinition definition = result.value().get();
-        loaded.put(id, definition);
+        loaded.put(resourceLocation, definition);
         QuestClientRegistry.put(definition);
       } else {
-        log.error("{} Skipped quest {} — see issues above for details.", Constants.LOG_PREFIX, id);
+        log.error(
+            "{} Skipped quest {} — see issues above for details.",
+            Constants.LOG_PREFIX,
+            resourceLocation);
       }
     }
 

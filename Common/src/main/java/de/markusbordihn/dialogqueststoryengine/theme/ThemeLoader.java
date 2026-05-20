@@ -38,6 +38,7 @@ import org.apache.logging.log4j.Logger;
 
 public class ThemeLoader extends SimpleJsonResourceReloadListener {
 
+  public static final ResourceLocation ID = new ResourceLocation(Constants.MOD_ID, "themes");
   static final String DIRECTORY = "dqse/themes";
   private static final Logger log = LogManager.getLogger(Constants.LOG_NAME);
   private static final Gson GSON = new Gson();
@@ -46,8 +47,14 @@ public class ThemeLoader extends SimpleJsonResourceReloadListener {
     super(GSON, DIRECTORY);
   }
 
-  private static String buildFilePath(ResourceLocation id) {
-    return "assets/" + id.getNamespace() + "/" + DIRECTORY + "/" + id.getPath() + ".json";
+  private static String buildFilePath(ResourceLocation resourceLocation) {
+    return "assets/"
+        + resourceLocation.getNamespace()
+        + "/"
+        + DIRECTORY
+        + "/"
+        + resourceLocation.getPath()
+        + ".json";
   }
 
   @Override
@@ -59,26 +66,32 @@ public class ThemeLoader extends SimpleJsonResourceReloadListener {
     ContentIssueTracker.clearFor(ContentType.THEME);
 
     for (Map.Entry<ResourceLocation, JsonElement> fileEntry : jsonEntries.entrySet()) {
-      ResourceLocation id = fileEntry.getKey();
-      String filePath = buildFilePath(id);
+      ResourceLocation resourceLocation = fileEntry.getKey();
+      String filePath = buildFilePath(resourceLocation);
 
       if (!fileEntry.getValue().isJsonObject()) {
         ContentIssueTracker.record(
-            ContentIssue.of(IssueCode.JSON_PARSE_FAILED, ContentType.THEME, id, filePath, null));
+            ContentIssue.of(
+                IssueCode.JSON_PARSE_FAILED, ContentType.THEME, resourceLocation, filePath, null));
         log.error(
-            "{} Theme {} — root element is not a JSON object, skipping.", Constants.LOG_PREFIX, id);
+            "{} Theme {} — root element is not a JSON object, skipping.",
+            Constants.LOG_PREFIX,
+            resourceLocation);
         continue;
       }
 
       ParseResult<Theme> result =
-          ThemeParser.parse(id, filePath, fileEntry.getValue().getAsJsonObject());
+          ThemeParser.parse(resourceLocation, filePath, fileEntry.getValue().getAsJsonObject());
 
       result.issues().forEach(ContentIssueTracker::record);
 
       if (result.isSuccess()) {
         ThemeClientRegistry.put(result.value().get());
       } else {
-        log.error("{} Skipped theme {} — see issues above for details.", Constants.LOG_PREFIX, id);
+        log.error(
+            "{} Skipped theme {} — see issues above for details.",
+            Constants.LOG_PREFIX,
+            resourceLocation);
       }
     }
 

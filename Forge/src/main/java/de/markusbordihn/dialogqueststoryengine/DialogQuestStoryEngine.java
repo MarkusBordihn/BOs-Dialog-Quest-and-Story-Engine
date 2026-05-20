@@ -24,8 +24,10 @@ import de.markusbordihn.dialogqueststoryengine.content.DataPackReloadEventHandle
 import de.markusbordihn.dialogqueststoryengine.entity.InteractionEventHandler;
 import de.markusbordihn.dialogqueststoryengine.item.ModItems;
 import de.markusbordihn.dialogqueststoryengine.network.NetworkHandler;
+import de.markusbordihn.dialogqueststoryengine.server.PlayerStateEventHandler;
 import de.markusbordihn.dialogqueststoryengine.server.ServerEventHandler;
 import de.markusbordihn.dialogqueststoryengine.tabs.ModTabs;
+import de.markusbordihn.dialogqueststoryengine.validation.BuiltinValidators;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -52,6 +54,9 @@ public class DialogQuestStoryEngine {
     Constants.GAME_DIR = FMLPaths.GAMEDIR.get();
     Constants.CONFIG_DIR = FMLPaths.CONFIGDIR.get();
 
+    log.info("{} Validators ...", Constants.LOG_REGISTER_PREFIX);
+    BuiltinValidators.register();
+
     log.info("{} Items ...", Constants.LOG_REGISTER_PREFIX);
     ModItems.ITEMS.register(modEventBus);
 
@@ -64,6 +69,7 @@ public class DialogQuestStoryEngine {
     log.info("{} Forge Event Handlers ...", Constants.LOG_REGISTER_PREFIX);
     MinecraftForge.EVENT_BUS.register(CommandsEventHandler.class);
     MinecraftForge.EVENT_BUS.register(DataPackReloadEventHandler.class);
+    MinecraftForge.EVENT_BUS.register(PlayerStateEventHandler.class);
     MinecraftForge.EVENT_BUS.register(ServerEventHandler.class);
     MinecraftForge.EVENT_BUS.register(InteractionEventHandler.class);
 

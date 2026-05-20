@@ -43,4 +43,8 @@ public class GameTestHelpers {
       helper.fail(message + " (expected: " + expected + ", actual: " + actual + ")");
     }
   }
+
+  public static void assertNotNull(GameTestHelper helper, String message, Object object) {
+    assertTrue(helper, message, object != null);
+  }
 }
