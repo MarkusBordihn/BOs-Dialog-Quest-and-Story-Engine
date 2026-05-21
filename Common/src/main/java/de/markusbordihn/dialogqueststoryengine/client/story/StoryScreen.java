@@ -17,20 +17,43 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package de.markusbordihn.dialogqueststoryengine.theme;
+package de.markusbordihn.dialogqueststoryengine.client.story;
 
-import java.util.UUID;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
+import org.lwjgl.glfw.GLFW;
 
-public record Theme(
-    UUID uuid,
-    ResourceLocation id,
-    int schema,
-    ThemeLayout layout,
-    ResourceLocation frameTexture,
-    ResourceLocation backgroundTexture,
-    boolean showPageNumbers,
-    boolean showCloseButton,
-    TextArea textArea,
-    int screenWidth,
-    int screenHeight) {}
+public abstract class StoryScreen extends Screen {
+
+  protected StoryScreen(Component title) {
+    super(title);
+  }
+
+  protected static void scheduleOpen(Screen screen) {
+    Minecraft minecraft = Minecraft.getInstance();
+    minecraft.execute(() -> minecraft.setScreen(screen));
+  }
+
+  protected void renderDimBackground(GuiGraphics graphics) {
+    graphics.fillGradient(0, 0, this.width, this.height, 0xC0101010, 0xD0101010);
+  }
+
+  @Override
+  public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+    if (keyCode == GLFW.GLFW_KEY_ESCAPE) {
+      this.onClose();
+      return true;
+    }
+
+    if (keyCode == GLFW.GLFW_KEY_SPACE) {
+      this.onSpacePressed();
+      return true;
+    }
+
+    return super.keyPressed(keyCode, scanCode, modifiers);
+  }
+
+  protected void onSpacePressed() {}
+}

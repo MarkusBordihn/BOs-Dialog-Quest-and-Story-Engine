@@ -19,6 +19,7 @@
 
 package de.markusbordihn.dialogqueststoryengine.client.screen;
 
+import de.markusbordihn.dialogqueststoryengine.client.holopad.ClientStoryOpener;
 import de.markusbordihn.dialogqueststoryengine.client.screen.ui.BaseScreen;
 import de.markusbordihn.dialogqueststoryengine.client.screen.ui.color.ColorPalette;
 import de.markusbordihn.dialogqueststoryengine.client.screen.ui.components.BreadcrumbBar;
@@ -67,6 +68,7 @@ public class StoryOverviewScreen extends BaseScreen {
     table.addColumn("column.type", 0.25f);
     table.setEntryHeight(20);
     table.setEntryRenderer(this::renderEntry);
+    table.setOnSelect(entry -> ClientStoryOpener.open(entry.id()));
     table.setItems(
         StoryEntryClientRegistry.ids().stream()
             .map(id -> StoryEntryClientRegistry.get(id).orElseThrow())

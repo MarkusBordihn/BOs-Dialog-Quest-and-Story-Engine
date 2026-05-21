@@ -62,7 +62,9 @@ class StoryEntryThemeLinkerTest {
         new ResourceLocation("test", "textures/background.png"),
         true,
         true,
-        new TextArea(0, 0, 100, 80));
+        new TextArea(0, 0, 100, 80),
+        0,
+        0);
   }
 
   @BeforeEach

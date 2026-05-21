@@ -41,6 +41,8 @@ public final class ThemeParser {
   public static final String FIELD_SHOW_PAGE_NUMBERS = "show_page_numbers";
   public static final String FIELD_SHOW_CLOSE_BUTTON = "show_close_button";
   public static final String FIELD_TEXT_AREA = "text_area";
+  public static final String FIELD_SCREEN_WIDTH = "screen_width";
+  public static final String FIELD_SCREEN_HEIGHT = "screen_height";
 
   private ThemeParser() {}
 
@@ -115,6 +117,11 @@ public final class ThemeParser {
       return ParseResult.failure(issues);
     }
 
+    int screenWidth =
+        jsonObject.has(FIELD_SCREEN_WIDTH) ? jsonObject.get(FIELD_SCREEN_WIDTH).getAsInt() : 0;
+    int screenHeight =
+        jsonObject.has(FIELD_SCREEN_HEIGHT) ? jsonObject.get(FIELD_SCREEN_HEIGHT).getAsInt() : 0;
+
     return ParseResult.success(
         new Theme(
             UUID.nameUUIDFromBytes(id.toString().getBytes(StandardCharsets.UTF_8)),
@@ -125,7 +132,9 @@ public final class ThemeParser {
             backgroundTexture.get(),
             showPageNumbers.get(),
             showCloseButton.get(),
-            textArea.get()),
+            textArea.get(),
+            screenWidth,
+            screenHeight),
         issues);
   }
 

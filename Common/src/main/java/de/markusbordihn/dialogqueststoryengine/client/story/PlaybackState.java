@@ -17,20 +17,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package de.markusbordihn.dialogqueststoryengine.theme;
+package de.markusbordihn.dialogqueststoryengine.client.story;
 
-import java.util.UUID;
-import net.minecraft.resources.ResourceLocation;
-
-public record Theme(
-    UUID uuid,
-    ResourceLocation id,
-    int schema,
-    ThemeLayout layout,
-    ResourceLocation frameTexture,
-    ResourceLocation backgroundTexture,
-    boolean showPageNumbers,
-    boolean showCloseButton,
-    TextArea textArea,
-    int screenWidth,
-    int screenHeight) {}
+public enum PlaybackState {
+  IDLE,
+  PLAYING,
+  COMPLETE
+}

@@ -17,20 +17,35 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package de.markusbordihn.dialogqueststoryengine.theme;
+package de.markusbordihn.dialogqueststoryengine.network.message.story;
 
-import java.util.UUID;
+import de.markusbordihn.dialogqueststoryengine.Constants;
+import de.markusbordihn.dialogqueststoryengine.client.holopad.ClientStoryOpener;
+import de.markusbordihn.dialogqueststoryengine.network.NetworkMessageRecord;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 
-public record Theme(
-    UUID uuid,
-    ResourceLocation id,
-    int schema,
-    ThemeLayout layout,
-    ResourceLocation frameTexture,
-    ResourceLocation backgroundTexture,
-    boolean showPageNumbers,
-    boolean showCloseButton,
-    TextArea textArea,
-    int screenWidth,
-    int screenHeight) {}
+public record OpenClientStoryPacket(ResourceLocation storyId) implements NetworkMessageRecord {
+
+  public static final ResourceLocation MESSAGE_ID =
+      ResourceLocation.tryParse(Constants.MOD_ID + ":open_client_story");
+
+  public static OpenClientStoryPacket create(FriendlyByteBuf buffer) {
+    return new OpenClientStoryPacket(buffer.readResourceLocation());
+  }
+
+  @Override
+  public void write(FriendlyByteBuf buffer) {
+    buffer.writeResourceLocation(this.storyId);
+  }
+
+  @Override
+  public void handleClient() {
+    ClientStoryOpener.open(this.storyId);
+  }
+
+  @Override
+  public ResourceLocation id() {
+    return MESSAGE_ID;
+  }
+}

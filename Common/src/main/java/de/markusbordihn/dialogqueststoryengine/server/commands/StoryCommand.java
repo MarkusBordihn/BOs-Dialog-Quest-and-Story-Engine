@@ -21,8 +21,13 @@ package de.markusbordihn.dialogqueststoryengine.server.commands;
 
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import de.markusbordihn.dialogqueststoryengine.commands.Command;
+import de.markusbordihn.dialogqueststoryengine.network.NetworkHandlerManager;
+import de.markusbordihn.dialogqueststoryengine.network.message.story.OpenClientStoryPacket;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.commands.arguments.ResourceLocationArgument;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 
 public class StoryCommand extends Command {
 
@@ -33,10 +38,29 @@ public class StoryCommand extends Command {
         .requires(source -> source.hasPermission(PERMISSION_LEVEL))
         .then(
             Commands.literal("open")
-                .executes(
-                    context -> {
-                      sendInfoMessage(context.getSource(), "story open: not yet implemented.");
-                      return 1;
-                    }));
+                .then(
+                    Commands.argument("id", ResourceLocationArgument.id())
+                        .executes(
+                            context -> {
+                              sendInfoMessage(
+                                  context.getSource(),
+                                  "story open: use 'story preview <id>' for Resource Pack stories or create an interactive_story data file.");
+                              return 1;
+                            })))
+        .then(
+            Commands.literal("preview")
+                .then(
+                    Commands.argument("id", ResourceLocationArgument.id())
+                        .executes(
+                            context -> {
+                              ResourceLocation storyId =
+                                  ResourceLocationArgument.getId(context, "id");
+                              ServerPlayer player = context.getSource().getPlayerOrException();
+                              NetworkHandlerManager.sendToPlayer(
+                                  player, new OpenClientStoryPacket(storyId));
+                              sendSuccessMessage(
+                                  context.getSource(), "Opening story preview: " + storyId);
+                              return 1;
+                            })));
   }
 }

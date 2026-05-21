@@ -36,6 +36,7 @@ import de.markusbordihn.dialogqueststoryengine.network.message.session.QuestDelt
 import de.markusbordihn.dialogqueststoryengine.network.message.session.SessionRejectedPacket;
 import de.markusbordihn.dialogqueststoryengine.network.message.session.StoryDeltaPacket;
 import de.markusbordihn.dialogqueststoryengine.network.message.session.SubmitChoicePacket;
+import de.markusbordihn.dialogqueststoryengine.network.message.story.OpenClientStoryPacket;
 import net.minecraft.server.level.ServerPlayer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -120,6 +121,10 @@ public final class NetworkHandlerManager {
         SessionRejectedPacket.MESSAGE_ID,
         SessionRejectedPacket.class,
         SessionRejectedPacket::create);
+    networkHandler.registerClientNetworkMessageHandler(
+        OpenClientStoryPacket.MESSAGE_ID,
+        OpenClientStoryPacket.class,
+        OpenClientStoryPacket::create);
   }
 
   private static void registerServerMessages() {

@@ -20,6 +20,7 @@
 package de.markusbordihn.dialogqueststoryengine.network.message.session;
 
 import de.markusbordihn.dialogqueststoryengine.Constants;
+import de.markusbordihn.dialogqueststoryengine.client.holopad.ClientStoryOpener;
 import de.markusbordihn.dialogqueststoryengine.network.NetworkMessageRecord;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -75,6 +76,11 @@ public record OpenStorySessionPacket(
           buffer.writeUtf(value);
         });
     buffer.writeInt(this.revision);
+  }
+
+  @Override
+  public void handleClient() {
+    ClientStoryOpener.openFromSession(this);
   }
 
   @Override

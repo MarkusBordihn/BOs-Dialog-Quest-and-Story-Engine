@@ -17,20 +17,41 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package de.markusbordihn.dialogqueststoryengine.theme;
+package de.markusbordihn.dialogqueststoryengine.client.holopad;
 
-import java.util.UUID;
+import de.markusbordihn.dialogqueststoryengine.theme.TextArea;
+import de.markusbordihn.dialogqueststoryengine.theme.Theme;
 import net.minecraft.resources.ResourceLocation;
 
-public record Theme(
-    UUID uuid,
-    ResourceLocation id,
-    int schema,
-    ThemeLayout layout,
+public record HolopadLayout(
+    int leftPos,
+    int topPos,
+    int screenWidth,
+    int screenHeight,
     ResourceLocation frameTexture,
     ResourceLocation backgroundTexture,
-    boolean showPageNumbers,
-    boolean showCloseButton,
     TextArea textArea,
-    int screenWidth,
-    int screenHeight) {}
+    boolean showPageNumbers,
+    boolean showCloseButton) {
+
+  public static HolopadLayout from(Theme theme, int guiWidth, int guiHeight) {
+    TextArea textArea = theme.textArea();
+    int screenWidth =
+        theme.screenWidth() > 0 ? theme.screenWidth() : textArea.x() * 2 + textArea.width();
+    int screenHeight =
+        theme.screenHeight() > 0 ? theme.screenHeight() : textArea.y() * 2 + textArea.height();
+    int leftPos = (guiWidth - screenWidth) / 2;
+    int topPos = (guiHeight - screenHeight) / 2;
+
+    return new HolopadLayout(
+        leftPos,
+        topPos,
+        screenWidth,
+        screenHeight,
+        theme.frameTexture(),
+        theme.backgroundTexture(),
+        textArea,
+        theme.showPageNumbers(),
+        theme.showCloseButton());
+  }
+}
