@@ -55,17 +55,14 @@ public class ConditionEvaluationGameTestHelper {
       ConditionContext ctxBefore = ConditionContext.ofTest(playerState);
 
       GameTestHelpers.assertTrue(
-          helper,
-          "Choice should be hidden before fact is set",
-          !condition.evaluate(ctxBefore));
+          helper, "Choice should be hidden before fact is set", !condition.evaluate(ctxBefore));
 
-      PlayerStateService.setFact(playerUuid, FactScope.PLAYER, "quest_unlocked", FactValue.of(true));
+      PlayerStateService.setFact(
+          playerUuid, FactScope.PLAYER, "quest_unlocked", FactValue.of(true));
       ConditionContext ctxAfter = ConditionContext.ofTest(playerState);
 
       GameTestHelpers.assertTrue(
-          helper,
-          "Choice should be visible after fact is set",
-          condition.evaluate(ctxAfter));
+          helper, "Choice should be visible after fact is set", condition.evaluate(ctxAfter));
     } finally {
       PlayerStateService.onPlayerLoggedOut(playerUuid);
       PlayerStateEvents.clearAll();
@@ -136,8 +133,10 @@ public class ConditionEvaluationGameTestHelper {
       PlayerState playerState = PlayerStateService.get(playerUuid).get();
       PlayerStateService.setFact(playerUuid, FactScope.PLAYER, "unlocked", FactValue.of(true));
 
-      Condition condTrue = new FactEqualsCondition(FactScope.PLAYER, "unlocked", FactValue.of(true));
-      Condition condFalse = new FactEqualsCondition(FactScope.PLAYER, "missing", FactValue.of(true));
+      Condition condTrue =
+          new FactEqualsCondition(FactScope.PLAYER, "unlocked", FactValue.of(true));
+      Condition condFalse =
+          new FactEqualsCondition(FactScope.PLAYER, "missing", FactValue.of(true));
       ConditionGroup anyGroup = new ConditionGroup(GroupOperator.ANY, List.of(condTrue, condFalse));
       ConditionContext ctx = ConditionContext.ofTest(playerState);
 

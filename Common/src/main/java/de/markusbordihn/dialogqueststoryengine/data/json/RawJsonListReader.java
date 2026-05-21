@@ -57,29 +57,4 @@ public final class RawJsonListReader {
     }
     return result;
   }
-
-  public static List<RawAction> readActions(
-      JsonArray array,
-      ContentType contentType,
-      ResourceLocation id,
-      String file,
-      List<ContentIssue> issues) {
-    List<RawAction> result = new ArrayList<>();
-    for (int i = 0; i < array.size(); i++) {
-      JsonElement element = array.get(i);
-      if (!element.isJsonObject()) {
-        issues.add(
-            ContentIssue.of(
-                IssueCode.INVALID_FIELD_TYPE,
-                contentType,
-                id,
-                file,
-                "actions[" + i + "]",
-                Map.of("expected", "object")));
-        continue;
-      }
-      result.add(new RawAction(element.getAsJsonObject()));
-    }
-    return result;
-  }
 }

@@ -36,15 +36,8 @@ import net.minecraft.resources.ResourceLocation;
 public record QuestStateCondition(ResourceLocation questId, QuestState expectedState)
     implements Condition {
 
-  public static final ResourceLocation TYPE_ID = new ResourceLocation(Constants.MOD_NAMESPACE, "quest_state");
-
-  @Override
-  public boolean evaluate(ConditionContext conditionContext) {
-    QuestProgress questProgress = conditionContext.playerState().getQuest(this.questId);
-    QuestState actualState =
-        questProgress != null ? questProgress.state() : QuestState.NOT_STARTED;
-    return actualState == this.expectedState;
-  }
+  public static final ResourceLocation TYPE_ID =
+      new ResourceLocation(Constants.MOD_NAMESPACE, "quest_state");
 
   public static Condition parse(
       JsonObject json,
@@ -90,5 +83,12 @@ public record QuestStateCondition(ResourceLocation questId, QuestState expectedS
     }
 
     return new QuestStateCondition(questId, expectedState);
+  }
+
+  @Override
+  public boolean evaluate(ConditionContext conditionContext) {
+    QuestProgress questProgress = conditionContext.playerState().getQuest(this.questId);
+    QuestState actualState = questProgress != null ? questProgress.state() : QuestState.NOT_STARTED;
+    return actualState == this.expectedState;
   }
 }

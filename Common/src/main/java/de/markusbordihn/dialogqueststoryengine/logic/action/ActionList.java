@@ -17,13 +17,37 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package de.markusbordihn.dialogqueststoryengine.data.json;
+package de.markusbordihn.dialogqueststoryengine.logic.action;
 
-import com.google.gson.JsonObject;
+import de.markusbordihn.dialogqueststoryengine.Constants;
+import java.util.List;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-public record RawAction(JsonObject jsonObject) {
+public record ActionList(List<Action> actions) {
 
-  public RawAction {
-    jsonObject = jsonObject.deepCopy();
+  public static final ActionList EMPTY = new ActionList(List.of());
+  private static final Logger log = LogManager.getLogger(Constants.LOG_NAME);
+
+  public ActionList {
+    actions = List.copyOf(actions);
+  }
+
+  public void execute(ActionContext actionContext) {
+    for (Action action : this.actions) {
+      try {
+        action.execute(actionContext);
+      } catch (Exception e) {
+        log.error("{} Action execution failed: {}", Constants.LOG_PREFIX, e.getMessage(), e);
+      }
+    }
+  }
+
+  public boolean isEmpty() {
+    return this.actions.isEmpty();
+  }
+
+  public int size() {
+    return this.actions.size();
   }
 }

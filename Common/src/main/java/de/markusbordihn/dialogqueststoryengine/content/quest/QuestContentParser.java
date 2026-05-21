@@ -26,8 +26,8 @@ import de.markusbordihn.dialogqueststoryengine.data.issue.ContentIssue;
 import de.markusbordihn.dialogqueststoryengine.data.issue.IssueCode;
 import de.markusbordihn.dialogqueststoryengine.data.json.JsonFieldReader;
 import de.markusbordihn.dialogqueststoryengine.data.json.ParseResult;
-import de.markusbordihn.dialogqueststoryengine.data.json.RawAction;
-import de.markusbordihn.dialogqueststoryengine.data.json.RawJsonListReader;
+import de.markusbordihn.dialogqueststoryengine.logic.action.ActionList;
+import de.markusbordihn.dialogqueststoryengine.logic.action.ActionParser;
 import de.markusbordihn.dialogqueststoryengine.logic.condition.Condition;
 import de.markusbordihn.dialogqueststoryengine.logic.condition.ConditionParser;
 import java.util.ArrayList;
@@ -91,10 +91,10 @@ public final class QuestContentParser {
       return ParseResult.failure(issues);
     }
 
-    List<RawAction> rewards = List.of();
+    ActionList rewards = ActionList.EMPTY;
     if (jsonObject.has(FIELD_REWARDS) && jsonObject.get(FIELD_REWARDS).isJsonArray()) {
       rewards =
-          RawJsonListReader.readActions(
+          ActionParser.parseList(
               jsonObject.getAsJsonArray(FIELD_REWARDS), ContentType.QUEST, id, filePath, issues);
     }
 

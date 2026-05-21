@@ -22,6 +22,6 @@
     }
   },
   "rewards": [
-    {"type": "item", "item": "minecraft:emerald", "amount": 1}
+    {"item": "minecraft:emerald", "count": 1}
   ]
 }

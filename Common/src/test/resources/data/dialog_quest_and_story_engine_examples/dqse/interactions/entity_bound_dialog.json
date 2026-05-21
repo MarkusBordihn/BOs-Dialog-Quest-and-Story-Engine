@@ -8,6 +8,6 @@
   },
   "conditions": [],
   "actions": [
-    {"type": "dialog.open", "dialog": "dialog_quest_and_story_engine_examples:hello"}
+    {"dialog": "dialog_quest_and_story_engine_examples:hello"}
   ]
 }

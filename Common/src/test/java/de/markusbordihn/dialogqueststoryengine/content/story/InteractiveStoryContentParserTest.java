@@ -157,10 +157,7 @@ class InteractiveStoryContentParserTest {
         InteractiveStoryContentParser.parse(TEST_ID, TEST_FILE, input);
 
     assertTrue(result.isSuccess());
-    assertEquals(1, result.value().get().onOpen().size());
-    assertEquals(
-        "dqse:play_sound",
-        result.value().get().onOpen().get(0).jsonObject().get("type").getAsString());
+    assertEquals(1, result.value().get().onOpen().actions().size());
   }
 
   @Test

@@ -46,6 +46,9 @@ public enum IssueCode {
   UNKNOWN_BINDING_KIND(IssueSeverity.ERROR, "Unknown interaction binding kind"),
   UNKNOWN_INTERACTION_EVENT(IssueSeverity.ERROR, "Unknown interaction event type"),
   UNKNOWN_STORY_MODE(IssueSeverity.ERROR, "Unknown interactive story mode"),
+  COMMAND_ACTION_DISABLED(
+      IssueSeverity.WARNING, "run_command action is disabled by server config — action skipped"),
+  UNKNOWN_ACTION_TYPE(IssueSeverity.ERROR, "Action type is not registered — action skipped"),
   UNKNOWN_CONDITION_TYPE(
       IssueSeverity.ERROR, "Condition type is not registered — evaluates to false"),
   UNKNOWN_STORY_TYPE(IssueSeverity.ERROR, "Unknown story entry type"),

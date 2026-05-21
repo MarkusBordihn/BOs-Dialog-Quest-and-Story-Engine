@@ -19,8 +19,7 @@
 
 package de.markusbordihn.dialogqueststoryengine.content.quest;
 
-import de.markusbordihn.dialogqueststoryengine.data.json.RawAction;
-import java.util.List;
+import de.markusbordihn.dialogqueststoryengine.logic.action.ActionList;
 import net.minecraft.resources.ResourceLocation;
 
 public record QuestDefinition(
@@ -28,9 +27,4 @@ public record QuestDefinition(
     int schema,
     DisplaySection display,
     LogicSection logic,
-    List<RawAction> rewards) {
-
-  public QuestDefinition {
-    rewards = List.copyOf(rewards);
-  }
-}
+    ActionList rewards) {}

@@ -19,4 +19,20 @@
 
 package de.markusbordihn.dialogqueststoryengine.registry;
 
-public interface ActionHandler {}
+import com.google.gson.JsonObject;
+import de.markusbordihn.dialogqueststoryengine.data.ContentType;
+import de.markusbordihn.dialogqueststoryengine.data.issue.ContentIssue;
+import de.markusbordihn.dialogqueststoryengine.logic.action.Action;
+import java.util.List;
+import net.minecraft.resources.ResourceLocation;
+
+@FunctionalInterface
+public interface ActionHandler {
+
+  Action parse(
+      JsonObject json,
+      ContentType contentType,
+      ResourceLocation id,
+      String filePath,
+      List<ContentIssue> issues);
+}

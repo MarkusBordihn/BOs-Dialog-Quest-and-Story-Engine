@@ -26,8 +26,8 @@ import de.markusbordihn.dialogqueststoryengine.data.issue.ContentIssue;
 import de.markusbordihn.dialogqueststoryengine.data.issue.IssueCode;
 import de.markusbordihn.dialogqueststoryengine.data.json.JsonFieldReader;
 import de.markusbordihn.dialogqueststoryengine.data.json.ParseResult;
-import de.markusbordihn.dialogqueststoryengine.data.json.RawAction;
-import de.markusbordihn.dialogqueststoryengine.data.json.RawJsonListReader;
+import de.markusbordihn.dialogqueststoryengine.logic.action.ActionList;
+import de.markusbordihn.dialogqueststoryengine.logic.action.ActionParser;
 import de.markusbordihn.dialogqueststoryengine.logic.condition.ConditionGroup;
 import de.markusbordihn.dialogqueststoryengine.logic.condition.ConditionParser;
 import java.util.ArrayList;
@@ -107,10 +107,10 @@ public final class InteractiveStoryContentParser {
       return ParseResult.failure(issues);
     }
 
-    List<RawAction> onOpen = List.of();
+    ActionList onOpen = ActionList.EMPTY;
     if (jsonObject.has(FIELD_ON_OPEN) && jsonObject.get(FIELD_ON_OPEN).isJsonArray()) {
       onOpen =
-          RawJsonListReader.readActions(
+          ActionParser.parseList(
               jsonObject.getAsJsonArray(FIELD_ON_OPEN),
               ContentType.INTERACTIVE_STORY,
               id,
@@ -168,15 +168,15 @@ public final class InteractiveStoryContentParser {
                   issues)
               : ConditionGroup.ALWAYS_TRUE;
 
-      List<RawAction> actions =
+      ActionList actions =
           choiceJson.has(FIELD_ACTIONS) && choiceJson.get(FIELD_ACTIONS).isJsonArray()
-              ? RawJsonListReader.readActions(
+              ? ActionParser.parseList(
                   choiceJson.getAsJsonArray(FIELD_ACTIONS),
                   ContentType.INTERACTIVE_STORY,
                   id,
                   filePath,
                   issues)
-              : List.of();
+              : ActionList.EMPTY;
 
       choices.add(new InteractiveStoryChoice(choiceId.get(), labelKey.get(), conditions, actions));
     }

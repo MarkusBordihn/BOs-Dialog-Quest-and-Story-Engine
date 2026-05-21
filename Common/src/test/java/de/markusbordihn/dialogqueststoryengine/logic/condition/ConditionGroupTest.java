@@ -47,8 +47,7 @@ class ConditionGroupTest {
 
   @Test
   void allOperator_allTrue_returnsTrue() {
-    ConditionGroup group =
-        new ConditionGroup(GroupOperator.ALL, List.of(ctx -> true, ctx -> true));
+    ConditionGroup group = new ConditionGroup(GroupOperator.ALL, List.of(ctx -> true, ctx -> true));
     assertTrue(group.evaluate(emptyContext()));
   }
 

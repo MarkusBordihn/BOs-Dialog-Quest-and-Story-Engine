@@ -161,11 +161,7 @@ class ConditionParserTest {
 
     Condition condition =
         ConditionParser.parse(
-            com.google.gson.JsonNull.INSTANCE,
-            ContentType.DIALOG,
-            CONTENT_ID,
-            "test.json",
-            issues);
+            com.google.gson.JsonNull.INSTANCE, ContentType.DIALOG, CONTENT_ID, "test.json", issues);
 
     assertFalse(condition.evaluate(emptyContext()));
     assertEquals(1, issues.size());

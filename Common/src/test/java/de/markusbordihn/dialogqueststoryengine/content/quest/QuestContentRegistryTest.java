@@ -22,7 +22,7 @@ package de.markusbordihn.dialogqueststoryengine.content.quest;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.List;
+import de.markusbordihn.dialogqueststoryengine.logic.action.ActionList;
 import java.util.Map;
 import java.util.Optional;
 import net.minecraft.resources.ResourceLocation;
@@ -41,7 +41,7 @@ class QuestContentRegistryTest {
         new DisplaySection("title", "desc", Optional.empty()),
         new LogicSection(
             Optional.empty(), Map.of(), CompletionPolicy.ALL_STEPS, false, SyncScope.PLAYER),
-        List.of());
+        ActionList.EMPTY);
   }
 
   @AfterEach

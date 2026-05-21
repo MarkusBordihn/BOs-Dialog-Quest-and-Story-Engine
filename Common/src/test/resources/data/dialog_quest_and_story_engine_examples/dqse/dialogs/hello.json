@@ -26,7 +26,7 @@
           "id": "accept",
           "label_key": "example.dialog.quest_info.choice.accept",
           "actions": [
-            {"type": "quest.start", "quest": "dialog_quest_and_story_engine_examples:first_quest"}
+            {"quest": "dialog_quest_and_story_engine_examples:first_quest"}
           ],
           "action": "close"
         },

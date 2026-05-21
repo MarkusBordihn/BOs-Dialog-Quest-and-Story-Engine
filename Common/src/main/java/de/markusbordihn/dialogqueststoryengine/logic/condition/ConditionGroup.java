@@ -21,11 +21,9 @@ package de.markusbordihn.dialogqueststoryengine.logic.condition;
 
 import java.util.List;
 
-public record ConditionGroup(GroupOperator operator, List<Condition> members)
-    implements Condition {
+public record ConditionGroup(GroupOperator operator, List<Condition> members) implements Condition {
 
-  public static final ConditionGroup ALWAYS_TRUE =
-      new ConditionGroup(GroupOperator.ALL, List.of());
+  public static final ConditionGroup ALWAYS_TRUE = new ConditionGroup(GroupOperator.ALL, List.of());
   public static final ConditionGroup ALWAYS_FALSE =
       new ConditionGroup(GroupOperator.ANY, List.of());
 

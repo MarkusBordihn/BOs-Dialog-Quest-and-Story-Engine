@@ -62,10 +62,12 @@ public final class ConditionParser {
     JsonObject json = element.getAsJsonObject();
 
     if (json.has(KEY_ALL) && json.get(KEY_ALL).isJsonArray()) {
-      return parseGroup(GroupOperator.ALL, json.getAsJsonArray(KEY_ALL), contentType, id, filePath, issues);
+      return parseGroup(
+          GroupOperator.ALL, json.getAsJsonArray(KEY_ALL), contentType, id, filePath, issues);
     }
     if (json.has(KEY_ANY) && json.get(KEY_ANY).isJsonArray()) {
-      return parseGroup(GroupOperator.ANY, json.getAsJsonArray(KEY_ANY), contentType, id, filePath, issues);
+      return parseGroup(
+          GroupOperator.ANY, json.getAsJsonArray(KEY_ANY), contentType, id, filePath, issues);
     }
 
     return parseLeaf(json, contentType, id, filePath, issues);

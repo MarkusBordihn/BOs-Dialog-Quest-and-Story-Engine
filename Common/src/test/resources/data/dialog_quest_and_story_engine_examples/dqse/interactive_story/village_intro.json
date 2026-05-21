@@ -3,21 +3,21 @@
   "display": "dialog_quest_and_story_engine_examples:village_intro",
   "mode": "server_synced",
   "on_open": [
-    {"type": "log", "message": "Player opened the village intro story"}
+    {"story": "dialog_quest_and_story_engine_examples:village_intro"}
   ],
   "choices": [
     {
       "id": "explore",
       "label_key": "example.story.village_intro.choice.explore",
       "actions": [
-        {"type": "story.advance", "to": "dialog_quest_and_story_engine_examples:village_chapter_1"}
+        {"story": "dialog_quest_and_story_engine_examples:village_chapter_1"}
       ]
     },
     {
       "id": "skip",
       "label_key": "example.story.village_intro.choice.skip",
       "actions": [
-        {"type": "story.skip"}
+        {"story": "dialog_quest_and_story_engine_examples:village_chapter_1", "read": true}
       ]
     }
   ]

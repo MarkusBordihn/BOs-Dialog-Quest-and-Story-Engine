@@ -19,7 +19,7 @@
 
 package de.markusbordihn.dialogqueststoryengine.content.story;
 
-import de.markusbordihn.dialogqueststoryengine.data.json.RawAction;
+import de.markusbordihn.dialogqueststoryengine.logic.action.ActionList;
 import java.util.List;
 import net.minecraft.resources.ResourceLocation;
 
@@ -28,11 +28,10 @@ public record InteractiveStoryDefinition(
     int schema,
     ResourceLocation displayStoryId,
     InteractiveStoryMode mode,
-    List<RawAction> onOpen,
+    ActionList onOpen,
     List<InteractiveStoryChoice> choices) {
 
   public InteractiveStoryDefinition {
-    onOpen = List.copyOf(onOpen);
     choices = List.copyOf(choices);
   }
 }

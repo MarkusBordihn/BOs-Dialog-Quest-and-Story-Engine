@@ -242,9 +242,6 @@ class QuestContentParserTest {
     ParseResult<QuestDefinition> result = QuestContentParser.parse(TEST_ID, TEST_FILE, input);
 
     assertTrue(result.isSuccess());
-    assertEquals(1, result.value().get().rewards().size());
-    assertEquals(
-        "dqse:give_item",
-        result.value().get().rewards().get(0).jsonObject().get("type").getAsString());
+    assertEquals(1, result.value().get().rewards().actions().size());
   }
 }

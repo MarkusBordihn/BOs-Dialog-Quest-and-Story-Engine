@@ -19,14 +19,8 @@
 
 package de.markusbordihn.dialogqueststoryengine.content.story;
 
-import de.markusbordihn.dialogqueststoryengine.data.json.RawAction;
+import de.markusbordihn.dialogqueststoryengine.logic.action.ActionList;
 import de.markusbordihn.dialogqueststoryengine.logic.condition.ConditionGroup;
-import java.util.List;
 
 public record InteractiveStoryChoice(
-    String id, String labelKey, ConditionGroup conditions, List<RawAction> actions) {
-
-  public InteractiveStoryChoice {
-    actions = List.copyOf(actions);
-  }
-}
+    String id, String labelKey, ConditionGroup conditions, ActionList actions) {}

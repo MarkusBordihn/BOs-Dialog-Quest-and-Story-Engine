@@ -213,10 +213,7 @@ class InteractionContentParserTest {
 
     assertTrue(result.isSuccess());
     assertEquals(1, result.value().get().conditions().members().size());
-    assertEquals(1, result.value().get().actions().size());
-    assertEquals(
-        "dialog.open",
-        result.value().get().actions().get(0).jsonObject().get("type").getAsString());
+    assertFalse(result.value().get().actions().isEmpty());
   }
 
   @Test

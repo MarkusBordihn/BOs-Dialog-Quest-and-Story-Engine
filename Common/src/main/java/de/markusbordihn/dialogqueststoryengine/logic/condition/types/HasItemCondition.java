@@ -34,28 +34,8 @@ import net.minecraft.world.item.ItemStack;
 
 public record HasItemCondition(ResourceLocation itemId, int count) implements Condition {
 
-  public static final ResourceLocation TYPE_ID = new ResourceLocation(Constants.MOD_NAMESPACE, "has_item");
-
-  @Override
-  public boolean evaluate(ConditionContext conditionContext) {
-    if (conditionContext.player() == null) {
-      return false;
-    }
-
-    Inventory inventory = conditionContext.player().getInventory();
-    int found = 0;
-    for (int slot = 0; slot < inventory.getContainerSize(); slot++) {
-      ItemStack stack = inventory.getItem(slot);
-      if (!stack.isEmpty()
-          && stack.getItem().builtInRegistryHolder().key().location().equals(this.itemId)) {
-        found += stack.getCount();
-        if (found >= this.count) {
-          return true;
-        }
-      }
-    }
-    return false;
-  }
+  public static final ResourceLocation TYPE_ID =
+      new ResourceLocation(Constants.MOD_NAMESPACE, "has_item");
 
   public static Condition parse(
       JsonObject json,
@@ -98,5 +78,26 @@ public record HasItemCondition(ResourceLocation itemId, int count) implements Co
     }
 
     return new HasItemCondition(itemId, count);
+  }
+
+  @Override
+  public boolean evaluate(ConditionContext conditionContext) {
+    if (conditionContext.player() == null) {
+      return false;
+    }
+
+    Inventory inventory = conditionContext.player().getInventory();
+    int found = 0;
+    for (int slot = 0; slot < inventory.getContainerSize(); slot++) {
+      ItemStack stack = inventory.getItem(slot);
+      if (!stack.isEmpty()
+          && stack.getItem().builtInRegistryHolder().key().location().equals(this.itemId)) {
+        found += stack.getCount();
+        if (found >= this.count) {
+          return true;
+        }
+      }
+    }
+    return false;
   }
 }

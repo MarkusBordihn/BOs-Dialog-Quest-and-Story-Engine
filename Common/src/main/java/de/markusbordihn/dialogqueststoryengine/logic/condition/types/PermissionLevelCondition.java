@@ -32,19 +32,11 @@ import net.minecraft.resources.ResourceLocation;
 
 public record PermissionLevelCondition(int level) implements Condition {
 
-  public static final ResourceLocation TYPE_ID = new ResourceLocation(Constants.MOD_NAMESPACE, "permission_level");
+  public static final ResourceLocation TYPE_ID =
+      new ResourceLocation(Constants.MOD_NAMESPACE, "permission_level");
 
   private static final int MIN_LEVEL = 0;
   private static final int MAX_LEVEL = 4;
-
-  @Override
-  public boolean evaluate(ConditionContext conditionContext) {
-    if (conditionContext.player() == null) {
-      return false;
-    }
-
-    return conditionContext.player().hasPermissions(this.level);
-  }
 
   public static Condition parse(
       JsonObject json,
@@ -66,12 +58,19 @@ public record PermissionLevelCondition(int level) implements Condition {
               id,
               filePath,
               "level",
-              Map.of(
-                  "value", String.valueOf(level),
-                  "reason", "level must be between 0 and 4")));
+              Map.of("value", String.valueOf(level), "reason", "level must be between 0 and 4")));
       return Condition.NEVER;
     }
 
     return new PermissionLevelCondition(level);
+  }
+
+  @Override
+  public boolean evaluate(ConditionContext conditionContext) {
+    if (conditionContext.player() == null) {
+      return false;
+    }
+
+    return conditionContext.player().hasPermissions(this.level);
   }
 }

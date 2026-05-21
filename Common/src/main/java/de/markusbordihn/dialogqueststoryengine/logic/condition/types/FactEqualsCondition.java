@@ -38,17 +38,8 @@ import net.minecraft.resources.ResourceLocation;
 public record FactEqualsCondition(FactScope scope, String fact, FactValue expectedValue)
     implements Condition {
 
-  public static final ResourceLocation TYPE_ID = new ResourceLocation(Constants.MOD_NAMESPACE, "fact_equals");
-
-  @Override
-  public boolean evaluate(ConditionContext conditionContext) {
-    FactValue actual = conditionContext.playerState().getFact(this.scope, this.fact);
-    if (actual == null) {
-      return false;
-    }
-
-    return actual.equals(this.expectedValue);
-  }
+  public static final ResourceLocation TYPE_ID =
+      new ResourceLocation(Constants.MOD_NAMESPACE, "fact_equals");
 
   public static Condition parse(
       JsonObject json,
@@ -154,5 +145,15 @@ public record FactEqualsCondition(FactScope scope, String fact, FactValue expect
       return d == l ? FactValue.of(l) : FactValue.of(d);
     }
     return FactValue.of(primitive.getAsString());
+  }
+
+  @Override
+  public boolean evaluate(ConditionContext conditionContext) {
+    FactValue actual = conditionContext.playerState().getFact(this.scope, this.fact);
+    if (actual == null) {
+      return false;
+    }
+
+    return actual.equals(this.expectedValue);
   }
 }

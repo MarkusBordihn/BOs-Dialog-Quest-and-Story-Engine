@@ -24,8 +24,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import de.markusbordihn.dialogqueststoryengine.data.interaction.InteractionEntry;
 import de.markusbordihn.dialogqueststoryengine.data.interaction.InteractionEventType;
+import de.markusbordihn.dialogqueststoryengine.logic.action.ActionList;
 import de.markusbordihn.dialogqueststoryengine.logic.condition.ConditionGroup;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
@@ -46,7 +46,7 @@ class InteractionDefinitionsTest {
             InteractionEventType.ON_HOLOPAD_USE,
             InteractionBinding.UnboundBinding.INSTANCE,
             ConditionGroup.ALWAYS_TRUE,
-            List.of());
+            ActionList.EMPTY);
 
     Optional<InteractionEntry> entry = InteractionDefinitions.toEntry(definition);
 
@@ -63,7 +63,7 @@ class InteractionDefinitionsTest {
             InteractionEventType.ON_ENTITY_INTERACT,
             new InteractionBinding.EntityBinding(targetId, OVERWORLD),
             ConditionGroup.ALWAYS_TRUE,
-            List.of());
+            ActionList.EMPTY);
 
     Optional<InteractionEntry> entry = InteractionDefinitions.toEntry(definition);
 
@@ -83,7 +83,7 @@ class InteractionDefinitionsTest {
             InteractionEventType.ON_BLOCK_INTERACT,
             new InteractionBinding.BlockBinding(pos, OVERWORLD),
             ConditionGroup.ALWAYS_TRUE,
-            List.of());
+            ActionList.EMPTY);
 
     Optional<InteractionEntry> entry = InteractionDefinitions.toEntry(definition);
 
