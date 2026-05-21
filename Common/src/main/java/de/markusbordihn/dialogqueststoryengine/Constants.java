@@ -25,6 +25,7 @@ import java.nio.file.Paths;
 public final class Constants {
 
   public static final String MOD_ID = "dialog_quest_and_story_engine";
+  public static final String MOD_NAMESPACE = "dqse";
   public static final String MOD_NAME = "Dialog, Quest and Story Engine";
   public static final String MOD_COMMAND = "dqs";
   public static final String MOD_PREFIX = MOD_ID + ".";

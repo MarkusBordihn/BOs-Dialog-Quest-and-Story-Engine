@@ -17,22 +17,28 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package de.markusbordihn.dialogqueststoryengine.registry;
+package de.markusbordihn.dialogqueststoryengine.gametest;
 
-import com.google.gson.JsonObject;
-import de.markusbordihn.dialogqueststoryengine.data.ContentType;
-import de.markusbordihn.dialogqueststoryengine.data.issue.ContentIssue;
-import de.markusbordihn.dialogqueststoryengine.logic.condition.Condition;
-import java.util.List;
-import net.minecraft.resources.ResourceLocation;
+import de.markusbordihn.dialogqueststoryengine.Constants;
+import net.minecraft.gametest.framework.GameTest;
+import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraftforge.gametest.GameTestHolder;
+import net.minecraftforge.gametest.PrefixGameTestTemplate;
 
-@FunctionalInterface
-public interface ConditionHandler {
+@SuppressWarnings("unused")
+@PrefixGameTestTemplate(value = false)
+@GameTestHolder(Constants.MOD_ID)
+public class ServerRegistrationGameTest {
 
-  Condition parse(
-      JsonObject json,
-      ContentType contentType,
-      ResourceLocation id,
-      String filePath,
-      List<ContentIssue> issues);
+  @GameTest(template = "gametest.3x3x3")
+  public void testConditionsRegistryFrozenOnServer(GameTestHelper helper) {
+    ServerRegistrationGameTestHelper.testConditionsRegistryFrozenOnServer(helper);
+    helper.succeed();
+  }
+
+  @GameTest(template = "gametest.3x3x3")
+  public void testBuiltinConditionTypesRegistered(GameTestHelper helper) {
+    ServerRegistrationGameTestHelper.testBuiltinConditionTypesRegistered(helper);
+    helper.succeed();
+  }
 }

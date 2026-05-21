@@ -24,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import de.markusbordihn.dialogqueststoryengine.data.issue.ContentIssue;
 import de.markusbordihn.dialogqueststoryengine.data.issue.IssueCode;
+import de.markusbordihn.dialogqueststoryengine.logic.condition.ConditionGroup;
 import de.markusbordihn.dialogqueststoryengine.validation.DialogNodeReferenceValidator;
 import java.util.List;
 import java.util.Map;
@@ -47,7 +48,7 @@ class DialogNodeReferenceValidatorTest {
         new DialogChoiceDefinition(
             "c1",
             "choice.label",
-            List.of(),
+            ConditionGroup.ALWAYS_TRUE,
             List.of(),
             Optional.of("nonexistent"),
             Optional.empty());
@@ -67,7 +68,7 @@ class DialogNodeReferenceValidatorTest {
   void noIssuesForValidReferences() {
     DialogChoiceDefinition validChoice =
         new DialogChoiceDefinition(
-            "c1", "choice.label", List.of(), List.of(), Optional.of("end"), Optional.empty());
+            "c1", "choice.label", ConditionGroup.ALWAYS_TRUE, List.of(), Optional.of("end"), Optional.empty());
     DialogNodeDefinition root =
         new DialogNodeDefinition("root", "npc.name", "dialog.text", List.of(validChoice));
     DialogNodeDefinition end = new DialogNodeDefinition("end", "npc.name", "dialog.end", List.of());
@@ -84,7 +85,7 @@ class DialogNodeReferenceValidatorTest {
   void emptyNextOptionalIsNotFlagged() {
     DialogChoiceDefinition closeChoice =
         new DialogChoiceDefinition(
-            "c1", "choice.close", List.of(), List.of(), Optional.empty(), Optional.empty());
+            "c1", "choice.close", ConditionGroup.ALWAYS_TRUE, List.of(), Optional.empty(), Optional.empty());
     DialogNodeDefinition root =
         new DialogNodeDefinition("root", "npc.name", "dialog.text", List.of(closeChoice));
     DialogDefinition dialog = new DialogDefinition(TEST_ID, 1, "root", Map.of("root", root));

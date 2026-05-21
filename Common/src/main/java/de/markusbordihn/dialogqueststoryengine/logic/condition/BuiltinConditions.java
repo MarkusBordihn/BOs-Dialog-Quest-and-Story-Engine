@@ -17,22 +17,23 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package de.markusbordihn.dialogqueststoryengine.registry;
+package de.markusbordihn.dialogqueststoryengine.logic.condition;
 
-import com.google.gson.JsonObject;
-import de.markusbordihn.dialogqueststoryengine.data.ContentType;
-import de.markusbordihn.dialogqueststoryengine.data.issue.ContentIssue;
-import de.markusbordihn.dialogqueststoryengine.logic.condition.Condition;
-import java.util.List;
-import net.minecraft.resources.ResourceLocation;
+import de.markusbordihn.dialogqueststoryengine.logic.condition.types.FactEqualsCondition;
+import de.markusbordihn.dialogqueststoryengine.logic.condition.types.HasItemCondition;
+import de.markusbordihn.dialogqueststoryengine.logic.condition.types.PermissionLevelCondition;
+import de.markusbordihn.dialogqueststoryengine.logic.condition.types.QuestStateCondition;
+import de.markusbordihn.dialogqueststoryengine.registry.Registries;
 
-@FunctionalInterface
-public interface ConditionHandler {
+public final class BuiltinConditions {
 
-  Condition parse(
-      JsonObject json,
-      ContentType contentType,
-      ResourceLocation id,
-      String filePath,
-      List<ContentIssue> issues);
+  private BuiltinConditions() {}
+
+  public static void register() {
+    Registries.CONDITIONS.register(FactEqualsCondition.TYPE_ID, FactEqualsCondition::parse);
+    Registries.CONDITIONS.register(QuestStateCondition.TYPE_ID, QuestStateCondition::parse);
+    Registries.CONDITIONS.register(HasItemCondition.TYPE_ID, HasItemCondition::parse);
+    Registries.CONDITIONS.register(
+        PermissionLevelCondition.TYPE_ID, PermissionLevelCondition::parse);
+  }
 }

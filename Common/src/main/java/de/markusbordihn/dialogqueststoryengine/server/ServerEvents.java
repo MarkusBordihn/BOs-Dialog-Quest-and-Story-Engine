@@ -25,6 +25,7 @@ import de.markusbordihn.dialogqueststoryengine.entity.InteractionEvents;
 import de.markusbordihn.dialogqueststoryengine.interaction.InteractionManager;
 import de.markusbordihn.dialogqueststoryengine.interaction.InteractionRegistry;
 import de.markusbordihn.dialogqueststoryengine.item.InteractionWandItem;
+import de.markusbordihn.dialogqueststoryengine.logic.condition.BuiltinConditions;
 import de.markusbordihn.dialogqueststoryengine.network.NetworkHandlerManager;
 import de.markusbordihn.dialogqueststoryengine.network.message.SyncInteractionDataMessage;
 import de.markusbordihn.dialogqueststoryengine.registry.Registries;
@@ -53,6 +54,7 @@ public final class ServerEvents {
     log.info("{} server is starting ...", Constants.MOD_NAME);
     currentServer = server;
     InteractionRegistry.registerBuiltIns();
+    BuiltinConditions.register();
     Registries.freezeAll();
     syncStates.clear();
   }

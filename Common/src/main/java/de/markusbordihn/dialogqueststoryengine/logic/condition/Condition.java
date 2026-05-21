@@ -17,22 +17,12 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package de.markusbordihn.dialogqueststoryengine.registry;
-
-import com.google.gson.JsonObject;
-import de.markusbordihn.dialogqueststoryengine.data.ContentType;
-import de.markusbordihn.dialogqueststoryengine.data.issue.ContentIssue;
-import de.markusbordihn.dialogqueststoryengine.logic.condition.Condition;
-import java.util.List;
-import net.minecraft.resources.ResourceLocation;
+package de.markusbordihn.dialogqueststoryengine.logic.condition;
 
 @FunctionalInterface
-public interface ConditionHandler {
+public interface Condition {
 
-  Condition parse(
-      JsonObject json,
-      ContentType contentType,
-      ResourceLocation id,
-      String filePath,
-      List<ContentIssue> issues);
+  Condition NEVER = conditionContext -> false;
+
+  boolean evaluate(ConditionContext conditionContext);
 }

@@ -212,11 +212,8 @@ class InteractionContentParserTest {
         InteractionContentParser.parse(TEST_ID, TEST_FILE, input);
 
     assertTrue(result.isSuccess());
-    assertEquals(1, result.value().get().conditions().size());
+    assertEquals(1, result.value().get().conditions().members().size());
     assertEquals(1, result.value().get().actions().size());
-    assertEquals(
-        "is_daytime",
-        result.value().get().conditions().get(0).jsonObject().get("type").getAsString());
     assertEquals(
         "dialog.open",
         result.value().get().actions().get(0).jsonObject().get("type").getAsString());

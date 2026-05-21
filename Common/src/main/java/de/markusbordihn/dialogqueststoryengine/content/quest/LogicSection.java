@@ -19,12 +19,12 @@
 
 package de.markusbordihn.dialogqueststoryengine.content.quest;
 
-import de.markusbordihn.dialogqueststoryengine.data.json.RawCondition;
+import de.markusbordihn.dialogqueststoryengine.logic.condition.Condition;
 import java.util.Map;
 import java.util.Optional;
 
 public record LogicSection(
-    Optional<RawCondition> visibilityCondition,
+    Optional<Condition> visibilityCondition,
     Map<String, RawQuestStep> steps,
     CompletionPolicy completionPolicy,
     boolean repeatable,

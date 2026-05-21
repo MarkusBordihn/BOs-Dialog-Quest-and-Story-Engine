@@ -215,17 +215,6 @@ class QuestContentParserTest {
 
     assertTrue(result.isSuccess());
     assertTrue(result.value().get().logic().visibilityCondition().isPresent());
-    assertEquals(
-        "has_flag",
-        result
-            .value()
-            .get()
-            .logic()
-            .visibilityCondition()
-            .get()
-            .jsonObject()
-            .get("type")
-            .getAsString());
   }
 
   @Test

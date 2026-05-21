@@ -27,8 +27,9 @@ import de.markusbordihn.dialogqueststoryengine.data.issue.IssueCode;
 import de.markusbordihn.dialogqueststoryengine.data.json.JsonFieldReader;
 import de.markusbordihn.dialogqueststoryengine.data.json.ParseResult;
 import de.markusbordihn.dialogqueststoryengine.data.json.RawAction;
-import de.markusbordihn.dialogqueststoryengine.data.json.RawCondition;
 import de.markusbordihn.dialogqueststoryengine.data.json.RawJsonListReader;
+import de.markusbordihn.dialogqueststoryengine.logic.condition.ConditionGroup;
+import de.markusbordihn.dialogqueststoryengine.logic.condition.ConditionParser;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -94,10 +95,10 @@ public final class InteractionContentParser {
       return ParseResult.failure(issues);
     }
 
-    List<RawCondition> conditions = List.of();
+    ConditionGroup conditions = ConditionGroup.ALWAYS_TRUE;
     if (jsonObject.has(FIELD_CONDITIONS) && jsonObject.get(FIELD_CONDITIONS).isJsonArray()) {
       conditions =
-          RawJsonListReader.readConditions(
+          ConditionParser.parseGroup(
               jsonObject.getAsJsonArray(FIELD_CONDITIONS),
               ContentType.INTERACTION,
               id,

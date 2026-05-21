@@ -24,9 +24,11 @@
     "fabric-gametest": [
       "de.markusbordihn.dialogqueststoryengine.gametest.SmokeTest",
       "de.markusbordihn.dialogqueststoryengine.gametest.BlockUuidGameTest",
+      "de.markusbordihn.dialogqueststoryengine.gametest.ConditionEvaluationGameTest",
       "de.markusbordihn.dialogqueststoryengine.gametest.InteractionStoreGameTest",
       "de.markusbordihn.dialogqueststoryengine.gametest.PlayerStateGameTest",
-      "de.markusbordihn.dialogqueststoryengine.gametest.QuestWorkflowGameTest"
+      "de.markusbordihn.dialogqueststoryengine.gametest.QuestWorkflowGameTest",
+      "de.markusbordihn.dialogqueststoryengine.gametest.ServerRegistrationGameTest"
     ]
   },
   "mixins": [],

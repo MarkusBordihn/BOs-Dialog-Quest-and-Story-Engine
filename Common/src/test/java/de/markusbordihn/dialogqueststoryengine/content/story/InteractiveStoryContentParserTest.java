@@ -188,18 +188,6 @@ class InteractiveStoryContentParserTest {
         InteractiveStoryContentParser.parse(TEST_ID, TEST_FILE, input);
 
     assertTrue(result.isSuccess());
-    assertEquals(1, result.value().get().choices().get(0).conditions().size());
-    assertEquals(
-        "has_flag",
-        result
-            .value()
-            .get()
-            .choices()
-            .get(0)
-            .conditions()
-            .get(0)
-            .jsonObject()
-            .get("type")
-            .getAsString());
+    assertEquals(1, result.value().get().choices().get(0).conditions().members().size());
   }
 }

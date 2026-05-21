@@ -17,22 +17,16 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package de.markusbordihn.dialogqueststoryengine.registry;
+package de.markusbordihn.dialogqueststoryengine.logic.condition;
 
-import com.google.gson.JsonObject;
-import de.markusbordihn.dialogqueststoryengine.data.ContentType;
-import de.markusbordihn.dialogqueststoryengine.data.issue.ContentIssue;
-import de.markusbordihn.dialogqueststoryengine.logic.condition.Condition;
-import java.util.List;
-import net.minecraft.resources.ResourceLocation;
+import de.markusbordihn.dialogqueststoryengine.state.PlayerState;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerPlayer;
 
-@FunctionalInterface
-public interface ConditionHandler {
+public record ConditionContext(
+    ServerPlayer player, PlayerState playerState, MinecraftServer server) {
 
-  Condition parse(
-      JsonObject json,
-      ContentType contentType,
-      ResourceLocation id,
-      String filePath,
-      List<ContentIssue> issues);
+  public static ConditionContext ofTest(PlayerState playerState) {
+    return new ConditionContext(null, playerState, null);
+  }
 }

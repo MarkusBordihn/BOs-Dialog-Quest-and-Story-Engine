@@ -27,8 +27,9 @@ import de.markusbordihn.dialogqueststoryengine.data.issue.IssueCode;
 import de.markusbordihn.dialogqueststoryengine.data.json.JsonFieldReader;
 import de.markusbordihn.dialogqueststoryengine.data.json.ParseResult;
 import de.markusbordihn.dialogqueststoryengine.data.json.RawAction;
-import de.markusbordihn.dialogqueststoryengine.data.json.RawCondition;
 import de.markusbordihn.dialogqueststoryengine.data.json.RawJsonListReader;
+import de.markusbordihn.dialogqueststoryengine.logic.condition.Condition;
+import de.markusbordihn.dialogqueststoryengine.logic.condition.ConditionParser;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -166,24 +167,26 @@ public final class QuestContentParser {
           SyncScope.fromKey(logicJson.get(FIELD_SYNC_SCOPE).getAsString()).orElse(SyncScope.PLAYER);
     }
 
-    Optional<RawCondition> visibilityCondition = parseVisibility(logicJson, id, filePath, issues);
+    Optional<Condition> visibilityCondition = parseVisibility(logicJson, id, filePath, issues);
 
     return Optional.of(
         new LogicSection(visibilityCondition, steps, completionPolicy, repeatable, syncScope));
   }
 
-  private static Optional<RawCondition> parseVisibility(
+  private static Optional<Condition> parseVisibility(
       JsonObject logicJson, ResourceLocation id, String filePath, List<ContentIssue> issues) {
     if (!logicJson.has(FIELD_VISIBILITY) || !logicJson.get(FIELD_VISIBILITY).isJsonObject()) {
       return Optional.empty();
     }
 
     JsonObject visibilityJson = logicJson.getAsJsonObject(FIELD_VISIBILITY);
-    if (!visibilityJson.has(FIELD_WHEN) || !visibilityJson.get(FIELD_WHEN).isJsonObject()) {
+    if (!visibilityJson.has(FIELD_WHEN)) {
       return Optional.empty();
     }
 
-    return Optional.of(new RawCondition(visibilityJson.getAsJsonObject(FIELD_WHEN)));
+    return Optional.of(
+        ConditionParser.parse(
+            visibilityJson.get(FIELD_WHEN), ContentType.QUEST, id, filePath, issues));
   }
 
   private static Map<String, RawQuestStep> parseSteps(

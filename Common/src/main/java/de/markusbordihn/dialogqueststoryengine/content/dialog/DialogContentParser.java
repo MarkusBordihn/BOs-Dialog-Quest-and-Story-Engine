@@ -28,8 +28,9 @@ import de.markusbordihn.dialogqueststoryengine.data.issue.IssueCode;
 import de.markusbordihn.dialogqueststoryengine.data.json.JsonFieldReader;
 import de.markusbordihn.dialogqueststoryengine.data.json.ParseResult;
 import de.markusbordihn.dialogqueststoryengine.data.json.RawAction;
-import de.markusbordihn.dialogqueststoryengine.data.json.RawCondition;
 import de.markusbordihn.dialogqueststoryengine.data.json.RawJsonListReader;
+import de.markusbordihn.dialogqueststoryengine.logic.condition.ConditionGroup;
+import de.markusbordihn.dialogqueststoryengine.logic.condition.ConditionParser;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -228,15 +229,15 @@ public final class DialogContentParser {
       return Optional.empty();
     }
 
-    List<RawCondition> conditions =
+    ConditionGroup conditions =
         choiceJson.has(FIELD_CONDITIONS) && choiceJson.get(FIELD_CONDITIONS).isJsonArray()
-            ? RawJsonListReader.readConditions(
+            ? ConditionParser.parseGroup(
                 choiceJson.getAsJsonArray(FIELD_CONDITIONS),
                 ContentType.DIALOG,
                 id,
                 filePath,
                 issues)
-            : List.of();
+            : ConditionGroup.ALWAYS_TRUE;
 
     List<RawAction> actions =
         choiceJson.has(FIELD_ACTIONS) && choiceJson.get(FIELD_ACTIONS).isJsonArray()

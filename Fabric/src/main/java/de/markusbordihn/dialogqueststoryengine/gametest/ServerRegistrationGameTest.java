@@ -17,22 +17,23 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package de.markusbordihn.dialogqueststoryengine.registry;
+package de.markusbordihn.dialogqueststoryengine.gametest;
 
-import com.google.gson.JsonObject;
-import de.markusbordihn.dialogqueststoryengine.data.ContentType;
-import de.markusbordihn.dialogqueststoryengine.data.issue.ContentIssue;
-import de.markusbordihn.dialogqueststoryengine.logic.condition.Condition;
-import java.util.List;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.gametest.framework.GameTest;
+import net.minecraft.gametest.framework.GameTestHelper;
 
-@FunctionalInterface
-public interface ConditionHandler {
+@SuppressWarnings("unused")
+public class ServerRegistrationGameTest {
 
-  Condition parse(
-      JsonObject json,
-      ContentType contentType,
-      ResourceLocation id,
-      String filePath,
-      List<ContentIssue> issues);
+  @GameTest(template = "dialog_quest_and_story_engine:gametest.3x3x3")
+  public void testConditionsRegistryFrozenOnServer(GameTestHelper helper) {
+    ServerRegistrationGameTestHelper.testConditionsRegistryFrozenOnServer(helper);
+    helper.succeed();
+  }
+
+  @GameTest(template = "dialog_quest_and_story_engine:gametest.3x3x3")
+  public void testBuiltinConditionTypesRegistered(GameTestHelper helper) {
+    ServerRegistrationGameTestHelper.testBuiltinConditionTypesRegistered(helper);
+    helper.succeed();
+  }
 }

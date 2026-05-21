@@ -9,9 +9,6 @@
     "completion_policy": "all_steps",
     "repeatable": false,
     "sync_scope": "player",
-    "visibility": {
-      "when": {"type": "always"}
-    },
     "steps": {
       "talk_to_villager": {
         "type": "dialog_quest_and_story_engine_examples:talk_to_npc",

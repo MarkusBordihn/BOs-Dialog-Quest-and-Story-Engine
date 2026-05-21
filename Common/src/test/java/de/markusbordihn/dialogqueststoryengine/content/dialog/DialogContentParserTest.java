@@ -271,9 +271,6 @@ class DialogContentParserTest {
 
     assertTrue(result.isSuccess());
     DialogNodeDefinition node = result.value().get().nodes().get("root");
-    assertEquals(1, node.choices().get(0).conditions().size());
-    assertEquals(
-        "has_item",
-        node.choices().get(0).conditions().get(0).jsonObject().get("type").getAsString());
+    assertEquals(1, node.choices().get(0).conditions().members().size());
   }
 }

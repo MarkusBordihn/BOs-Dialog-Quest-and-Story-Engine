@@ -46,9 +46,13 @@ public enum IssueCode {
   UNKNOWN_BINDING_KIND(IssueSeverity.ERROR, "Unknown interaction binding kind"),
   UNKNOWN_INTERACTION_EVENT(IssueSeverity.ERROR, "Unknown interaction event type"),
   UNKNOWN_STORY_MODE(IssueSeverity.ERROR, "Unknown interactive story mode"),
+  UNKNOWN_CONDITION_TYPE(
+      IssueSeverity.ERROR, "Condition type is not registered — evaluates to false"),
   UNKNOWN_STORY_TYPE(IssueSeverity.ERROR, "Unknown story entry type"),
   UNKNOWN_THEME_LAYOUT(IssueSeverity.ERROR, "Unknown theme layout"),
-  UNSUPPORTED_SCHEMA(IssueSeverity.ERROR, "Schema version is not supported");
+  UNSUPPORTED_SCHEMA(IssueSeverity.ERROR, "Schema version is not supported"),
+  CONDITION_FACT_TYPE_MISMATCH(
+      IssueSeverity.WARNING, "Condition value type does not match expected fact value type");
 
   private final IssueSeverity defaultSeverity;
   private final String description;

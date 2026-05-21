@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import de.markusbordihn.dialogqueststoryengine.data.interaction.InteractionEventType;
+import de.markusbordihn.dialogqueststoryengine.logic.condition.ConditionGroup;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -51,7 +52,7 @@ class InteractionContentRegistryTest {
             1,
             InteractionEventType.ON_ENTITY_INTERACT,
             new InteractionBinding.EntityBinding(UUID.randomUUID(), OVERWORLD),
-            List.of(),
+            ConditionGroup.ALWAYS_TRUE,
             List.of());
 
     InteractionContentRegistry.replaceAll(Map.of(TEST_ID_A, definitionA));
@@ -65,7 +66,7 @@ class InteractionContentRegistryTest {
             1,
             InteractionEventType.ON_HOLOPAD_USE,
             InteractionBinding.UnboundBinding.INSTANCE,
-            List.of(),
+            ConditionGroup.ALWAYS_TRUE,
             List.of());
 
     InteractionContentRegistry.replaceAll(Map.of(TEST_ID_B, definitionB));
@@ -91,7 +92,7 @@ class InteractionContentRegistryTest {
             1,
             InteractionEventType.ON_ENTITY_INTERACT,
             new InteractionBinding.EntityBinding(UUID.randomUUID(), OVERWORLD),
-            List.of(),
+            ConditionGroup.ALWAYS_TRUE,
             List.of());
     InteractionDefinition definitionB =
         new InteractionDefinition(
@@ -99,7 +100,7 @@ class InteractionContentRegistryTest {
             1,
             InteractionEventType.ON_HOLOPAD_USE,
             InteractionBinding.UnboundBinding.INSTANCE,
-            List.of(),
+            ConditionGroup.ALWAYS_TRUE,
             List.of());
 
     InteractionContentRegistry.replaceAll(Map.of(TEST_ID_A, definitionA, TEST_ID_B, definitionB));

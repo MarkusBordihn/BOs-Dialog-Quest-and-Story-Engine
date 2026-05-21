@@ -21,7 +21,7 @@ package de.markusbordihn.dialogqueststoryengine.content.interaction;
 
 import de.markusbordihn.dialogqueststoryengine.data.interaction.InteractionEventType;
 import de.markusbordihn.dialogqueststoryengine.data.json.RawAction;
-import de.markusbordihn.dialogqueststoryengine.data.json.RawCondition;
+import de.markusbordihn.dialogqueststoryengine.logic.condition.ConditionGroup;
 import java.util.List;
 import net.minecraft.resources.ResourceLocation;
 
@@ -30,11 +30,10 @@ public record InteractionDefinition(
     int schema,
     InteractionEventType event,
     InteractionBinding binding,
-    List<RawCondition> conditions,
+    ConditionGroup conditions,
     List<RawAction> actions) {
 
   public InteractionDefinition {
-    conditions = List.copyOf(conditions);
     actions = List.copyOf(actions);
   }
 }

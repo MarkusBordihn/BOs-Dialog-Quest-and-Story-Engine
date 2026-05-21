@@ -17,22 +17,27 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package de.markusbordihn.dialogqueststoryengine.registry;
+package de.markusbordihn.dialogqueststoryengine.logic.condition;
 
-import com.google.gson.JsonObject;
-import de.markusbordihn.dialogqueststoryengine.data.ContentType;
-import de.markusbordihn.dialogqueststoryengine.data.issue.ContentIssue;
-import de.markusbordihn.dialogqueststoryengine.logic.condition.Condition;
 import java.util.List;
-import net.minecraft.resources.ResourceLocation;
 
-@FunctionalInterface
-public interface ConditionHandler {
+public record ConditionGroup(GroupOperator operator, List<Condition> members)
+    implements Condition {
 
-  Condition parse(
-      JsonObject json,
-      ContentType contentType,
-      ResourceLocation id,
-      String filePath,
-      List<ContentIssue> issues);
+  public static final ConditionGroup ALWAYS_TRUE =
+      new ConditionGroup(GroupOperator.ALL, List.of());
+  public static final ConditionGroup ALWAYS_FALSE =
+      new ConditionGroup(GroupOperator.ANY, List.of());
+
+  public ConditionGroup {
+    members = List.copyOf(members);
+  }
+
+  @Override
+  public boolean evaluate(ConditionContext conditionContext) {
+    return switch (this.operator) {
+      case ALL -> this.members.stream().allMatch(condition -> condition.evaluate(conditionContext));
+      case ANY -> this.members.stream().anyMatch(condition -> condition.evaluate(conditionContext));
+    };
+  }
 }

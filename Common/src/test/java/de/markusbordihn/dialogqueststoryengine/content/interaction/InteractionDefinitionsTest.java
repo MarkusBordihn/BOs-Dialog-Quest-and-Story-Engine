@@ -24,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import de.markusbordihn.dialogqueststoryengine.data.interaction.InteractionEntry;
 import de.markusbordihn.dialogqueststoryengine.data.interaction.InteractionEventType;
+import de.markusbordihn.dialogqueststoryengine.logic.condition.ConditionGroup;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -44,7 +45,7 @@ class InteractionDefinitionsTest {
             1,
             InteractionEventType.ON_HOLOPAD_USE,
             InteractionBinding.UnboundBinding.INSTANCE,
-            List.of(),
+            ConditionGroup.ALWAYS_TRUE,
             List.of());
 
     Optional<InteractionEntry> entry = InteractionDefinitions.toEntry(definition);
@@ -61,7 +62,7 @@ class InteractionDefinitionsTest {
             1,
             InteractionEventType.ON_ENTITY_INTERACT,
             new InteractionBinding.EntityBinding(targetId, OVERWORLD),
-            List.of(),
+            ConditionGroup.ALWAYS_TRUE,
             List.of());
 
     Optional<InteractionEntry> entry = InteractionDefinitions.toEntry(definition);
@@ -81,7 +82,7 @@ class InteractionDefinitionsTest {
             1,
             InteractionEventType.ON_BLOCK_INTERACT,
             new InteractionBinding.BlockBinding(pos, OVERWORLD),
-            List.of(),
+            ConditionGroup.ALWAYS_TRUE,
             List.of());
 
     Optional<InteractionEntry> entry = InteractionDefinitions.toEntry(definition);

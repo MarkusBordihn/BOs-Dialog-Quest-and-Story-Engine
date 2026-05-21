@@ -20,20 +20,19 @@
 package de.markusbordihn.dialogqueststoryengine.content.dialog;
 
 import de.markusbordihn.dialogqueststoryengine.data.json.RawAction;
-import de.markusbordihn.dialogqueststoryengine.data.json.RawCondition;
+import de.markusbordihn.dialogqueststoryengine.logic.condition.ConditionGroup;
 import java.util.List;
 import java.util.Optional;
 
 public record DialogChoiceDefinition(
     String id,
     String labelKey,
-    List<RawCondition> conditions,
+    ConditionGroup conditions,
     List<RawAction> actions,
     Optional<String> next,
     Optional<BuiltinChoiceAction> builtin) {
 
   public DialogChoiceDefinition {
-    conditions = List.copyOf(conditions);
     actions = List.copyOf(actions);
   }
 }
