@@ -29,6 +29,7 @@ import de.markusbordihn.dialogqueststoryengine.logic.condition.BuiltinConditions
 import de.markusbordihn.dialogqueststoryengine.network.NetworkHandlerManager;
 import de.markusbordihn.dialogqueststoryengine.network.message.SyncInteractionDataMessage;
 import de.markusbordihn.dialogqueststoryengine.registry.Registries;
+import de.markusbordihn.dialogqueststoryengine.session.SessionManager;
 import de.markusbordihn.dialogqueststoryengine.state.PlayerStateService;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -61,6 +62,7 @@ public final class ServerEvents {
 
   public static void handleServerStopping(MinecraftServer server) {
     log.info("{} server is stopping ...", Constants.MOD_NAME);
+    SessionManager.invalidateAll();
     PlayerStateService.onServerStopping(server);
     currentServer = null;
     syncStates.clear();
@@ -76,6 +78,7 @@ public final class ServerEvents {
     if (server.getTickCount() % SYNC_INTERVAL != 0) {
       return;
     }
+
     InteractionSavedData data = InteractionSavedData.get(server);
     long currentVersion = data.getSyncVersion();
     SyncInteractionDataMessage syncMessage = null;

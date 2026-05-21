@@ -17,24 +17,61 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package de.markusbordihn.dialogqueststoryengine.logic.action;
+package de.markusbordihn.dialogqueststoryengine.session;
 
-import de.markusbordihn.dialogqueststoryengine.session.SessionContext;
-import de.markusbordihn.dialogqueststoryengine.state.PlayerState;
-import java.util.Optional;
 import java.util.UUID;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.level.ServerPlayer;
 
-public record ActionContext(
-    ServerPlayer player,
-    PlayerState playerState,
-    MinecraftServer server,
-    String interactionEventId,
-    Optional<SessionContext> sessionContext) {
+public abstract class Session {
 
-  public static ActionContext ofTest(PlayerState playerState) {
-    return new ActionContext(
-        null, playerState, null, "test-" + UUID.randomUUID(), Optional.empty());
+  private final UUID sessionId;
+  private final UUID ownerPlayerUuid;
+  private final long openedAtMs;
+  private int revision;
+  private SessionState state;
+
+  protected Session(UUID sessionId, UUID ownerPlayerUuid) {
+    this.sessionId = sessionId;
+    this.ownerPlayerUuid = ownerPlayerUuid;
+    this.openedAtMs = System.currentTimeMillis();
+    this.revision = 0;
+    this.state = SessionState.OPEN;
+  }
+
+  public abstract SessionType sessionType();
+
+  public UUID sessionId() {
+    return this.sessionId;
+  }
+
+  public UUID ownerPlayerUuid() {
+    return this.ownerPlayerUuid;
+  }
+
+  public long openedAtMs() {
+    return this.openedAtMs;
+  }
+
+  public int revision() {
+    return this.revision;
+  }
+
+  public SessionState state() {
+    return this.state;
+  }
+
+  public boolean isOpen() {
+    return this.state == SessionState.OPEN;
+  }
+
+  public void bumpRevision() {
+    this.revision++;
+  }
+
+  public void close() {
+    this.state = SessionState.CLOSED;
+  }
+
+  public void invalidate() {
+    this.state = SessionState.INVALIDATED;
   }
 }

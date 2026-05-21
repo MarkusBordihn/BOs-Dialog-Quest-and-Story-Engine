@@ -27,6 +27,15 @@ import de.markusbordihn.dialogqueststoryengine.network.message.OpenOverviewScree
 import de.markusbordihn.dialogqueststoryengine.network.message.RemoveInteractionMessage;
 import de.markusbordihn.dialogqueststoryengine.network.message.SaveInteractionMessage;
 import de.markusbordihn.dialogqueststoryengine.network.message.SyncInteractionDataMessage;
+import de.markusbordihn.dialogqueststoryengine.network.message.session.ClientCloseSessionPacket;
+import de.markusbordihn.dialogqueststoryengine.network.message.session.CloseSessionPacket;
+import de.markusbordihn.dialogqueststoryengine.network.message.session.DialogNodeChangedPacket;
+import de.markusbordihn.dialogqueststoryengine.network.message.session.OpenDialogSessionPacket;
+import de.markusbordihn.dialogqueststoryengine.network.message.session.OpenStorySessionPacket;
+import de.markusbordihn.dialogqueststoryengine.network.message.session.QuestDeltaPacket;
+import de.markusbordihn.dialogqueststoryengine.network.message.session.SessionRejectedPacket;
+import de.markusbordihn.dialogqueststoryengine.network.message.session.StoryDeltaPacket;
+import de.markusbordihn.dialogqueststoryengine.network.message.session.SubmitChoicePacket;
 import net.minecraft.server.level.ServerPlayer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -68,9 +77,11 @@ public final class NetworkHandlerManager {
       log.error("Cannot register client messages: no network handler registered.");
       return;
     }
+
     if (!isClientNetworkHandler()) {
       return;
     }
+
     networkHandler.registerClientNetworkMessageHandler(
         SyncInteractionDataMessage.MESSAGE_ID,
         SyncInteractionDataMessage.class,
@@ -87,6 +98,28 @@ public final class NetworkHandlerManager {
         InteractionListMessage.MESSAGE_ID,
         InteractionListMessage.class,
         InteractionListMessage::create);
+    networkHandler.registerClientNetworkMessageHandler(
+        OpenDialogSessionPacket.MESSAGE_ID,
+        OpenDialogSessionPacket.class,
+        OpenDialogSessionPacket::create);
+    networkHandler.registerClientNetworkMessageHandler(
+        OpenStorySessionPacket.MESSAGE_ID,
+        OpenStorySessionPacket.class,
+        OpenStorySessionPacket::create);
+    networkHandler.registerClientNetworkMessageHandler(
+        DialogNodeChangedPacket.MESSAGE_ID,
+        DialogNodeChangedPacket.class,
+        DialogNodeChangedPacket::create);
+    networkHandler.registerClientNetworkMessageHandler(
+        StoryDeltaPacket.MESSAGE_ID, StoryDeltaPacket.class, StoryDeltaPacket::create);
+    networkHandler.registerClientNetworkMessageHandler(
+        QuestDeltaPacket.MESSAGE_ID, QuestDeltaPacket.class, QuestDeltaPacket::create);
+    networkHandler.registerClientNetworkMessageHandler(
+        CloseSessionPacket.MESSAGE_ID, CloseSessionPacket.class, CloseSessionPacket::create);
+    networkHandler.registerClientNetworkMessageHandler(
+        SessionRejectedPacket.MESSAGE_ID,
+        SessionRejectedPacket.class,
+        SessionRejectedPacket::create);
   }
 
   private static void registerServerMessages() {
@@ -94,9 +127,11 @@ public final class NetworkHandlerManager {
       log.error("Cannot register server messages: no network handler registered.");
       return;
     }
+
     if (!isServerNetworkHandler()) {
       return;
     }
+
     networkHandler.registerServerNetworkMessageHandler(
         OpenInteractionScreenMessage.MESSAGE_ID,
         OpenInteractionScreenMessage.class,
@@ -109,6 +144,12 @@ public final class NetworkHandlerManager {
         RemoveInteractionMessage.MESSAGE_ID,
         RemoveInteractionMessage.class,
         RemoveInteractionMessage::create);
+    networkHandler.registerServerNetworkMessageHandler(
+        SubmitChoicePacket.MESSAGE_ID, SubmitChoicePacket.class, SubmitChoicePacket::create);
+    networkHandler.registerServerNetworkMessageHandler(
+        ClientCloseSessionPacket.MESSAGE_ID,
+        ClientCloseSessionPacket.class,
+        ClientCloseSessionPacket::create);
   }
 
   public static void sendToPlayer(ServerPlayer player, NetworkMessageRecord message) {

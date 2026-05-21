@@ -26,18 +26,15 @@ import de.markusbordihn.dialogqueststoryengine.data.issue.ContentIssue;
 import de.markusbordihn.dialogqueststoryengine.data.issue.IssueCode;
 import de.markusbordihn.dialogqueststoryengine.logic.action.Action;
 import de.markusbordihn.dialogqueststoryengine.logic.action.ActionContext;
+import de.markusbordihn.dialogqueststoryengine.session.SessionManager;
 import java.util.List;
 import java.util.Map;
 import net.minecraft.resources.ResourceLocation;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 public record OpenStoryAction(ResourceLocation storyId) implements Action {
 
   public static final ResourceLocation TYPE_ID =
       new ResourceLocation(Constants.MOD_NAMESPACE, "open_story");
-
-  private static final Logger log = LogManager.getLogger(Constants.LOG_NAME);
 
   public static Action parse(
       JsonObject jsonObject,
@@ -67,9 +64,6 @@ public record OpenStoryAction(ResourceLocation storyId) implements Action {
 
   @Override
   public void execute(ActionContext actionContext) {
-    log.warn(
-        "{} open_story: session manager not yet available (M09) — skipping story '{}'",
-        Constants.LOG_PREFIX,
-        this.storyId);
+    SessionManager.openStorySession(actionContext.player(), this.storyId);
   }
 }

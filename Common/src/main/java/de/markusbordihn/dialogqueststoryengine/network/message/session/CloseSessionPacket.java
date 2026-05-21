@@ -17,24 +17,36 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package de.markusbordihn.dialogqueststoryengine.logic.action;
+package de.markusbordihn.dialogqueststoryengine.network.message.session;
 
-import de.markusbordihn.dialogqueststoryengine.session.SessionContext;
-import de.markusbordihn.dialogqueststoryengine.state.PlayerState;
-import java.util.Optional;
+import de.markusbordihn.dialogqueststoryengine.Constants;
+import de.markusbordihn.dialogqueststoryengine.network.NetworkMessageRecord;
+import de.markusbordihn.dialogqueststoryengine.session.SessionCloseReason;
 import java.util.UUID;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
 
-public record ActionContext(
-    ServerPlayer player,
-    PlayerState playerState,
-    MinecraftServer server,
-    String interactionEventId,
-    Optional<SessionContext> sessionContext) {
+public record CloseSessionPacket(UUID sessionId, SessionCloseReason reason)
+    implements NetworkMessageRecord {
 
-  public static ActionContext ofTest(PlayerState playerState) {
-    return new ActionContext(
-        null, playerState, null, "test-" + UUID.randomUUID(), Optional.empty());
+  public static final ResourceLocation MESSAGE_ID =
+      ResourceLocation.tryParse(Constants.MOD_ID + ":close_session");
+
+  public static CloseSessionPacket create(FriendlyByteBuf buffer) {
+    UUID sessionId = buffer.readUUID();
+    SessionCloseReason reason = buffer.readEnum(SessionCloseReason.class);
+
+    return new CloseSessionPacket(sessionId, reason);
+  }
+
+  @Override
+  public void write(FriendlyByteBuf buffer) {
+    buffer.writeUUID(this.sessionId);
+    buffer.writeEnum(this.reason);
+  }
+
+  @Override
+  public ResourceLocation id() {
+    return MESSAGE_ID;
   }
 }

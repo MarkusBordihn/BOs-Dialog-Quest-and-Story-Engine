@@ -20,6 +20,7 @@
 package de.markusbordihn.dialogqueststoryengine.server;
 
 import de.markusbordihn.dialogqueststoryengine.Constants;
+import de.markusbordihn.dialogqueststoryengine.session.SessionManager;
 import de.markusbordihn.dialogqueststoryengine.state.PlayerStateService;
 import java.io.File;
 import java.io.IOException;
@@ -76,6 +77,7 @@ public class PlayerStateEventHandler {
       writeNbt(dataFile, nbt, playerUuid);
     }
     PlayerStateService.onPlayerLoggedOut(playerUuid);
+    SessionManager.invalidatePlayerSessions(playerUuid);
   }
 
   private static File getDataFile(File playerDirectory, UUID playerUuid) {

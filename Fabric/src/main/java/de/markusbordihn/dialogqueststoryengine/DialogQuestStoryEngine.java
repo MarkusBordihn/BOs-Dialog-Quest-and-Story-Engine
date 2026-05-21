@@ -20,6 +20,7 @@
 package de.markusbordihn.dialogqueststoryengine;
 
 import de.markusbordihn.dialogqueststoryengine.commands.manager.CommandManager;
+import de.markusbordihn.dialogqueststoryengine.content.DataPackReloadNotifier;
 import de.markusbordihn.dialogqueststoryengine.content.ResourceServerEventsFabric;
 import de.markusbordihn.dialogqueststoryengine.entity.InteractionEventHandler;
 import de.markusbordihn.dialogqueststoryengine.item.ModItems;
@@ -27,6 +28,7 @@ import de.markusbordihn.dialogqueststoryengine.network.NetworkHandler;
 import de.markusbordihn.dialogqueststoryengine.network.NetworkHandlerManager;
 import de.markusbordihn.dialogqueststoryengine.network.NetworkHandlerManagerType;
 import de.markusbordihn.dialogqueststoryengine.server.ServerEvents;
+import de.markusbordihn.dialogqueststoryengine.session.SessionManager;
 import de.markusbordihn.dialogqueststoryengine.state.PlayerStateService;
 import de.markusbordihn.dialogqueststoryengine.tabs.ModTabs;
 import de.markusbordihn.dialogqueststoryengine.validation.BuiltinValidators;
@@ -60,6 +62,7 @@ public class DialogQuestStoryEngine implements ModInitializer {
     if (!dataFile.exists()) {
       return null;
     }
+
     try {
       return NbtIo.readCompressed(dataFile);
     } catch (IOException ioException) {
@@ -135,6 +138,7 @@ public class DialogQuestStoryEngine implements ModInitializer {
             writePlayerNbt(dataFile, nbt, playerUuid);
           }
           PlayerStateService.onPlayerLoggedOut(playerUuid);
+          SessionManager.invalidatePlayerSessions(playerUuid);
         });
 
     InteractionEventHandler.registerEvents();
@@ -142,6 +146,7 @@ public class DialogQuestStoryEngine implements ModInitializer {
     log.info("{} Data Pack Reload Listeners ...", Constants.LOG_REGISTER_PREFIX);
     ResourceServerEventsFabric.registerReloadListeners(
         ResourceManagerHelper.get(PackType.SERVER_DATA));
+    DataPackReloadNotifier.subscribe(SessionManager::invalidateAll);
 
     log.info("{} Server Tick Events ...", Constants.LOG_REGISTER_PREFIX);
     ServerTickEvents.END_SERVER_TICK.register(ServerEvents::handleServerTick);

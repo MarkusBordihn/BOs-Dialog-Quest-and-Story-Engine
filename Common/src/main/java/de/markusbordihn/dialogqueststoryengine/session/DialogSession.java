@@ -17,24 +17,37 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package de.markusbordihn.dialogqueststoryengine.logic.action;
+package de.markusbordihn.dialogqueststoryengine.session;
 
-import de.markusbordihn.dialogqueststoryengine.session.SessionContext;
-import de.markusbordihn.dialogqueststoryengine.state.PlayerState;
-import java.util.Optional;
 import java.util.UUID;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.resources.ResourceLocation;
 
-public record ActionContext(
-    ServerPlayer player,
-    PlayerState playerState,
-    MinecraftServer server,
-    String interactionEventId,
-    Optional<SessionContext> sessionContext) {
+public final class DialogSession extends Session {
 
-  public static ActionContext ofTest(PlayerState playerState) {
-    return new ActionContext(
-        null, playerState, null, "test-" + UUID.randomUUID(), Optional.empty());
+  private final ResourceLocation dialogId;
+  private String currentNodeId;
+
+  public DialogSession(
+      UUID sessionId, UUID ownerPlayerUuid, ResourceLocation dialogId, String startNodeId) {
+    super(sessionId, ownerPlayerUuid);
+    this.dialogId = dialogId;
+    this.currentNodeId = startNodeId;
+  }
+
+  @Override
+  public SessionType sessionType() {
+    return SessionType.DIALOG;
+  }
+
+  public ResourceLocation dialogId() {
+    return this.dialogId;
+  }
+
+  public String currentNodeId() {
+    return this.currentNodeId;
+  }
+
+  public void setCurrentNodeId(String nodeId) {
+    this.currentNodeId = nodeId;
   }
 }

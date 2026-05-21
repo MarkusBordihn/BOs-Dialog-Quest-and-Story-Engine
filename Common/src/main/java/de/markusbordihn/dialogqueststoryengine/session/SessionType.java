@@ -17,24 +17,9 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package de.markusbordihn.dialogqueststoryengine.logic.action;
+package de.markusbordihn.dialogqueststoryengine.session;
 
-import de.markusbordihn.dialogqueststoryengine.session.SessionContext;
-import de.markusbordihn.dialogqueststoryengine.state.PlayerState;
-import java.util.Optional;
-import java.util.UUID;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.level.ServerPlayer;
-
-public record ActionContext(
-    ServerPlayer player,
-    PlayerState playerState,
-    MinecraftServer server,
-    String interactionEventId,
-    Optional<SessionContext> sessionContext) {
-
-  public static ActionContext ofTest(PlayerState playerState) {
-    return new ActionContext(
-        null, playerState, null, "test-" + UUID.randomUUID(), Optional.empty());
-  }
+public enum SessionType {
+  DIALOG,
+  INTERACTIVE_STORY
 }

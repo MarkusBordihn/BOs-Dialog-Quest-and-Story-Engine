@@ -21,11 +21,13 @@ package de.markusbordihn.dialogqueststoryengine;
 
 import de.markusbordihn.dialogqueststoryengine.commands.CommandsEventHandler;
 import de.markusbordihn.dialogqueststoryengine.content.DataPackReloadEventHandler;
+import de.markusbordihn.dialogqueststoryengine.content.DataPackReloadNotifier;
 import de.markusbordihn.dialogqueststoryengine.entity.InteractionEventHandler;
 import de.markusbordihn.dialogqueststoryengine.item.ModItems;
 import de.markusbordihn.dialogqueststoryengine.network.NetworkHandler;
 import de.markusbordihn.dialogqueststoryengine.server.PlayerStateEventHandler;
 import de.markusbordihn.dialogqueststoryengine.server.ServerEventHandler;
+import de.markusbordihn.dialogqueststoryengine.session.SessionManager;
 import de.markusbordihn.dialogqueststoryengine.tabs.ModTabs;
 import de.markusbordihn.dialogqueststoryengine.validation.BuiltinValidators;
 import net.minecraftforge.api.distmarker.Dist;
@@ -65,6 +67,8 @@ public class DialogQuestStoryEngine {
 
     log.info("{} Network ...", Constants.LOG_REGISTER_PREFIX);
     NetworkHandler.register();
+
+    DataPackReloadNotifier.subscribe(SessionManager::invalidateAll);
 
     log.info("{} Forge Event Handlers ...", Constants.LOG_REGISTER_PREFIX);
     MinecraftForge.EVENT_BUS.register(CommandsEventHandler.class);

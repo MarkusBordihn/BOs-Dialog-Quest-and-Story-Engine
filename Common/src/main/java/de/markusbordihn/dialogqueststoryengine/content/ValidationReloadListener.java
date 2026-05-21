@@ -23,6 +23,7 @@ import de.markusbordihn.dialogqueststoryengine.Constants;
 import de.markusbordihn.dialogqueststoryengine.data.issue.ContentIssueTracker;
 import de.markusbordihn.dialogqueststoryengine.registry.ContentValidator;
 import de.markusbordihn.dialogqueststoryengine.registry.Registries;
+import de.markusbordihn.dialogqueststoryengine.session.SessionManager;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import net.minecraft.resources.ResourceLocation;
@@ -52,6 +53,8 @@ public class ValidationReloadListener implements PreparableReloadListener {
   }
 
   private void runValidators() {
+    SessionManager.invalidateAll();
+
     int issuesBefore = ContentIssueTracker.issues().size();
 
     for (ContentValidator validator : Registries.VALIDATORS.values()) {
