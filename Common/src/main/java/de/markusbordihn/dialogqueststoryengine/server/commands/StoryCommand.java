@@ -57,7 +57,7 @@ public class StoryCommand extends Command {
                                   ResourceLocationArgument.getId(context, "id");
                               ServerPlayer player = context.getSource().getPlayerOrException();
                               NetworkHandlerManager.sendToPlayer(
-                                  player, new OpenClientStoryPacket(storyId));
+                                  player, new OpenClientStoryPacket(storyId, null));
                               sendSuccessMessage(
                                   context.getSource(), "Opening story preview: " + storyId);
                               return 1;

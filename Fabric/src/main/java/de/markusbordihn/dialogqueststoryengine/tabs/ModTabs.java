@@ -42,7 +42,11 @@ public class ModTabs {
         FabricItemGroup.builder()
             .title(Component.translatable("itemGroup." + Constants.MOD_ID + ".main"))
             .icon(() -> ModItems.INTERACTION_WAND.getDefaultInstance())
-            .displayItems((parameters, output) -> output.accept(ModItems.INTERACTION_WAND))
+            .displayItems(
+                (parameters, output) -> {
+                  output.accept(ModItems.INTERACTION_WAND);
+                  output.accept(ModItems.HOLOPAD);
+                })
             .build();
     Registry.register(
         BuiltInRegistries.CREATIVE_MODE_TAB, new ResourceLocation(Constants.MOD_ID, "main"), tab);

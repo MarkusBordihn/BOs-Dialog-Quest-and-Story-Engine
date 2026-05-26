@@ -36,6 +36,7 @@ public record OpenStorySessionPacket(
     ResourceLocation displayStoryId,
     List<String> allowedChoiceIds,
     Map<String, String> contextArgs,
+    Map<String, String> choiceLabels,
     int revision)
     implements NetworkMessageRecord {
 
@@ -56,10 +57,15 @@ public record OpenStorySessionPacket(
     for (int i = 0; i < argCount; i++) {
       contextArgs.put(buffer.readUtf(), buffer.readUtf());
     }
+    int labelCount = buffer.readInt();
+    Map<String, String> choiceLabels = new HashMap<>(labelCount);
+    for (int i = 0; i < labelCount; i++) {
+      choiceLabels.put(buffer.readUtf(), buffer.readUtf());
+    }
     int revision = buffer.readInt();
 
     return new OpenStorySessionPacket(
-        sessionId, storyId, displayStoryId, allowedChoiceIds, contextArgs, revision);
+        sessionId, storyId, displayStoryId, allowedChoiceIds, contextArgs, choiceLabels, revision);
   }
 
   @Override
@@ -71,6 +77,12 @@ public record OpenStorySessionPacket(
     this.allowedChoiceIds.forEach(buffer::writeUtf);
     buffer.writeInt(this.contextArgs.size());
     this.contextArgs.forEach(
+        (key, value) -> {
+          buffer.writeUtf(key);
+          buffer.writeUtf(value);
+        });
+    buffer.writeInt(this.choiceLabels.size());
+    this.choiceLabels.forEach(
         (key, value) -> {
           buffer.writeUtf(key);
           buffer.writeUtf(value);

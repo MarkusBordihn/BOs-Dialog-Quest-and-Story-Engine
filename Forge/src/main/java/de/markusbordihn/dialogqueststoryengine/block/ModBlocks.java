@@ -17,34 +17,21 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package de.markusbordihn.dialogqueststoryengine.data.interaction;
+package de.markusbordihn.dialogqueststoryengine.block;
 
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
+import de.markusbordihn.dialogqueststoryengine.Constants;
+import net.minecraft.world.level.block.Block;
+import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.RegistryObject;
 
-public enum ActionType {
-  NONE,
-  OPEN_STORY,
-  OPEN_INTERACTIVE_STORY,
-  START_DIALOG,
-  GIVE_QUEST,
-  TRIGGER_EVENT,
-  RUN_COMMAND,
-  SET_FACT;
+public class ModBlocks {
 
-  private static final Map<String, ActionType> BY_NAME = new HashMap<>();
+  public static final DeferredRegister<Block> BLOCKS =
+      DeferredRegister.create(ForgeRegistries.BLOCKS, Constants.MOD_ID);
 
-  static {
-    for (ActionType type : values()) {
-      BY_NAME.put(type.name().toLowerCase(Locale.ROOT), type);
-    }
-  }
+  public static final RegistryObject<HolopadBlock> HOLOPAD =
+      BLOCKS.register(Constants.HOLOPAD, HolopadBlock::new);
 
-  public static ActionType fromName(String name) {
-    if (name == null) {
-      return null;
-    }
-    return BY_NAME.getOrDefault(name.toLowerCase(Locale.ROOT), NONE);
-  }
+  private ModBlocks() {}
 }

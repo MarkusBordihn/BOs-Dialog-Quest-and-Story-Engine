@@ -234,6 +234,7 @@ public abstract class BaseScreen extends Panel {
 
     // Non-dimming overlay (e.g. open dropdown)
     if (overlayPanel != null && overlayPanel.isVisible()) {
+      graphics.flush();
       overlayPanel.render(graphics, mouseX, mouseY, partialTick);
     }
 

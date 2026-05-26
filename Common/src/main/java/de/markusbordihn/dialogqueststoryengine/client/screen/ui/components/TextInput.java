@@ -32,6 +32,7 @@ public class TextInput extends Widget {
 
   private EditBox editBox;
   private String value = "";
+  private String suggestion = null;
   private int maxLength = 256;
   private Consumer<String> onChange;
 
@@ -55,6 +56,13 @@ public class TextInput extends Widget {
     }
   }
 
+  public void setSuggestion(String suggestion) {
+    this.suggestion = suggestion;
+    if (editBox != null) {
+      editBox.setSuggestion(suggestion);
+    }
+  }
+
   public void setMaxLength(int maxLength) {
     this.maxLength = maxLength;
     if (editBox != null) {
@@ -73,6 +81,9 @@ public class TextInput extends Widget {
       editBox.setMaxLength(maxLength);
       editBox.setValue(value);
       editBox.setBordered(false);
+      if (suggestion != null) {
+        editBox.setSuggestion(suggestion);
+      }
       if (onChange != null) {
         editBox.setResponder(onChange);
       }

@@ -35,6 +35,7 @@ public final class Constants {
   public static final String LOG_REGISTER_PREFIX = "Register " + MOD_NAME;
 
   public static final String INTERACTION_WAND = "interaction_wand";
+  public static final String HOLOPAD = "holopad";
 
   public static Path GAME_DIR = Paths.get("").toAbsolutePath();
   public static Path CONFIG_DIR = GAME_DIR.resolve("config");

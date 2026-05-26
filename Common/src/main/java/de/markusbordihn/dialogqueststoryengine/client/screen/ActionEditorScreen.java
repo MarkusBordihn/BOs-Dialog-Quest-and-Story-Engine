@@ -28,14 +28,23 @@ import de.markusbordihn.dialogqueststoryengine.client.screen.ui.components.Label
 import de.markusbordihn.dialogqueststoryengine.client.screen.ui.components.ScaledText;
 import de.markusbordihn.dialogqueststoryengine.client.screen.ui.components.SelectBox;
 import de.markusbordihn.dialogqueststoryengine.client.screen.ui.components.SelectOption;
+import de.markusbordihn.dialogqueststoryengine.client.screen.ui.components.Separator;
+import de.markusbordihn.dialogqueststoryengine.client.screen.ui.components.TextButton;
 import de.markusbordihn.dialogqueststoryengine.client.screen.ui.components.TextComponent;
+import de.markusbordihn.dialogqueststoryengine.client.screen.ui.components.TextInput;
+import de.markusbordihn.dialogqueststoryengine.data.action.ActionDataEntry;
+import de.markusbordihn.dialogqueststoryengine.data.action.ActionDataSet;
 import de.markusbordihn.dialogqueststoryengine.data.interaction.ActionType;
 import de.markusbordihn.dialogqueststoryengine.data.interaction.InteractionEntry;
+import de.markusbordihn.dialogqueststoryengine.network.NetworkHandlerManager;
+import de.markusbordihn.dialogqueststoryengine.network.message.SaveInteractionMessage;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -44,23 +53,41 @@ public class ActionEditorScreen extends BaseScreen {
   private static final Logger log = LogManager.getLogger(Constants.LOG_NAME);
 
   private final InteractionEntry entry;
-  private ActionType selectedAction = ActionType.NONE;
+  private final ActionDataSet editableActionDataSet;
+  private final Consumer<InteractionEntry> onSaveCallback;
+  private ActionType selectedNewType = ActionType.OPEN_STORY;
   private Panel configPanel;
 
-  public ActionEditorScreen(InteractionEntry entry, List<BreadcrumbBar.Segment> ancestors) {
+  private TextInput field1Input;
+  private TextInput field2Input;
+  private String editField1Prefill = null;
+  private String editField2Prefill = null;
+
+  public ActionEditorScreen(
+      InteractionEntry entry,
+      List<BreadcrumbBar.Segment> ancestors,
+      Consumer<InteractionEntry> onSaveCallback) {
     this.entry = entry;
+    this.editableActionDataSet = entry.actionDataSet().copy();
+    this.onSaveCallback = onSaveCallback;
     setBreadcrumb(ancestors, "Actions");
     setScreenType(ScreenType.ACTIONS);
   }
 
+  public ActionEditorScreen(InteractionEntry entry, List<BreadcrumbBar.Segment> ancestors) {
+    this(entry, ancestors, null);
+  }
+
   @Override
   protected Component getTitle() {
-    return TextComponent.of("Action Editor - " + entry.label());
+    String eventTypeName = entry.eventType().name();
+    String shortType = eventTypeName.startsWith("ON_") ? eventTypeName.substring(3) : eventTypeName;
+    return TextComponent.of("Action Editor - " + entry.label() + " (" + shortType + ")");
   }
 
   @Override
   public void onScreenInit(int screenWidth, int screenHeight) {
-    setSizeCentered(360, 240);
+    setSizeCentered(360, 260);
     refreshWidgets();
   }
 
@@ -69,6 +96,48 @@ public class ActionEditorScreen extends BaseScreen {
     int innerWidth = getInnerWidth();
     int row = 0;
     int rowHeight = 22;
+
+    for (ActionDataEntry existing : editableActionDataSet.entries()) {
+      int capturedRow = row;
+      String summary = formatActionSummary(existing);
+      addWidget(
+          new Label(
+              0,
+              capturedRow + 4,
+              summary,
+              0,
+              ScaledText.SCALE_SMALL,
+              Label.Alignment.LEFT));
+      addWidget(
+          new TextButton(
+              innerWidth - 104,
+              capturedRow,
+              52,
+              16,
+              "button.edit",
+              btn -> {
+                prefillFromEntry(existing);
+                editableActionDataSet.remove(existing.id());
+                refreshWidgets();
+              }));
+      addWidget(
+          new TextButton(
+              innerWidth - 50,
+              capturedRow,
+              48,
+              16,
+              "button.remove",
+              btn -> {
+                editableActionDataSet.remove(existing.id());
+                refreshWidgets();
+              }));
+      row += rowHeight;
+    }
+
+    if (!editableActionDataSet.entries().isEmpty()) {
+      addWidget(new Separator(0, row, innerWidth, true));
+      row += 8;
+    }
 
     addWidget(
         new Label(
@@ -86,101 +155,199 @@ public class ActionEditorScreen extends BaseScreen {
             16,
             actionOptions,
             actionType -> {
-              selectedAction = actionType;
+              selectedNewType = actionType;
+              field1Input = null;
+              field2Input = null;
               refreshConfigPanel();
               refreshWidgets();
             },
             this::openOverlay,
             this::closeOverlay);
-    actionSelect.selectByValue(selectedAction);
+    actionSelect.selectByValue(selectedNewType);
     addWidget(actionSelect);
     row += rowHeight + 4;
 
-    row += 4;
-
     configPanel =
-        new Panel(0, row, innerWidth, getInnerHeight() - row - 4) {
+        new Panel(0, row, innerWidth, 46) {
           @Override
           protected void renderBackground(
               GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
             ColorPalette palette = ColorPalette.current();
-            int x = getX();
-            int y = getY();
-            graphics.fill(x, y, x + getWidth(), y + getHeight(), palette.background());
+            int panelX = getX();
+            int panelY = getY();
+            graphics.fill(
+                panelX, panelY, panelX + getWidth(), panelY + getHeight(), palette.background());
+          }
+
+          @Override
+          protected void addWidgets() {
+            field1Input = null;
+            field2Input = null;
+            populateConfigPanel(this);
+            applyPrefills();
           }
         };
     configPanel.setParent(this);
     populateConfigPanel(configPanel);
     addWidget(configPanel);
+    row += 50;
+
+    int addBtnWidth = 60;
+    addWidget(
+        new TextButton(
+            (innerWidth - addBtnWidth) / 2,
+            row,
+            addBtnWidth,
+            16,
+            "button.add",
+            btn -> addCurrentAction()));
+    row += 24;
+
+    addWidget(new Separator(0, row, innerWidth, true));
+    row += 8;
+
+    int buttonWidth = 70;
+    int btnSpacing = 8;
+    int buttonStartX = (innerWidth - (buttonWidth * 2 + btnSpacing)) / 2;
+    addWidget(
+        new TextButton(buttonStartX, row, buttonWidth, 20, "button.save", btn -> saveAndClose()));
+    addWidget(
+        new TextButton(
+            buttonStartX + buttonWidth + btnSpacing,
+            row,
+            buttonWidth,
+            20,
+            "button.cancel",
+            btn -> closeScreen()));
   }
 
   private void refreshConfigPanel() {
     if (configPanel != null) {
       configPanel.clearWidgets();
+      field1Input = null;
+      field2Input = null;
       populateConfigPanel(configPanel);
     }
   }
 
   private void populateConfigPanel(Panel panel) {
     int y = 4;
-    switch (selectedAction) {
-      case START_DIALOG -> {
+    int panelWidth = panel.getWidth();
+    int fieldWidth = panelWidth - 90;
+    switch (selectedNewType) {
+      case OPEN_STORY -> {
+        panel.addWidget(
+            new Label(4, y + 3, "field.story_id", 0, ScaledText.SCALE_SMALL, Label.Alignment.LEFT));
+        field1Input = new TextInput(86, y, fieldWidth, 14, val -> {});
+        field1Input.setSuggestion("dqse:my_story");
+        field1Input.setMaxLength(200);
+        panel.addWidget(field1Input);
+        y += 18;
         panel.addWidget(
             new Label(
-                4, y, "action.start_dialog.hint", 0, ScaledText.SCALE_SMALL, Label.Alignment.LEFT));
-        y += 14;
-        panel.addWidget(
-            new Label(
-                4,
-                y,
-                "action.start_dialog.hint2",
-                0,
-                ScaledText.SCALE_SMALL,
-                Label.Alignment.LEFT));
+                4, y + 3, "field.theme_override", 0, ScaledText.SCALE_SMALL, Label.Alignment.LEFT));
+        field2Input = new TextInput(86, y, fieldWidth, 14, val -> {});
+        field2Input.setSuggestion("(optional)");
+        field2Input.setMaxLength(200);
+        panel.addWidget(field2Input);
       }
-      case GIVE_QUEST -> {
+      case OPEN_INTERACTIVE_STORY -> {
         panel.addWidget(
-            new Label(
-                4, y, "action.give_quest.hint", 0, ScaledText.SCALE_SMALL, Label.Alignment.LEFT));
-        y += 14;
-        panel.addWidget(
-            new Label(
-                4, y, "action.give_quest.hint2", 0, ScaledText.SCALE_SMALL, Label.Alignment.LEFT));
-      }
-      case TRIGGER_EVENT -> {
-        panel.addWidget(
-            new Label(
-                4,
-                y,
-                "action.trigger_event.hint",
-                0,
-                ScaledText.SCALE_SMALL,
-                Label.Alignment.LEFT));
-        y += 14;
-        panel.addWidget(
-            new Label(
-                4,
-                y,
-                "action.trigger_event.hint2",
-                0,
-                ScaledText.SCALE_SMALL,
-                Label.Alignment.LEFT));
+            new Label(4, y + 3, "field.story_id", 0, ScaledText.SCALE_SMALL, Label.Alignment.LEFT));
+        field1Input = new TextInput(86, y, fieldWidth, 14, val -> {});
+        field1Input.setSuggestion("dqse:my_interactive_story");
+        field1Input.setMaxLength(200);
+        panel.addWidget(field1Input);
       }
       case RUN_COMMAND -> {
         panel.addWidget(
-            new Label(
-                4, y, "action.run_command.hint", 0, ScaledText.SCALE_SMALL, Label.Alignment.LEFT));
-        y += 14;
+            new Label(4, y + 3, "field.command", 0, ScaledText.SCALE_SMALL, Label.Alignment.LEFT));
+        field1Input = new TextInput(86, y, fieldWidth, 14, val -> {});
+        field1Input.setSuggestion("/say hello");
+        field1Input.setMaxLength(256);
+        panel.addWidget(field1Input);
+      }
+      case SET_FACT -> {
+        panel.addWidget(
+            new Label(4, y + 3, "field.fact_id", 0, ScaledText.SCALE_SMALL, Label.Alignment.LEFT));
+        field1Input = new TextInput(86, y, fieldWidth, 14, val -> {});
+        field1Input.setSuggestion("dqse:my_fact");
+        field1Input.setMaxLength(200);
+        panel.addWidget(field1Input);
+        y += 18;
         panel.addWidget(
             new Label(
-                4, y, "action.run_command.hint2", 0, ScaledText.SCALE_SMALL, Label.Alignment.LEFT));
+                4, y + 3, "field.fact_value", 0, ScaledText.SCALE_SMALL, Label.Alignment.LEFT));
+        field2Input = new TextInput(86, y, fieldWidth, 14, val -> {});
+        field2Input.setSuggestion("true");
+        field2Input.setMaxLength(128);
+        panel.addWidget(field2Input);
       }
       default -> {
         panel.addWidget(
-            new Label(
-                4, y, "action.default.hint", 0, ScaledText.SCALE_SMALL, Label.Alignment.LEFT));
+            new Label(4, y, "action.default.hint", 0, ScaledText.SCALE_SMALL, Label.Alignment.LEFT));
       }
     }
+  }
+
+  private void addCurrentAction() {
+    String value1 = field1Input != null ? field1Input.getValue().trim() : "";
+    String value2 = field2Input != null ? field2Input.getValue().trim() : "";
+    switch (selectedNewType) {
+      case OPEN_STORY -> {
+        ResourceLocation storyId = ResourceLocation.tryParse(value1);
+        if (storyId == null) {
+          log.warn("{} ActionEditorScreen: invalid storyId '{}'", Constants.LOG_PREFIX, value1);
+          return;
+        }
+        ResourceLocation themeOverrideId =
+            value2.isEmpty() ? null : ResourceLocation.tryParse(value2);
+        editableActionDataSet.add(ActionDataEntry.openStory(storyId, themeOverrideId));
+      }
+      case OPEN_INTERACTIVE_STORY -> {
+        ResourceLocation storyId = ResourceLocation.tryParse(value1);
+        if (storyId == null) {
+          return;
+        }
+        editableActionDataSet.add(ActionDataEntry.openInteractiveStory(storyId));
+      }
+      case RUN_COMMAND -> {
+        if (!value1.isEmpty()) {
+          editableActionDataSet.add(ActionDataEntry.runCommand(value1));
+        }
+      }
+      case SET_FACT -> {
+        ResourceLocation factId = ResourceLocation.tryParse(value1);
+        if (factId == null || value2.isEmpty()) {
+          return;
+        }
+        editableActionDataSet.add(ActionDataEntry.setFact(factId, value2));
+      }
+      default -> log.warn(
+          "{} ActionEditorScreen: unsupported action type {}", Constants.LOG_PREFIX, selectedNewType);
+    }
+    refreshWidgets();
+  }
+
+  private void saveAndClose() {
+    InteractionEntry updatedEntry =
+        entry.withEdits(entry.interactionType(), entry.label(), editableActionDataSet);
+    NetworkHandlerManager.sendToServer(new SaveInteractionMessage(updatedEntry));
+    if (this.onSaveCallback != null) {
+      this.onSaveCallback.accept(updatedEntry);
+    }
+    closeScreen();
+  }
+
+  private String formatActionSummary(ActionDataEntry action) {
+    String typeName = formatActionName(action.type());
+    return switch (action.type()) {
+      case OPEN_STORY -> typeName + ": " + action.storyId();
+      case OPEN_INTERACTIVE_STORY -> typeName + ": " + action.storyId();
+      case RUN_COMMAND -> typeName + ": " + action.command();
+      case SET_FACT -> typeName + ": " + action.factId() + " = " + action.factValue();
+      default -> typeName;
+    };
   }
 
   private String formatActionName(ActionType type) {
@@ -198,5 +365,35 @@ public class ActionEditorScreen extends BaseScreen {
       }
     }
     return builder.toString();
+  }
+
+  private void prefillFromEntry(ActionDataEntry action) {
+    selectedNewType = action.type();
+    switch (action.type()) {
+      case OPEN_STORY -> {
+        editField1Prefill = action.storyId() != null ? action.storyId().toString() : "";
+        editField2Prefill =
+            action.themeOverrideId() != null ? action.themeOverrideId().toString() : "";
+      }
+      case OPEN_INTERACTIVE_STORY ->
+          editField1Prefill = action.storyId() != null ? action.storyId().toString() : "";
+      case RUN_COMMAND -> editField1Prefill = action.command();
+      case SET_FACT -> {
+        editField1Prefill = action.factId() != null ? action.factId().toString() : "";
+        editField2Prefill = action.factValue();
+      }
+      default -> {}
+    }
+  }
+
+  private void applyPrefills() {
+    if (editField1Prefill != null && field1Input != null) {
+      field1Input.setValue(editField1Prefill);
+      editField1Prefill = null;
+    }
+    if (editField2Prefill != null && field2Input != null) {
+      field2Input.setValue(editField2Prefill);
+      editField2Prefill = null;
+    }
   }
 }

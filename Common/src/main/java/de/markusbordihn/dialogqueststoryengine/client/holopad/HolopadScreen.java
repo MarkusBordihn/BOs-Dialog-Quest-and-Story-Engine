@@ -22,17 +22,28 @@ package de.markusbordihn.dialogqueststoryengine.client.holopad;
 import com.mojang.blaze3d.systems.RenderSystem;
 import de.markusbordihn.dialogqueststoryengine.client.story.StoryScreen;
 import de.markusbordihn.dialogqueststoryengine.client.story.TypewriterAnimator;
+import de.markusbordihn.dialogqueststoryengine.network.NetworkHandlerManager;
+import de.markusbordihn.dialogqueststoryengine.network.message.session.ClientCloseSessionPacket;
+import de.markusbordihn.dialogqueststoryengine.network.message.session.SubmitChoicePacket;
 import de.markusbordihn.dialogqueststoryengine.story.entry.StoryEntry;
 import de.markusbordihn.dialogqueststoryengine.story.entry.StoryPage;
 import de.markusbordihn.dialogqueststoryengine.theme.Theme;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
 import org.lwjgl.glfw.GLFW;
 
 public class HolopadScreen extends StoryScreen {
+
+  public record SessionData(
+      UUID sessionId,
+      List<String> allowedChoiceIds,
+      Map<String, String> choiceLabels,
+      int revision) {}
 
   private static final int COLOR_TITLE = 0x00FFFF;
   private static final int COLOR_TEXT = 0xFFFFFF;
@@ -47,6 +58,7 @@ public class HolopadScreen extends StoryScreen {
   private final StoryEntry entry;
   private final Theme theme;
   private final TypewriterAnimator animator = new TypewriterAnimator();
+  private final SessionData sessionData;
 
   private HolopadLayout layout;
   private List<List<String>> pages;
@@ -56,14 +68,23 @@ public class HolopadScreen extends StoryScreen {
   private Button closeButton;
   private Button replayButton;
 
-  private HolopadScreen(StoryEntry entry, Theme theme) {
+  private HolopadScreen(StoryEntry entry, Theme theme, SessionData sessionData) {
     super(Component.translatable(entry.titleKey()));
     this.entry = entry;
     this.theme = theme;
+    this.sessionData = sessionData;
   }
 
   public static void open(StoryEntry entry, Theme theme) {
-    scheduleOpen(new HolopadScreen(entry, theme));
+    scheduleOpen(new HolopadScreen(entry, theme, null));
+  }
+
+  public static void openInteractive(StoryEntry entry, Theme theme, SessionData sessionData) {
+    scheduleOpen(new HolopadScreen(entry, theme, sessionData));
+  }
+
+  public UUID sessionId() {
+    return this.sessionData != null ? this.sessionData.sessionId() : null;
   }
 
   @Override
@@ -86,6 +107,10 @@ public class HolopadScreen extends StoryScreen {
 
     addNavigationButtons();
     addReplayButton();
+
+    if (this.sessionData != null) {
+      addChoiceButtons();
+    }
 
     if (this.layout.showCloseButton()) {
       addCloseButtonWidget();
@@ -334,5 +359,42 @@ public class HolopadScreen extends StoryScreen {
   @Override
   public boolean isPauseScreen() {
     return false;
+  }
+
+  @Override
+  public void onClose() {
+    if (this.sessionData != null) {
+      NetworkHandlerManager.sendToServer(
+          new ClientCloseSessionPacket(this.sessionData.sessionId()));
+    }
+    super.onClose();
+  }
+
+  private void addChoiceButtons() {
+    int buttonWidth = 120;
+    int buttonHeight = 16;
+    int startY =
+        this.layout.topPos() + this.layout.textArea().y() + this.layout.textArea().height() + 22;
+
+    int index = 0;
+    for (String choiceId : this.sessionData.allowedChoiceIds()) {
+      String labelKey = this.sessionData.choiceLabels().getOrDefault(choiceId, choiceId);
+      int buttonX =
+          this.layout.leftPos()
+              + this.layout.textArea().x()
+              + (this.layout.textArea().width() - buttonWidth) / 2;
+      int buttonY = startY + index * (buttonHeight + 4);
+      int revision = this.sessionData.revision();
+      this.addRenderableWidget(
+          Button.builder(
+                  Component.translatable(labelKey),
+                  button ->
+                      NetworkHandlerManager.sendToServer(
+                          new SubmitChoicePacket(
+                              this.sessionData.sessionId(), choiceId, revision)))
+              .bounds(buttonX, buttonY, buttonWidth, buttonHeight)
+              .build());
+      index++;
+    }
   }
 }

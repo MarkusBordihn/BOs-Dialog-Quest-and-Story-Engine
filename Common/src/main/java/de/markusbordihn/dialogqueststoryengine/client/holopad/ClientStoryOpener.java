@@ -26,6 +26,9 @@ import de.markusbordihn.dialogqueststoryengine.story.entry.StoryEntryClientRegis
 import de.markusbordihn.dialogqueststoryengine.story.entry.StoryEntryType;
 import de.markusbordihn.dialogqueststoryengine.theme.Theme;
 import de.markusbordihn.dialogqueststoryengine.theme.ThemeClientRegistry;
+import java.util.UUID;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.resources.ResourceLocation;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -37,6 +40,10 @@ public final class ClientStoryOpener {
   private ClientStoryOpener() {}
 
   public static void open(ResourceLocation storyId) {
+    open(storyId, null);
+  }
+
+  public static void open(ResourceLocation storyId, ResourceLocation themeOverrideId) {
     StoryEntry entry =
         StoryEntryClientRegistry.get(storyId)
             .orElseGet(
@@ -50,7 +57,7 @@ public final class ClientStoryOpener {
     }
 
     Theme theme =
-        ThemeClientRegistry.getOrDefault(entry.themeId())
+        ThemeClientRegistry.getOrDefault(themeOverrideId != null ? themeOverrideId : entry.themeId())
             .orElseGet(
                 () -> {
                   log.warn(
@@ -77,6 +84,58 @@ public final class ClientStoryOpener {
   }
 
   public static void openFromSession(OpenStorySessionPacket packet) {
-    open(packet.displayStoryId());
+    if (packet.allowedChoiceIds().isEmpty()) {
+      open(packet.displayStoryId());
+      return;
+    }
+
+    StoryEntry entry =
+        StoryEntryClientRegistry.get(packet.displayStoryId())
+            .orElseGet(
+                () -> {
+                  log.warn(
+                      "{} Story entry not found for interactive session: {}",
+                      Constants.LOG_PREFIX,
+                      packet.displayStoryId());
+                  return null;
+                });
+
+    if (entry == null) {
+      return;
+    }
+
+    Theme theme =
+        ThemeClientRegistry.getOrDefault(entry.themeId())
+            .orElseGet(
+                () -> {
+                  log.warn(
+                      "{} No theme found for interactive story {}, not even default_holopad",
+                      Constants.LOG_PREFIX,
+                      packet.displayStoryId());
+                  return null;
+                });
+
+    if (theme == null) {
+      return;
+    }
+
+    HolopadScreen.openInteractive(
+        entry,
+        theme,
+        new HolopadScreen.SessionData(
+            packet.sessionId(),
+            packet.allowedChoiceIds(),
+            packet.choiceLabels(),
+            packet.revision()));
+  }
+
+  public static void closeSession(UUID sessionId) {
+    Screen currentScreen = Minecraft.getInstance().screen;
+    if (currentScreen instanceof HolopadScreen holopadScreen) {
+      UUID openSessionId = holopadScreen.sessionId();
+      if (sessionId.equals(openSessionId)) {
+        Minecraft.getInstance().setScreen(null);
+      }
+    }
   }
 }

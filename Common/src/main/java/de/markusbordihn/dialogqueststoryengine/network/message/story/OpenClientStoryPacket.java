@@ -25,23 +25,32 @@ import de.markusbordihn.dialogqueststoryengine.network.NetworkMessageRecord;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 
-public record OpenClientStoryPacket(ResourceLocation storyId) implements NetworkMessageRecord {
+public record OpenClientStoryPacket(
+    ResourceLocation storyId, ResourceLocation themeOverrideId)
+    implements NetworkMessageRecord {
 
   public static final ResourceLocation MESSAGE_ID =
       ResourceLocation.tryParse(Constants.MOD_ID + ":open_client_story");
 
   public static OpenClientStoryPacket create(FriendlyByteBuf buffer) {
-    return new OpenClientStoryPacket(buffer.readResourceLocation());
+    ResourceLocation storyId = buffer.readResourceLocation();
+    ResourceLocation themeOverrideId =
+        buffer.readBoolean() ? buffer.readResourceLocation() : null;
+    return new OpenClientStoryPacket(storyId, themeOverrideId);
   }
 
   @Override
   public void write(FriendlyByteBuf buffer) {
     buffer.writeResourceLocation(this.storyId);
+    buffer.writeBoolean(this.themeOverrideId != null);
+    if (this.themeOverrideId != null) {
+      buffer.writeResourceLocation(this.themeOverrideId);
+    }
   }
 
   @Override
   public void handleClient() {
-    ClientStoryOpener.open(this.storyId);
+    ClientStoryOpener.open(this.storyId, this.themeOverrideId);
   }
 
   @Override

@@ -26,6 +26,7 @@ import de.markusbordihn.dialogqueststoryengine.server.commands.ClearCommand;
 import de.markusbordihn.dialogqueststoryengine.server.commands.DebugCommand;
 import de.markusbordihn.dialogqueststoryengine.server.commands.DialogCommand;
 import de.markusbordihn.dialogqueststoryengine.server.commands.FactCommand;
+import de.markusbordihn.dialogqueststoryengine.server.commands.HolopadCommand;
 import de.markusbordihn.dialogqueststoryengine.server.commands.InteractionsCommand;
 import de.markusbordihn.dialogqueststoryengine.server.commands.ListCommand;
 import de.markusbordihn.dialogqueststoryengine.server.commands.QuestCommand;
@@ -59,6 +60,7 @@ public final class CommandManager {
             .then(DialogCommand.register())
             .then(QuestCommand.register())
             .then(FactCommand.register())
+            .then(HolopadCommand.register())
             .then(DebugCommand.register()));
   }
 }

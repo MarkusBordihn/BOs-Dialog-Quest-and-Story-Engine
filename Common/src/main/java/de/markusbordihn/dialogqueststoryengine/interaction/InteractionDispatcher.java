@@ -28,14 +28,17 @@ public final class InteractionDispatcher {
 
   private InteractionDispatcher() {}
 
-  public static void dispatchFor(
+  public static boolean dispatchFor(
       MinecraftServer server, UUID targetId, InteractionEventType eventType, ServerPlayer player) {
-    InteractionManager.allForTarget(server, targetId).stream()
+    return InteractionManager.allForTarget(server, targetId).stream()
         .filter(entry -> entry.eventType() == eventType)
         .findFirst()
-        .ifPresent(
-            entry ->
-                InteractionRegistry.dispatch(
-                    new InteractionContext(entry, player, player.serverLevel())));
+        .map(
+            entry -> {
+              InteractionRegistry.dispatch(
+                  new InteractionContext(entry, player, player.serverLevel()));
+              return true;
+            })
+        .orElse(false);
   }
 }

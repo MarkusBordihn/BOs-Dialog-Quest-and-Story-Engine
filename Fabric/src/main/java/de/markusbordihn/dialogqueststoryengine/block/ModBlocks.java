@@ -17,34 +17,27 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package de.markusbordihn.dialogqueststoryengine.data.interaction;
+package de.markusbordihn.dialogqueststoryengine.block;
 
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
+import de.markusbordihn.dialogqueststoryengine.Constants;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-public enum ActionType {
-  NONE,
-  OPEN_STORY,
-  OPEN_INTERACTIVE_STORY,
-  START_DIALOG,
-  GIVE_QUEST,
-  TRIGGER_EVENT,
-  RUN_COMMAND,
-  SET_FACT;
+public class ModBlocks {
 
-  private static final Map<String, ActionType> BY_NAME = new HashMap<>();
+  public static final HolopadBlock HOLOPAD = new HolopadBlock();
+  private static final Logger log = LogManager.getLogger(Constants.LOG_NAME);
 
-  static {
-    for (ActionType type : values()) {
-      BY_NAME.put(type.name().toLowerCase(Locale.ROOT), type);
-    }
-  }
+  private ModBlocks() {}
 
-  public static ActionType fromName(String name) {
-    if (name == null) {
-      return null;
-    }
-    return BY_NAME.getOrDefault(name.toLowerCase(Locale.ROOT), NONE);
+  public static void registerModBlocks() {
+    log.info("{} Blocks ...", Constants.LOG_REGISTER_PREFIX);
+    Registry.register(
+        BuiltInRegistries.BLOCK,
+        new ResourceLocation(Constants.MOD_ID, Constants.HOLOPAD),
+        HOLOPAD);
   }
 }

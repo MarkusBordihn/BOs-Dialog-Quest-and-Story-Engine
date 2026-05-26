@@ -152,6 +152,8 @@ public final class SessionManager {
 
     ConditionContext conditionContext = new ConditionContext(player, playerState, player.server);
     List<String> allowedChoiceIds = filterStoryChoiceIds(definition.choices(), conditionContext);
+    Map<String, String> choiceLabels =
+        buildChoiceLabels(definition.choices(), allowedChoiceIds);
 
     NetworkHandlerManager.sendToPlayer(
         player,
@@ -161,6 +163,7 @@ public final class SessionManager {
             definition.displayStoryId(),
             allowedChoiceIds,
             Map.of(),
+            choiceLabels,
             session.revision()));
 
     return session;
@@ -458,6 +461,17 @@ public final class SessionManager {
       }
     }
     return allowed;
+  }
+
+  private static Map<String, String> buildChoiceLabels(
+      List<InteractiveStoryChoice> choices, List<String> allowedChoiceIds) {
+    Map<String, String> labels = new HashMap<>(allowedChoiceIds.size());
+    for (InteractiveStoryChoice choice : choices) {
+      if (allowedChoiceIds.contains(choice.id())) {
+        labels.put(choice.id(), choice.labelKey());
+      }
+    }
+    return labels;
   }
 
   private static Map<ResourceLocation, Integer> snapshotQuestRevisions(PlayerState playerState) {

@@ -223,7 +223,8 @@ public class InteractionConfigScreen extends BaseScreen {
             "button.edit_actions",
             btn -> {
               List<BreadcrumbBar.Segment> childAncestors = buildChildAncestors();
-              ActionEditorScreen editorScreen = new ActionEditorScreen(entry, childAncestors);
+              ActionEditorScreen editorScreen =
+                  new ActionEditorScreen(entry, childAncestors, updatedEntry -> this.entry = updatedEntry);
               editorScreen.openScreen();
             });
     addWidget(actionsButton);

@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_column",
+  "textures": {
+    "end": "dialog_quest_and_story_engine:block/holopad_top",
+    "side": "dialog_quest_and_story_engine:block/holopad_side"
+  }
+}

@@ -50,7 +50,10 @@ public final class InteractionRegistry {
     Registries.INTERACTIONS.register(
         InteractionEventType.ON_COMMAND.resourceLocation(), context -> {});
     Registries.INTERACTIONS.register(
-        InteractionEventType.ON_HOLOPAD_USE.resourceLocation(), context -> {});
+        InteractionEventType.ON_HOLOPAD_USE.resourceLocation(),
+        context ->
+            ActionDataExecutor.execute(
+                context.entry().actionDataSet(), context.player(), context.level().getServer()));
     Registries.INTERACTIONS.register(
         InteractionEventType.ON_EASY_NPC_INTERACT.resourceLocation(), context -> {});
   }

@@ -19,6 +19,7 @@
 
 package de.markusbordihn.dialogqueststoryengine.content.interaction;
 
+import de.markusbordihn.dialogqueststoryengine.data.action.ActionDataSet;
 import de.markusbordihn.dialogqueststoryengine.data.interaction.InteractionEntry;
 import de.markusbordihn.dialogqueststoryengine.data.interaction.InteractionSource;
 import de.markusbordihn.dialogqueststoryengine.data.interaction.InteractionType;
@@ -44,7 +45,8 @@ public final class InteractionDefinitions {
               InteractionType.RIGHT_CLICK,
               definition.id().toString(),
               entityBinding.dimension(),
-              null));
+              null,
+              new ActionDataSet()));
     }
 
     if (binding instanceof InteractionBinding.BlockBinding blockBinding) {
@@ -59,7 +61,8 @@ public final class InteractionDefinitions {
               InteractionType.RIGHT_CLICK,
               definition.id().toString(),
               blockBinding.dimension(),
-              blockBinding.pos()));
+              blockBinding.pos(),
+              new ActionDataSet()));
     }
 
     return Optional.empty();

@@ -20,6 +20,7 @@
 package de.markusbordihn.dialogqueststoryengine.data.interaction;
 
 import de.markusbordihn.dialogqueststoryengine.Constants;
+import de.markusbordihn.dialogqueststoryengine.data.action.ActionDataSet;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -36,7 +37,8 @@ public record InteractionEntry(
     InteractionType interactionType,
     String label,
     ResourceLocation dimension,
-    BlockPos blockPos) {
+    BlockPos blockPos,
+    ActionDataSet actionDataSet) {
 
   private static final Logger log = LogManager.getLogger(Constants.LOG_NAME);
 
@@ -48,6 +50,7 @@ public record InteractionEntry(
   private static final String TAG_LABEL = "Label";
   private static final String TAG_DIMENSION = "Dimension";
   private static final String TAG_BLOCK_X = "BlockX";
+  private static final String TAG_ACTION_DATA = "ActionData";
   private static final String TAG_BLOCK_Y = "BlockY";
   private static final String TAG_BLOCK_Z = "BlockZ";
   private static final String TAG_HAS_BLOCK_POS = "HasBlockPos";
@@ -62,7 +65,8 @@ public record InteractionEntry(
         interactionType,
         label,
         dimension,
-        null);
+        null,
+        new ActionDataSet());
   }
 
   public static InteractionEntry createTemplate(
@@ -79,7 +83,8 @@ public record InteractionEntry(
         InteractionType.RIGHT_CLICK,
         "",
         dimension,
-        blockPos);
+        blockPos,
+        new ActionDataSet());
   }
 
   public static InteractionEntry forBlockInteract(
@@ -89,10 +94,7 @@ public record InteractionEntry(
       InteractionType interactionType,
       String label,
       ResourceLocation dimension) {
-    InteractionEventType eventType =
-        interactionType == InteractionType.STEP_ON
-            ? InteractionEventType.ON_STEP_ON
-            : InteractionEventType.ON_BLOCK_INTERACT;
+    InteractionEventType eventType = resolveEventType(targetKind, interactionType);
     return new InteractionEntry(
         InteractionSource.WAND,
         eventType,
@@ -101,7 +103,20 @@ public record InteractionEntry(
         interactionType,
         label,
         dimension,
-        blockPos);
+        blockPos,
+        new ActionDataSet());
+  }
+
+  private static InteractionEventType resolveEventType(
+      TargetKind targetKind, InteractionType interactionType) {
+    if (targetKind == TargetKind.ENTITY) {
+      return InteractionEventType.ON_ENTITY_INTERACT;
+    }
+    return switch (interactionType) {
+      case STEP_ON -> InteractionEventType.ON_STEP_ON;
+      case OPEN_HOLOPAD -> InteractionEventType.ON_HOLOPAD_USE;
+      default -> InteractionEventType.ON_BLOCK_INTERACT;
+    };
   }
 
   public static InteractionEntry load(CompoundTag tag) {
@@ -136,8 +151,10 @@ public record InteractionEntry(
         return null;
       }
 
+      ActionDataSet actionDataSet =
+          tag.contains(TAG_ACTION_DATA) ? ActionDataSet.load(tag.getCompound(TAG_ACTION_DATA)) : new ActionDataSet();
       return new InteractionEntry(
-          source, eventType, targetId, targetKind, interactionType, label, dimension, blockPos);
+          source, eventType, targetId, targetKind, interactionType, label, dimension, blockPos, actionDataSet);
     } catch (Exception e) {
       log.warn("Failed to load interaction entry: {}", e.getMessage());
       return null;
@@ -153,20 +170,18 @@ public record InteractionEntry(
     String label = buf.readUtf();
     ResourceLocation dimension = buf.readResourceLocation();
     BlockPos blockPos = buf.readBoolean() ? buf.readBlockPos() : null;
+    ActionDataSet actionDataSet = ActionDataSet.readFromBuf(buf);
     return new InteractionEntry(
-        source, eventType, targetId, targetKind, interactionType, label, dimension, blockPos);
+        source, eventType, targetId, targetKind, interactionType, label, dimension, blockPos, actionDataSet);
   }
 
   public InteractionEntry withEdits(InteractionType updatedInteractionType, String updatedLabel) {
-    InteractionEventType updatedEventType;
-    if (this.targetKind == TargetKind.ENTITY) {
-      updatedEventType = InteractionEventType.ON_ENTITY_INTERACT;
-    } else {
-      updatedEventType =
-          updatedInteractionType == InteractionType.STEP_ON
-              ? InteractionEventType.ON_STEP_ON
-              : InteractionEventType.ON_BLOCK_INTERACT;
-    }
+    return withEdits(updatedInteractionType, updatedLabel, this.actionDataSet);
+  }
+
+  public InteractionEntry withEdits(
+      InteractionType updatedInteractionType, String updatedLabel, ActionDataSet updatedActionDataSet) {
+    InteractionEventType updatedEventType = resolveEventType(this.targetKind, updatedInteractionType);
     return new InteractionEntry(
         this.source,
         updatedEventType,
@@ -175,7 +190,8 @@ public record InteractionEntry(
         updatedInteractionType,
         updatedLabel,
         this.dimension,
-        this.blockPos);
+        this.blockPos,
+        updatedActionDataSet);
   }
 
   public CompoundTag save() {
@@ -195,6 +211,9 @@ public record InteractionEntry(
     } else {
       tag.putBoolean(TAG_HAS_BLOCK_POS, false);
     }
+    if (!actionDataSet.isEmpty()) {
+      tag.put(TAG_ACTION_DATA, actionDataSet.save());
+    }
     return tag;
   }
 
@@ -211,6 +230,7 @@ public record InteractionEntry(
     if (hasPos) {
       buf.writeBlockPos(blockPos);
     }
+    actionDataSet.writeToBuf(buf);
   }
 
   @Override

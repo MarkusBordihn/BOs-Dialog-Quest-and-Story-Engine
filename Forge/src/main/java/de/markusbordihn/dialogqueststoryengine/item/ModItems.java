@@ -20,6 +20,8 @@
 package de.markusbordihn.dialogqueststoryengine.item;
 
 import de.markusbordihn.dialogqueststoryengine.Constants;
+import de.markusbordihn.dialogqueststoryengine.block.ModBlocks;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -32,6 +34,11 @@ public class ModItems {
 
   public static final RegistryObject<Item> INTERACTION_WAND =
       ITEMS.register(Constants.INTERACTION_WAND, InteractionWandItem::new);
+
+  public static final RegistryObject<Item> HOLOPAD =
+      ITEMS.register(
+          Constants.HOLOPAD,
+          () -> new BlockItem(ModBlocks.HOLOPAD.get(), new Item.Properties()));
 
   private ModItems() {}
 }

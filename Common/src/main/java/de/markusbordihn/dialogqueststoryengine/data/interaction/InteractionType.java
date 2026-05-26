@@ -25,7 +25,8 @@ import java.util.Map;
 
 public enum InteractionType {
   RIGHT_CLICK,
-  STEP_ON;
+  STEP_ON,
+  OPEN_HOLOPAD;
 
   private static final Map<String, InteractionType> BY_NAME = new HashMap<>();
 

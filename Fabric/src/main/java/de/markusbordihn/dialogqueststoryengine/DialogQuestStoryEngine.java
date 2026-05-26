@@ -19,6 +19,7 @@
 
 package de.markusbordihn.dialogqueststoryengine;
 
+import de.markusbordihn.dialogqueststoryengine.block.ModBlocks;
 import de.markusbordihn.dialogqueststoryengine.commands.manager.CommandManager;
 import de.markusbordihn.dialogqueststoryengine.content.DataPackReloadNotifier;
 import de.markusbordihn.dialogqueststoryengine.content.ResourceServerEventsFabric;
@@ -97,6 +98,9 @@ public class DialogQuestStoryEngine implements ModInitializer {
     log.info("{} Constants ...", Constants.LOG_REGISTER_PREFIX);
     Constants.GAME_DIR = FabricLoader.getInstance().getGameDir();
     Constants.CONFIG_DIR = FabricLoader.getInstance().getConfigDir();
+
+    log.info("{} Blocks ...", Constants.LOG_REGISTER_PREFIX);
+    ModBlocks.registerModBlocks();
 
     log.info("{} Items ...", Constants.LOG_REGISTER_PREFIX);
     ModItems.registerModItems();

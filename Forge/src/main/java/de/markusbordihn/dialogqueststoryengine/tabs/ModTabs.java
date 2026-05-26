@@ -40,7 +40,10 @@ public class ModTabs {
                   .title(Component.translatable("itemGroup." + Constants.MOD_ID + ".main"))
                   .icon(() -> ModItems.INTERACTION_WAND.get().getDefaultInstance())
                   .displayItems(
-                      (parameters, output) -> output.accept(ModItems.INTERACTION_WAND.get()))
+                      (parameters, output) -> {
+                        output.accept(ModItems.INTERACTION_WAND.get());
+                        output.accept(ModItems.HOLOPAD.get());
+                      })
                   .build());
 
   private ModTabs() {}

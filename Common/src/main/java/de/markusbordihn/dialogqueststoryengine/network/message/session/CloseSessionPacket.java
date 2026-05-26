@@ -20,6 +20,7 @@
 package de.markusbordihn.dialogqueststoryengine.network.message.session;
 
 import de.markusbordihn.dialogqueststoryengine.Constants;
+import de.markusbordihn.dialogqueststoryengine.client.holopad.ClientStoryOpener;
 import de.markusbordihn.dialogqueststoryengine.network.NetworkMessageRecord;
 import de.markusbordihn.dialogqueststoryengine.session.SessionCloseReason;
 import java.util.UUID;
@@ -43,6 +44,11 @@ public record CloseSessionPacket(UUID sessionId, SessionCloseReason reason)
   public void write(FriendlyByteBuf buffer) {
     buffer.writeUUID(this.sessionId);
     buffer.writeEnum(this.reason);
+  }
+
+  @Override
+  public void handleClient() {
+    ClientStoryOpener.closeSession(this.sessionId);
   }
 
   @Override

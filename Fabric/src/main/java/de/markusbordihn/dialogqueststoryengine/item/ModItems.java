@@ -20,9 +20,11 @@
 package de.markusbordihn.dialogqueststoryengine.item;
 
 import de.markusbordihn.dialogqueststoryengine.Constants;
+import de.markusbordihn.dialogqueststoryengine.block.ModBlocks;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -30,6 +32,7 @@ import org.apache.logging.log4j.Logger;
 public class ModItems {
 
   public static final Item INTERACTION_WAND = new InteractionWandItem();
+  public static final Item HOLOPAD = new BlockItem(ModBlocks.HOLOPAD, new Item.Properties());
   private static final Logger log = LogManager.getLogger(Constants.LOG_NAME);
 
   private ModItems() {}
@@ -40,5 +43,9 @@ public class ModItems {
         BuiltInRegistries.ITEM,
         new ResourceLocation(Constants.MOD_ID, Constants.INTERACTION_WAND),
         INTERACTION_WAND);
+    Registry.register(
+        BuiltInRegistries.ITEM,
+        new ResourceLocation(Constants.MOD_ID, Constants.HOLOPAD),
+        HOLOPAD);
   }
 }

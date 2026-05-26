@@ -19,6 +19,7 @@
 
 package de.markusbordihn.dialogqueststoryengine;
 
+import de.markusbordihn.dialogqueststoryengine.block.ModBlocks;
 import de.markusbordihn.dialogqueststoryengine.commands.CommandsEventHandler;
 import de.markusbordihn.dialogqueststoryengine.content.DataPackReloadEventHandler;
 import de.markusbordihn.dialogqueststoryengine.content.DataPackReloadNotifier;
@@ -60,6 +61,7 @@ public class DialogQuestStoryEngine {
     BuiltinValidators.register();
 
     log.info("{} Items ...", Constants.LOG_REGISTER_PREFIX);
+    ModBlocks.BLOCKS.register(modEventBus);
     ModItems.ITEMS.register(modEventBus);
 
     log.info("{} Creative Tabs ...", Constants.LOG_REGISTER_PREFIX);
