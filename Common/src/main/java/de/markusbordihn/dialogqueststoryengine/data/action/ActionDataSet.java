@@ -43,6 +43,26 @@ public class ActionDataSet {
     this.entries = entries;
   }
 
+  public static ActionDataSet load(CompoundTag tag) {
+    LinkedHashSet<ActionDataEntry> loaded = new LinkedHashSet<>();
+    if (tag.contains(TAG_ACTIONS, Tag.TAG_LIST)) {
+      ListTag list = tag.getList(TAG_ACTIONS, Tag.TAG_COMPOUND);
+      for (int i = 0; i < list.size(); i++) {
+        loaded.add(ActionDataEntry.load(list.getCompound(i)));
+      }
+    }
+    return new ActionDataSet(loaded);
+  }
+
+  public static ActionDataSet readFromBuf(FriendlyByteBuf buf) {
+    int count = buf.readInt();
+    LinkedHashSet<ActionDataEntry> loaded = new LinkedHashSet<>(count);
+    for (int i = 0; i < count; i++) {
+      loaded.add(ActionDataEntry.readFromBuf(buf));
+    }
+    return new ActionDataSet(loaded);
+  }
+
   public void add(ActionDataEntry entry) {
     this.entries.add(entry);
   }
@@ -91,31 +111,11 @@ public class ActionDataSet {
     return tag;
   }
 
-  public static ActionDataSet load(CompoundTag tag) {
-    LinkedHashSet<ActionDataEntry> loaded = new LinkedHashSet<>();
-    if (tag.contains(TAG_ACTIONS, Tag.TAG_LIST)) {
-      ListTag list = tag.getList(TAG_ACTIONS, Tag.TAG_COMPOUND);
-      for (int i = 0; i < list.size(); i++) {
-        loaded.add(ActionDataEntry.load(list.getCompound(i)));
-      }
-    }
-    return new ActionDataSet(loaded);
-  }
-
   public void writeToBuf(FriendlyByteBuf buf) {
     buf.writeInt(this.entries.size());
     for (ActionDataEntry entry : this.entries) {
       entry.writeToBuf(buf);
     }
-  }
-
-  public static ActionDataSet readFromBuf(FriendlyByteBuf buf) {
-    int count = buf.readInt();
-    LinkedHashSet<ActionDataEntry> loaded = new LinkedHashSet<>(count);
-    for (int i = 0; i < count; i++) {
-      loaded.add(ActionDataEntry.readFromBuf(buf));
-    }
-    return new ActionDataSet(loaded);
   }
 
   public ActionDataSet copy() {

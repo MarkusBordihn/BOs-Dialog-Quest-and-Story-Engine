@@ -54,6 +54,8 @@ public class InteractionConfigScreen extends BaseScreen {
 
   private TextInput labelInput;
   private SelectBox<InteractionType> typeSelect;
+  private TextButton saveButton;
+  private TextButton cancelButton;
 
   public InteractionConfigScreen(
       InteractionEntry entry,
@@ -128,7 +130,16 @@ public class InteractionConfigScreen extends BaseScreen {
     addWidget(
         new Label(
             labelColumnX, row + 4, "field.label", 0, ScaledText.SCALE_SMALL, Label.Alignment.LEFT));
-    labelInput = new TextInput(fieldColumnX, row, fieldWidth, 16, value -> editLabel = value);
+    labelInput =
+        new TextInput(
+            fieldColumnX,
+            row,
+            fieldWidth,
+            16,
+            value -> {
+              editLabel = value;
+              updateButtonStates();
+            });
     labelInput.setValue(editLabel);
     labelInput.setMaxLength(128);
     addWidget(labelInput);
@@ -148,7 +159,10 @@ public class InteractionConfigScreen extends BaseScreen {
             Math.min(fieldWidth, 120),
             16,
             typeOptions,
-            type -> editType = type,
+            type -> {
+              editType = type;
+              updateButtonStates();
+            },
             this::openOverlay,
             this::closeOverlay);
     typeSelect.selectByValue(editType);
@@ -224,7 +238,8 @@ public class InteractionConfigScreen extends BaseScreen {
             btn -> {
               List<BreadcrumbBar.Segment> childAncestors = buildChildAncestors();
               ActionEditorScreen editorScreen =
-                  new ActionEditorScreen(entry, childAncestors, updatedEntry -> this.entry = updatedEntry);
+                  new ActionEditorScreen(
+                      entry, childAncestors, updatedEntry -> this.entry = updatedEntry);
               editorScreen.openScreen();
             });
     addWidget(actionsButton);
@@ -236,16 +251,18 @@ public class InteractionConfigScreen extends BaseScreen {
     int totalButtonWidth = buttonWidth * buttonCount + btnSpacing * (buttonCount - 1);
     int buttonStartX = (innerWidth - totalButtonWidth) / 2;
 
-    addWidget(
-        new TextButton(buttonStartX, row, buttonWidth, 20, "button.save", btn -> saveAndClose()));
-    addWidget(
+    saveButton =
+        new TextButton(buttonStartX, row, buttonWidth, 20, "button.save", btn -> saveAndClose());
+    addWidget(saveButton);
+    cancelButton =
         new TextButton(
             buttonStartX + buttonWidth + btnSpacing,
             row,
             buttonWidth,
             20,
             "button.cancel",
-            btn -> closeScreen()));
+            btn -> closeScreen());
+    addWidget(cancelButton);
 
     if (!isNew) {
       TextButton removeBtn =
@@ -261,9 +278,14 @@ public class InteractionConfigScreen extends BaseScreen {
               });
       addWidget(removeBtn);
     }
+    updateButtonStates();
   }
 
   private void saveAndClose() {
+    if (!isNew && !hasUnsavedChanges()) {
+      return;
+    }
+
     String label = labelInput.getValue();
     if (label.isEmpty()) {
       label = editLabel;
@@ -271,5 +293,26 @@ public class InteractionConfigScreen extends BaseScreen {
     InteractionEntry updatedEntry = entry.withEdits(editType, label);
     NetworkHandlerManager.sendToServer(new SaveInteractionMessage(updatedEntry));
     closeScreen();
+  }
+
+  private boolean hasUnsavedChanges() {
+    String label = labelInput != null ? labelInput.getValue() : editLabel;
+    return isNew || !entry.label().equals(label) || entry.interactionType() != editType;
+  }
+
+  private void updateButtonStates() {
+    boolean hasUnsavedChanges = hasUnsavedChanges();
+    if (saveButton != null) {
+      saveButton.setActive(hasUnsavedChanges);
+    }
+    if (cancelButton != null) {
+      cancelButton.setActive(hasUnsavedChanges);
+    }
+  }
+
+  @Override
+  public void tick() {
+    super.tick();
+    updateButtonStates();
   }
 }

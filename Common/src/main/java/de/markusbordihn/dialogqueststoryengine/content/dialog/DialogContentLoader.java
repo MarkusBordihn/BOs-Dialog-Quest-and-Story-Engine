@@ -23,6 +23,8 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import de.markusbordihn.dialogqueststoryengine.Constants;
 import de.markusbordihn.dialogqueststoryengine.content.DataPackReloadNotifier;
+import de.markusbordihn.dialogqueststoryengine.content.dialog.runtime.DialogRuntimeRegistry;
+import de.markusbordihn.dialogqueststoryengine.content.dialog.runtime.JsonDialogRuntime;
 import de.markusbordihn.dialogqueststoryengine.data.ContentType;
 import de.markusbordihn.dialogqueststoryengine.data.issue.ContentIssue;
 import de.markusbordihn.dialogqueststoryengine.data.issue.ContentIssueTracker;
@@ -65,6 +67,7 @@ public class DialogContentLoader extends SimpleJsonResourceReloadListener {
       ProfilerFiller profiler) {
     ContentIssueTracker.clearFor(ContentType.DIALOG);
     DialogClientRegistry.clear();
+    DialogRuntimeRegistry.invalidateAll();
     Map<ResourceLocation, DialogDefinition> loaded = new LinkedHashMap<>();
 
     for (Map.Entry<ResourceLocation, JsonElement> fileEntry : jsonEntries.entrySet()) {
@@ -92,6 +95,7 @@ public class DialogContentLoader extends SimpleJsonResourceReloadListener {
         DialogDefinition definition = result.value().get();
         loaded.put(resourceLocation, definition);
         DialogClientRegistry.put(definition);
+        DialogRuntimeRegistry.put(new JsonDialogRuntime(definition));
       } else {
         log.error(
             "{} Skipped dialog {} — see issues above for details.",

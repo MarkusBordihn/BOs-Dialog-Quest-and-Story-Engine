@@ -40,7 +40,11 @@ public final class ThemeParser {
   public static final String FIELD_BACKGROUND_TEXTURE = "background_texture";
   public static final String FIELD_SHOW_PAGE_NUMBERS = "show_page_numbers";
   public static final String FIELD_SHOW_CLOSE_BUTTON = "show_close_button";
+  public static final String FIELD_DISPLAY_AREA = "display_area";
+  public static final String FIELD_TITLE_AREA = "title_area";
+  public static final String FIELD_TITLE_ALIGNMENT = "title_alignment";
   public static final String FIELD_TEXT_AREA = "text_area";
+  public static final String FIELD_CHOICE_AREA = "choice_area";
   public static final String FIELD_SCREEN_WIDTH = "screen_width";
   public static final String FIELD_SCREEN_HEIGHT = "screen_height";
 
@@ -105,15 +109,18 @@ public final class ThemeParser {
       return ParseResult.failure(issues);
     }
 
-    Optional<JsonObject> textAreaObj =
-        JsonFieldReader.readObject(
-            jsonObject, FIELD_TEXT_AREA, ContentType.THEME, id, filePath, issues);
-    if (textAreaObj.isEmpty()) {
-      return ParseResult.failure(issues);
-    }
-
-    Optional<TextArea> textArea = parseTextArea(textAreaObj.get(), id, filePath, issues);
-    if (textArea.isEmpty()) {
+    Optional<ThemeArea> displayArea =
+        readArea(jsonObject, FIELD_DISPLAY_AREA, id, filePath, issues);
+    Optional<ThemeArea> titleArea = readArea(jsonObject, FIELD_TITLE_AREA, id, filePath, issues);
+    Optional<ThemeTextAlignment> titleAlignment =
+        readTitleAlignment(jsonObject, id, filePath, issues);
+    Optional<ThemeArea> textArea = readArea(jsonObject, FIELD_TEXT_AREA, id, filePath, issues);
+    Optional<ThemeArea> choiceArea = readArea(jsonObject, FIELD_CHOICE_AREA, id, filePath, issues);
+    if (displayArea.isEmpty()
+        || titleArea.isEmpty()
+        || titleAlignment.isEmpty()
+        || textArea.isEmpty()
+        || choiceArea.isEmpty()) {
       return ParseResult.failure(issues);
     }
 
@@ -132,29 +139,76 @@ public final class ThemeParser {
             backgroundTexture.get(),
             showPageNumbers.get(),
             showCloseButton.get(),
+            displayArea.get(),
+            titleArea.get(),
+            titleAlignment.get(),
             textArea.get(),
+            choiceArea.get(),
             screenWidth,
             screenHeight),
         issues);
   }
 
-  private static Optional<TextArea> parseTextArea(
-      JsonObject textAreaJson, ResourceLocation id, String filePath, List<ContentIssue> issues) {
+  private static Optional<ThemeArea> readArea(
+      JsonObject jsonObject,
+      String field,
+      ResourceLocation id,
+      String filePath,
+      List<ContentIssue> issues) {
+    Optional<JsonObject> areaJson =
+        JsonFieldReader.readObject(jsonObject, field, ContentType.THEME, id, filePath, issues);
+    if (areaJson.isEmpty()) {
+      return Optional.empty();
+    }
+
+    return parseArea(areaJson.get(), field, id, filePath, issues);
+  }
+
+  private static Optional<ThemeTextAlignment> readTitleAlignment(
+      JsonObject jsonObject, ResourceLocation id, String filePath, List<ContentIssue> issues) {
+    Optional<String> rawAlignment =
+        JsonFieldReader.readString(
+            jsonObject, FIELD_TITLE_ALIGNMENT, ContentType.THEME, id, filePath, issues);
+    if (rawAlignment.isEmpty()) {
+      return Optional.empty();
+    }
+
+    Optional<ThemeTextAlignment> alignment = ThemeTextAlignment.fromKey(rawAlignment.get());
+    if (alignment.isEmpty()) {
+      issues.add(
+          ContentIssue.of(
+              IssueCode.INVALID_FIELD_TYPE,
+              ContentType.THEME,
+              id,
+              filePath,
+              FIELD_TITLE_ALIGNMENT,
+              Map.of("value", rawAlignment.get(), "expected", "left, center, or right")));
+    }
+
+    return alignment;
+  }
+
+  private static Optional<ThemeArea> parseArea(
+      JsonObject areaJson,
+      String field,
+      ResourceLocation id,
+      String filePath,
+      List<ContentIssue> issues) {
     Optional<Integer> x =
-        JsonFieldReader.readInt(textAreaJson, "x", ContentType.THEME, id, filePath, issues);
+        JsonFieldReader.readInt(areaJson, "x", ContentType.THEME, id, filePath, issues);
     Optional<Integer> y =
-        JsonFieldReader.readInt(textAreaJson, "y", ContentType.THEME, id, filePath, issues);
+        JsonFieldReader.readInt(areaJson, "y", ContentType.THEME, id, filePath, issues);
     Optional<Integer> width =
-        JsonFieldReader.readInt(textAreaJson, "width", ContentType.THEME, id, filePath, issues);
+        JsonFieldReader.readInt(areaJson, "width", ContentType.THEME, id, filePath, issues);
     Optional<Integer> height =
-        JsonFieldReader.readInt(textAreaJson, "height", ContentType.THEME, id, filePath, issues);
+        JsonFieldReader.readInt(areaJson, "height", ContentType.THEME, id, filePath, issues);
 
     if (x.isEmpty() || y.isEmpty() || width.isEmpty() || height.isEmpty()) {
       return Optional.empty();
     }
 
     try {
-      return Optional.of(new TextArea(x.get(), y.get(), width.get(), height.get()));
+      return Optional.of(new ThemeArea(x.get(), y.get(), width.get(), height.get()));
     } catch (IllegalArgumentException e) {
       issues.add(
           ContentIssue.of(
@@ -162,7 +216,7 @@ public final class ThemeParser {
               ContentType.THEME,
               id,
               filePath,
-              FIELD_TEXT_AREA,
+              field,
               Map.of("reason", e.getMessage())));
       return Optional.empty();
     }

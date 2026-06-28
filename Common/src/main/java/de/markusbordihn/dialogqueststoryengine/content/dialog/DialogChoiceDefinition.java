@@ -19,6 +19,7 @@
 
 package de.markusbordihn.dialogqueststoryengine.content.dialog;
 
+import de.markusbordihn.dialogqueststoryengine.content.ChoiceDefinition;
 import de.markusbordihn.dialogqueststoryengine.logic.action.ActionList;
 import de.markusbordihn.dialogqueststoryengine.logic.condition.ConditionGroup;
 import java.util.Optional;
@@ -29,4 +30,5 @@ public record DialogChoiceDefinition(
     ConditionGroup conditions,
     ActionList actions,
     Optional<String> next,
-    Optional<BuiltinChoiceAction> builtin) {}
+    Optional<BuiltinChoiceAction> builtin)
+    implements ChoiceDefinition {}

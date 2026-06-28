@@ -75,9 +75,11 @@ public class HolopadCommand extends Command {
                                                   BlockPosArgument.getLoadedBlockPos(
                                                       context, "pos");
                                               ResourceLocation storyId =
-                                                  ResourceLocationArgument.getId(context, "storyId");
+                                                  ResourceLocationArgument.getId(
+                                                      context, "storyId");
                                               ResourceLocation themeId =
-                                                  ResourceLocationArgument.getId(context, "themeId");
+                                                  ResourceLocationArgument.getId(
+                                                      context, "themeId");
                                               return executeSetStory(
                                                   context.getSource(), pos, storyId, themeId);
                                             })))))
@@ -121,10 +123,7 @@ public class HolopadCommand extends Command {
   }
 
   private static int executeSetStory(
-      CommandSourceStack source,
-      BlockPos pos,
-      ResourceLocation storyId,
-      ResourceLocation themeId) {
+      CommandSourceStack source, BlockPos pos, ResourceLocation storyId, ResourceLocation themeId) {
     ServerLevel level = source.getLevel();
     UUID blockId = BlockUUID.fromBlockPos(level.dimension(), pos);
 

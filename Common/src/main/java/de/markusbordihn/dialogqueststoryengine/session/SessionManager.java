@@ -20,6 +20,7 @@
 package de.markusbordihn.dialogqueststoryengine.session;
 
 import de.markusbordihn.dialogqueststoryengine.Constants;
+import de.markusbordihn.dialogqueststoryengine.content.ChoiceDefinition;
 import de.markusbordihn.dialogqueststoryengine.content.dialog.BuiltinChoiceAction;
 import de.markusbordihn.dialogqueststoryengine.content.dialog.DialogChoiceDefinition;
 import de.markusbordihn.dialogqueststoryengine.content.dialog.DialogContentRegistry;
@@ -32,8 +33,8 @@ import de.markusbordihn.dialogqueststoryengine.logic.action.ActionContext;
 import de.markusbordihn.dialogqueststoryengine.logic.condition.ConditionContext;
 import de.markusbordihn.dialogqueststoryengine.network.NetworkHandlerManager;
 import de.markusbordihn.dialogqueststoryengine.network.message.session.CloseSessionPacket;
-import de.markusbordihn.dialogqueststoryengine.network.message.session.DialogNodeChangedPacket;
-import de.markusbordihn.dialogqueststoryengine.network.message.session.OpenDialogSessionPacket;
+import de.markusbordihn.dialogqueststoryengine.network.message.session.DialogSessionPacket;
+import de.markusbordihn.dialogqueststoryengine.network.message.session.DialogSessionPacketType;
 import de.markusbordihn.dialogqueststoryengine.network.message.session.OpenStorySessionPacket;
 import de.markusbordihn.dialogqueststoryengine.network.message.session.QuestDeltaPacket;
 import de.markusbordihn.dialogqueststoryengine.network.message.session.SessionRejectedPacket;
@@ -103,10 +104,20 @@ public final class SessionManager {
     List<String> allowedChoiceIds =
         filterAllowedChoiceIds(startNodeDef.choices(), conditionContext);
 
+    Map<String, String> choiceLabels = buildChoiceLabels(startNodeDef.choices(), allowedChoiceIds);
     NetworkHandlerManager.sendToPlayer(
         player,
-        new OpenDialogSessionPacket(
-            sessionId, dialogId, startNode, allowedChoiceIds, Map.of(), session.revision()));
+        new DialogSessionPacket(
+            sessionId,
+            DialogSessionPacketType.OPEN_DIALOG,
+            dialogId,
+            startNode,
+            startNodeDef.speakerKey(),
+            startNodeDef.textKey(),
+            allowedChoiceIds,
+            choiceLabels,
+            Map.of(),
+            session.revision()));
     return session;
   }
 
@@ -151,9 +162,8 @@ public final class SessionManager {
     sendStoryDelta(player, session, playerState, unlockedBefore, readBefore);
 
     ConditionContext conditionContext = new ConditionContext(player, playerState, player.server);
-    List<String> allowedChoiceIds = filterStoryChoiceIds(definition.choices(), conditionContext);
-    Map<String, String> choiceLabels =
-        buildChoiceLabels(definition.choices(), allowedChoiceIds);
+    List<String> allowedChoiceIds = filterAllowedChoiceIds(definition.choices(), conditionContext);
+    Map<String, String> choiceLabels = buildChoiceLabels(definition.choices(), allowedChoiceIds);
 
     NetworkHandlerManager.sendToPlayer(
         player,
@@ -345,10 +355,20 @@ public final class SessionManager {
 
     session.setCurrentNodeId(nextNodeId);
     List<String> allowedChoiceIds = filterAllowedChoiceIds(nextNode.choices(), conditionContext);
+    Map<String, String> choiceLabels = buildChoiceLabels(nextNode.choices(), allowedChoiceIds);
     NetworkHandlerManager.sendToPlayer(
         player,
-        new DialogNodeChangedPacket(
-            session.sessionId(), nextNodeId, allowedChoiceIds, session.revision()));
+        new DialogSessionPacket(
+            session.sessionId(),
+            DialogSessionPacketType.NAVIGATE_NODE,
+            null,
+            nextNodeId,
+            nextNode.speakerKey(),
+            nextNode.textKey(),
+            allowedChoiceIds,
+            choiceLabels,
+            Map.of(),
+            session.revision()));
   }
 
   private static void submitStoryChoice(
@@ -441,32 +461,21 @@ public final class SessionManager {
   }
 
   private static List<String> filterAllowedChoiceIds(
-      List<DialogChoiceDefinition> choices, ConditionContext conditionContext) {
+      List<? extends ChoiceDefinition> choices, ConditionContext conditionContext) {
     List<String> allowed = new ArrayList<>();
-    for (DialogChoiceDefinition choice : choices) {
+    for (ChoiceDefinition choice : choices) {
       if (choice.conditions().evaluate(conditionContext)) {
         allowed.add(choice.id());
       }
     }
 
-    return allowed;
-  }
-
-  private static List<String> filterStoryChoiceIds(
-      List<InteractiveStoryChoice> choices, ConditionContext conditionContext) {
-    List<String> allowed = new ArrayList<>();
-    for (InteractiveStoryChoice choice : choices) {
-      if (choice.conditions().evaluate(conditionContext)) {
-        allowed.add(choice.id());
-      }
-    }
     return allowed;
   }
 
   private static Map<String, String> buildChoiceLabels(
-      List<InteractiveStoryChoice> choices, List<String> allowedChoiceIds) {
+      List<? extends ChoiceDefinition> choices, List<String> allowedChoiceIds) {
     Map<String, String> labels = new HashMap<>(allowedChoiceIds.size());
-    for (InteractiveStoryChoice choice : choices) {
+    for (ChoiceDefinition choice : choices) {
       if (allowedChoiceIds.contains(choice.id())) {
         labels.put(choice.id(), choice.labelKey());
       }

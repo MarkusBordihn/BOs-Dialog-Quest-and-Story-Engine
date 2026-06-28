@@ -57,7 +57,8 @@ public final class ClientStoryOpener {
     }
 
     Theme theme =
-        ThemeClientRegistry.getOrDefault(themeOverrideId != null ? themeOverrideId : entry.themeId())
+        ThemeClientRegistry.getOrDefault(
+                themeOverrideId != null ? themeOverrideId : entry.themeId())
             .orElseGet(
                 () -> {
                   log.warn(

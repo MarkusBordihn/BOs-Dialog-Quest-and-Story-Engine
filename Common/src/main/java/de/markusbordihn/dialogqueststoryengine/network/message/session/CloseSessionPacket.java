@@ -20,6 +20,7 @@
 package de.markusbordihn.dialogqueststoryengine.network.message.session;
 
 import de.markusbordihn.dialogqueststoryengine.Constants;
+import de.markusbordihn.dialogqueststoryengine.client.dialog.ClientDialogOpener;
 import de.markusbordihn.dialogqueststoryengine.client.holopad.ClientStoryOpener;
 import de.markusbordihn.dialogqueststoryengine.network.NetworkMessageRecord;
 import de.markusbordihn.dialogqueststoryengine.session.SessionCloseReason;
@@ -49,6 +50,7 @@ public record CloseSessionPacket(UUID sessionId, SessionCloseReason reason)
   @Override
   public void handleClient() {
     ClientStoryOpener.closeSession(this.sessionId);
+    ClientDialogOpener.closeSession(this.sessionId);
   }
 
   @Override

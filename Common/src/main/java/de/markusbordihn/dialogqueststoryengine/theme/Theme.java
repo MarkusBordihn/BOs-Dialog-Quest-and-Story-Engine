@@ -31,6 +31,10 @@ public record Theme(
     ResourceLocation backgroundTexture,
     boolean showPageNumbers,
     boolean showCloseButton,
-    TextArea textArea,
+    ThemeArea displayArea,
+    ThemeArea titleArea,
+    ThemeTextAlignment titleAlignment,
+    ThemeArea textArea,
+    ThemeArea choiceArea,
     int screenWidth,
     int screenHeight) {}

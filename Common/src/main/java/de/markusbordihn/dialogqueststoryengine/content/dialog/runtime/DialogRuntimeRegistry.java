@@ -17,17 +17,28 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package de.markusbordihn.dialogqueststoryengine.theme;
+package de.markusbordihn.dialogqueststoryengine.content.dialog.runtime;
 
-public record TextArea(int x, int y, int width, int height) {
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import net.minecraft.resources.ResourceLocation;
 
-  public TextArea {
-    if (width <= 0) {
-      throw new IllegalArgumentException("TextArea width must be > 0, got: " + width);
-    }
+public final class DialogRuntimeRegistry {
 
-    if (height <= 0) {
-      throw new IllegalArgumentException("TextArea height must be > 0, got: " + height);
-    }
+  private static final ConcurrentHashMap<ResourceLocation, DialogRuntime> entries =
+      new ConcurrentHashMap<>();
+
+  private DialogRuntimeRegistry() {}
+
+  public static void put(DialogRuntime runtime) {
+    entries.put(runtime.id(), runtime);
+  }
+
+  public static Optional<DialogRuntime> get(ResourceLocation id) {
+    return Optional.ofNullable(entries.get(id));
+  }
+
+  public static void invalidateAll() {
+    entries.clear();
   }
 }

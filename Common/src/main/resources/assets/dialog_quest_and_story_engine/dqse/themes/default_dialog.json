@@ -1,0 +1,35 @@
+{
+  "schema": 1,
+  "layout": "dialog_quest_and_story_engine:dialog",
+  "frame_texture": "dialog_quest_and_story_engine:textures/gui/holopad/frame.png",
+  "background_texture": "dialog_quest_and_story_engine:textures/gui/holopad/background.png",
+  "show_page_numbers": false,
+  "show_close_button": true,
+  "screen_width": 370,
+  "screen_height": 250,
+  "display_area": {
+    "x": 16,
+    "y": 16,
+    "width": 338,
+    "height": 100
+  },
+  "title_area": {
+    "x": 24,
+    "y": 101,
+    "width": 322,
+    "height": 12
+  },
+  "title_alignment": "center",
+  "text_area": {
+    "x": 14,
+    "y": 121,
+    "width": 334,
+    "height": 104
+  },
+  "choice_area": {
+    "x": 54,
+    "y": 39,
+    "width": 262,
+    "height": 56
+  }
+}

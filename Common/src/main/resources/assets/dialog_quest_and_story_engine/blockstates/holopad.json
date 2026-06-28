@@ -1,8 +1,8 @@
 {
   "variants": {
-    "facing=north": { "model": "dialog_quest_and_story_engine:block/holopad", "y": 0 },
-    "facing=south": { "model": "dialog_quest_and_story_engine:block/holopad", "y": 180 },
-    "facing=west": { "model": "dialog_quest_and_story_engine:block/holopad", "y": 270 },
-    "facing=east": { "model": "dialog_quest_and_story_engine:block/holopad", "y": 90 }
+    "facing=north": {"model": "dialog_quest_and_story_engine:block/holopad", "y": 0},
+    "facing=south": {"model": "dialog_quest_and_story_engine:block/holopad", "y": 180},
+    "facing=west": {"model": "dialog_quest_and_story_engine:block/holopad", "y": 270},
+    "facing=east": {"model": "dialog_quest_and_story_engine:block/holopad", "y": 90}
   }
 }

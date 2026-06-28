@@ -20,6 +20,7 @@
 package de.markusbordihn.dialogqueststoryengine.network.message.session;
 
 import de.markusbordihn.dialogqueststoryengine.Constants;
+import de.markusbordihn.dialogqueststoryengine.client.dialog.ClientDialogOpener;
 import de.markusbordihn.dialogqueststoryengine.network.NetworkMessageRecord;
 import de.markusbordihn.dialogqueststoryengine.session.SessionRejectionReason;
 import java.util.UUID;
@@ -57,5 +58,6 @@ public record SessionRejectedPacket(UUID sessionId, SessionRejectionReason reaso
   public void handleClient() {
     log.warn(
         "{} Session {} rejected by server: {}", Constants.LOG_PREFIX, this.sessionId, this.reason);
+    ClientDialogOpener.handleRejection(this.sessionId);
   }
 }

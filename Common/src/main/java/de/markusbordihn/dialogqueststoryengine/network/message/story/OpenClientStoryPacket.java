@@ -25,8 +25,7 @@ import de.markusbordihn.dialogqueststoryengine.network.NetworkMessageRecord;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 
-public record OpenClientStoryPacket(
-    ResourceLocation storyId, ResourceLocation themeOverrideId)
+public record OpenClientStoryPacket(ResourceLocation storyId, ResourceLocation themeOverrideId)
     implements NetworkMessageRecord {
 
   public static final ResourceLocation MESSAGE_ID =
@@ -34,8 +33,7 @@ public record OpenClientStoryPacket(
 
   public static OpenClientStoryPacket create(FriendlyByteBuf buffer) {
     ResourceLocation storyId = buffer.readResourceLocation();
-    ResourceLocation themeOverrideId =
-        buffer.readBoolean() ? buffer.readResourceLocation() : null;
+    ResourceLocation themeOverrideId = buffer.readBoolean() ? buffer.readResourceLocation() : null;
     return new OpenClientStoryPacket(storyId, themeOverrideId);
   }
 

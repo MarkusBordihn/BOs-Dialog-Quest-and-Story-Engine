@@ -71,7 +71,12 @@ class InteractionEntryActionDataTest {
 
     InteractionEntry entry =
         InteractionEntry.forBlockInteract(
-                TARGET_ID, POS, TargetKind.BLOCK, InteractionType.OPEN_HOLOPAD, "Holopad", OVERWORLD)
+                TARGET_ID,
+                POS,
+                TargetKind.BLOCK,
+                InteractionType.OPEN_HOLOPAD,
+                "Holopad",
+                OVERWORLD)
             .withEdits(InteractionType.OPEN_HOLOPAD, "Holopad", actionDataSet);
 
     CompoundTag tag = entry.save();

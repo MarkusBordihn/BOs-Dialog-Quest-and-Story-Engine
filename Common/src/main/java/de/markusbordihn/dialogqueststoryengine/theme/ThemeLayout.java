@@ -24,6 +24,7 @@ import java.util.Optional;
 import net.minecraft.resources.ResourceLocation;
 
 public enum ThemeLayout {
+  DIALOG(new ResourceLocation(Constants.MOD_ID, "dialog")),
   HOLOPAD(new ResourceLocation(Constants.MOD_ID, "holopad"));
 
   private final ResourceLocation id;

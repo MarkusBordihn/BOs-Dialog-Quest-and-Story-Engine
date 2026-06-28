@@ -37,8 +37,7 @@ public class ModItems {
 
   public static final RegistryObject<Item> HOLOPAD =
       ITEMS.register(
-          Constants.HOLOPAD,
-          () -> new BlockItem(ModBlocks.HOLOPAD.get(), new Item.Properties()));
+          Constants.HOLOPAD, () -> new BlockItem(ModBlocks.HOLOPAD.get(), new Item.Properties()));
 
   private ModItems() {}
 }

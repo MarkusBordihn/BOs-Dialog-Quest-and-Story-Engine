@@ -41,7 +41,8 @@ public final class ActionDataExecutor {
 
   private ActionDataExecutor() {}
 
-  public static void execute(ActionDataSet actionDataSet, ServerPlayer player, MinecraftServer server) {
+  public static void execute(
+      ActionDataSet actionDataSet, ServerPlayer player, MinecraftServer server) {
     if (actionDataSet.isEmpty()) {
       return;
     }
@@ -89,13 +90,14 @@ public final class ActionDataExecutor {
         if (factId == null) {
           return;
         }
-        PlayerStateService.get(player.getUUID()).ifPresent(playerState ->
-            setFact(playerState, factId, action.factValue()));
+        PlayerStateService.get(player.getUUID())
+            .ifPresent(playerState -> setFact(playerState, factId, action.factValue()));
       }
-      default -> log.debug(
-          "{} ActionDataExecutor: unhandled action type {} — skipping",
-          Constants.LOG_PREFIX,
-          action.type());
+      default ->
+          log.debug(
+              "{} ActionDataExecutor: unhandled action type {} — skipping",
+              Constants.LOG_PREFIX,
+              action.type());
     }
   }
 

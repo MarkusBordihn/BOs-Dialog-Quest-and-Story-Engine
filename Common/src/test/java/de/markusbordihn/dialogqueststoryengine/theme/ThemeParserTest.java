@@ -52,7 +52,11 @@ class ThemeParserTest {
           "background_texture": "test:textures/background.png",
           "show_page_numbers": true,
           "show_close_button": false,
-          "text_area": { "x": 10, "y": 20, "width": 100, "height": 80 }
+          "display_area": { "x": 1, "y": 2, "width": 300, "height": 100 },
+          "title_area": { "x": 10, "y": 104, "width": 280, "height": 12 },
+          "title_alignment": "center",
+          "text_area": { "x": 10, "y": 120, "width": 100, "height": 80 },
+          "choice_area": { "x": 40, "y": 30, "width": 220, "height": 60 }
         }
         """);
 
@@ -64,8 +68,11 @@ class ThemeParserTest {
     assertEquals(ThemeLayout.HOLOPAD, theme.layout());
     assertTrue(theme.showPageNumbers());
     assertFalse(theme.showCloseButton());
+    assertEquals(1, theme.displayArea().x());
+    assertEquals(ThemeTextAlignment.CENTER, theme.titleAlignment());
     assertEquals(10, theme.textArea().x());
     assertEquals(80, theme.textArea().height());
+    assertEquals(220, theme.choiceArea().width());
   }
 
   @Test
@@ -79,7 +86,11 @@ class ThemeParserTest {
           "background_texture": "test:textures/background.png",
           "show_page_numbers": true,
           "show_close_button": true,
-          "text_area": { "x": 0, "y": 0, "width": 100, "height": 80 }
+          "display_area": { "x": 0, "y": 0, "width": 100, "height": 40 },
+          "title_area": { "x": 0, "y": 40, "width": 100, "height": 12 },
+          "title_alignment": "left",
+          "text_area": { "x": 0, "y": 52, "width": 100, "height": 80 },
+          "choice_area": { "x": 0, "y": 132, "width": 100, "height": 40 }
         }
         """);
 
@@ -101,7 +112,11 @@ class ThemeParserTest {
           "background_texture": "test:textures/background.png",
           "show_page_numbers": true,
           "show_close_button": true,
-          "text_area": { "x": 0, "y": 0, "width": 100, "height": 80 }
+          "display_area": { "x": 0, "y": 0, "width": 100, "height": 40 },
+          "title_area": { "x": 0, "y": 40, "width": 100, "height": 12 },
+          "title_alignment": "left",
+          "text_area": { "x": 0, "y": 52, "width": 100, "height": 80 },
+          "choice_area": { "x": 0, "y": 132, "width": 100, "height": 40 }
         }
         """);
 
@@ -112,28 +127,7 @@ class ThemeParserTest {
   }
 
   @Test
-  void missingTextAreaProducesError() {
-    JsonObject input =
-        json(
-            """
-        {
-          "schema": 1,
-          "layout": "dialog_quest_and_story_engine:holopad",
-          "frame_texture": "test:textures/frame.png",
-          "background_texture": "test:textures/background.png",
-          "show_page_numbers": true,
-          "show_close_button": true
-        }
-        """);
-
-    ParseResult<Theme> result = ThemeParser.parse(TEST_ID, TEST_FILE, input);
-
-    assertFalse(result.isSuccess());
-    assertEquals(IssueCode.MISSING_FIELD, result.issues().get(0).code());
-  }
-
-  @Test
-  void invalidTextAreaDimensionsProduceError() {
+  void missingTextAreaFieldProducesError() {
     JsonObject input =
         json(
             """
@@ -144,7 +138,62 @@ class ThemeParserTest {
           "background_texture": "test:textures/background.png",
           "show_page_numbers": true,
           "show_close_button": true,
-          "text_area": { "x": 0, "y": 0, "width": 0, "height": 80 }
+          "display_area": { "x": 0, "y": 0, "width": 100, "height": 40 },
+          "title_area": { "x": 0, "y": 40, "width": 100, "height": 12 },
+          "title_alignment": "left",
+          "choice_area": { "x": 0, "y": 132, "width": 100, "height": 40 }
+        }
+        """);
+
+    ParseResult<Theme> result = ThemeParser.parse(TEST_ID, TEST_FILE, input);
+
+    assertFalse(result.isSuccess());
+    assertEquals(IssueCode.MISSING_FIELD, result.issues().get(0).code());
+  }
+
+  @Test
+  void invalidThemeAreaDimensionsProduceError() {
+    JsonObject input =
+        json(
+            """
+        {
+          "schema": 1,
+          "layout": "dialog_quest_and_story_engine:holopad",
+          "frame_texture": "test:textures/frame.png",
+          "background_texture": "test:textures/background.png",
+          "show_page_numbers": true,
+          "show_close_button": true,
+          "display_area": { "x": 0, "y": 0, "width": 100, "height": 40 },
+          "title_area": { "x": 0, "y": 40, "width": 100, "height": 12 },
+          "title_alignment": "left",
+          "text_area": { "x": 0, "y": 52, "width": 0, "height": 80 },
+          "choice_area": { "x": 0, "y": 132, "width": 100, "height": 40 }
+        }
+        """);
+
+    ParseResult<Theme> result = ThemeParser.parse(TEST_ID, TEST_FILE, input);
+
+    assertFalse(result.isSuccess());
+    assertEquals(IssueCode.INVALID_FIELD_TYPE, result.issues().get(0).code());
+  }
+
+  @Test
+  void invalidTitleAlignmentProducesError() {
+    JsonObject input =
+        json(
+            """
+        {
+          "schema": 1,
+          "layout": "dialog_quest_and_story_engine:holopad",
+          "frame_texture": "test:textures/frame.png",
+          "background_texture": "test:textures/background.png",
+          "show_page_numbers": true,
+          "show_close_button": true,
+          "display_area": { "x": 0, "y": 0, "width": 100, "height": 40 },
+          "title_area": { "x": 0, "y": 40, "width": 100, "height": 12 },
+          "title_alignment": "middle",
+          "text_area": { "x": 0, "y": 52, "width": 100, "height": 80 },
+          "choice_area": { "x": 0, "y": 132, "width": 100, "height": 40 }
         }
         """);
 

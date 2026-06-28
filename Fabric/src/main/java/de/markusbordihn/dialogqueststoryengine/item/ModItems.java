@@ -44,8 +44,6 @@ public class ModItems {
         new ResourceLocation(Constants.MOD_ID, Constants.INTERACTION_WAND),
         INTERACTION_WAND);
     Registry.register(
-        BuiltInRegistries.ITEM,
-        new ResourceLocation(Constants.MOD_ID, Constants.HOLOPAD),
-        HOLOPAD);
+        BuiltInRegistries.ITEM, new ResourceLocation(Constants.MOD_ID, Constants.HOLOPAD), HOLOPAD);
   }
 }

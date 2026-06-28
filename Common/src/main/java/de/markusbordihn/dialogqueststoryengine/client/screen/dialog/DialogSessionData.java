@@ -17,41 +17,24 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package de.markusbordihn.dialogqueststoryengine.client.holopad;
+package de.markusbordihn.dialogqueststoryengine.client.screen.dialog;
 
-import de.markusbordihn.dialogqueststoryengine.theme.TextArea;
-import de.markusbordihn.dialogqueststoryengine.theme.Theme;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import net.minecraft.resources.ResourceLocation;
 
-public record HolopadLayout(
-    int leftPos,
-    int topPos,
-    int screenWidth,
-    int screenHeight,
-    ResourceLocation frameTexture,
-    ResourceLocation backgroundTexture,
-    TextArea textArea,
-    boolean showPageNumbers,
-    boolean showCloseButton) {
+public record DialogSessionData(
+    UUID sessionId,
+    ResourceLocation dialogId,
+    String nodeId,
+    String speakerKey,
+    String textKey,
+    List<String> allowedChoiceIds,
+    Map<String, String> choiceLabels,
+    int revision) {
 
-  public static HolopadLayout from(Theme theme, int guiWidth, int guiHeight) {
-    TextArea textArea = theme.textArea();
-    int screenWidth =
-        theme.screenWidth() > 0 ? theme.screenWidth() : textArea.x() * 2 + textArea.width();
-    int screenHeight =
-        theme.screenHeight() > 0 ? theme.screenHeight() : textArea.y() * 2 + textArea.height();
-    int leftPos = (guiWidth - screenWidth) / 2;
-    int topPos = (guiHeight - screenHeight) / 2;
-
-    return new HolopadLayout(
-        leftPos,
-        topPos,
-        screenWidth,
-        screenHeight,
-        theme.frameTexture(),
-        theme.backgroundTexture(),
-        textArea,
-        theme.showPageNumbers(),
-        theme.showCloseButton());
+  public DialogSessionData {
+    allowedChoiceIds = List.copyOf(allowedChoiceIds);
   }
 }

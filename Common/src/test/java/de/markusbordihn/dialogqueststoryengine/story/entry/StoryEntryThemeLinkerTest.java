@@ -24,10 +24,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import de.markusbordihn.dialogqueststoryengine.data.issue.ContentIssueTracker;
 import de.markusbordihn.dialogqueststoryengine.data.issue.IssueCode;
-import de.markusbordihn.dialogqueststoryengine.theme.TextArea;
 import de.markusbordihn.dialogqueststoryengine.theme.Theme;
+import de.markusbordihn.dialogqueststoryengine.theme.ThemeArea;
 import de.markusbordihn.dialogqueststoryengine.theme.ThemeClientRegistry;
 import de.markusbordihn.dialogqueststoryengine.theme.ThemeLayout;
+import de.markusbordihn.dialogqueststoryengine.theme.ThemeTextAlignment;
 import java.util.List;
 import java.util.UUID;
 import net.minecraft.resources.ResourceLocation;
@@ -62,7 +63,11 @@ class StoryEntryThemeLinkerTest {
         new ResourceLocation("test", "textures/background.png"),
         true,
         true,
-        new TextArea(0, 0, 100, 80),
+        new ThemeArea(0, 0, 100, 40),
+        new ThemeArea(0, 40, 100, 12),
+        ThemeTextAlignment.LEFT,
+        new ThemeArea(0, 52, 100, 80),
+        new ThemeArea(0, 132, 100, 40),
         0,
         0);
   }

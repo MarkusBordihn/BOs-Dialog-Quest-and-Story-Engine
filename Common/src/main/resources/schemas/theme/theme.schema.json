@@ -3,41 +3,52 @@
   "$id": "dqse://schemas/theme",
   "title": "DQSE Theme Definition",
   "type": "object",
-  "required": ["schema", "id", "type"],
+  "required": [
+    "schema",
+    "layout",
+    "frame_texture",
+    "background_texture",
+    "show_page_numbers",
+    "show_close_button",
+    "screen_width",
+    "screen_height",
+    "display_area",
+    "title_area",
+    "title_alignment",
+    "text_area",
+    "choice_area"
+  ],
   "additionalProperties": false,
   "properties": {
     "$schema": {"type": "string"},
     "schema": {"type": "integer", "const": 1},
-    "id": {
+    "layout": {
       "type": "string",
       "pattern": "^[a-z0-9_.-]+:[a-z0-9_./-]+$",
-      "description": "ResourceLocation ID, e.g. 'mymod:dark_fantasy'"
+      "description": "Theme layout ID, e.g. 'dialog_quest_and_story_engine:holopad'"
     },
-    "type": {"type": "string", "const": "theme"},
-    "background": {
+    "frame_texture": {"type": "string", "pattern": "^[a-z0-9_.-]+:[a-z0-9_./-]+$"},
+    "background_texture": {"type": "string", "pattern": "^[a-z0-9_.-]+:[a-z0-9_./-]+$"},
+    "show_page_numbers": {"type": "boolean"},
+    "show_close_button": {"type": "boolean"},
+    "screen_width": {"type": "integer", "minimum": 1},
+    "screen_height": {"type": "integer", "minimum": 1},
+    "display_area": {"$ref": "#/definitions/area"},
+    "title_area": {"$ref": "#/definitions/area"},
+    "title_alignment": {"type": "string", "enum": ["left", "center", "right"]},
+    "text_area": {"$ref": "#/definitions/area"},
+    "choice_area": {"$ref": "#/definitions/area"}
+  },
+  "definitions": {
+    "area": {
       "type": "object",
+      "required": ["x", "y", "width", "height"],
       "additionalProperties": false,
       "properties": {
-        "texture": {"type": "string"},
-        "color": {"type": "string", "pattern": "^#[0-9A-Fa-f]{6}$"}
-      }
-    },
-    "text": {
-      "type": "object",
-      "additionalProperties": false,
-      "properties": {
-        "primary_color": {"type": "string", "pattern": "^#[0-9A-Fa-f]{6}$"},
-        "secondary_color": {"type": "string", "pattern": "^#[0-9A-Fa-f]{6}$"},
-        "font": {"type": "string"}
-      }
-    },
-    "buttons": {
-      "type": "object",
-      "additionalProperties": false,
-      "properties": {
-        "texture": {"type": "string"},
-        "hover_texture": {"type": "string"},
-        "label_color": {"type": "string", "pattern": "^#[0-9A-Fa-f]{6}$"}
+        "x": {"type": "integer"},
+        "y": {"type": "integer"},
+        "width": {"type": "integer", "minimum": 1},
+        "height": {"type": "integer", "minimum": 1}
       }
     }
   }

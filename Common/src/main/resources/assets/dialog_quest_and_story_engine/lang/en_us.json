@@ -42,6 +42,7 @@
   "gui.dialog_quest_and_story_engine.button.cancel": "Cancel",
   "gui.dialog_quest_and_story_engine.button.remove": "Remove",
   "gui.dialog_quest_and_story_engine.button.edit": "Edit",
+  "gui.dialog_quest_and_story_engine.button.update": "Update",
   "gui.dialog_quest_and_story_engine.button.close": "Close",
   "gui.dialog_quest_and_story_engine.button.replay": "Replay",
   "gui.dialog_quest_and_story_engine.button.prev": "< Prev",

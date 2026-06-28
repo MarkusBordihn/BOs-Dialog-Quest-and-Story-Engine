@@ -21,8 +21,15 @@ package de.markusbordihn.dialogqueststoryengine.server.commands;
 
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import de.markusbordihn.dialogqueststoryengine.commands.Command;
+import de.markusbordihn.dialogqueststoryengine.session.SessionManager;
+import java.util.Collection;
+import java.util.Optional;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.commands.arguments.EntityArgument;
+import net.minecraft.commands.arguments.ResourceLocationArgument;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 
 public class DialogCommand extends Command {
 
@@ -33,10 +40,58 @@ public class DialogCommand extends Command {
         .requires(source -> source.hasPermission(PERMISSION_LEVEL))
         .then(
             Commands.literal("open")
-                .executes(
-                    context -> {
-                      sendInfoMessage(context.getSource(), "dialog open: not yet implemented.");
-                      return 1;
-                    }));
+                .then(
+                    Commands.argument("id", ResourceLocationArgument.id())
+                        .executes(
+                            context -> {
+                              ResourceLocation dialogId =
+                                  ResourceLocationArgument.getId(context, "id");
+                              ServerPlayer player = context.getSource().getPlayerOrException();
+                              if (SessionManager.openDialogSession(
+                                      player, dialogId, Optional.empty())
+                                  == null) {
+                                sendFailureMessage(
+                                    context.getSource(), "Dialog not found: " + dialogId);
+                                return 0;
+                              }
+
+                              sendSuccessMessage(
+                                  context.getSource(), "Opening dialog: " + dialogId);
+                              return 1;
+                            })
+                        .then(
+                            Commands.argument("targets", EntityArgument.players())
+                                .executes(
+                                    context -> {
+                                      ResourceLocation dialogId =
+                                          ResourceLocationArgument.getId(context, "id");
+                                      Collection<ServerPlayer> targets =
+                                          EntityArgument.getPlayers(context, "targets");
+                                      int successCount = 0;
+
+                                      for (ServerPlayer target : targets) {
+                                        if (SessionManager.openDialogSession(
+                                                target, dialogId, Optional.empty())
+                                            != null) {
+                                          successCount++;
+                                        }
+                                      }
+
+                                      if (successCount == 0) {
+                                        sendFailureMessage(
+                                            context.getSource(),
+                                            "Dialog not found or no valid targets: " + dialogId);
+                                        return 0;
+                                      }
+
+                                      sendSuccessMessage(
+                                          context.getSource(),
+                                          "Opened dialog '"
+                                              + dialogId
+                                              + "' for "
+                                              + successCount
+                                              + " player(s)");
+                                      return successCount;
+                                    }))));
   }
 }

@@ -19,8 +19,10 @@
 
 package de.markusbordihn.dialogqueststoryengine.content.story;
 
+import de.markusbordihn.dialogqueststoryengine.content.ChoiceDefinition;
 import de.markusbordihn.dialogqueststoryengine.logic.action.ActionList;
 import de.markusbordihn.dialogqueststoryengine.logic.condition.ConditionGroup;
 
 public record InteractiveStoryChoice(
-    String id, String labelKey, ConditionGroup conditions, ActionList actions) {}
+    String id, String labelKey, ConditionGroup conditions, ActionList actions)
+    implements ChoiceDefinition {}

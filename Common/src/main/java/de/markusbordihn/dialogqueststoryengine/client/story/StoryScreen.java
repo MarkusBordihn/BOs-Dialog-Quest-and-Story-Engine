@@ -19,13 +19,24 @@
 
 package de.markusbordihn.dialogqueststoryengine.client.story;
 
+import com.mojang.blaze3d.systems.RenderSystem;
+import de.markusbordihn.dialogqueststoryengine.theme.ScreenLayout;
+import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import org.lwjgl.glfw.GLFW;
 
 public abstract class StoryScreen extends Screen {
+
+  protected static final int COLOR_TEXT = 0xFFFFFF;
+  protected static final int TEXTURE_WIDTH = 512;
+  protected static final int TEXTURE_HEIGHT = 256;
+  protected static final int CHOICE_BUTTON_HEIGHT = 16;
+  protected static final int CHOICE_BUTTON_SPACING = 4;
+  protected static final int LINE_SPACING = 2;
 
   protected StoryScreen(Component title) {
     super(title);
@@ -38,6 +49,53 @@ public abstract class StoryScreen extends Screen {
 
   protected void renderDimBackground(GuiGraphics graphics) {
     graphics.fillGradient(0, 0, this.width, this.height, 0xC0101010, 0xD0101010);
+  }
+
+  protected void renderScreenTexture(
+      GuiGraphics graphics, ResourceLocation texture, ScreenLayout layout) {
+    RenderSystem.setShaderTexture(0, texture);
+    graphics.blit(
+        texture,
+        layout.leftPos(),
+        layout.topPos(),
+        0,
+        0,
+        layout.screenWidth(),
+        layout.screenHeight(),
+        TEXTURE_WIDTH,
+        TEXTURE_HEIGHT);
+  }
+
+  protected void renderRevealedText(
+      GuiGraphics graphics, ScreenLayout layout, TypewriterAnimator animator) {
+    int textX = layout.leftPos() + layout.textArea().x();
+    int textY = layout.topPos() + layout.textArea().y();
+    int lineHeight = this.font.lineHeight + LINE_SPACING;
+
+    graphics.enableScissor(
+        layout.leftPos() + layout.textArea().x(),
+        layout.topPos() + layout.textArea().y(),
+        layout.leftPos() + layout.textArea().x() + layout.textArea().width(),
+        layout.topPos() + layout.textArea().y() + layout.textArea().height());
+
+    List<String> revealedLines = animator.getRevealedLines();
+    for (int i = 0; i < revealedLines.size(); i++) {
+      graphics.drawString(
+          this.font, revealedLines.get(i), textX, textY + i * lineHeight, COLOR_TEXT, false);
+    }
+
+    String partialLine = animator.getPartialLine();
+    if (!partialLine.isEmpty()) {
+      graphics.drawString(
+          this.font,
+          partialLine,
+          textX,
+          textY + revealedLines.size() * lineHeight,
+          COLOR_TEXT,
+          false);
+    }
+
+    graphics.disableScissor();
   }
 
   @Override

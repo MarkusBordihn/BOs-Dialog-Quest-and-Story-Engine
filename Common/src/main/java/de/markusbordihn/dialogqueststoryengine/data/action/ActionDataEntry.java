@@ -69,6 +69,23 @@ public record ActionDataEntry(UUID id, ActionType type, CompoundTag data) {
     return new ActionDataEntry(UUID.randomUUID(), type, new CompoundTag());
   }
 
+  public static ActionDataEntry load(CompoundTag tag) {
+    UUID id = tag.getUUID(TAG_ID);
+    ActionType type = ActionType.fromName(tag.getString(TAG_TYPE));
+    if (type == null) {
+      type = ActionType.NONE;
+    }
+    CompoundTag data = tag.contains(TAG_DATA) ? tag.getCompound(TAG_DATA) : new CompoundTag();
+    return new ActionDataEntry(id, type, data);
+  }
+
+  public static ActionDataEntry readFromBuf(FriendlyByteBuf buf) {
+    UUID id = buf.readUUID();
+    ActionType type = buf.readEnum(ActionType.class);
+    CompoundTag data = buf.readNbt();
+    return new ActionDataEntry(id, type, data != null ? data : new CompoundTag());
+  }
+
   public ResourceLocation storyId() {
     return ResourceLocation.tryParse(this.data.getString(DATA_STORY_ID));
   }
@@ -98,27 +115,10 @@ public record ActionDataEntry(UUID id, ActionType type, CompoundTag data) {
     return tag;
   }
 
-  public static ActionDataEntry load(CompoundTag tag) {
-    UUID id = tag.getUUID(TAG_ID);
-    ActionType type = ActionType.fromName(tag.getString(TAG_TYPE));
-    if (type == null) {
-      type = ActionType.NONE;
-    }
-    CompoundTag data = tag.contains(TAG_DATA) ? tag.getCompound(TAG_DATA) : new CompoundTag();
-    return new ActionDataEntry(id, type, data);
-  }
-
   public void writeToBuf(FriendlyByteBuf buf) {
     buf.writeUUID(this.id);
     buf.writeEnum(this.type);
     buf.writeNbt(this.data);
-  }
-
-  public static ActionDataEntry readFromBuf(FriendlyByteBuf buf) {
-    UUID id = buf.readUUID();
-    ActionType type = buf.readEnum(ActionType.class);
-    CompoundTag data = buf.readNbt();
-    return new ActionDataEntry(id, type, data != null ? data : new CompoundTag());
   }
 
   public ActionDataEntry withData(CompoundTag updatedData) {

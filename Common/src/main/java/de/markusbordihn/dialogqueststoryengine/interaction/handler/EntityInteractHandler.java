@@ -19,6 +19,7 @@
 
 package de.markusbordihn.dialogqueststoryengine.interaction.handler;
 
+import de.markusbordihn.dialogqueststoryengine.interaction.ActionDataExecutor;
 import de.markusbordihn.dialogqueststoryengine.interaction.InteractionContext;
 import de.markusbordihn.dialogqueststoryengine.registry.InteractionHandler;
 
@@ -34,5 +35,7 @@ public final class EntityInteractHandler implements InteractionHandler {
         "Entity interact trigger fired for {} by {}",
         context.entry().targetId(),
         context.player().getDisplayName().getString());
+    ActionDataExecutor.execute(
+        context.entry().actionDataSet(), context.player(), context.level().getServer());
   }
 }

@@ -40,6 +40,7 @@ public abstract class BaseScreen extends Panel {
   protected static final int BREADCRUMB_HEIGHT = 16;
   protected static final int TITLE_BAR_HEIGHT = 16;
   protected static final int BOTTOM_BAR_HEIGHT = 18;
+  private static final int OVERLAY_Z = 300;
 
   protected final Deque<Panel> modalPanels = new ArrayDeque<>();
   protected Screen previousScreen;
@@ -232,12 +233,6 @@ public abstract class BaseScreen extends Panel {
   public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
     super.render(graphics, mouseX, mouseY, partialTick);
 
-    // Non-dimming overlay (e.g. open dropdown)
-    if (overlayPanel != null && overlayPanel.isVisible()) {
-      graphics.flush();
-      overlayPanel.render(graphics, mouseX, mouseY, partialTick);
-    }
-
     // Dimmed modal panels
     for (Panel modal : modalPanels) {
       if (modal.isVisible()) {
@@ -253,6 +248,14 @@ public abstract class BaseScreen extends Panel {
     }
     if (bottomBar != null) {
       bottomBar.render(graphics, mouseX, mouseY, partialTick);
+    }
+    if (overlayPanel != null && overlayPanel.isVisible()) {
+      graphics.flush();
+      graphics.pose().pushPose();
+      graphics.pose().translate(0, 0, OVERLAY_Z);
+      overlayPanel.render(graphics, mouseX, mouseY, partialTick);
+      graphics.pose().popPose();
+      graphics.flush();
     }
     renderTooltip(graphics, mouseX, mouseY);
   }

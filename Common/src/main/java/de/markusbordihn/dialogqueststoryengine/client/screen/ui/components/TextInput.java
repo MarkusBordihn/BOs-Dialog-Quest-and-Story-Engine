@@ -34,6 +34,7 @@ public class TextInput extends Widget {
   private String value = "";
   private String suggestion = null;
   private int maxLength = 256;
+  private int tickCount;
   private Consumer<String> onChange;
 
   public TextInput(int posX, int posY, int width, int height) {
@@ -59,7 +60,7 @@ public class TextInput extends Widget {
   public void setSuggestion(String suggestion) {
     this.suggestion = suggestion;
     if (editBox != null) {
-      editBox.setSuggestion(suggestion);
+      editBox.setSuggestion(null);
     }
   }
 
@@ -81,9 +82,7 @@ public class TextInput extends Widget {
       editBox.setMaxLength(maxLength);
       editBox.setValue(value);
       editBox.setBordered(false);
-      if (suggestion != null) {
-        editBox.setSuggestion(suggestion);
-      }
+      editBox.setSuggestion(null);
       if (onChange != null) {
         editBox.setResponder(onChange);
       }
@@ -101,13 +100,51 @@ public class TextInput extends Widget {
     editBox.setWidth(width - 4);
     editBox.setEditable(active);
     ColorPalette palette = ColorPalette.current();
+    editBox.setTextColor(active ? palette.onBackground() : palette.onSurfaceLow());
+    editBox.setTextColorUneditable(palette.onSurfaceLow());
     int x = getX();
     int y = getY();
 
     graphics.fill(x, y, x + width, y + height, palette.background());
     drawBorderBevel(graphics, x, y, width, height, palette.outline());
 
-    editBox.render(graphics, mouseX, mouseY, partialTick);
+    graphics.enableScissor(x + 2, y, x + width - 2, y + height);
+    renderInputText(graphics, palette);
+    graphics.disableScissor();
+  }
+
+  private void renderInputText(GuiGraphics graphics, ColorPalette palette) {
+    Font font = Minecraft.getInstance().font;
+    String text = getValue();
+    int textX = getX() + 2;
+    int textY = getY() + (height - 8) / 2;
+    if (text.isEmpty()) {
+      if (suggestion != null && !suggestion.isBlank() && !editBox.isFocused()) {
+        graphics.drawString(font, suggestion, textX, textY, palette.onSurfaceLow(), false);
+      }
+      renderCursor(graphics, palette, textX, textY);
+      return;
+    }
+
+    int cursorPosition = Math.min(editBox.getCursorPosition(), text.length());
+    int cursorX = editBox.getScreenX(cursorPosition);
+    int visibleTextX = cursorX - font.width(text.substring(0, cursorPosition));
+    graphics.drawString(
+        font,
+        text,
+        visibleTextX,
+        textY,
+        active ? palette.onBackground() : palette.onSurfaceLow(),
+        false);
+    renderCursor(graphics, palette, cursorX, textY);
+  }
+
+  private void renderCursor(GuiGraphics graphics, ColorPalette palette, int cursorX, int textY) {
+    if (!active || !editBox.isFocused() || (tickCount / 6) % 2 != 0) {
+      return;
+    }
+
+    graphics.fill(cursorX, textY - 1, cursorX + 1, textY + 9, palette.onBackground());
   }
 
   @Override
@@ -143,6 +180,7 @@ public class TextInput extends Widget {
 
   @Override
   public void tick() {
+    tickCount++;
     if (editBox != null) {
       editBox.tick();
     }

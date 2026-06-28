@@ -43,6 +43,7 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import org.apache.logging.log4j.LogManager;
@@ -54,12 +55,17 @@ public class ActionEditorScreen extends BaseScreen {
 
   private final InteractionEntry entry;
   private final ActionDataSet editableActionDataSet;
+  private final CompoundTag originalActionDataTag;
   private final Consumer<InteractionEntry> onSaveCallback;
   private ActionType selectedNewType = ActionType.OPEN_STORY;
   private Panel configPanel;
+  private TextButton addActionButton;
+  private TextButton saveButton;
+  private TextButton cancelButton;
 
   private TextInput field1Input;
   private TextInput field2Input;
+  private ActionDataEntry editingAction;
   private String editField1Prefill = null;
   private String editField2Prefill = null;
 
@@ -69,6 +75,7 @@ public class ActionEditorScreen extends BaseScreen {
       Consumer<InteractionEntry> onSaveCallback) {
     this.entry = entry;
     this.editableActionDataSet = entry.actionDataSet().copy();
+    this.originalActionDataTag = entry.actionDataSet().save();
     this.onSaveCallback = onSaveCallback;
     setBreadcrumb(ancestors, "Actions");
     setScreenType(ScreenType.ACTIONS);
@@ -101,13 +108,7 @@ public class ActionEditorScreen extends BaseScreen {
       int capturedRow = row;
       String summary = formatActionSummary(existing);
       addWidget(
-          new Label(
-              0,
-              capturedRow + 4,
-              summary,
-              0,
-              ScaledText.SCALE_SMALL,
-              Label.Alignment.LEFT));
+          new Label(0, capturedRow + 4, summary, 0, ScaledText.SCALE_SMALL, Label.Alignment.LEFT));
       addWidget(
           new TextButton(
               innerWidth - 104,
@@ -117,7 +118,7 @@ public class ActionEditorScreen extends BaseScreen {
               "button.edit",
               btn -> {
                 prefillFromEntry(existing);
-                editableActionDataSet.remove(existing.id());
+                editingAction = existing;
                 refreshWidgets();
               }));
       addWidget(
@@ -129,6 +130,9 @@ public class ActionEditorScreen extends BaseScreen {
               "button.remove",
               btn -> {
                 editableActionDataSet.remove(existing.id());
+                if (editingAction != null && editingAction.id().equals(existing.id())) {
+                  clearCurrentActionDraft();
+                }
                 refreshWidgets();
               }));
       row += rowHeight;
@@ -156,6 +160,7 @@ public class ActionEditorScreen extends BaseScreen {
             actionOptions,
             actionType -> {
               selectedNewType = actionType;
+              editingAction = null;
               field1Input = null;
               field2Input = null;
               refreshConfigPanel();
@@ -193,14 +198,15 @@ public class ActionEditorScreen extends BaseScreen {
     row += 50;
 
     int addBtnWidth = 60;
-    addWidget(
+    addActionButton =
         new TextButton(
             (innerWidth - addBtnWidth) / 2,
             row,
             addBtnWidth,
             16,
-            "button.add",
-            btn -> addCurrentAction()));
+            editingAction != null ? "button.update" : "button.add",
+            btn -> addCurrentAction());
+    addWidget(addActionButton);
     row += 24;
 
     addWidget(new Separator(0, row, innerWidth, true));
@@ -209,16 +215,19 @@ public class ActionEditorScreen extends BaseScreen {
     int buttonWidth = 70;
     int btnSpacing = 8;
     int buttonStartX = (innerWidth - (buttonWidth * 2 + btnSpacing)) / 2;
-    addWidget(
-        new TextButton(buttonStartX, row, buttonWidth, 20, "button.save", btn -> saveAndClose()));
-    addWidget(
+    saveButton =
+        new TextButton(buttonStartX, row, buttonWidth, 20, "button.save", btn -> saveAndClose());
+    addWidget(saveButton);
+    cancelButton =
         new TextButton(
             buttonStartX + buttonWidth + btnSpacing,
             row,
             buttonWidth,
             20,
             "button.cancel",
-            btn -> closeScreen()));
+            btn -> closeScreen());
+    addWidget(cancelButton);
+    updateButtonStates();
   }
 
   private void refreshConfigPanel() {
@@ -238,7 +247,7 @@ public class ActionEditorScreen extends BaseScreen {
       case OPEN_STORY -> {
         panel.addWidget(
             new Label(4, y + 3, "field.story_id", 0, ScaledText.SCALE_SMALL, Label.Alignment.LEFT));
-        field1Input = new TextInput(86, y, fieldWidth, 14, val -> {});
+        field1Input = new TextInput(86, y, fieldWidth, 14, val -> updateButtonStates());
         field1Input.setSuggestion("dqse:my_story");
         field1Input.setMaxLength(200);
         panel.addWidget(field1Input);
@@ -246,7 +255,7 @@ public class ActionEditorScreen extends BaseScreen {
         panel.addWidget(
             new Label(
                 4, y + 3, "field.theme_override", 0, ScaledText.SCALE_SMALL, Label.Alignment.LEFT));
-        field2Input = new TextInput(86, y, fieldWidth, 14, val -> {});
+        field2Input = new TextInput(86, y, fieldWidth, 14, val -> updateButtonStates());
         field2Input.setSuggestion("(optional)");
         field2Input.setMaxLength(200);
         panel.addWidget(field2Input);
@@ -254,7 +263,7 @@ public class ActionEditorScreen extends BaseScreen {
       case OPEN_INTERACTIVE_STORY -> {
         panel.addWidget(
             new Label(4, y + 3, "field.story_id", 0, ScaledText.SCALE_SMALL, Label.Alignment.LEFT));
-        field1Input = new TextInput(86, y, fieldWidth, 14, val -> {});
+        field1Input = new TextInput(86, y, fieldWidth, 14, val -> updateButtonStates());
         field1Input.setSuggestion("dqse:my_interactive_story");
         field1Input.setMaxLength(200);
         panel.addWidget(field1Input);
@@ -262,7 +271,7 @@ public class ActionEditorScreen extends BaseScreen {
       case RUN_COMMAND -> {
         panel.addWidget(
             new Label(4, y + 3, "field.command", 0, ScaledText.SCALE_SMALL, Label.Alignment.LEFT));
-        field1Input = new TextInput(86, y, fieldWidth, 14, val -> {});
+        field1Input = new TextInput(86, y, fieldWidth, 14, val -> updateButtonStates());
         field1Input.setSuggestion("/say hello");
         field1Input.setMaxLength(256);
         panel.addWidget(field1Input);
@@ -270,7 +279,7 @@ public class ActionEditorScreen extends BaseScreen {
       case SET_FACT -> {
         panel.addWidget(
             new Label(4, y + 3, "field.fact_id", 0, ScaledText.SCALE_SMALL, Label.Alignment.LEFT));
-        field1Input = new TextInput(86, y, fieldWidth, 14, val -> {});
+        field1Input = new TextInput(86, y, fieldWidth, 14, val -> updateButtonStates());
         field1Input.setSuggestion("dqse:my_fact");
         field1Input.setMaxLength(200);
         panel.addWidget(field1Input);
@@ -278,58 +287,91 @@ public class ActionEditorScreen extends BaseScreen {
         panel.addWidget(
             new Label(
                 4, y + 3, "field.fact_value", 0, ScaledText.SCALE_SMALL, Label.Alignment.LEFT));
-        field2Input = new TextInput(86, y, fieldWidth, 14, val -> {});
+        field2Input = new TextInput(86, y, fieldWidth, 14, val -> updateButtonStates());
         field2Input.setSuggestion("true");
         field2Input.setMaxLength(128);
         panel.addWidget(field2Input);
       }
       default -> {
         panel.addWidget(
-            new Label(4, y, "action.default.hint", 0, ScaledText.SCALE_SMALL, Label.Alignment.LEFT));
+            new Label(
+                4, y, "action.default.hint", 0, ScaledText.SCALE_SMALL, Label.Alignment.LEFT));
       }
     }
   }
 
   private void addCurrentAction() {
+    ActionDataEntry action = createCurrentAction(true);
+    if (action == null) {
+      updateButtonStates();
+      return;
+    }
+
+    if (editingAction != null) {
+      editableActionDataSet.replace(action);
+    } else {
+      editableActionDataSet.add(action);
+    }
+    clearCurrentActionDraft();
+    refreshWidgets();
+  }
+
+  private ActionDataEntry createCurrentAction(boolean logInvalid) {
     String value1 = field1Input != null ? field1Input.getValue().trim() : "";
     String value2 = field2Input != null ? field2Input.getValue().trim() : "";
+    ActionDataEntry action = null;
     switch (selectedNewType) {
       case OPEN_STORY -> {
         ResourceLocation storyId = ResourceLocation.tryParse(value1);
         if (storyId == null) {
-          log.warn("{} ActionEditorScreen: invalid storyId '{}'", Constants.LOG_PREFIX, value1);
-          return;
+          if (logInvalid && !value1.isEmpty()) {
+            log.warn("{} ActionEditorScreen: invalid storyId '{}'", Constants.LOG_PREFIX, value1);
+          }
+          return null;
         }
         ResourceLocation themeOverrideId =
             value2.isEmpty() ? null : ResourceLocation.tryParse(value2);
-        editableActionDataSet.add(ActionDataEntry.openStory(storyId, themeOverrideId));
+        action = ActionDataEntry.openStory(storyId, themeOverrideId);
       }
       case OPEN_INTERACTIVE_STORY -> {
         ResourceLocation storyId = ResourceLocation.tryParse(value1);
         if (storyId == null) {
-          return;
+          return null;
         }
-        editableActionDataSet.add(ActionDataEntry.openInteractiveStory(storyId));
+        action = ActionDataEntry.openInteractiveStory(storyId);
       }
       case RUN_COMMAND -> {
         if (!value1.isEmpty()) {
-          editableActionDataSet.add(ActionDataEntry.runCommand(value1));
+          action = ActionDataEntry.runCommand(value1);
         }
       }
       case SET_FACT -> {
         ResourceLocation factId = ResourceLocation.tryParse(value1);
         if (factId == null || value2.isEmpty()) {
-          return;
+          return null;
         }
-        editableActionDataSet.add(ActionDataEntry.setFact(factId, value2));
+        action = ActionDataEntry.setFact(factId, value2);
       }
-      default -> log.warn(
-          "{} ActionEditorScreen: unsupported action type {}", Constants.LOG_PREFIX, selectedNewType);
+      default ->
+          log.warn(
+              "{} ActionEditorScreen: unsupported action type {}",
+              Constants.LOG_PREFIX,
+              selectedNewType);
     }
-    refreshWidgets();
+
+    if (action == null || editingAction == null) {
+      return action;
+    }
+
+    return new ActionDataEntry(editingAction.id(), action.type(), action.data().copy());
   }
 
   private void saveAndClose() {
+    if (!hasUnsavedChanges()) {
+      return;
+    }
+
+    commitPendingCurrentAction();
     InteractionEntry updatedEntry =
         entry.withEdits(entry.interactionType(), entry.label(), editableActionDataSet);
     NetworkHandlerManager.sendToServer(new SaveInteractionMessage(updatedEntry));
@@ -337,6 +379,68 @@ public class ActionEditorScreen extends BaseScreen {
       this.onSaveCallback.accept(updatedEntry);
     }
     closeScreen();
+  }
+
+  private void commitPendingCurrentAction() {
+    ActionDataEntry action = createCurrentAction(false);
+    if (action == null || (editingAction != null && actionsEqual(action, editingAction))) {
+      return;
+    }
+
+    if (editingAction != null) {
+      editableActionDataSet.replace(action);
+    } else {
+      editableActionDataSet.add(action);
+    }
+    clearCurrentActionDraft();
+  }
+
+  private boolean hasUnsavedChanges() {
+    return hasActionDataChanges() || hasPendingCurrentActionChange();
+  }
+
+  private boolean hasActionDataChanges() {
+    return !editableActionDataSet.save().equals(originalActionDataTag);
+  }
+
+  private boolean hasPendingCurrentActionChange() {
+    ActionDataEntry action = createCurrentAction(false);
+    if (action == null) {
+      return false;
+    }
+
+    return editingAction == null || !actionsEqual(action, editingAction);
+  }
+
+  private boolean actionsEqual(ActionDataEntry first, ActionDataEntry second) {
+    return first != null && second != null && first.save().equals(second.save());
+  }
+
+  private void clearCurrentActionDraft() {
+    editingAction = null;
+    editField1Prefill = null;
+    editField2Prefill = null;
+    field1Input = null;
+    field2Input = null;
+  }
+
+  private void updateButtonStates() {
+    if (addActionButton != null) {
+      addActionButton.setActive(createCurrentAction(false) != null);
+    }
+    boolean hasUnsavedChanges = hasUnsavedChanges();
+    if (saveButton != null) {
+      saveButton.setActive(hasUnsavedChanges);
+    }
+    if (cancelButton != null) {
+      cancelButton.setActive(hasUnsavedChanges);
+    }
+  }
+
+  @Override
+  public void tick() {
+    super.tick();
+    updateButtonStates();
   }
 
   private String formatActionSummary(ActionDataEntry action) {

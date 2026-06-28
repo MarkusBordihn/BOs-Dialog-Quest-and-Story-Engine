@@ -43,8 +43,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class HolopadBlock extends HorizontalDirectionalBlock {
 
-  private static final VoxelShape SHAPE =
-      Block.box(3.0, 0.0, 3.0, 13.0, 14.0, 13.0);
+  private static final VoxelShape SHAPE = Block.box(3.0, 0.0, 3.0, 13.0, 14.0, 13.0);
 
   public HolopadBlock() {
     super(
@@ -63,7 +62,8 @@ public class HolopadBlock extends HorizontalDirectionalBlock {
 
   @Override
   public BlockState getStateForPlacement(BlockPlaceContext context) {
-    return this.defaultBlockState().setValue(FACING, context.getHorizontalDirection().getOpposite());
+    return this.defaultBlockState()
+        .setValue(FACING, context.getHorizontalDirection().getOpposite());
   }
 
   @Override

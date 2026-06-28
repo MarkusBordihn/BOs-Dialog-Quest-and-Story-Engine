@@ -27,6 +27,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import de.markusbordihn.dialogqueststoryengine.data.issue.IssueCode;
 import de.markusbordihn.dialogqueststoryengine.data.json.ParseResult;
+import de.markusbordihn.dialogqueststoryengine.logic.condition.BuiltinConditions;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -34,6 +35,7 @@ import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 import net.minecraft.resources.ResourceLocation;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 class DialogContentParserTest {
@@ -41,9 +43,17 @@ class DialogContentParserTest {
   private static final Gson GSON = new Gson();
   private static final ResourceLocation TEST_ID = new ResourceLocation("test", "dialog_a");
   private static final String TEST_FILE = "test.json";
-
   private static final ResourceLocation EXAMPLES_HELLO_ID =
       new ResourceLocation("dialog_quest_and_story_engine_examples", "hello");
+  private static final ResourceLocation EXAMPLES_MERCHANT_ID =
+      new ResourceLocation("dialog_quest_and_story_engine_examples", "merchant");
+  private static final ResourceLocation EXAMPLES_GATEKEEPER_ID =
+      new ResourceLocation("dialog_quest_and_story_engine_examples", "gatekeeper");
+
+  @BeforeAll
+  static void registerBuiltinConditions() {
+    BuiltinConditions.register();
+  }
 
   private static JsonObject loadJson(String classpathPath) {
     try (InputStream stream =
@@ -75,6 +85,41 @@ class DialogContentParserTest {
     assertEquals(2, result.value().get().nodes().size());
     assertEquals(
         "example.villager.name", result.value().get().nodes().get("greeting").speakerKey());
+  }
+
+  @Test
+  void parsesExampleMerchantDialog() {
+    JsonObject input =
+        loadJson("data/dialog_quest_and_story_engine_examples/dqse/dialogs/merchant.json");
+
+    ParseResult<DialogDefinition> result =
+        DialogContentParser.parse(EXAMPLES_MERCHANT_ID, "merchant.json", input);
+
+    assertTrue(result.isSuccess());
+    assertTrue(result.issues().isEmpty());
+    assertEquals("intro", result.value().get().startNode());
+    assertEquals(3, result.value().get().nodes().size());
+  }
+
+  @Test
+  void parsesExampleGatekeeperDialog() {
+    JsonObject input =
+        loadJson("data/dialog_quest_and_story_engine_examples/dqse/dialogs/gatekeeper.json");
+
+    ParseResult<DialogDefinition> result =
+        DialogContentParser.parse(EXAMPLES_GATEKEEPER_ID, "gatekeeper.json", input);
+
+    assertTrue(result.isSuccess());
+    assertTrue(result.issues().isEmpty());
+    assertEquals("gate", result.value().get().startNode());
+    assertEquals(3, result.value().get().nodes().size());
+
+    DialogChoiceDefinition enter =
+        result.value().get().nodes().get("gate").choices().stream()
+            .filter(choice -> choice.id().equals("enter"))
+            .findFirst()
+            .orElseThrow();
+    assertEquals(1, enter.conditions().members().size());
   }
 
   @Test

@@ -29,8 +29,7 @@ import de.markusbordihn.dialogqueststoryengine.network.message.SaveInteractionMe
 import de.markusbordihn.dialogqueststoryengine.network.message.SyncInteractionDataMessage;
 import de.markusbordihn.dialogqueststoryengine.network.message.session.ClientCloseSessionPacket;
 import de.markusbordihn.dialogqueststoryengine.network.message.session.CloseSessionPacket;
-import de.markusbordihn.dialogqueststoryengine.network.message.session.DialogNodeChangedPacket;
-import de.markusbordihn.dialogqueststoryengine.network.message.session.OpenDialogSessionPacket;
+import de.markusbordihn.dialogqueststoryengine.network.message.session.DialogSessionPacket;
 import de.markusbordihn.dialogqueststoryengine.network.message.session.OpenStorySessionPacket;
 import de.markusbordihn.dialogqueststoryengine.network.message.session.QuestDeltaPacket;
 import de.markusbordihn.dialogqueststoryengine.network.message.session.SessionRejectedPacket;
@@ -100,17 +99,11 @@ public final class NetworkHandlerManager {
         InteractionListMessage.class,
         InteractionListMessage::create);
     networkHandler.registerClientNetworkMessageHandler(
-        OpenDialogSessionPacket.MESSAGE_ID,
-        OpenDialogSessionPacket.class,
-        OpenDialogSessionPacket::create);
+        DialogSessionPacket.MESSAGE_ID, DialogSessionPacket.class, DialogSessionPacket::create);
     networkHandler.registerClientNetworkMessageHandler(
         OpenStorySessionPacket.MESSAGE_ID,
         OpenStorySessionPacket.class,
         OpenStorySessionPacket::create);
-    networkHandler.registerClientNetworkMessageHandler(
-        DialogNodeChangedPacket.MESSAGE_ID,
-        DialogNodeChangedPacket.class,
-        DialogNodeChangedPacket::create);
     networkHandler.registerClientNetworkMessageHandler(
         StoryDeltaPacket.MESSAGE_ID, StoryDeltaPacket.class, StoryDeltaPacket::create);
     networkHandler.registerClientNetworkMessageHandler(

@@ -152,9 +152,19 @@ public record InteractionEntry(
       }
 
       ActionDataSet actionDataSet =
-          tag.contains(TAG_ACTION_DATA) ? ActionDataSet.load(tag.getCompound(TAG_ACTION_DATA)) : new ActionDataSet();
+          tag.contains(TAG_ACTION_DATA)
+              ? ActionDataSet.load(tag.getCompound(TAG_ACTION_DATA))
+              : new ActionDataSet();
       return new InteractionEntry(
-          source, eventType, targetId, targetKind, interactionType, label, dimension, blockPos, actionDataSet);
+          source,
+          eventType,
+          targetId,
+          targetKind,
+          interactionType,
+          label,
+          dimension,
+          blockPos,
+          actionDataSet);
     } catch (Exception e) {
       log.warn("Failed to load interaction entry: {}", e.getMessage());
       return null;
@@ -172,7 +182,15 @@ public record InteractionEntry(
     BlockPos blockPos = buf.readBoolean() ? buf.readBlockPos() : null;
     ActionDataSet actionDataSet = ActionDataSet.readFromBuf(buf);
     return new InteractionEntry(
-        source, eventType, targetId, targetKind, interactionType, label, dimension, blockPos, actionDataSet);
+        source,
+        eventType,
+        targetId,
+        targetKind,
+        interactionType,
+        label,
+        dimension,
+        blockPos,
+        actionDataSet);
   }
 
   public InteractionEntry withEdits(InteractionType updatedInteractionType, String updatedLabel) {
@@ -180,8 +198,11 @@ public record InteractionEntry(
   }
 
   public InteractionEntry withEdits(
-      InteractionType updatedInteractionType, String updatedLabel, ActionDataSet updatedActionDataSet) {
-    InteractionEventType updatedEventType = resolveEventType(this.targetKind, updatedInteractionType);
+      InteractionType updatedInteractionType,
+      String updatedLabel,
+      ActionDataSet updatedActionDataSet) {
+    InteractionEventType updatedEventType =
+        resolveEventType(this.targetKind, updatedInteractionType);
     return new InteractionEntry(
         this.source,
         updatedEventType,
