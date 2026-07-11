@@ -24,11 +24,13 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import de.markusbordihn.dialogqueststoryengine.content.quest.QuestTestFixtures;
 import java.util.Optional;
 import java.util.UUID;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class QuestWorkflowTest {
@@ -37,10 +39,17 @@ class QuestWorkflowTest {
   private static final ResourceLocation QUEST_1 = new ResourceLocation("test", "quest_one");
   private static final ResourceLocation QUEST_2 = new ResourceLocation("test", "quest_two");
 
+  @BeforeEach
+  void setUp() {
+    QuestTestFixtures.install(QUEST_1, QUEST_2);
+  }
+
   @AfterEach
   void tearDown() {
+    PlayerStateService.markPlayerDataSaved(PLAYER_UUID);
     PlayerStateService.onPlayerLoggedOut(PLAYER_UUID);
     PlayerStateEvents.clearAll();
+    QuestTestFixtures.clear();
   }
 
   @Test
@@ -165,6 +174,7 @@ class QuestWorkflowTest {
 
     CompoundTag savedNbt = PlayerStateService.getPlayerDataForSave(PLAYER_UUID);
     assertNotNull(savedNbt, "Dirty state should produce non-null NBT");
+    PlayerStateService.markPlayerDataSaved(PLAYER_UUID);
 
     PlayerStateService.onPlayerLoggedOut(PLAYER_UUID);
     PlayerStateService.onPlayerDataLoaded(PLAYER_UUID, savedNbt);

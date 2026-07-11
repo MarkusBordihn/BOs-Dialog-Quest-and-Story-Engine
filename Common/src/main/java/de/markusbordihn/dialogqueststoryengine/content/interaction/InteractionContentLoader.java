@@ -22,11 +22,11 @@ package de.markusbordihn.dialogqueststoryengine.content.interaction;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import de.markusbordihn.dialogqueststoryengine.Constants;
-import de.markusbordihn.dialogqueststoryengine.content.DataPackReloadNotifier;
 import de.markusbordihn.dialogqueststoryengine.data.ContentType;
 import de.markusbordihn.dialogqueststoryengine.data.issue.ContentIssue;
 import de.markusbordihn.dialogqueststoryengine.data.issue.ContentIssueTracker;
 import de.markusbordihn.dialogqueststoryengine.data.issue.IssueCode;
+import de.markusbordihn.dialogqueststoryengine.data.json.ContentParserGuard;
 import de.markusbordihn.dialogqueststoryengine.data.json.ParseResult;
 import de.markusbordihn.dialogqueststoryengine.interaction.InteractionManager;
 import java.util.LinkedHashMap;
@@ -87,8 +87,12 @@ public class InteractionContentLoader extends SimpleJsonResourceReloadListener {
       }
 
       ParseResult<InteractionDefinition> result =
-          InteractionContentParser.parse(
-              resourceLocation, filePath, fileEntry.getValue().getAsJsonObject());
+          ContentParserGuard.parse(
+              ContentType.INTERACTION,
+              resourceLocation,
+              filePath,
+              fileEntry.getValue().getAsJsonObject(),
+              json -> InteractionContentParser.parse(resourceLocation, filePath, json));
 
       result.issues().forEach(ContentIssueTracker::record);
 
@@ -109,8 +113,6 @@ public class InteractionContentLoader extends SimpleJsonResourceReloadListener {
       InteractionDefinitions.toEntry(definition)
           .ifPresent(InteractionManager::registerDatapackInteraction);
     }
-
-    DataPackReloadNotifier.fire();
 
     log.info(
         "{} Loaded {} {}.",

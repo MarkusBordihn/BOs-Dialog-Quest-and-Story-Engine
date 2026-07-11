@@ -20,6 +20,7 @@
 package de.markusbordihn.dialogqueststoryengine.data.issue;
 
 public enum IssueCode {
+  CONTENT_PARSE_FAILED(IssueSeverity.ERROR, "Content file could not be parsed safely"),
   DUPLICATE_ID(IssueSeverity.WARNING, "Duplicate content ID, previous entry overwritten"),
   DUPLICATE_NODE_ID(IssueSeverity.ERROR, "Duplicate dialog node id within the same file"),
   EMPTY_CHOICES(IssueSeverity.WARNING, "Dialog node has no choices (terminal node)"),

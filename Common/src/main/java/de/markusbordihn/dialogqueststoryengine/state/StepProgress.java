@@ -42,8 +42,12 @@ public record StepProgress(StepState state, int progress, int required) {
   }
 
   public StepProgress withProgress(int newProgress) {
-    boolean nowComplete = this.required > 0 && newProgress >= this.required;
-    StepState newState = nowComplete ? StepState.COMPLETED : this.state;
-    return new StepProgress(newState, Math.min(newProgress, this.required), this.required);
+    int clamped = Math.max(0, Math.min(newProgress, this.required));
+    if (this.state == StepState.LOCKED) {
+      return new StepProgress(StepState.LOCKED, clamped, this.required);
+    }
+    boolean nowComplete = this.required > 0 && clamped >= this.required;
+    return new StepProgress(
+        nowComplete ? StepState.COMPLETED : StepState.ACTIVE, clamped, this.required);
   }
 }

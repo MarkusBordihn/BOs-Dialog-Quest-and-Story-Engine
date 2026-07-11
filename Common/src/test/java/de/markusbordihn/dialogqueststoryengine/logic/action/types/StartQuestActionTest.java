@@ -21,16 +21,29 @@ package de.markusbordihn.dialogqueststoryengine.logic.action.types;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import de.markusbordihn.dialogqueststoryengine.content.quest.QuestTestFixtures;
 import de.markusbordihn.dialogqueststoryengine.logic.action.ActionContext;
 import de.markusbordihn.dialogqueststoryengine.state.PlayerState;
 import de.markusbordihn.dialogqueststoryengine.state.QuestState;
 import java.util.UUID;
 import net.minecraft.resources.ResourceLocation;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class StartQuestActionTest {
 
   private static final ResourceLocation QUEST_ID = new ResourceLocation("test", "my_quest");
+
+  @BeforeEach
+  void setUp() {
+    QuestTestFixtures.install(QUEST_ID);
+  }
+
+  @AfterEach
+  void tearDown() {
+    QuestTestFixtures.clear();
+  }
 
   @Test
   void execute_questNotStarted_becomesActive() {

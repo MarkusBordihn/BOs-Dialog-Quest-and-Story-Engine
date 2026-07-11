@@ -25,10 +25,12 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import de.markusbordihn.dialogqueststoryengine.content.quest.QuestTestFixtures;
 import java.util.UUID;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class PlayerStateServiceTest {
@@ -36,10 +38,17 @@ class PlayerStateServiceTest {
   private static final UUID PLAYER_UUID = UUID.fromString("22222222-2222-2222-2222-222222222222");
   private static final ResourceLocation QUEST_ID = new ResourceLocation("test", "main_quest");
 
+  @BeforeEach
+  void setUp() {
+    QuestTestFixtures.install(QUEST_ID);
+  }
+
   @AfterEach
   void tearDown() {
+    PlayerStateService.markPlayerDataSaved(PLAYER_UUID);
     PlayerStateService.onPlayerLoggedOut(PLAYER_UUID);
     PlayerStateEvents.clearAll();
+    QuestTestFixtures.clear();
   }
 
   @Test
@@ -71,9 +80,23 @@ class PlayerStateServiceTest {
     CompoundTag savedNbt = PlayerStateService.getPlayerDataForSave(PLAYER_UUID);
 
     assertNotNull(savedNbt);
+    assertNotNull(
+        PlayerStateService.getPlayerDataForSave(PLAYER_UUID),
+        "Dirty state must remain available until the write succeeds");
+    PlayerStateService.markPlayerDataSaved(PLAYER_UUID);
     assertNull(
         PlayerStateService.getPlayerDataForSave(PLAYER_UUID),
         "Second call should return null — not dirty anymore");
+  }
+
+  @Test
+  void onPlayerLoggedOutRetainsDirtyCache() {
+    PlayerStateService.onPlayerDataLoaded(PLAYER_UUID, new CompoundTag());
+    PlayerStateService.setFact(PLAYER_UUID, FactScope.PLAYER, "coins", FactValue.of(5L));
+
+    PlayerStateService.onPlayerLoggedOut(PLAYER_UUID);
+
+    assertTrue(PlayerStateService.isLoaded(PLAYER_UUID));
   }
 
   @Test

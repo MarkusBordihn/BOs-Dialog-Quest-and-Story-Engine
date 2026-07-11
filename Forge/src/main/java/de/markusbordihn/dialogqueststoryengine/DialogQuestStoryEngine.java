@@ -21,8 +21,10 @@ package de.markusbordihn.dialogqueststoryengine;
 
 import de.markusbordihn.dialogqueststoryengine.block.ModBlocks;
 import de.markusbordihn.dialogqueststoryengine.commands.CommandsEventHandler;
+import de.markusbordihn.dialogqueststoryengine.config.DqseSecurityConfig;
 import de.markusbordihn.dialogqueststoryengine.content.DataPackReloadEventHandler;
 import de.markusbordihn.dialogqueststoryengine.content.DataPackReloadNotifier;
+import de.markusbordihn.dialogqueststoryengine.core.DqseBootstrap;
 import de.markusbordihn.dialogqueststoryengine.entity.InteractionEventHandler;
 import de.markusbordihn.dialogqueststoryengine.item.ModItems;
 import de.markusbordihn.dialogqueststoryengine.network.NetworkHandler;
@@ -30,7 +32,6 @@ import de.markusbordihn.dialogqueststoryengine.server.PlayerStateEventHandler;
 import de.markusbordihn.dialogqueststoryengine.server.ServerEventHandler;
 import de.markusbordihn.dialogqueststoryengine.session.SessionManager;
 import de.markusbordihn.dialogqueststoryengine.tabs.ModTabs;
-import de.markusbordihn.dialogqueststoryengine.validation.BuiltinValidators;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -57,8 +58,8 @@ public class DialogQuestStoryEngine {
     Constants.GAME_DIR = FMLPaths.GAMEDIR.get();
     Constants.CONFIG_DIR = FMLPaths.CONFIGDIR.get();
 
-    log.info("{} Validators ...", Constants.LOG_REGISTER_PREFIX);
-    BuiltinValidators.register();
+    DqseSecurityConfig.load(Constants.CONFIG_DIR);
+    DqseBootstrap.initialize();
 
     log.info("{} Items ...", Constants.LOG_REGISTER_PREFIX);
     ModBlocks.BLOCKS.register(modEventBus);

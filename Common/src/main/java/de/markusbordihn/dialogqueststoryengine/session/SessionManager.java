@@ -29,6 +29,10 @@ import de.markusbordihn.dialogqueststoryengine.content.dialog.DialogNodeDefiniti
 import de.markusbordihn.dialogqueststoryengine.content.story.InteractiveStoryChoice;
 import de.markusbordihn.dialogqueststoryengine.content.story.InteractiveStoryContentRegistry;
 import de.markusbordihn.dialogqueststoryengine.content.story.InteractiveStoryDefinition;
+import de.markusbordihn.dialogqueststoryengine.debug.ConditionResult;
+import de.markusbordihn.dialogqueststoryengine.debug.ExecutionTraceEntry;
+import de.markusbordihn.dialogqueststoryengine.debug.ExecutionTraceService;
+import de.markusbordihn.dialogqueststoryengine.debug.TraceEventType;
 import de.markusbordihn.dialogqueststoryengine.logic.action.ActionContext;
 import de.markusbordihn.dialogqueststoryengine.logic.condition.ConditionContext;
 import de.markusbordihn.dialogqueststoryengine.network.NetworkHandlerManager;
@@ -43,6 +47,7 @@ import de.markusbordihn.dialogqueststoryengine.server.ServerEvents;
 import de.markusbordihn.dialogqueststoryengine.state.PlayerState;
 import de.markusbordihn.dialogqueststoryengine.state.PlayerStateService;
 import de.markusbordihn.dialogqueststoryengine.state.QuestProgress;
+import de.markusbordihn.dialogqueststoryengine.state.StepProgress;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.HashMap;
@@ -53,6 +58,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
@@ -62,9 +68,11 @@ import org.apache.logging.log4j.Logger;
 public final class SessionManager {
 
   private static final Logger log = LogManager.getLogger(Constants.LOG_NAME);
+  private static final long MAX_SESSION_AGE_MS = TimeUnit.MINUTES.toMillis(15);
   private static final ConcurrentHashMap<UUID, Session> sessionsById = new ConcurrentHashMap<>();
   private static final ConcurrentHashMap<UUID, EnumMap<SessionType, Session>> sessionsByPlayer =
       new ConcurrentHashMap<>();
+  private static final Set<ResourceLocation> openingStoryIds = new HashSet<>();
 
   private SessionManager() {}
 
@@ -118,10 +126,24 @@ public final class SessionManager {
             choiceLabels,
             Map.of(),
             session.revision()));
+    recordTrace(player, session, dialogId, TraceEventType.SESSION_OPENED, Optional.empty());
     return session;
   }
 
   public static InteractiveStorySession openStorySession(
+      ServerPlayer player, ResourceLocation storyId) {
+    if (!openingStoryIds.add(storyId)) {
+      log.error("{} Recursive story open rejected for '{}'.", Constants.LOG_PREFIX, storyId);
+      return null;
+    }
+    try {
+      return openStorySessionInternal(player, storyId);
+    } finally {
+      openingStoryIds.remove(storyId);
+    }
+  }
+
+  private static InteractiveStorySession openStorySessionInternal(
       ServerPlayer player, ResourceLocation storyId) {
     Optional<InteractiveStoryDefinition> optionalDefinition =
         InteractiveStoryContentRegistry.get(storyId);
@@ -159,6 +181,10 @@ public final class SessionManager {
 
     definition.onOpen().execute(actionContext);
 
+    if (!isCurrentSession(session)) {
+      return null;
+    }
+
     sendStoryDelta(player, session, playerState, unlockedBefore, readBefore);
 
     ConditionContext conditionContext = new ConditionContext(player, playerState, player.server);
@@ -176,6 +202,7 @@ public final class SessionManager {
             choiceLabels,
             session.revision()));
 
+    recordTrace(player, session, storyId, TraceEventType.SESSION_OPENED, Optional.empty());
     return session;
   }
 
@@ -205,6 +232,11 @@ public final class SessionManager {
       return;
     }
 
+    if (isExpired(session)) {
+      removeAndClose(session, player, SessionCloseReason.TIMEOUT);
+      return;
+    }
+
     if (clientRevision != session.revision()) {
       NetworkHandlerManager.sendToPlayer(
           player, new SessionRejectedPacket(sessionId, SessionRejectionReason.STALE_REVISION));
@@ -212,8 +244,20 @@ public final class SessionManager {
     }
 
     if (session instanceof DialogSession dialogSession) {
+      recordTrace(
+          player,
+          session,
+          dialogSession.dialogId(),
+          TraceEventType.CHOICE_SUBMITTED,
+          Optional.of(choiceId));
       submitDialogChoice(player, dialogSession, choiceId);
     } else if (session instanceof InteractiveStorySession storySession) {
+      recordTrace(
+          player,
+          session,
+          storySession.storyId(),
+          TraceEventType.CHOICE_SUBMITTED,
+          Optional.of(choiceId));
       submitStoryChoice(player, storySession, choiceId);
     }
   }
@@ -251,6 +295,32 @@ public final class SessionManager {
         Constants.LOG_PREFIX,
         playerSessions.size(),
         playerUuid);
+  }
+
+  public static void closePlayerSessions(ServerPlayer player, SessionCloseReason reason) {
+    EnumMap<SessionType, Session> playerSessions = sessionsByPlayer.get(player.getUUID());
+    if (playerSessions == null) {
+      return;
+    }
+    for (Session session : List.copyOf(playerSessions.values())) {
+      if (session.isOpen()) {
+        removeAndClose(session, player, reason);
+      }
+    }
+  }
+
+  public static void expireSessions(MinecraftServer server) {
+    for (Session session : List.copyOf(sessionsById.values())) {
+      if (!session.isOpen() || !isExpired(session)) {
+        continue;
+      }
+      ServerPlayer player = server.getPlayerList().getPlayer(session.ownerPlayerUuid());
+      if (player != null) {
+        removeAndClose(session, player, SessionCloseReason.TIMEOUT);
+      } else {
+        invalidatePlayerSessions(session.ownerPlayerUuid());
+      }
+    }
   }
 
   public static void invalidateAll() {
@@ -313,7 +383,7 @@ public final class SessionManager {
       return;
     }
 
-    Map<ResourceLocation, Integer> questRevisionsBefore = snapshotQuestRevisions(playerState);
+    Map<ResourceLocation, QuestSnapshot> questSnapshotsBefore = snapshotQuests(playerState);
     Set<ResourceLocation> unlockedBefore = new HashSet<>(playerState.stories().unlockedIds());
     Set<ResourceLocation> readBefore = new HashSet<>(playerState.stories().readIds());
 
@@ -326,9 +396,13 @@ public final class SessionManager {
             "session-" + session.sessionId(),
             Optional.of(sessionContext));
     choice.actions().execute(actionContext);
+
+    if (!isCurrentSession(session)) {
+      return;
+    }
     session.bumpRevision();
 
-    sendQuestDeltas(player, playerState, questRevisionsBefore, session.revision());
+    sendQuestDeltas(player, playerState, questSnapshotsBefore);
     sendStoryDelta(player, session, playerState, unlockedBefore, readBefore);
 
     if (choice
@@ -402,7 +476,7 @@ public final class SessionManager {
       return;
     }
 
-    Map<ResourceLocation, Integer> questRevisionsBefore = snapshotQuestRevisions(playerState);
+    Map<ResourceLocation, QuestSnapshot> questSnapshotsBefore = snapshotQuests(playerState);
     Set<ResourceLocation> unlockedBefore = new HashSet<>(playerState.stories().unlockedIds());
     Set<ResourceLocation> readBefore = new HashSet<>(playerState.stories().readIds());
 
@@ -416,9 +490,13 @@ public final class SessionManager {
             "session-" + session.sessionId(),
             Optional.of(sessionContext));
     choice.actions().execute(actionContext);
+
+    if (!isCurrentSession(session)) {
+      return;
+    }
     session.bumpRevision();
 
-    sendQuestDeltas(player, playerState, questRevisionsBefore, session.revision());
+    sendQuestDeltas(player, playerState, questSnapshotsBefore);
     sendStoryDelta(player, session, playerState, unlockedBefore, readBefore);
 
     removeAndClose(session, player, SessionCloseReason.PLAYER_CLOSED);
@@ -450,7 +528,10 @@ public final class SessionManager {
     sessionsById.remove(session.sessionId());
     EnumMap<SessionType, Session> playerSessions = sessionsByPlayer.get(session.ownerPlayerUuid());
     if (playerSessions != null) {
-      playerSessions.remove(session.sessionType());
+      playerSessions.remove(session.sessionType(), session);
+      if (playerSessions.isEmpty()) {
+        sessionsByPlayer.remove(session.ownerPlayerUuid(), playerSessions);
+      }
     }
     NetworkHandlerManager.sendToPlayer(player, new CloseSessionPacket(session.sessionId(), reason));
   }
@@ -458,6 +539,37 @@ public final class SessionManager {
   private static PlayerState getOrCreatePlayerState(ServerPlayer player) {
     return PlayerStateService.get(player.getUUID())
         .orElseGet(() -> new PlayerState(player.getUUID()));
+  }
+
+  private static boolean isCurrentSession(Session session) {
+    if (!session.isOpen() || sessionsById.get(session.sessionId()) != session) {
+      return false;
+    }
+    EnumMap<SessionType, Session> playerSessions = sessionsByPlayer.get(session.ownerPlayerUuid());
+    return playerSessions != null && playerSessions.get(session.sessionType()) == session;
+  }
+
+  private static boolean isExpired(Session session) {
+    return System.currentTimeMillis() - session.openedAtMs() >= MAX_SESSION_AGE_MS;
+  }
+
+  private static void recordTrace(
+      ServerPlayer player,
+      Session session,
+      ResourceLocation contentId,
+      TraceEventType eventType,
+      Optional<String> choiceId) {
+    ExecutionTraceService.record(
+        player.getUUID(),
+        new ExecutionTraceEntry(
+            System.currentTimeMillis(),
+            session.sessionId(),
+            contentId,
+            eventType,
+            ConditionResult.NONE,
+            List.of(),
+            choiceId,
+            Optional.empty()));
   }
 
   private static List<String> filterAllowedChoiceIds(
@@ -483,10 +595,11 @@ public final class SessionManager {
     return labels;
   }
 
-  private static Map<ResourceLocation, Integer> snapshotQuestRevisions(PlayerState playerState) {
-    Map<ResourceLocation, Integer> snapshot = new HashMap<>();
+  private static Map<ResourceLocation, QuestSnapshot> snapshotQuests(PlayerState playerState) {
+    Map<ResourceLocation, QuestSnapshot> snapshot = new HashMap<>();
     for (Map.Entry<ResourceLocation, QuestProgress> entry : playerState.allQuests().entrySet()) {
-      snapshot.put(entry.getKey(), entry.getValue().revision());
+      QuestProgress progress = entry.getValue();
+      snapshot.put(entry.getKey(), new QuestSnapshot(progress.revision(), progress.steps()));
     }
 
     return snapshot;
@@ -495,18 +608,31 @@ public final class SessionManager {
   private static void sendQuestDeltas(
       ServerPlayer player,
       PlayerState playerState,
-      Map<ResourceLocation, Integer> questRevisionsBefore,
-      int sessionRevision) {
+      Map<ResourceLocation, QuestSnapshot> questSnapshotsBefore) {
     for (Map.Entry<ResourceLocation, QuestProgress> entry : playerState.allQuests().entrySet()) {
       ResourceLocation questId = entry.getKey();
       QuestProgress progress = entry.getValue();
-      int revisionBefore = questRevisionsBefore.getOrDefault(questId, -1);
+      QuestSnapshot snapshotBefore = questSnapshotsBefore.get(questId);
+      int revisionBefore = snapshotBefore == null ? -1 : snapshotBefore.revision();
       if (progress.revision() != revisionBefore) {
+        Map<String, StepProgress> changedSteps =
+            changedSteps(snapshotBefore == null ? Map.of() : snapshotBefore.steps(), progress);
         NetworkHandlerManager.sendToPlayer(
             player,
-            new QuestDeltaPacket(questId, progress.state(), progress.steps(), sessionRevision));
+            new QuestDeltaPacket(questId, progress.state(), changedSteps, progress.revision()));
       }
     }
+  }
+
+  private static Map<String, StepProgress> changedSteps(
+      Map<String, StepProgress> stepsBefore, QuestProgress progress) {
+    Map<String, StepProgress> changedSteps = new HashMap<>();
+    for (Map.Entry<String, StepProgress> entry : progress.steps().entrySet()) {
+      if (!entry.getValue().equals(stepsBefore.get(entry.getKey()))) {
+        changedSteps.put(entry.getKey(), entry.getValue());
+      }
+    }
+    return changedSteps;
   }
 
   private static void sendStoryDelta(
@@ -529,5 +655,11 @@ public final class SessionManager {
             new ArrayList<>(newlyUnlocked),
             new ArrayList<>(newlyRead),
             session.revision()));
+  }
+
+  private record QuestSnapshot(int revision, Map<String, StepProgress> steps) {
+    private QuestSnapshot {
+      steps = Map.copyOf(steps);
+    }
   }
 }

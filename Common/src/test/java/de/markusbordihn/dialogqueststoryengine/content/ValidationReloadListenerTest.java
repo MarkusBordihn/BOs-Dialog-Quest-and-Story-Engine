@@ -29,6 +29,7 @@ import de.markusbordihn.dialogqueststoryengine.data.issue.IssueCode;
 import de.markusbordihn.dialogqueststoryengine.registry.ContentValidator;
 import de.markusbordihn.dialogqueststoryengine.registry.Registries;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
 import org.junit.jupiter.api.BeforeEach;
@@ -114,6 +115,20 @@ class ValidationReloadListenerTest {
 
     this.runReloadSynchronously();
 
-    assertEquals(issuesAfterFirst * 2, ContentIssueTracker.issues().size());
+    assertEquals(issuesAfterFirst, ContentIssueTracker.issues().size());
+  }
+
+  @Test
+  void reloadNotificationFiresOnceAfterValidation() throws Exception {
+    AtomicInteger calls = new AtomicInteger();
+    Runnable listener = calls::incrementAndGet;
+    DataPackReloadNotifier.subscribe(listener);
+    try {
+      this.runReloadSynchronously();
+    } finally {
+      DataPackReloadNotifier.unsubscribe(listener);
+    }
+
+    assertEquals(1, calls.get());
   }
 }

@@ -50,5 +50,14 @@
   "gui.dialog_quest_and_story_engine.action.trigger_event.hint2": "Definiere ein Ereignis, das bei dieser Interaktion ausgelöst wird.",
   "gui.dialog_quest_and_story_engine.action.run_command.hint": "Befehlskonfiguration wird hier verfügbar sein.",
   "gui.dialog_quest_and_story_engine.action.run_command.hint2": "Gib einen Befehl ein, der bei dieser Interaktion ausgeführt wird.",
-  "gui.dialog_quest_and_story_engine.action.default.hint": "Wähle oben einen Aktionstyp aus, um ihn zu konfigurieren."
+  "gui.dialog_quest_and_story_engine.action.default.hint": "Wähle oben einen Aktionstyp aus, um ihn zu konfigurieren.",
+  "message.dialog_quest_and_story_engine.session.closed.reload": "Die Sitzung wurde wegen neu geladener Serverinhalte geschlossen.",
+  "message.dialog_quest_and_story_engine.session.closed.timeout": "Die Sitzung ist abgelaufen. Öffne sie erneut, um fortzufahren.",
+  "message.dialog_quest_and_story_engine.session.closed.context_changed": "Die Sitzung wurde wegen eines Wechsels des Weltkontexts geschlossen.",
+  "message.dialog_quest_and_story_engine.session.rejected.stale_revision": "Diese Auswahl ist veraltet. Bitte versuche es erneut.",
+  "message.dialog_quest_and_story_engine.session.rejected.unknown_session": "Diese Sitzung ist nicht mehr verfügbar.",
+  "message.dialog_quest_and_story_engine.session.rejected.wrong_owner": "Diese Sitzung gehört einem anderen Spieler.",
+  "message.dialog_quest_and_story_engine.session.rejected.session_closed": "Diese Sitzung ist bereits geschlossen.",
+  "message.dialog_quest_and_story_engine.session.rejected.unknown_choice": "Diese Auswahl ist nicht mehr verfügbar.",
+  "message.dialog_quest_and_story_engine.session.rejected.condition_failed": "Die Voraussetzungen für diese Auswahl sind nicht mehr erfüllt."
 }

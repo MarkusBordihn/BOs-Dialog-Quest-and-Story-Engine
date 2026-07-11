@@ -20,8 +20,8 @@
 package de.markusbordihn.dialogqueststoryengine.state;
 
 import de.markusbordihn.dialogqueststoryengine.Constants;
-import de.markusbordihn.dialogqueststoryengine.content.quest.QuestContentRegistry;
-import de.markusbordihn.dialogqueststoryengine.content.quest.QuestDefinition;
+import de.markusbordihn.dialogqueststoryengine.quest.runtime.QuestChangeResult;
+import de.markusbordihn.dialogqueststoryengine.quest.runtime.QuestService;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -40,7 +40,16 @@ public final class PlayerStateService {
 
   public static void onPlayerDataLoaded(UUID playerUuid, CompoundTag nbt) {
     PlayerState playerState = PlayerStateCodec.fromNbt(nbt, playerUuid);
-    cache.put(playerUuid, playerState);
+    PlayerState retainedState = cache.get(playerUuid);
+    if (retainedState != null && retainedState.isDirty()) {
+      log.warn(
+          "{} Retaining unsaved player state for {} instead of replacing it from disk.",
+          Constants.LOG_PREFIX,
+          playerUuid);
+      playerState = retainedState;
+    } else {
+      cache.put(playerUuid, playerState);
+    }
     PlayerStateEvents.firePlayerStateLoaded(playerUuid, playerState);
     log.debug("{} Loaded player state for {}.", Constants.LOG_PREFIX, playerUuid);
   }
@@ -53,12 +62,25 @@ public final class PlayerStateService {
     if (!playerState.isDirty()) {
       return null;
     }
-    CompoundTag nbt = PlayerStateCodec.toNbt(playerState);
-    playerState.clearDirty();
-    return nbt;
+    return PlayerStateCodec.toNbt(playerState);
+  }
+
+  public static void markPlayerDataSaved(UUID playerUuid) {
+    PlayerState playerState = cache.get(playerUuid);
+    if (playerState != null) {
+      playerState.clearDirty();
+    }
   }
 
   public static void onPlayerLoggedOut(UUID playerUuid) {
+    PlayerState playerState = cache.get(playerUuid);
+    if (playerState != null && playerState.isDirty()) {
+      log.warn(
+          "{} Retaining unsaved player state for {} after logout.",
+          Constants.LOG_PREFIX,
+          playerUuid);
+      return;
+    }
     cache.remove(playerUuid);
     log.debug("{} Evicted player state cache for {}.", Constants.LOG_PREFIX, playerUuid);
   }
@@ -80,8 +102,7 @@ public final class PlayerStateService {
   }
 
   public static Optional<QuestProgress> startQuest(UUID playerUuid, ResourceLocation questId) {
-    PlayerState playerState = cache.get(playerUuid);
-    if (playerState == null) {
+    if (!cache.containsKey(playerUuid)) {
       log.warn(
           "{} Cannot start quest {} — player {} not loaded.",
           Constants.LOG_PREFIX,
@@ -89,51 +110,17 @@ public final class PlayerStateService {
           playerUuid);
       return Optional.empty();
     }
-    if (playerState.hasQuest(questId)
-        && playerState.getQuest(questId).state() == QuestState.ACTIVE) {
-      return Optional.of(playerState.getQuest(questId));
-    }
-
-    QuestProgress questProgress = new QuestProgress(QuestState.ACTIVE);
-    Optional<QuestDefinition> definition = QuestContentRegistry.get(questId);
-    if (definition.isPresent()) {
-      for (String stepId : definition.get().logic().steps().keySet()) {
-        questProgress.putStep(stepId, StepProgress.locked());
-      }
-    } else {
-      log.warn(
-          "{} Quest {} not found in registry — starting with empty steps.",
-          Constants.LOG_PREFIX,
-          questId);
-    }
-
-    playerState.putQuestDirect(questId, questProgress);
-    PlayerStateEvents.fireQuestStarted(playerUuid, questId, questProgress);
-    return Optional.of(questProgress);
+    return QuestService.startQuest(playerUuid, questId).map(QuestChangeResult::questProgress);
   }
 
   public static Optional<QuestProgress> completeQuest(UUID playerUuid, ResourceLocation questId) {
-    PlayerState playerState = cache.get(playerUuid);
-    if (playerState == null || !playerState.hasQuest(questId)) {
-      return Optional.empty();
-    }
-    QuestProgress questProgress = playerState.getQuest(questId);
-    questProgress.setState(QuestState.COMPLETED);
-    playerState.markDirty();
-    PlayerStateEvents.fireQuestCompleted(playerUuid, questId, questProgress);
-    return Optional.of(questProgress);
+    return QuestService.completeQuest(playerUuid, questId).map(QuestChangeResult::questProgress);
   }
 
   public static Optional<StepProgress> progressStep(
       UUID playerUuid, ResourceLocation questId, String stepId, int delta) {
-    PlayerState playerState = cache.get(playerUuid);
-    if (playerState == null || !playerState.hasQuest(questId)) {
-      return Optional.empty();
-    }
-    StepProgress stepProgress = playerState.getQuest(questId).incrementStep(stepId, delta);
-    playerState.markDirty();
-    PlayerStateEvents.fireStepProgressed(playerUuid, questId, stepId, stepProgress);
-    return Optional.of(stepProgress);
+    return QuestService.progressStep(playerUuid, questId, stepId, delta)
+        .map(result -> result.questProgress().steps().get(stepId));
   }
 
   public static void setFact(UUID playerUuid, FactScope scope, String key, FactValue value) {

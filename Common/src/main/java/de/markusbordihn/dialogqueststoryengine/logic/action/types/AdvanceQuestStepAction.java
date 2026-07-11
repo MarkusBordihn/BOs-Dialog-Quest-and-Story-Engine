@@ -26,9 +26,7 @@ import de.markusbordihn.dialogqueststoryengine.data.issue.ContentIssue;
 import de.markusbordihn.dialogqueststoryengine.data.issue.IssueCode;
 import de.markusbordihn.dialogqueststoryengine.logic.action.Action;
 import de.markusbordihn.dialogqueststoryengine.logic.action.ActionContext;
-import de.markusbordihn.dialogqueststoryengine.state.QuestProgress;
-import de.markusbordihn.dialogqueststoryengine.state.StepProgress;
-import de.markusbordihn.dialogqueststoryengine.state.StepState;
+import de.markusbordihn.dialogqueststoryengine.quest.runtime.QuestService;
 import java.util.List;
 import java.util.Map;
 import net.minecraft.resources.ResourceLocation;
@@ -91,31 +89,13 @@ public record AdvanceQuestStepAction(ResourceLocation questId, String stepId, in
 
   @Override
   public void execute(ActionContext actionContext) {
-    QuestProgress progress = actionContext.playerState().getQuest(this.questId);
-    if (progress == null) {
-      log.warn(
-          "{} advance_quest_step: quest '{}' not found in player state — skipping",
-          Constants.LOG_PREFIX,
-          this.questId);
-      return;
-    }
-
-    StepProgress current = progress.steps().get(this.stepId);
-    if (current == null) {
+    if (QuestService.progressStep(actionContext, this.questId, this.stepId, this.amount)
+        .isEmpty()) {
       log.warn(
           "{} advance_quest_step: step '{}' not found in quest '{}' — skipping",
           Constants.LOG_PREFIX,
           this.stepId,
           this.questId);
-      return;
     }
-
-    StepProgress activated =
-        current.state() == StepState.LOCKED ? current.withState(StepState.ACTIVE) : current;
-    StepProgress updated =
-        activated.required() == 0
-            ? activated.withState(StepState.COMPLETED)
-            : activated.withProgress(activated.progress() + this.amount);
-    progress.putStep(this.stepId, updated);
   }
 }

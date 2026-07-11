@@ -26,6 +26,7 @@ import de.markusbordihn.dialogqueststoryengine.data.ContentType;
 import de.markusbordihn.dialogqueststoryengine.data.issue.ContentIssue;
 import de.markusbordihn.dialogqueststoryengine.data.issue.ContentIssueTracker;
 import de.markusbordihn.dialogqueststoryengine.data.issue.IssueCode;
+import de.markusbordihn.dialogqueststoryengine.data.json.ContentParserGuard;
 import de.markusbordihn.dialogqueststoryengine.data.json.ParseResult;
 import java.util.Map;
 import net.minecraft.resources.ResourceLocation;
@@ -84,8 +85,12 @@ public class StoryEntryLoader extends SimpleJsonResourceReloadListener {
       }
 
       ParseResult<StoryEntry> result =
-          StoryEntryParser.parse(
-              resourceLocation, filePath, fileEntry.getValue().getAsJsonObject());
+          ContentParserGuard.parse(
+              ContentType.STORY_ENTRY,
+              resourceLocation,
+              filePath,
+              fileEntry.getValue().getAsJsonObject(),
+              json -> StoryEntryParser.parse(resourceLocation, filePath, json));
 
       result.issues().forEach(ContentIssueTracker::record);
 

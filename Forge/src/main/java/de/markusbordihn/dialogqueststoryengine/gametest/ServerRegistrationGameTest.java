@@ -41,4 +41,10 @@ public class ServerRegistrationGameTest {
     ServerRegistrationGameTestHelper.testBuiltinConditionTypesRegistered(helper);
     helper.succeed();
   }
+
+  @GameTest(template = "gametest.3x3x3")
+  public void testBuiltinActionTypesRegistered(GameTestHelper helper) {
+    ServerRegistrationGameTestHelper.testBuiltinActionTypesRegistered(helper);
+    helper.succeed();
+  }
 }

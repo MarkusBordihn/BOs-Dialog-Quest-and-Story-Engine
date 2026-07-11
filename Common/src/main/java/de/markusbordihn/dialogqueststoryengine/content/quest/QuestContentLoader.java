@@ -22,11 +22,11 @@ package de.markusbordihn.dialogqueststoryengine.content.quest;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import de.markusbordihn.dialogqueststoryengine.Constants;
-import de.markusbordihn.dialogqueststoryengine.content.DataPackReloadNotifier;
 import de.markusbordihn.dialogqueststoryengine.data.ContentType;
 import de.markusbordihn.dialogqueststoryengine.data.issue.ContentIssue;
 import de.markusbordihn.dialogqueststoryengine.data.issue.ContentIssueTracker;
 import de.markusbordihn.dialogqueststoryengine.data.issue.IssueCode;
+import de.markusbordihn.dialogqueststoryengine.data.json.ContentParserGuard;
 import de.markusbordihn.dialogqueststoryengine.data.json.ParseResult;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -83,8 +83,12 @@ public class QuestContentLoader extends SimpleJsonResourceReloadListener {
       }
 
       ParseResult<QuestDefinition> result =
-          QuestContentParser.parse(
-              resourceLocation, filePath, fileEntry.getValue().getAsJsonObject());
+          ContentParserGuard.parse(
+              ContentType.QUEST,
+              resourceLocation,
+              filePath,
+              fileEntry.getValue().getAsJsonObject(),
+              json -> QuestContentParser.parse(resourceLocation, filePath, json));
 
       result.issues().forEach(ContentIssueTracker::record);
 
@@ -101,7 +105,6 @@ public class QuestContentLoader extends SimpleJsonResourceReloadListener {
     }
 
     QuestContentRegistry.replaceAll(loaded);
-    DataPackReloadNotifier.fire();
 
     log.info(
         "{} Loaded {} {}.",

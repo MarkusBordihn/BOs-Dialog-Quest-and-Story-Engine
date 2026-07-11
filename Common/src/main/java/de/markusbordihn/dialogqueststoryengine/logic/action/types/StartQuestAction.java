@@ -21,15 +21,12 @@ package de.markusbordihn.dialogqueststoryengine.logic.action.types;
 
 import com.google.gson.JsonObject;
 import de.markusbordihn.dialogqueststoryengine.Constants;
-import de.markusbordihn.dialogqueststoryengine.content.quest.QuestContentRegistry;
 import de.markusbordihn.dialogqueststoryengine.data.ContentType;
 import de.markusbordihn.dialogqueststoryengine.data.issue.ContentIssue;
 import de.markusbordihn.dialogqueststoryengine.data.issue.IssueCode;
 import de.markusbordihn.dialogqueststoryengine.logic.action.Action;
 import de.markusbordihn.dialogqueststoryengine.logic.action.ActionContext;
-import de.markusbordihn.dialogqueststoryengine.state.QuestProgress;
-import de.markusbordihn.dialogqueststoryengine.state.QuestState;
-import de.markusbordihn.dialogqueststoryengine.state.StepProgress;
+import de.markusbordihn.dialogqueststoryengine.quest.runtime.QuestService;
 import java.util.List;
 import java.util.Map;
 import net.minecraft.resources.ResourceLocation;
@@ -71,27 +68,14 @@ public record StartQuestAction(ResourceLocation questId) implements Action {
 
   @Override
   public void execute(ActionContext actionContext) {
-    QuestProgress existing = actionContext.playerState().getQuest(this.questId);
-    if (existing != null && existing.state() != QuestState.NOT_STARTED) {
-      log.debug(
-          "{} start_quest: quest '{}' is already {} — skipping",
-          Constants.LOG_PREFIX,
-          this.questId,
-          existing.state());
-      return;
-    }
-
-    QuestProgress progress =
-        actionContext.playerState().getOrCreateQuest(this.questId, QuestState.ACTIVE);
-    progress.setState(QuestState.ACTIVE);
-
-    QuestContentRegistry.get(this.questId)
+    QuestService.startQuest(actionContext, this.questId)
+        .filter(result -> !result.changed())
         .ifPresent(
-            definition ->
-                definition
-                    .logic()
-                    .steps()
-                    .keySet()
-                    .forEach(stepId -> progress.putStep(stepId, StepProgress.locked())));
+            result ->
+                log.debug(
+                    "{} start_quest: quest '{}' is already {} — skipping",
+                    Constants.LOG_PREFIX,
+                    this.questId,
+                    result.questProgress().state()));
   }
 }

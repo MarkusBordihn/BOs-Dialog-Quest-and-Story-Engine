@@ -24,7 +24,6 @@ import de.markusbordihn.dialogqueststoryengine.state.PlayerStateEvents;
 import de.markusbordihn.dialogqueststoryengine.state.PlayerStateService;
 import de.markusbordihn.dialogqueststoryengine.state.QuestProgress;
 import de.markusbordihn.dialogqueststoryengine.state.QuestState;
-import de.markusbordihn.dialogqueststoryengine.state.StepProgress;
 import java.util.UUID;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.nbt.CompoundTag;
@@ -32,7 +31,8 @@ import net.minecraft.resources.ResourceLocation;
 
 public class QuestWorkflowGameTestHelper {
 
-  static final ResourceLocation QUEST_1 = new ResourceLocation("test", "quest_one");
+  static final ResourceLocation QUEST_1 =
+      new ResourceLocation("dialog_quest_and_story_engine_examples", "first_quest");
   static final ResourceLocation QUEST_2 = new ResourceLocation("test", "quest_two");
 
   private QuestWorkflowGameTestHelper() {}
@@ -60,21 +60,18 @@ public class QuestWorkflowGameTestHelper {
       PlayerStateService.startQuest(playerUuid, QUEST_1);
 
       PlayerState playerState = PlayerStateService.get(playerUuid).get();
-      playerState.getQuest(QUEST_1).putStep("gather_wood", StepProgress.active(5));
-      playerState.getQuest(QUEST_1).putStep("build_shelter", StepProgress.active(1));
-
-      PlayerStateService.progressStep(playerUuid, QUEST_1, "gather_wood", 5);
-      PlayerStateService.progressStep(playerUuid, QUEST_1, "build_shelter", 1);
+      PlayerStateService.progressStep(playerUuid, QUEST_1, "collect_item", 5);
+      PlayerStateService.progressStep(playerUuid, QUEST_1, "talk_to_villager", 1);
 
       QuestProgress quest = playerState.getQuest(QUEST_1);
       GameTestHelpers.assertTrue(
           helper,
-          "Step 'gather_wood' should be complete",
-          quest.steps().get("gather_wood").complete());
+          "Step 'collect_item' should be complete",
+          quest.steps().get("collect_item").complete());
       GameTestHelpers.assertTrue(
           helper,
-          "Step 'build_shelter' should be complete",
-          quest.steps().get("build_shelter").complete());
+          "Step 'talk_to_villager' should be complete",
+          quest.steps().get("talk_to_villager").complete());
 
       QuestProgress completed = PlayerStateService.completeQuest(playerUuid, QUEST_1).orElse(null);
       GameTestHelpers.assertNotNull(
@@ -93,8 +90,11 @@ public class QuestWorkflowGameTestHelper {
       PlayerStateService.onPlayerDataLoaded(playerUuid, new CompoundTag());
 
       PlayerStateService.startQuest(playerUuid, QUEST_1);
-      PlayerStateService.completeQuest(playerUuid, QUEST_1);
-      PlayerStateService.startQuest(playerUuid, QUEST_2);
+      PlayerStateService.progressStep(playerUuid, QUEST_1, "collect_item", 5);
+      PlayerStateService.progressStep(playerUuid, QUEST_1, "talk_to_villager", 1);
+      PlayerStateService.get(playerUuid)
+          .get()
+          .putQuestDirect(QUEST_2, new QuestProgress(QuestState.ACTIVE));
 
       PlayerState playerState = PlayerStateService.get(playerUuid).get();
       GameTestHelpers.assertEquals(
@@ -120,10 +120,9 @@ public class QuestWorkflowGameTestHelper {
 
       PlayerStateService.startQuest(playerUuid, QUEST_1);
       PlayerState playerState = PlayerStateService.get(playerUuid).get();
-      playerState.getQuest(QUEST_1).putStep("deliver_letter", StepProgress.active(1));
-      PlayerStateService.progressStep(playerUuid, QUEST_1, "deliver_letter", 1);
-      PlayerStateService.completeQuest(playerUuid, QUEST_1);
-      PlayerStateService.startQuest(playerUuid, QUEST_2);
+      PlayerStateService.progressStep(playerUuid, QUEST_1, "collect_item", 5);
+      PlayerStateService.progressStep(playerUuid, QUEST_1, "talk_to_villager", 1);
+      playerState.putQuestDirect(QUEST_2, new QuestProgress(QuestState.ACTIVE));
 
       CompoundTag savedNbt = PlayerStateService.getPlayerDataForSave(playerUuid);
       GameTestHelpers.assertNotNull(helper, "Dirty state should produce non-null NBT", savedNbt);
@@ -144,8 +143,8 @@ public class QuestWorkflowGameTestHelper {
           restoredState.getQuest(QUEST_2).state());
       GameTestHelpers.assertTrue(
           helper,
-          "Step 'deliver_letter' should be complete after reload",
-          restoredState.getQuest(QUEST_1).steps().get("deliver_letter").complete());
+          "Step 'collect_item' should be complete after reload",
+          restoredState.getQuest(QUEST_1).steps().get("collect_item").complete());
     } finally {
       PlayerStateService.onPlayerLoggedOut(playerUuid);
       PlayerStateEvents.clearAll();
@@ -162,7 +161,8 @@ public class QuestWorkflowGameTestHelper {
       PlayerStateEvents.addQuestCompletedListener(
           (uuid, questId, progress) -> firedQuestId[0] = questId);
 
-      PlayerStateService.completeQuest(playerUuid, QUEST_1);
+      PlayerStateService.progressStep(playerUuid, QUEST_1, "collect_item", 5);
+      PlayerStateService.progressStep(playerUuid, QUEST_1, "talk_to_villager", 1);
 
       GameTestHelpers.assertEquals(
           helper, "QuestCompleted event should fire with QUEST_1", QUEST_1, firedQuestId[0]);

@@ -26,6 +26,7 @@ import de.markusbordihn.dialogqueststoryengine.data.ContentType;
 import de.markusbordihn.dialogqueststoryengine.data.issue.ContentIssue;
 import de.markusbordihn.dialogqueststoryengine.data.issue.ContentIssueTracker;
 import de.markusbordihn.dialogqueststoryengine.data.issue.IssueCode;
+import de.markusbordihn.dialogqueststoryengine.data.json.ContentParserGuard;
 import de.markusbordihn.dialogqueststoryengine.data.json.ParseResult;
 import de.markusbordihn.dialogqueststoryengine.story.entry.StoryEntryThemeLinker;
 import java.util.Map;
@@ -81,7 +82,12 @@ public class ThemeLoader extends SimpleJsonResourceReloadListener {
       }
 
       ParseResult<Theme> result =
-          ThemeParser.parse(resourceLocation, filePath, fileEntry.getValue().getAsJsonObject());
+          ContentParserGuard.parse(
+              ContentType.THEME,
+              resourceLocation,
+              filePath,
+              fileEntry.getValue().getAsJsonObject(),
+              json -> ThemeParser.parse(resourceLocation, filePath, json));
 
       result.issues().forEach(ContentIssueTracker::record);
 

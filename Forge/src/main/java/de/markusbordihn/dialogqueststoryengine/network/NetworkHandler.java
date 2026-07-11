@@ -32,13 +32,13 @@ import net.minecraftforge.network.simple.SimpleChannel;
 
 public final class NetworkHandler implements NetworkHandlerInterface {
 
-  private static final String PROTOCOL_VERSION = "1";
+  private static final String PROTOCOL_VERSION = "2";
   private static final SimpleChannel CHANNEL =
       NetworkRegistry.newSimpleChannel(
           ResourceLocation.tryParse(Constants.MOD_ID + ":network"),
           () -> PROTOCOL_VERSION,
-          s -> true,
-          s -> true);
+          PROTOCOL_VERSION::equals,
+          PROTOCOL_VERSION::equals);
 
   private int registrationId;
 

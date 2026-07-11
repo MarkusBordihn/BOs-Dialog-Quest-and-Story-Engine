@@ -85,11 +85,6 @@ public final class ClientStoryOpener {
   }
 
   public static void openFromSession(OpenStorySessionPacket packet) {
-    if (packet.allowedChoiceIds().isEmpty()) {
-      open(packet.displayStoryId());
-      return;
-    }
-
     StoryEntry entry =
         StoryEntryClientRegistry.get(packet.displayStoryId())
             .orElseGet(
@@ -137,6 +132,14 @@ public final class ClientStoryOpener {
       if (sessionId.equals(openSessionId)) {
         Minecraft.getInstance().setScreen(null);
       }
+    }
+  }
+
+  public static void handleRejection(UUID sessionId) {
+    Screen currentScreen = Minecraft.getInstance().screen;
+    if (currentScreen instanceof HolopadScreen holopadScreen
+        && sessionId.equals(holopadScreen.sessionId())) {
+      holopadScreen.onServerRejection();
     }
   }
 }

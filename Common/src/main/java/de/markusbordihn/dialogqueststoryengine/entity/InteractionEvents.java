@@ -48,7 +48,7 @@ import org.apache.logging.log4j.Logger;
 public final class InteractionEvents {
 
   private static final Logger log = LogManager.getLogger(Constants.LOG_NAME);
-  private static final Map<UUID, BlockPos> lastPlayerBlockPos = new HashMap<>();
+  private static final Map<UUID, PlayerBlockLocation> lastPlayerBlockLocations = new HashMap<>();
 
   private InteractionEvents() {}
 
@@ -61,18 +61,20 @@ public final class InteractionEvents {
       return;
     }
 
-    BlockPos currentPos = player.blockPosition().below();
-    BlockPos lastPos = lastPlayerBlockPos.get(player.getUUID());
-    if (lastPos == null || !lastPos.equals(currentPos)) {
-      lastPlayerBlockPos.put(player.getUUID(), currentPos);
-      if (lastPos != null) {
-        handleStepOnBlock(player, currentPos, player.level());
+    PlayerBlockLocation currentLocation =
+        new PlayerBlockLocation(
+            player.level().dimension().location(), player.blockPosition().below());
+    PlayerBlockLocation previousLocation = lastPlayerBlockLocations.get(player.getUUID());
+    if (!currentLocation.equals(previousLocation)) {
+      lastPlayerBlockLocations.put(player.getUUID(), currentLocation);
+      if (previousLocation != null) {
+        handleStepOnBlock(player, currentLocation.blockPos(), player.level());
       }
     }
   }
 
   public static void clearTrackingData() {
-    lastPlayerBlockPos.clear();
+    lastPlayerBlockLocations.clear();
   }
 
   public static void handleRightClickEntity(Player player, Entity target) {
@@ -217,4 +219,6 @@ public final class InteractionEvents {
   private static String locationStr(BlockPos blockPos) {
     return blockPos != null ? " at " + blockPos.toShortString() : "";
   }
+
+  private record PlayerBlockLocation(ResourceLocation dimension, BlockPos blockPos) {}
 }

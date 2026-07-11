@@ -23,9 +23,7 @@ import de.markusbordihn.dialogqueststoryengine.Constants;
 import de.markusbordihn.dialogqueststoryengine.data.saveddata.InteractionSavedData;
 import de.markusbordihn.dialogqueststoryengine.entity.InteractionEvents;
 import de.markusbordihn.dialogqueststoryengine.interaction.InteractionManager;
-import de.markusbordihn.dialogqueststoryengine.interaction.InteractionRegistry;
 import de.markusbordihn.dialogqueststoryengine.item.InteractionWandItem;
-import de.markusbordihn.dialogqueststoryengine.logic.condition.BuiltinConditions;
 import de.markusbordihn.dialogqueststoryengine.network.NetworkHandlerManager;
 import de.markusbordihn.dialogqueststoryengine.network.message.SyncInteractionDataMessage;
 import de.markusbordihn.dialogqueststoryengine.registry.Registries;
@@ -54,8 +52,6 @@ public final class ServerEvents {
   public static void handleServerStarting(MinecraftServer server) {
     log.info("{} server is starting ...", Constants.MOD_NAME);
     currentServer = server;
-    InteractionRegistry.registerBuiltIns();
-    BuiltinConditions.register();
     Registries.freezeAll();
     syncStates.clear();
   }
@@ -78,6 +74,8 @@ public final class ServerEvents {
     if (server.getTickCount() % SYNC_INTERVAL != 0) {
       return;
     }
+
+    SessionManager.expireSessions(server);
 
     InteractionSavedData data = InteractionSavedData.get(server);
     long currentVersion = data.getSyncVersion();

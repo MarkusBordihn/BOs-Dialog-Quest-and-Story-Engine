@@ -1,0 +1,35 @@
+{
+  "schema": 1,
+  "display": {
+    "title_key": "quest.test.bureaucratic_errand.title",
+    "description_key": "quest.test.bureaucratic_errand.description",
+    "category": "test:administration"
+  },
+  "logic": {
+    "completion_policy": "all_steps",
+    "repeatable": false,
+    "sync_scope": "player",
+    "steps": {
+      "find_the_missing_form": {
+        "type": "dqse:manual",
+        "required": 1
+      },
+      "stamp_it_three_times": {
+        "type": "dqse:manual",
+        "required": 3
+      },
+      "return_to_the_overly_serious_clerk": {
+        "type": "dqse:manual",
+        "required": 1
+      }
+    }
+  },
+  "rewards": [
+    {
+      "type": "dqse:set_fact",
+      "scope": "player",
+      "fact": "test.bureaucratic_errand.survived_paperwork",
+      "value": true
+    }
+  ]
+}

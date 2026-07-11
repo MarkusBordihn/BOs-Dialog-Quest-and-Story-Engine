@@ -46,6 +46,7 @@ public final class PlayerStateCodec {
   private static final String TAG_QUEST_ID = "quest_id";
   private static final String TAG_QUEST_STATE = "quest_state";
   private static final String TAG_QUEST_REVISION = "quest_revision";
+  private static final String TAG_QUEST_LAST_REWARDED_REVISION = "quest_last_rewarded_revision";
   private static final String TAG_STEPS = "steps";
   private static final String TAG_STEP_ID = "step_id";
   private static final String TAG_STEP_STATE = "step_state";
@@ -168,6 +169,7 @@ public final class PlayerStateCodec {
       QuestProgress questProgress = entry.getValue();
       questTag.putString(TAG_QUEST_STATE, questProgress.state().name());
       questTag.putInt(TAG_QUEST_REVISION, questProgress.revision());
+      questTag.putInt(TAG_QUEST_LAST_REWARDED_REVISION, questProgress.lastRewardedRevision());
       questTag.put(TAG_STEPS, encodeSteps(questProgress));
       questsList.add(questTag);
     }
@@ -204,8 +206,13 @@ public final class PlayerStateCodec {
         questState = QuestState.NOT_STARTED;
       }
       int revision = questTag.getInt(TAG_QUEST_REVISION);
+      int lastRewardedRevision =
+          questTag.contains(TAG_QUEST_LAST_REWARDED_REVISION, Tag.TAG_INT)
+              ? questTag.getInt(TAG_QUEST_LAST_REWARDED_REVISION)
+              : -1;
       Map<String, StepProgress> steps = decodeSteps(questTag);
-      playerState.putQuestFromCodec(questId, new QuestProgress(questState, revision, steps));
+      playerState.putQuestFromCodec(
+          questId, new QuestProgress(questState, revision, lastRewardedRevision, steps));
     }
   }
 

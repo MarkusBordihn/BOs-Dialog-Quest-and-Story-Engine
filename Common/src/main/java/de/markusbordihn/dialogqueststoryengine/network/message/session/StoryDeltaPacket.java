@@ -20,6 +20,7 @@
 package de.markusbordihn.dialogqueststoryengine.network.message.session;
 
 import de.markusbordihn.dialogqueststoryengine.Constants;
+import de.markusbordihn.dialogqueststoryengine.client.ClientProgressState;
 import de.markusbordihn.dialogqueststoryengine.network.NetworkMessageRecord;
 import java.util.ArrayList;
 import java.util.List;
@@ -66,5 +67,10 @@ public record StoryDeltaPacket(
   @Override
   public ResourceLocation id() {
     return MESSAGE_ID;
+  }
+
+  @Override
+  public void handleClient() {
+    ClientProgressState.apply(this);
   }
 }

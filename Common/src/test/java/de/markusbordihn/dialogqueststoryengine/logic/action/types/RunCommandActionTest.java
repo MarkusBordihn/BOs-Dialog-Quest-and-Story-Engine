@@ -20,6 +20,8 @@
 package de.markusbordihn.dialogqueststoryengine.logic.action.types;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import de.markusbordihn.dialogqueststoryengine.config.DqseSecurityConfig;
 import de.markusbordihn.dialogqueststoryengine.logic.action.ActionContext;
@@ -65,5 +67,14 @@ class RunCommandActionTest {
     ActionContext ctx = ActionContext.ofTest(new PlayerState(UUID.randomUUID()));
 
     assertDoesNotThrow(() -> new RunCommandAction("give @s diamond 1", 2).execute(ctx));
+  }
+
+  @Test
+  void whitelistMatchesCommandBoundaries() {
+    DqseSecurityConfig.configure(true, List.of("say"), 2);
+
+    assertTrue(DqseSecurityConfig.isCommandAllowed("/say hello"));
+    assertFalse(DqseSecurityConfig.isCommandAllowed("say_private hello"));
+    assertFalse(DqseSecurityConfig.isCommandAllowed("give @s diamond"));
   }
 }

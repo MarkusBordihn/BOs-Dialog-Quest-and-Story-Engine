@@ -27,6 +27,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import de.markusbordihn.dialogqueststoryengine.data.issue.IssueCode;
 import de.markusbordihn.dialogqueststoryengine.data.json.ParseResult;
+import de.markusbordihn.dialogqueststoryengine.logic.action.BuiltinActions;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -74,6 +75,22 @@ class QuestContentParserTest {
     assertEquals("example.quest.first_quest.title", result.value().get().display().titleKey());
     assertEquals(2, result.value().get().logic().steps().size());
     assertEquals(CompletionPolicy.ALL_STEPS, result.value().get().logic().completionPolicy());
+  }
+
+  @Test
+  void parsesBureaucraticErrandQuestExample() {
+    BuiltinActions.register();
+    JsonObject input = loadJson("data/test/dqse/quests/bureaucratic_errand.json");
+
+    ParseResult<QuestDefinition> result =
+        QuestContentParser.parse(
+            new ResourceLocation("test", "bureaucratic_errand"), "bureaucratic_errand.json", input);
+
+    assertTrue(result.isSuccess());
+    assertTrue(result.issues().isEmpty());
+    assertEquals(CompletionPolicy.ALL_STEPS, result.value().get().logic().completionPolicy());
+    assertEquals(3, result.value().get().logic().steps().size());
+    assertEquals(1, result.value().get().rewards().actions().size());
   }
 
   @Test

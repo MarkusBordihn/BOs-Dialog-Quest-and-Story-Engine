@@ -20,6 +20,7 @@
 package de.markusbordihn.dialogqueststoryengine.network.message.session;
 
 import de.markusbordihn.dialogqueststoryengine.Constants;
+import de.markusbordihn.dialogqueststoryengine.client.ClientProgressState;
 import de.markusbordihn.dialogqueststoryengine.network.NetworkMessageRecord;
 import de.markusbordihn.dialogqueststoryengine.state.QuestState;
 import de.markusbordihn.dialogqueststoryengine.state.StepProgress;
@@ -74,5 +75,10 @@ public record QuestDeltaPacket(
   @Override
   public ResourceLocation id() {
     return MESSAGE_ID;
+  }
+
+  @Override
+  public void handleClient() {
+    ClientProgressState.apply(this);
   }
 }

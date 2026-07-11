@@ -21,14 +21,12 @@ package de.markusbordihn.dialogqueststoryengine.logic.action.types;
 
 import com.google.gson.JsonObject;
 import de.markusbordihn.dialogqueststoryengine.Constants;
-import de.markusbordihn.dialogqueststoryengine.content.quest.QuestContentRegistry;
 import de.markusbordihn.dialogqueststoryengine.data.ContentType;
 import de.markusbordihn.dialogqueststoryengine.data.issue.ContentIssue;
 import de.markusbordihn.dialogqueststoryengine.data.issue.IssueCode;
 import de.markusbordihn.dialogqueststoryengine.logic.action.Action;
 import de.markusbordihn.dialogqueststoryengine.logic.action.ActionContext;
-import de.markusbordihn.dialogqueststoryengine.state.QuestProgress;
-import de.markusbordihn.dialogqueststoryengine.state.QuestState;
+import de.markusbordihn.dialogqueststoryengine.quest.runtime.QuestService;
 import java.util.List;
 import java.util.Map;
 import net.minecraft.resources.ResourceLocation;
@@ -72,21 +70,11 @@ public record CompleteQuestAction(ResourceLocation questId) implements Action {
 
   @Override
   public void execute(ActionContext actionContext) {
-    QuestProgress progress = actionContext.playerState().getQuest(this.questId);
-    if (progress == null) {
+    if (QuestService.completeQuest(actionContext, this.questId).isEmpty()) {
       log.warn(
           "{} complete_quest: quest '{}' not found in player state — skipping",
           Constants.LOG_PREFIX,
           this.questId);
-      return;
     }
-
-    if (progress.state() == QuestState.COMPLETED) {
-      return;
-    }
-
-    progress.setState(QuestState.COMPLETED);
-    QuestContentRegistry.get(this.questId)
-        .ifPresent(definition -> definition.rewards().execute(actionContext));
   }
 }

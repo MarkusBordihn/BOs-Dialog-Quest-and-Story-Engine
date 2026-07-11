@@ -40,7 +40,7 @@ import net.minecraft.resources.ResourceLocation;
 public class ConditionEvaluationGameTestHelper {
 
   private static final ResourceLocation TEST_QUEST =
-      new ResourceLocation("test", "condition_quest");
+      new ResourceLocation("dialog_quest_and_story_engine_examples", "first_quest");
 
   private ConditionEvaluationGameTestHelper() {}
 

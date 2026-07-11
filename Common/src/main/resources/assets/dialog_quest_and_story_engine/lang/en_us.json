@@ -65,5 +65,14 @@
   "gui.dialog_quest_and_story_engine.action.trigger_event.hint2": "Define an event to fire when this interaction is triggered.",
   "gui.dialog_quest_and_story_engine.action.run_command.hint": "Command configuration will be available here.",
   "gui.dialog_quest_and_story_engine.action.run_command.hint2": "Enter a command to execute when this interaction is triggered.",
-  "gui.dialog_quest_and_story_engine.action.default.hint": "Select an action type above to configure it."
+  "gui.dialog_quest_and_story_engine.action.default.hint": "Select an action type above to configure it.",
+  "message.dialog_quest_and_story_engine.session.closed.reload": "The session was closed because server content was reloaded.",
+  "message.dialog_quest_and_story_engine.session.closed.timeout": "The session expired. Open it again to continue.",
+  "message.dialog_quest_and_story_engine.session.closed.context_changed": "The session was closed because your world context changed.",
+  "message.dialog_quest_and_story_engine.session.rejected.stale_revision": "This choice is outdated. Please try again.",
+  "message.dialog_quest_and_story_engine.session.rejected.unknown_session": "This session is no longer available.",
+  "message.dialog_quest_and_story_engine.session.rejected.wrong_owner": "This session belongs to another player.",
+  "message.dialog_quest_and_story_engine.session.rejected.session_closed": "This session is already closed.",
+  "message.dialog_quest_and_story_engine.session.rejected.unknown_choice": "This choice is no longer available.",
+  "message.dialog_quest_and_story_engine.session.rejected.condition_failed": "The requirements for this choice are no longer met."
 }

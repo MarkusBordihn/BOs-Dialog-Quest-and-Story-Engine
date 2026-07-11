@@ -28,16 +28,24 @@ public final class QuestProgress {
   private final Map<String, StepProgress> steps;
   private QuestState state;
   private int revision;
+  private int lastRewardedRevision;
 
   public QuestProgress(QuestState state) {
     this.state = state;
     this.revision = 0;
+    this.lastRewardedRevision = -1;
     this.steps = new LinkedHashMap<>();
   }
 
   public QuestProgress(QuestState state, int revision, Map<String, StepProgress> steps) {
+    this(state, revision, -1, steps);
+  }
+
+  public QuestProgress(
+      QuestState state, int revision, int lastRewardedRevision, Map<String, StepProgress> steps) {
     this.state = state;
     this.revision = revision;
+    this.lastRewardedRevision = lastRewardedRevision;
     this.steps = new LinkedHashMap<>(steps);
   }
 
@@ -47,6 +55,10 @@ public final class QuestProgress {
 
   public int revision() {
     return this.revision;
+  }
+
+  public int lastRewardedRevision() {
+    return this.lastRewardedRevision;
   }
 
   public Map<String, StepProgress> steps() {
@@ -63,6 +75,10 @@ public final class QuestProgress {
     bump();
   }
 
+  public void setLastRewardedRevision(int revision) {
+    this.lastRewardedRevision = revision;
+  }
+
   public StepProgress incrementStep(String stepId, int delta) {
     StepProgress current = this.steps.getOrDefault(stepId, StepProgress.locked());
     StepProgress updated = current.withProgress(current.progress() + delta);
@@ -71,7 +87,7 @@ public final class QuestProgress {
     return updated;
   }
 
-  public void bump() {
+  private void bump() {
     this.revision++;
   }
 }

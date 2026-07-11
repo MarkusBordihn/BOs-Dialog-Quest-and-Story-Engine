@@ -21,31 +21,35 @@ package de.markusbordihn.dialogqueststoryengine;
 
 import de.markusbordihn.dialogqueststoryengine.block.ModBlocks;
 import de.markusbordihn.dialogqueststoryengine.commands.manager.CommandManager;
+import de.markusbordihn.dialogqueststoryengine.config.DqseSecurityConfig;
 import de.markusbordihn.dialogqueststoryengine.content.DataPackReloadNotifier;
 import de.markusbordihn.dialogqueststoryengine.content.ResourceServerEventsFabric;
+import de.markusbordihn.dialogqueststoryengine.core.DqseBootstrap;
 import de.markusbordihn.dialogqueststoryengine.entity.InteractionEventHandler;
 import de.markusbordihn.dialogqueststoryengine.item.ModItems;
 import de.markusbordihn.dialogqueststoryengine.network.NetworkHandler;
 import de.markusbordihn.dialogqueststoryengine.network.NetworkHandlerManager;
 import de.markusbordihn.dialogqueststoryengine.network.NetworkHandlerManagerType;
 import de.markusbordihn.dialogqueststoryengine.server.ServerEvents;
+import de.markusbordihn.dialogqueststoryengine.session.SessionCloseReason;
 import de.markusbordihn.dialogqueststoryengine.session.SessionManager;
+import de.markusbordihn.dialogqueststoryengine.state.PlayerProgressSync;
 import de.markusbordihn.dialogqueststoryengine.state.PlayerStateService;
+import de.markusbordihn.dialogqueststoryengine.state.PlayerStateStorage;
 import de.markusbordihn.dialogqueststoryengine.tabs.ModTabs;
-import de.markusbordihn.dialogqueststoryengine.validation.BuiltinValidators;
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.UUID;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
+import net.fabricmc.fabric.api.entity.event.v1.ServerEntityWorldChangeEvents;
+import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtIo;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.world.level.storage.LevelResource;
 import org.apache.logging.log4j.LogManager;
@@ -60,35 +64,11 @@ public class DialogQuestStoryEngine implements ModInitializer {
   }
 
   private static CompoundTag readPlayerNbt(File dataFile, UUID playerUuid) {
-    if (!dataFile.exists()) {
-      return null;
-    }
-
-    try {
-      return NbtIo.readCompressed(dataFile);
-    } catch (IOException ioException) {
-      log.warn(
-          "{} Failed to read player state file {} for {}: {}",
-          Constants.LOG_PREFIX,
-          dataFile,
-          playerUuid,
-          ioException.getMessage());
-      return null;
-    }
+    return PlayerStateStorage.read(dataFile.toPath(), playerUuid);
   }
 
-  private static void writePlayerNbt(File dataFile, CompoundTag nbt, UUID playerUuid) {
-    try {
-      dataFile.getParentFile().mkdirs();
-      NbtIo.writeCompressed(nbt, dataFile);
-    } catch (IOException ioException) {
-      log.error(
-          "{} Failed to write player state file {} for {}: {}",
-          Constants.LOG_PREFIX,
-          dataFile,
-          playerUuid,
-          ioException.getMessage());
-    }
+  private static boolean writePlayerNbt(File dataFile, CompoundTag nbt, UUID playerUuid) {
+    return PlayerStateStorage.write(dataFile.toPath(), nbt, playerUuid);
   }
 
   @Override
@@ -99,6 +79,9 @@ public class DialogQuestStoryEngine implements ModInitializer {
     Constants.GAME_DIR = FabricLoader.getInstance().getGameDir();
     Constants.CONFIG_DIR = FabricLoader.getInstance().getConfigDir();
 
+    DqseSecurityConfig.load(Constants.CONFIG_DIR);
+    DqseBootstrap.initialize();
+
     log.info("{} Blocks ...", Constants.LOG_REGISTER_PREFIX);
     ModBlocks.registerModBlocks();
 
@@ -107,9 +90,6 @@ public class DialogQuestStoryEngine implements ModInitializer {
 
     log.info("{} Creative Tabs ...", Constants.LOG_REGISTER_PREFIX);
     ModTabs.registerCreativeTabs();
-
-    log.info("{} Validators ...", Constants.LOG_REGISTER_PREFIX);
-    BuiltinValidators.register();
 
     log.info("{} Network ...", Constants.LOG_REGISTER_PREFIX);
     NetworkHandler.register();
@@ -130,6 +110,7 @@ public class DialogQuestStoryEngine implements ModInitializer {
               resolvePlayerDataFile(server.getWorldPath(LevelResource.ROOT), playerUuid);
           CompoundTag nbt = readPlayerNbt(dataFile, playerUuid);
           PlayerStateService.onPlayerDataLoaded(playerUuid, nbt != null ? nbt : new CompoundTag());
+          PlayerProgressSync.send(handler.player);
         });
 
     ServerPlayConnectionEvents.DISCONNECT.register(
@@ -139,11 +120,20 @@ public class DialogQuestStoryEngine implements ModInitializer {
           if (nbt != null) {
             File dataFile =
                 resolvePlayerDataFile(server.getWorldPath(LevelResource.ROOT), playerUuid);
-            writePlayerNbt(dataFile, nbt, playerUuid);
+            if (writePlayerNbt(dataFile, nbt, playerUuid)) {
+              PlayerStateService.markPlayerDataSaved(playerUuid);
+            }
           }
           PlayerStateService.onPlayerLoggedOut(playerUuid);
           SessionManager.invalidatePlayerSessions(playerUuid);
         });
+
+    ServerEntityWorldChangeEvents.AFTER_PLAYER_CHANGE_WORLD.register(
+        (player, origin, destination) ->
+            SessionManager.closePlayerSessions(player, SessionCloseReason.CONTEXT_CHANGED));
+    ServerPlayerEvents.AFTER_RESPAWN.register(
+        (oldPlayer, newPlayer, alive) ->
+            SessionManager.closePlayerSessions(newPlayer, SessionCloseReason.CONTEXT_CHANGED));
 
     InteractionEventHandler.registerEvents();
 

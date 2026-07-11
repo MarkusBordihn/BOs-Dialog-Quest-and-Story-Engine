@@ -25,6 +25,7 @@ import de.markusbordihn.dialogqueststoryengine.commands.Command;
 import de.markusbordihn.dialogqueststoryengine.data.issue.ContentIssue;
 import de.markusbordihn.dialogqueststoryengine.data.issue.ContentIssueTracker;
 import de.markusbordihn.dialogqueststoryengine.data.issue.IssueSeverity;
+import de.markusbordihn.dialogqueststoryengine.validation.ValidationService;
 import java.util.List;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -45,6 +46,7 @@ public class ValidateCommand extends Command {
   }
 
   private static int executeValidate(CommandSourceStack source) {
+    ValidationService.validate();
     List<ContentIssue> issues = ContentIssueTracker.issues();
     long errorCount = 0;
     long warningCount = 0;

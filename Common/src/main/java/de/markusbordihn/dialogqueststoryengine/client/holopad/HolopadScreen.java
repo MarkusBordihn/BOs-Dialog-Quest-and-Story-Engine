@@ -301,6 +301,11 @@ public class HolopadScreen extends StoryScreen {
     super.onClose();
   }
 
+  public void onServerRejection() {
+    this.clearWidgets();
+    this.init();
+  }
+
   private void addChoiceButtons() {
     int buttonWidth = this.layout.choiceButtonWidth();
     int buttonHeight = CHOICE_BUTTON_HEIGHT;

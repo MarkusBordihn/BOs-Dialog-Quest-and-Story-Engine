@@ -19,19 +19,23 @@
 
 package de.markusbordihn.dialogqueststoryengine.state;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CopyOnWriteArrayList;
 import net.minecraft.resources.ResourceLocation;
 
 public final class PlayerStateEvents {
 
   private static final List<PlayerStateLoadedListener> playerStateLoadedListeners =
-      new ArrayList<>();
-  private static final List<QuestStartedListener> questStartedListeners = new ArrayList<>();
-  private static final List<QuestCompletedListener> questCompletedListeners = new ArrayList<>();
-  private static final List<StepProgressedListener> stepProgressedListeners = new ArrayList<>();
-  private static final List<FactChangedListener> factChangedListeners = new ArrayList<>();
+      new CopyOnWriteArrayList<>();
+  private static final List<QuestStartedListener> questStartedListeners =
+      new CopyOnWriteArrayList<>();
+  private static final List<QuestCompletedListener> questCompletedListeners =
+      new CopyOnWriteArrayList<>();
+  private static final List<StepProgressedListener> stepProgressedListeners =
+      new CopyOnWriteArrayList<>();
+  private static final List<FactChangedListener> factChangedListeners =
+      new CopyOnWriteArrayList<>();
 
   private PlayerStateEvents() {}
 
@@ -55,34 +59,35 @@ public final class PlayerStateEvents {
     factChangedListeners.add(listener);
   }
 
-  static void firePlayerStateLoaded(UUID playerUuid, PlayerState playerState) {
+  public static void firePlayerStateLoaded(UUID playerUuid, PlayerState playerState) {
     for (PlayerStateLoadedListener listener : playerStateLoadedListeners) {
       listener.onPlayerStateLoaded(playerUuid, playerState);
     }
   }
 
-  static void fireQuestStarted(
+  public static void fireQuestStarted(
       UUID playerUuid, ResourceLocation questId, QuestProgress questProgress) {
     for (QuestStartedListener listener : questStartedListeners) {
       listener.onQuestStarted(playerUuid, questId, questProgress);
     }
   }
 
-  static void fireQuestCompleted(
+  public static void fireQuestCompleted(
       UUID playerUuid, ResourceLocation questId, QuestProgress questProgress) {
     for (QuestCompletedListener listener : questCompletedListeners) {
       listener.onQuestCompleted(playerUuid, questId, questProgress);
     }
   }
 
-  static void fireStepProgressed(
+  public static void fireStepProgressed(
       UUID playerUuid, ResourceLocation questId, String stepId, StepProgress stepProgress) {
     for (StepProgressedListener listener : stepProgressedListeners) {
       listener.onStepProgressed(playerUuid, questId, stepId, stepProgress);
     }
   }
 
-  static void fireFactChanged(UUID playerUuid, FactScope scope, String key, FactValue value) {
+  public static void fireFactChanged(
+      UUID playerUuid, FactScope scope, String key, FactValue value) {
     for (FactChangedListener listener : factChangedListeners) {
       listener.onFactChanged(playerUuid, scope, key, value);
     }

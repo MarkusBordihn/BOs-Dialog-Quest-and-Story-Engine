@@ -20,10 +20,7 @@
 package de.markusbordihn.dialogqueststoryengine.content;
 
 import de.markusbordihn.dialogqueststoryengine.Constants;
-import de.markusbordihn.dialogqueststoryengine.data.issue.ContentIssueTracker;
-import de.markusbordihn.dialogqueststoryengine.registry.ContentValidator;
-import de.markusbordihn.dialogqueststoryengine.registry.Registries;
-import de.markusbordihn.dialogqueststoryengine.session.SessionManager;
+import de.markusbordihn.dialogqueststoryengine.validation.ValidationService;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import net.minecraft.resources.ResourceLocation;
@@ -53,24 +50,7 @@ public class ValidationReloadListener implements PreparableReloadListener {
   }
 
   private void runValidators() {
-    SessionManager.invalidateAll();
-
-    int issuesBefore = ContentIssueTracker.issues().size();
-
-    for (ContentValidator validator : Registries.VALIDATORS.values()) {
-      try {
-        validator.validate().forEach(ContentIssueTracker::record);
-      } catch (Exception exception) {
-        log.error(
-            "{} Validator '{}' threw an exception: {}",
-            Constants.LOG_PREFIX,
-            validator.contentType(),
-            exception.getMessage(),
-            exception);
-      }
-    }
-
-    int newIssues = ContentIssueTracker.issues().size() - issuesBefore;
+    int newIssues = ValidationService.validate();
     if (newIssues > 0) {
       log.warn(
           "{} Validation found {} new issue(s). Run /dqs validate for details.",
@@ -79,5 +59,6 @@ public class ValidationReloadListener implements PreparableReloadListener {
     } else {
       log.info("{} Validation passed with no new issues.", Constants.LOG_PREFIX);
     }
+    DataPackReloadNotifier.fire();
   }
 }

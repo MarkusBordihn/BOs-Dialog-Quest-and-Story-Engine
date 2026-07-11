@@ -19,6 +19,7 @@
 
 package de.markusbordihn.dialogqueststoryengine.gametest;
 
+import de.markusbordihn.dialogqueststoryengine.logic.action.types.SetFactAction;
 import de.markusbordihn.dialogqueststoryengine.logic.condition.types.FactEqualsCondition;
 import de.markusbordihn.dialogqueststoryengine.logic.condition.types.HasItemCondition;
 import de.markusbordihn.dialogqueststoryengine.logic.condition.types.PermissionLevelCondition;
@@ -55,5 +56,16 @@ public class ServerRegistrationGameTestHelper {
         helper,
         PermissionLevelCondition.TYPE_ID + " must be registered",
         Registries.CONDITIONS.contains(PermissionLevelCondition.TYPE_ID));
+  }
+
+  public static void testBuiltinActionTypesRegistered(GameTestHelper helper) {
+    GameTestHelpers.assertTrue(
+        helper,
+        "ACTIONS registry must be frozen after server start",
+        Registries.ACTIONS.isFrozen());
+    GameTestHelpers.assertTrue(
+        helper,
+        SetFactAction.TYPE_ID + " must be registered",
+        Registries.ACTIONS.contains(SetFactAction.TYPE_ID));
   }
 }

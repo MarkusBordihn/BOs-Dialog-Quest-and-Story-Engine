@@ -66,12 +66,7 @@ public record RunFunctionAction(ResourceLocation function, int permissionLevel) 
       return Action.NOOP;
     }
 
-    int permissionLevel = DqseSecurityConfig.getDefaultCommandPermissionLevel();
-    if (jsonObject.has("permission") && jsonObject.get("permission").isJsonPrimitive()) {
-      permissionLevel = Math.max(0, Math.min(4, jsonObject.get("permission").getAsInt()));
-    }
-
-    return new RunFunctionAction(functionId, permissionLevel);
+    return new RunFunctionAction(functionId, DqseSecurityConfig.parsePermissionLevel(jsonObject));
   }
 
   @Override

@@ -33,7 +33,7 @@ public final class PlayerState {
   private final EnumMap<FactScope, Map<String, FactValue>> facts;
   private final Map<ResourceLocation, QuestProgress> quests;
   private final StoryProgress stories;
-  private boolean dirty;
+  private volatile boolean dirty;
 
   public PlayerState(UUID playerUuid) {
     this.playerUuid = playerUuid;
@@ -108,7 +108,7 @@ public final class PlayerState {
     return Collections.unmodifiableMap(this.quests);
   }
 
-  void putQuestDirect(ResourceLocation questId, QuestProgress questProgress) {
+  public void putQuestDirect(ResourceLocation questId, QuestProgress questProgress) {
     this.quests.put(questId, questProgress);
     this.markDirty();
   }

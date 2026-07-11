@@ -85,7 +85,8 @@ public class PlayerStateGameTestHelper {
 
   public static void testQuestStartedAndActive(GameTestHelper helper) {
     UUID playerUuid = UUID.randomUUID();
-    ResourceLocation questId = new ResourceLocation("test", "started_quest");
+    ResourceLocation questId =
+        new ResourceLocation("dialog_quest_and_story_engine_examples", "first_quest");
     try {
       PlayerStateService.onPlayerDataLoaded(playerUuid, new CompoundTag());
 

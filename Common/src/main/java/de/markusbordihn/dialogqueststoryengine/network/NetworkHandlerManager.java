@@ -32,6 +32,7 @@ import de.markusbordihn.dialogqueststoryengine.network.message.session.CloseSess
 import de.markusbordihn.dialogqueststoryengine.network.message.session.DialogSessionPacket;
 import de.markusbordihn.dialogqueststoryengine.network.message.session.OpenStorySessionPacket;
 import de.markusbordihn.dialogqueststoryengine.network.message.session.QuestDeltaPacket;
+import de.markusbordihn.dialogqueststoryengine.network.message.session.ResetProgressPacket;
 import de.markusbordihn.dialogqueststoryengine.network.message.session.SessionRejectedPacket;
 import de.markusbordihn.dialogqueststoryengine.network.message.session.StoryDeltaPacket;
 import de.markusbordihn.dialogqueststoryengine.network.message.session.SubmitChoicePacket;
@@ -108,6 +109,8 @@ public final class NetworkHandlerManager {
         StoryDeltaPacket.MESSAGE_ID, StoryDeltaPacket.class, StoryDeltaPacket::create);
     networkHandler.registerClientNetworkMessageHandler(
         QuestDeltaPacket.MESSAGE_ID, QuestDeltaPacket.class, QuestDeltaPacket::create);
+    networkHandler.registerClientNetworkMessageHandler(
+        ResetProgressPacket.MESSAGE_ID, ResetProgressPacket.class, ResetProgressPacket::create);
     networkHandler.registerClientNetworkMessageHandler(
         CloseSessionPacket.MESSAGE_ID, CloseSessionPacket.class, CloseSessionPacket::create);
     networkHandler.registerClientNetworkMessageHandler(

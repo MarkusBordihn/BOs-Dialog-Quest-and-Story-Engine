@@ -24,8 +24,11 @@ import de.markusbordihn.dialogqueststoryengine.client.dialog.ClientDialogOpener;
 import de.markusbordihn.dialogqueststoryengine.client.holopad.ClientStoryOpener;
 import de.markusbordihn.dialogqueststoryengine.network.NetworkMessageRecord;
 import de.markusbordihn.dialogqueststoryengine.session.SessionCloseReason;
+import java.util.Locale;
 import java.util.UUID;
+import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
 public record CloseSessionPacket(UUID sessionId, SessionCloseReason reason)
@@ -41,6 +44,12 @@ public record CloseSessionPacket(UUID sessionId, SessionCloseReason reason)
     return new CloseSessionPacket(sessionId, reason);
   }
 
+  private static boolean shouldNotify(SessionCloseReason reason) {
+    return reason == SessionCloseReason.RELOAD
+        || reason == SessionCloseReason.TIMEOUT
+        || reason == SessionCloseReason.CONTEXT_CHANGED;
+  }
+
   @Override
   public void write(FriendlyByteBuf buffer) {
     buffer.writeUUID(this.sessionId);
@@ -51,6 +60,15 @@ public record CloseSessionPacket(UUID sessionId, SessionCloseReason reason)
   public void handleClient() {
     ClientStoryOpener.closeSession(this.sessionId);
     ClientDialogOpener.closeSession(this.sessionId);
+    if (Minecraft.getInstance().player != null && shouldNotify(this.reason)) {
+      Minecraft.getInstance()
+          .player
+          .displayClientMessage(
+              Component.translatable(
+                  "message.dialog_quest_and_story_engine.session.closed."
+                      + this.reason.name().toLowerCase(Locale.ROOT)),
+              false);
+    }
   }
 
   @Override

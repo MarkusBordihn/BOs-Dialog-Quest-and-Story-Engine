@@ -21,8 +21,17 @@ package de.markusbordihn.dialogqueststoryengine.server.commands;
 
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import de.markusbordihn.dialogqueststoryengine.commands.Command;
+import de.markusbordihn.dialogqueststoryengine.quest.runtime.QuestService;
+import de.markusbordihn.dialogqueststoryengine.state.PlayerStateService;
+import de.markusbordihn.dialogqueststoryengine.state.QuestProgress;
+import de.markusbordihn.dialogqueststoryengine.state.StepProgress;
+import java.util.Map;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.commands.arguments.EntityArgument;
+import net.minecraft.commands.arguments.ResourceLocationArgument;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 
 public class QuestCommand extends Command {
 
@@ -33,24 +42,154 @@ public class QuestCommand extends Command {
         .requires(source -> source.hasPermission(PERMISSION_LEVEL))
         .then(
             Commands.literal("start")
-                .executes(
-                    context -> {
-                      sendInfoMessage(context.getSource(), "quest start: not yet implemented.");
-                      return 1;
-                    }))
+                .then(
+                    Commands.argument("id", ResourceLocationArgument.id())
+                        .executes(
+                            context ->
+                                executeStart(
+                                    context.getSource(),
+                                    ResourceLocationArgument.getId(context, "id"),
+                                    context.getSource().getPlayerOrException()))
+                        .then(
+                            Commands.argument("target", EntityArgument.player())
+                                .executes(
+                                    context ->
+                                        executeStart(
+                                            context.getSource(),
+                                            ResourceLocationArgument.getId(context, "id"),
+                                            EntityArgument.getPlayer(context, "target"))))))
         .then(
             Commands.literal("complete")
-                .executes(
-                    context -> {
-                      sendInfoMessage(context.getSource(), "quest complete: not yet implemented.");
-                      return 1;
-                    }))
+                .then(
+                    Commands.argument("id", ResourceLocationArgument.id())
+                        .executes(
+                            context ->
+                                executeComplete(
+                                    context.getSource(),
+                                    ResourceLocationArgument.getId(context, "id"),
+                                    context.getSource().getPlayerOrException()))
+                        .then(
+                            Commands.argument("target", EntityArgument.player())
+                                .executes(
+                                    context ->
+                                        executeComplete(
+                                            context.getSource(),
+                                            ResourceLocationArgument.getId(context, "id"),
+                                            EntityArgument.getPlayer(context, "target"))))))
         .then(
             Commands.literal("state")
-                .executes(
-                    context -> {
-                      sendInfoMessage(context.getSource(), "quest state: not yet implemented.");
-                      return 1;
-                    }));
+                .then(
+                    Commands.argument("id", ResourceLocationArgument.id())
+                        .executes(
+                            context ->
+                                executeState(
+                                    context.getSource(),
+                                    ResourceLocationArgument.getId(context, "id"),
+                                    context.getSource().getPlayerOrException()))
+                        .then(
+                            Commands.argument("target", EntityArgument.player())
+                                .executes(
+                                    context ->
+                                        executeState(
+                                            context.getSource(),
+                                            ResourceLocationArgument.getId(context, "id"),
+                                            EntityArgument.getPlayer(context, "target"))))));
+  }
+
+  private static int executeStart(
+      CommandSourceStack source, ResourceLocation questId, ServerPlayer target) {
+    return QuestService.startQuest(target, questId)
+        .map(
+            result -> {
+              sendSuccessMessage(
+                  source,
+                  "quest start: "
+                      + questId
+                      + " for "
+                      + target.getGameProfile().getName()
+                      + " -> "
+                      + result.questProgress().state());
+              return 1;
+            })
+        .orElseGet(
+            () -> {
+              sendFailureMessage(
+                  source,
+                  PlayerStateService.isLoaded(target.getUUID())
+                      ? "quest start: quest definition is not loaded."
+                      : "quest start: player state not loaded.");
+              return 0;
+            });
+  }
+
+  private static int executeComplete(
+      CommandSourceStack source, ResourceLocation questId, ServerPlayer target) {
+    return QuestService.completeQuest(target, questId)
+        .map(
+            result -> {
+              sendSuccessMessage(
+                  source,
+                  "quest complete: "
+                      + questId
+                      + " for "
+                      + target.getGameProfile().getName()
+                      + " -> "
+                      + result.questProgress().state());
+              return 1;
+            })
+        .orElseGet(
+            () -> {
+              sendFailureMessage(source, "quest complete: quest not found in player state.");
+              return 0;
+            });
+  }
+
+  private static int executeState(
+      CommandSourceStack source, ResourceLocation questId, ServerPlayer target) {
+    return PlayerStateService.get(target.getUUID())
+        .map(playerState -> playerState.getQuest(questId))
+        .map(
+            questProgress -> {
+              sendInfoMessage(
+                  source,
+                  "quest state: "
+                      + questId
+                      + " for "
+                      + target.getGameProfile().getName()
+                      + " -> "
+                      + formatQuestProgress(questProgress));
+              return 1;
+            })
+        .orElseGet(
+            () -> {
+              sendInfoMessage(
+                  source,
+                  "quest state: "
+                      + questId
+                      + " for "
+                      + target.getGameProfile().getName()
+                      + " -> NOT_STARTED");
+              return 1;
+            });
+  }
+
+  private static String formatQuestProgress(QuestProgress questProgress) {
+    StringBuilder builder =
+        new StringBuilder(questProgress.state().name())
+            .append(" rev=")
+            .append(questProgress.revision());
+    for (Map.Entry<String, StepProgress> entry : questProgress.steps().entrySet()) {
+      StepProgress stepProgress = entry.getValue();
+      builder
+          .append(" | ")
+          .append(entry.getKey())
+          .append("=")
+          .append(stepProgress.state())
+          .append(" ")
+          .append(stepProgress.progress())
+          .append("/")
+          .append(stepProgress.required());
+    }
+    return builder.toString();
   }
 }

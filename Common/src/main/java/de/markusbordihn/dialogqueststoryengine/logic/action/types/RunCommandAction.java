@@ -59,12 +59,7 @@ public record RunCommandAction(String command, int permissionLevel) implements A
       return Action.NOOP;
     }
 
-    int permissionLevel = DqseSecurityConfig.getDefaultCommandPermissionLevel();
-    if (jsonObject.has("permission") && jsonObject.get("permission").isJsonPrimitive()) {
-      permissionLevel = Math.max(0, Math.min(4, jsonObject.get("permission").getAsInt()));
-    }
-
-    return new RunCommandAction(command, permissionLevel);
+    return new RunCommandAction(command, DqseSecurityConfig.parsePermissionLevel(jsonObject));
   }
 
   @Override
@@ -88,8 +83,7 @@ public record RunCommandAction(String command, int permissionLevel) implements A
             .replace(
                 "{dimension}", actionContext.player().level().dimension().location().toString());
 
-    List<String> whitelist = DqseSecurityConfig.getCommandActionWhitelist();
-    if (!whitelist.isEmpty() && whitelist.stream().noneMatch(resolved::startsWith)) {
+    if (!DqseSecurityConfig.isCommandAllowed(resolved)) {
       log.warn(
           "{} run_command: command '{}' is not in the whitelist — skipping",
           Constants.LOG_PREFIX,

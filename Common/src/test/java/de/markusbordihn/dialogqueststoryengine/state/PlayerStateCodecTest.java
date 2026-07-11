@@ -88,6 +88,7 @@ class PlayerStateCodecTest {
     PlayerState original = new PlayerState(TEST_UUID);
     QuestProgress questProgress = new QuestProgress(QuestState.COMPLETED);
     questProgress.putStep("find_artifact", StepProgress.completed(1));
+    questProgress.setLastRewardedRevision(questProgress.revision());
     original.putQuestDirect(QUEST_ID, questProgress);
 
     PlayerState restored = PlayerStateCodec.fromNbt(PlayerStateCodec.toNbt(original), TEST_UUID);
@@ -97,6 +98,7 @@ class PlayerStateCodecTest {
     StepProgress restoredStep = restoredQuest.steps().get("find_artifact");
     assertTrue(restoredStep.complete());
     assertEquals(StepState.COMPLETED, restoredStep.state());
+    assertEquals(questProgress.lastRewardedRevision(), restoredQuest.lastRewardedRevision());
   }
 
   @Test

@@ -21,10 +21,14 @@ package de.markusbordihn.dialogqueststoryengine.network.message.session;
 
 import de.markusbordihn.dialogqueststoryengine.Constants;
 import de.markusbordihn.dialogqueststoryengine.client.dialog.ClientDialogOpener;
+import de.markusbordihn.dialogqueststoryengine.client.holopad.ClientStoryOpener;
 import de.markusbordihn.dialogqueststoryengine.network.NetworkMessageRecord;
 import de.markusbordihn.dialogqueststoryengine.session.SessionRejectionReason;
+import java.util.Locale;
 import java.util.UUID;
+import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -59,5 +63,15 @@ public record SessionRejectedPacket(UUID sessionId, SessionRejectionReason reaso
     log.warn(
         "{} Session {} rejected by server: {}", Constants.LOG_PREFIX, this.sessionId, this.reason);
     ClientDialogOpener.handleRejection(this.sessionId);
+    ClientStoryOpener.handleRejection(this.sessionId);
+    if (Minecraft.getInstance().player != null) {
+      Minecraft.getInstance()
+          .player
+          .displayClientMessage(
+              Component.translatable(
+                  "message.dialog_quest_and_story_engine.session.rejected."
+                      + this.reason.name().toLowerCase(Locale.ROOT)),
+              false);
+    }
   }
 }

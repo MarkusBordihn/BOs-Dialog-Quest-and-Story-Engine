@@ -19,25 +19,22 @@
 
 package de.markusbordihn.dialogqueststoryengine.server;
 
-import de.markusbordihn.dialogqueststoryengine.Constants;
+import de.markusbordihn.dialogqueststoryengine.session.SessionCloseReason;
 import de.markusbordihn.dialogqueststoryengine.session.SessionManager;
+import de.markusbordihn.dialogqueststoryengine.state.PlayerProgressSync;
 import de.markusbordihn.dialogqueststoryengine.state.PlayerStateService;
+import de.markusbordihn.dialogqueststoryengine.state.PlayerStateStorage;
 import java.io.File;
-import java.io.IOException;
 import java.util.UUID;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtIo;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.storage.LevelResource;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 @SuppressWarnings("unused")
 public class PlayerStateEventHandler {
 
-  private static final Logger log = LogManager.getLogger(Constants.LOG_NAME);
   private static final String DATA_FILE_SUFFIX = ".dqse.dat";
 
   @SubscribeEvent
@@ -62,7 +59,9 @@ public class PlayerStateEventHandler {
       return;
     }
     File dataFile = getDataFile(event.getPlayerDirectory(), playerUuid);
-    writeNbt(dataFile, nbt, playerUuid);
+    if (writeNbt(dataFile, nbt, playerUuid)) {
+      PlayerStateService.markPlayerDataSaved(playerUuid);
+    }
   }
 
   @SubscribeEvent
@@ -74,10 +73,33 @@ public class PlayerStateEventHandler {
     CompoundTag nbt = PlayerStateService.getPlayerDataForSave(playerUuid);
     if (nbt != null) {
       File dataFile = getDataFile(resolvePlayerDirectory(serverPlayer), playerUuid);
-      writeNbt(dataFile, nbt, playerUuid);
+      if (writeNbt(dataFile, nbt, playerUuid)) {
+        PlayerStateService.markPlayerDataSaved(playerUuid);
+      }
     }
     PlayerStateService.onPlayerLoggedOut(playerUuid);
     SessionManager.invalidatePlayerSessions(playerUuid);
+  }
+
+  @SubscribeEvent
+  public static void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
+    if (event.getEntity() instanceof ServerPlayer serverPlayer) {
+      PlayerProgressSync.send(serverPlayer);
+    }
+  }
+
+  @SubscribeEvent
+  public static void onPlayerChangedDimension(PlayerEvent.PlayerChangedDimensionEvent event) {
+    if (event.getEntity() instanceof ServerPlayer serverPlayer) {
+      SessionManager.closePlayerSessions(serverPlayer, SessionCloseReason.CONTEXT_CHANGED);
+    }
+  }
+
+  @SubscribeEvent
+  public static void onPlayerRespawn(PlayerEvent.PlayerRespawnEvent event) {
+    if (event.getEntity() instanceof ServerPlayer serverPlayer) {
+      SessionManager.closePlayerSessions(serverPlayer, SessionCloseReason.CONTEXT_CHANGED);
+    }
   }
 
   private static File getDataFile(File playerDirectory, UUID playerUuid) {
@@ -89,33 +111,10 @@ public class PlayerStateEventHandler {
   }
 
   private static CompoundTag readNbt(File dataFile, UUID playerUuid) {
-    if (!dataFile.exists()) {
-      return null;
-    }
-    try {
-      return NbtIo.readCompressed(dataFile);
-    } catch (IOException ioException) {
-      log.warn(
-          "{} Failed to read player state file {} for {}: {}",
-          Constants.LOG_PREFIX,
-          dataFile,
-          playerUuid,
-          ioException.getMessage());
-      return null;
-    }
+    return PlayerStateStorage.read(dataFile.toPath(), playerUuid);
   }
 
-  private static void writeNbt(File dataFile, CompoundTag nbt, UUID playerUuid) {
-    try {
-      dataFile.getParentFile().mkdirs();
-      NbtIo.writeCompressed(nbt, dataFile);
-    } catch (IOException ioException) {
-      log.error(
-          "{} Failed to write player state file {} for {}: {}",
-          Constants.LOG_PREFIX,
-          dataFile,
-          playerUuid,
-          ioException.getMessage());
-    }
+  private static boolean writeNbt(File dataFile, CompoundTag nbt, UUID playerUuid) {
+    return PlayerStateStorage.write(dataFile.toPath(), nbt, playerUuid);
   }
 }

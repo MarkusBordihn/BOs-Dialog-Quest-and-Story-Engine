@@ -20,8 +20,11 @@
 package de.markusbordihn.dialogqueststoryengine.interaction;
 
 import de.markusbordihn.dialogqueststoryengine.Constants;
+import de.markusbordihn.dialogqueststoryengine.config.DqseSecurityConfig;
 import de.markusbordihn.dialogqueststoryengine.data.action.ActionDataEntry;
 import de.markusbordihn.dialogqueststoryengine.data.action.ActionDataSet;
+import de.markusbordihn.dialogqueststoryengine.logic.action.ActionContext;
+import de.markusbordihn.dialogqueststoryengine.logic.action.types.RunCommandAction;
 import de.markusbordihn.dialogqueststoryengine.network.NetworkHandlerManager;
 import de.markusbordihn.dialogqueststoryengine.network.message.story.OpenClientStoryPacket;
 import de.markusbordihn.dialogqueststoryengine.session.SessionManager;
@@ -29,6 +32,7 @@ import de.markusbordihn.dialogqueststoryengine.state.FactScope;
 import de.markusbordihn.dialogqueststoryengine.state.FactValue;
 import de.markusbordihn.dialogqueststoryengine.state.PlayerState;
 import de.markusbordihn.dialogqueststoryengine.state.PlayerStateService;
+import java.util.Optional;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
@@ -83,7 +87,18 @@ public final class ActionDataExecutor {
         if (command.isEmpty()) {
           return;
         }
-        server.getCommands().performPrefixedCommand(player.createCommandSourceStack(), command);
+        PlayerStateService.get(player.getUUID())
+            .ifPresent(
+                playerState ->
+                    new RunCommandAction(
+                            command, DqseSecurityConfig.getDefaultCommandPermissionLevel())
+                        .execute(
+                            new ActionContext(
+                                player,
+                                playerState,
+                                server,
+                                "interaction-action-" + action.id(),
+                                Optional.empty())));
       }
       case SET_FACT -> {
         ResourceLocation factId = action.factId();
