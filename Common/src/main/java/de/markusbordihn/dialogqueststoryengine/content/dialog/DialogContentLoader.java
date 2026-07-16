@@ -25,6 +25,7 @@ import de.markusbordihn.dialogqueststoryengine.content.AbstractJsonContentLoader
 import de.markusbordihn.dialogqueststoryengine.content.dialog.runtime.DialogRuntimeRegistry;
 import de.markusbordihn.dialogqueststoryengine.content.dialog.runtime.JsonDialogRuntime;
 import de.markusbordihn.dialogqueststoryengine.data.ContentType;
+import de.markusbordihn.dialogqueststoryengine.data.dialog.DialogDefinition;
 import de.markusbordihn.dialogqueststoryengine.data.json.ParseResult;
 import java.util.Map;
 import net.minecraft.resources.ResourceLocation;

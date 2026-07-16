@@ -72,7 +72,7 @@ public record CompleteQuestAction(ResourceLocation questId) implements Action {
   public void execute(ActionContext actionContext) {
     if (QuestService.completeQuest(actionContext, this.questId).isEmpty()) {
       log.warn(
-          "{} complete_quest: quest '{}' not found in player state — skipping",
+          "{} complete_quest: quest '{}' not found in player state - skipping",
           Constants.LOG_PREFIX,
           this.questId);
     }

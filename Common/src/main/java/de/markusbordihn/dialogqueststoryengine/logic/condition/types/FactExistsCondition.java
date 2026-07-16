@@ -23,9 +23,9 @@ import com.google.gson.JsonObject;
 import de.markusbordihn.dialogqueststoryengine.Constants;
 import de.markusbordihn.dialogqueststoryengine.data.ContentType;
 import de.markusbordihn.dialogqueststoryengine.data.issue.ContentIssue;
+import de.markusbordihn.dialogqueststoryengine.data.state.FactScope;
 import de.markusbordihn.dialogqueststoryengine.logic.condition.Condition;
 import de.markusbordihn.dialogqueststoryengine.logic.condition.ConditionContext;
-import de.markusbordihn.dialogqueststoryengine.state.FactScope;
 import java.util.List;
 import net.minecraft.resources.ResourceLocation;
 

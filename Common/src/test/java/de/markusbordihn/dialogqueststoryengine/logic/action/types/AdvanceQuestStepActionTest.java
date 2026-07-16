@@ -21,12 +21,12 @@ package de.markusbordihn.dialogqueststoryengine.logic.action.types;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import de.markusbordihn.dialogqueststoryengine.data.quest.QuestState;
+import de.markusbordihn.dialogqueststoryengine.data.quest.StepProgress;
+import de.markusbordihn.dialogqueststoryengine.data.quest.StepState;
 import de.markusbordihn.dialogqueststoryengine.logic.action.ActionContext;
 import de.markusbordihn.dialogqueststoryengine.state.PlayerState;
 import de.markusbordihn.dialogqueststoryengine.state.QuestProgress;
-import de.markusbordihn.dialogqueststoryengine.state.QuestState;
-import de.markusbordihn.dialogqueststoryengine.state.StepProgress;
-import de.markusbordihn.dialogqueststoryengine.state.StepState;
 import java.util.UUID;
 import net.minecraft.resources.ResourceLocation;
 import org.junit.jupiter.api.Test;
@@ -62,7 +62,7 @@ class AdvanceQuestStepActionTest {
   }
 
   @Test
-  void execute_lockedStep_activatesAndIncrements() {
+  void execute_lockedStep_isIgnored() {
     PlayerState playerState = new PlayerState(UUID.randomUUID());
     QuestProgress questProgress = playerState.getOrCreateQuest(QUEST_ID, QuestState.ACTIVE);
     questProgress.putStep(STEP_ID, new StepProgress(StepState.LOCKED, 0, 3));
@@ -70,8 +70,8 @@ class AdvanceQuestStepActionTest {
 
     new AdvanceQuestStepAction(QUEST_ID, STEP_ID, 1).execute(ctx);
 
-    assertEquals(StepState.ACTIVE, questProgress.steps().get(STEP_ID).state());
-    assertEquals(1, questProgress.steps().get(STEP_ID).progress());
+    assertEquals(StepState.LOCKED, questProgress.steps().get(STEP_ID).state());
+    assertEquals(0, questProgress.steps().get(STEP_ID).progress());
   }
 
   @Test

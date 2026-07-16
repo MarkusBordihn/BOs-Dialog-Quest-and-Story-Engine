@@ -21,24 +21,33 @@ package de.markusbordihn.dialogqueststoryengine.quest.runtime;
 
 import com.google.gson.JsonObject;
 import de.markusbordihn.dialogqueststoryengine.Constants;
-import de.markusbordihn.dialogqueststoryengine.content.quest.CompletionPolicy;
 import de.markusbordihn.dialogqueststoryengine.content.quest.QuestContentRegistry;
-import de.markusbordihn.dialogqueststoryengine.content.quest.QuestDefinition;
-import de.markusbordihn.dialogqueststoryengine.content.quest.RawQuestStep;
+import de.markusbordihn.dialogqueststoryengine.data.quest.QuestState;
+import de.markusbordihn.dialogqueststoryengine.data.quest.RewardClaimState;
+import de.markusbordihn.dialogqueststoryengine.data.quest.StepProgress;
+import de.markusbordihn.dialogqueststoryengine.data.quest.StepState;
+import de.markusbordihn.dialogqueststoryengine.data.quest.content.CompletionPolicy;
+import de.markusbordihn.dialogqueststoryengine.data.quest.content.QuestDefinition;
+import de.markusbordihn.dialogqueststoryengine.data.quest.content.RawQuestStep;
+import de.markusbordihn.dialogqueststoryengine.data.quest.content.RewardClaimMode;
+import de.markusbordihn.dialogqueststoryengine.data.quest.content.RewardSection;
 import de.markusbordihn.dialogqueststoryengine.logic.action.ActionContext;
+import de.markusbordihn.dialogqueststoryengine.quest.reward.RewardGrantService;
 import de.markusbordihn.dialogqueststoryengine.quest.step.QuestStepEvents;
+import de.markusbordihn.dialogqueststoryengine.server.ServerEvents;
 import de.markusbordihn.dialogqueststoryengine.state.PlayerState;
 import de.markusbordihn.dialogqueststoryengine.state.PlayerStateEvents;
 import de.markusbordihn.dialogqueststoryengine.state.PlayerStateService;
 import de.markusbordihn.dialogqueststoryengine.state.QuestProgress;
-import de.markusbordihn.dialogqueststoryengine.state.QuestState;
-import de.markusbordihn.dialogqueststoryengine.state.StepProgress;
-import de.markusbordihn.dialogqueststoryengine.state.StepState;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -76,13 +85,51 @@ public final class QuestService {
 
   public static Optional<QuestChangeResult> startQuest(
       PlayerState playerState, ResourceLocation questId) {
+    return startQuest(playerState, questId, false);
+  }
+
+  public static Optional<QuestChangeResult> forceStartQuest(
+      PlayerState playerState, ResourceLocation questId) {
+    return startQuest(playerState, questId, true);
+  }
+
+  public static Optional<QuestChangeResult> forceStartQuest(
+      UUID playerUuid, ResourceLocation questId) {
+    return PlayerStateService.get(playerUuid)
+        .flatMap(playerState -> startQuest(playerState, questId, true));
+  }
+
+  private static Optional<QuestChangeResult> startQuest(
+      PlayerState playerState, ResourceLocation questId, boolean force) {
+    Optional<QuestDefinition> definitionOpt = QuestContentRegistry.get(questId);
+    if (definitionOpt.isEmpty()) {
+      log.warn("{} startQuest: quest '{}' is not loaded.", Constants.LOG_PREFIX, questId);
+      return Optional.empty();
+    }
+    QuestDefinition definition = definitionOpt.get();
+
     QuestProgress existing = playerState.getQuest(questId);
-    if (existing != null && existing.state() != QuestState.NOT_STARTED) {
-      return Optional.of(new QuestChangeResult(questId, existing, Map.of(), false));
+    if (existing != null) {
+      QuestState state = existing.state();
+      if (state == QuestState.ACTIVE || state == QuestState.COMPLETED) {
+        return publish(playerState, new QuestChangeResult(questId, existing, Map.of(), false));
+      }
+      if (state == QuestState.FAILED && !force && !definition.logic().restartAfterFailure()) {
+        log.debug(
+            "{} startQuest: FAILED quest '{}' is a dead end (restart_after_failure=false).",
+            Constants.LOG_PREFIX,
+            questId);
+        return Optional.empty();
+      }
     }
 
-    if (QuestContentRegistry.get(questId).isEmpty()) {
-      log.warn("{} startQuest: quest '{}' is not loaded.", Constants.LOG_PREFIX, questId);
+    if (!force
+        && !QuestAvailabilityService.prerequisitesMet(
+            playerState, definition.logic().prerequisites())) {
+      log.debug(
+          "{} startQuest: prerequisites not met for '{}' - start rejected.",
+          Constants.LOG_PREFIX,
+          questId);
       return Optional.empty();
     }
 
@@ -90,9 +137,10 @@ public final class QuestService {
     Map<String, StepProgress> changedSteps = initialiseSteps(questId, questProgress);
 
     playerState.putQuestDirect(questId, questProgress);
+    QuestTrackingService.autoTrackIfNone(resolvePlayer(playerState, null), playerState, questId);
     PlayerStateEvents.fireQuestStarted(playerState.playerUuid(), questId, questProgress);
     QuestStepEvents.handleQuestStarted(playerState, questId);
-    return Optional.of(new QuestChangeResult(questId, questProgress, changedSteps, true));
+    return publish(playerState, new QuestChangeResult(questId, questProgress, changedSteps, true));
   }
 
   public static Optional<QuestChangeResult> completeQuest(
@@ -142,13 +190,14 @@ public final class QuestService {
 
     if (questProgress.state() == QuestState.FAILED
         || questProgress.state() == QuestState.COMPLETED) {
-      return Optional.of(new QuestChangeResult(questId, questProgress, Map.of(), false));
+      return publish(playerState, new QuestChangeResult(questId, questProgress, Map.of(), false));
     }
 
     questProgress.setState(QuestState.FAILED);
     playerState.markDirty();
     PlayerStateEvents.fireQuestFailed(playerState.playerUuid(), questId, questProgress);
-    return Optional.of(new QuestChangeResult(questId, questProgress, Map.of(), true));
+    QuestTrackingService.clearIfTracked(resolvePlayer(playerState, null), playerState, questId);
+    return publish(playerState, new QuestChangeResult(questId, questProgress, Map.of(), true));
   }
 
   public static Optional<QuestChangeResult> progressStep(
@@ -186,15 +235,11 @@ public final class QuestService {
     if (questProgress.state() == QuestState.COMPLETED) {
       boolean applied =
           applyCompletionActionsOnce(playerState, actionContext, definition, questProgress);
-      return Optional.of(new QuestChangeResult(questId, questProgress, Map.of(), applied));
+      return publish(playerState, new QuestChangeResult(questId, questProgress, Map.of(), applied));
     }
 
-    questProgress.setState(QuestState.COMPLETED);
-    playerState.markDirty();
-    PlayerStateEvents.fireQuestCompleted(playerState.playerUuid(), questId, questProgress);
-    QuestStepEvents.handleQuestCompleted(playerState, questId);
-    applyCompletionActionsOnce(playerState, actionContext, definition, questProgress);
-    return Optional.of(new QuestChangeResult(questId, questProgress, Map.of(), true));
+    finalizeCompletion(playerState, actionContext, definition, questId, questProgress);
+    return publish(playerState, new QuestChangeResult(questId, questProgress, Map.of(), true));
   }
 
   private static Optional<QuestChangeResult> progressStep(
@@ -212,7 +257,7 @@ public final class QuestService {
     }
 
     if (questProgress.state() != QuestState.ACTIVE) {
-      return Optional.of(new QuestChangeResult(questId, questProgress, Map.of(), false));
+      return publish(playerState, new QuestChangeResult(questId, questProgress, Map.of(), false));
     }
 
     StepProgress current = questProgress.steps().get(stepId);
@@ -225,9 +270,13 @@ public final class QuestService {
       return Optional.empty();
     }
 
+    if (current.state() != StepState.ACTIVE) {
+      return publish(playerState, new QuestChangeResult(questId, questProgress, Map.of(), false));
+    }
+
     StepProgress updated = updateStepProgress(current, value, overwrite);
     if (updated.equals(current)) {
-      return Optional.of(new QuestChangeResult(questId, questProgress, Map.of(), false));
+      return publish(playerState, new QuestChangeResult(questId, questProgress, Map.of(), false));
     }
 
     questProgress.putStep(stepId, updated);
@@ -236,8 +285,21 @@ public final class QuestService {
 
     Map<String, StepProgress> changedSteps = new LinkedHashMap<>();
     changedSteps.put(stepId, updated);
-    boolean completed = evaluateCompletion(playerState, actionContext, questId, questProgress);
-    return Optional.of(new QuestChangeResult(questId, questProgress, changedSteps, completed));
+    if (updated.complete()) {
+      activateDependents(playerState, questId, questProgress, changedSteps);
+    }
+    boolean completed =
+        evaluateCompletion(playerState, actionContext, questId, questProgress, changedSteps);
+    return publish(
+        playerState, new QuestChangeResult(questId, questProgress, changedSteps, completed));
+  }
+
+  private static Optional<QuestChangeResult> publish(
+      PlayerState playerState, QuestChangeResult result) {
+    if (result.changed()) {
+      PlayerStateEvents.fireQuestChanged(playerState.playerUuid(), result);
+    }
+    return Optional.of(result);
   }
 
   private static Map<String, StepProgress> initialiseSteps(
@@ -246,14 +308,16 @@ public final class QuestService {
     Optional<QuestDefinition> definition = QuestContentRegistry.get(questId);
     if (definition.isEmpty()) {
       log.warn(
-          "{} Quest {} not found in registry — starting with empty steps.",
+          "{} Quest {} not found in registry - starting with empty steps.",
           Constants.LOG_PREFIX,
           questId);
       return changedSteps;
     }
 
     for (RawQuestStep step : definition.get().logic().steps().values()) {
-      StepProgress stepProgress = StepProgress.active(requiredFor(step));
+      int required = requiredAmountFor(step);
+      StepProgress stepProgress =
+          step.requires().isEmpty() ? StepProgress.active(required) : StepProgress.locked(required);
       questProgress.putStep(step.id(), stepProgress);
       changedSteps.put(step.id(), stepProgress);
     }
@@ -262,20 +326,19 @@ public final class QuestService {
 
   private static StepProgress updateStepProgress(
       StepProgress current, int value, boolean overwrite) {
-    StepProgress active =
-        current.state() == StepState.LOCKED ? current.withState(StepState.ACTIVE) : current;
-    if (active.required() <= 0) {
+    if (current.required() <= 0) {
       return StepProgress.completed(0);
     }
-    int newProgress = overwrite ? Math.max(0, value) : active.progress() + Math.max(0, value);
-    return active.withProgress(newProgress);
+    int newProgress = overwrite ? Math.max(0, value) : current.progress() + Math.max(0, value);
+    return current.withProgress(newProgress);
   }
 
   private static boolean evaluateCompletion(
       PlayerState playerState,
       ActionContext actionContext,
       ResourceLocation questId,
-      QuestProgress questProgress) {
+      QuestProgress questProgress,
+      Map<String, StepProgress> changedSteps) {
     if (questProgress.state() != QuestState.ACTIVE) {
       return false;
     }
@@ -285,24 +348,131 @@ public final class QuestService {
         definition
             .map(questDefinition -> questDefinition.logic().completionPolicy())
             .orElse(CompletionPolicy.ALL_STEPS);
+
+    Collection<StepProgress> steps = questProgress.steps().values();
     boolean complete =
         switch (policy) {
-          case ANY_STEP -> questProgress.steps().values().stream().anyMatch(StepProgress::complete);
-          case ALL_STEPS ->
-              !questProgress.steps().isEmpty()
-                  && questProgress.steps().values().stream().allMatch(StepProgress::complete);
+          case ANY_STEP -> steps.stream().anyMatch(StepProgress::complete);
+          case ALL_STEPS -> {
+            List<StepProgress> nonHidden =
+                steps.stream().filter(step -> step.state() != StepState.HIDDEN).toList();
+            yield !nonHidden.isEmpty() && nonHidden.stream().allMatch(StepProgress::done);
+          }
         };
 
     if (!complete) {
       return false;
     }
 
+    if (policy == CompletionPolicy.ANY_STEP) {
+      skipRemainingSteps(questProgress, changedSteps);
+    }
+
+    finalizeCompletion(playerState, actionContext, definition, questId, questProgress);
+    return true;
+  }
+
+  private static void finalizeCompletion(
+      PlayerState playerState,
+      ActionContext actionContext,
+      Optional<QuestDefinition> definition,
+      ResourceLocation questId,
+      QuestProgress questProgress) {
     questProgress.setState(QuestState.COMPLETED);
     playerState.markDirty();
     PlayerStateEvents.fireQuestCompleted(playerState.playerUuid(), questId, questProgress);
     QuestStepEvents.handleQuestCompleted(playerState, questId);
     applyCompletionActionsOnce(playerState, actionContext, definition, questProgress);
+    definition.ifPresent(
+        quest -> applyCompletionRewards(playerState, actionContext, quest, questProgress));
+    QuestTrackingService.clearIfTracked(
+        resolvePlayer(playerState, actionContext), playerState, questId);
+  }
+
+  private static void applyCompletionRewards(
+      PlayerState playerState,
+      ActionContext actionContext,
+      QuestDefinition definition,
+      QuestProgress questProgress) {
+    RewardSection rewards = definition.rewards();
+    if (rewards.isEmpty() || questProgress.rewardClaimState() != RewardClaimState.NONE) {
+      return;
+    }
+
+    if (rewards.claimMode() == RewardClaimMode.MANUAL) {
+      questProgress.setRewardClaimState(RewardClaimState.AVAILABLE);
+      return;
+    }
+
+    ServerPlayer player = resolvePlayer(playerState, actionContext);
+    if (player == null) {
+      questProgress.setRewardClaimState(RewardClaimState.AVAILABLE);
+      return;
+    }
+
+    boolean granted = RewardGrantService.grantAll(player, rewards.entries()).isEmpty();
+    questProgress.setRewardClaimState(
+        granted ? RewardClaimState.CLAIMED : RewardClaimState.AVAILABLE);
+  }
+
+  private static ServerPlayer resolvePlayer(PlayerState playerState, ActionContext actionContext) {
+    if (actionContext != null && actionContext.player() != null) {
+      return actionContext.player();
+    }
+    MinecraftServer server = ServerEvents.getServer();
+    return server == null ? null : server.getPlayerList().getPlayer(playerState.playerUuid());
+  }
+
+  private static void activateDependents(
+      PlayerState playerState,
+      ResourceLocation questId,
+      QuestProgress questProgress,
+      Map<String, StepProgress> changedSteps) {
+    Optional<QuestDefinition> definition = QuestContentRegistry.get(questId);
+    if (definition.isEmpty()) {
+      return;
+    }
+
+    List<String> activated = new ArrayList<>();
+    for (RawQuestStep step : definition.get().logic().steps().values()) {
+      StepProgress progress = questProgress.steps().get(step.id());
+      if (progress == null
+          || progress.state() != StepState.LOCKED
+          || !allRequirementsComplete(step, questProgress)) {
+        continue;
+      }
+      StepProgress active = progress.withState(StepState.ACTIVE);
+      questProgress.putStep(step.id(), active);
+      changedSteps.put(step.id(), active);
+      activated.add(step.id());
+    }
+
+    if (!activated.isEmpty()) {
+      playerState.markDirty();
+      QuestStepEvents.handleStepsActivated(playerState, questId, activated);
+    }
+  }
+
+  private static boolean allRequirementsComplete(RawQuestStep step, QuestProgress questProgress) {
+    for (String required : step.requires()) {
+      StepProgress dependency = questProgress.steps().get(required);
+      if (dependency == null || dependency.state() != StepState.COMPLETED) {
+        return false;
+      }
+    }
     return true;
+  }
+
+  private static void skipRemainingSteps(
+      QuestProgress questProgress, Map<String, StepProgress> changedSteps) {
+    for (String stepId : List.copyOf(questProgress.steps().keySet())) {
+      StepProgress progress = questProgress.steps().get(stepId);
+      if (progress.state() == StepState.ACTIVE || progress.state() == StepState.LOCKED) {
+        StepProgress skipped = progress.skipped();
+        questProgress.putStep(stepId, skipped);
+        changedSteps.put(stepId, skipped);
+      }
+    }
   }
 
   private static boolean applyCompletionActionsOnce(
@@ -320,8 +490,8 @@ public final class QuestService {
     return true;
   }
 
-  private static int requiredFor(RawQuestStep step) {
-    JsonObject jsonObject = step.jsonObject();
+  private static int requiredAmountFor(RawQuestStep step) {
+    JsonObject jsonObject = step.typeSpecificJson();
     for (String field : new String[] {"required", "amount", "count"}) {
       if (jsonObject.has(field) && jsonObject.get(field).isJsonPrimitive()) {
         try {

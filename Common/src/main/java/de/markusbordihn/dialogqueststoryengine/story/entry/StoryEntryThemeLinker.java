@@ -24,6 +24,7 @@ import de.markusbordihn.dialogqueststoryengine.data.ContentType;
 import de.markusbordihn.dialogqueststoryengine.data.issue.ContentIssue;
 import de.markusbordihn.dialogqueststoryengine.data.issue.ContentIssueTracker;
 import de.markusbordihn.dialogqueststoryengine.data.issue.IssueCode;
+import de.markusbordihn.dialogqueststoryengine.data.story.StoryEntry;
 import de.markusbordihn.dialogqueststoryengine.theme.ThemeClientRegistry;
 import java.util.Map;
 import net.minecraft.resources.ResourceLocation;

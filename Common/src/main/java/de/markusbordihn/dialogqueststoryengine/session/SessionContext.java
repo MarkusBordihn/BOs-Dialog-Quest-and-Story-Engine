@@ -19,6 +19,7 @@
 
 package de.markusbordihn.dialogqueststoryengine.session;
 
+import de.markusbordihn.dialogqueststoryengine.data.session.SessionType;
 import java.util.UUID;
 
 public record SessionContext(UUID sessionId, SessionType sessionType) {}

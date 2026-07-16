@@ -29,6 +29,11 @@
       "de.markusbordihn.dialogqueststoryengine.gametest.PlayerStateGameTest",
       "de.markusbordihn.dialogqueststoryengine.gametest.QuestStepTrackerGameTest",
       "de.markusbordihn.dialogqueststoryengine.gametest.QuestWorkflowGameTest",
+      "de.markusbordihn.dialogqueststoryengine.gametest.QuestProgressSyncGameTest",
+      "de.markusbordihn.dialogqueststoryengine.gametest.QuestPrerequisiteGameTest",
+      "de.markusbordihn.dialogqueststoryengine.gametest.RewardGameTest",
+      "de.markusbordihn.dialogqueststoryengine.gametest.TrackedQuestGameTest",
+      "de.markusbordihn.dialogqueststoryengine.gametest.QuestCatalogGameTest",
       "de.markusbordihn.dialogqueststoryengine.gametest.ServerRegistrationGameTest",
       "de.markusbordihn.dialogqueststoryengine.gametest.DialogWorkflowGameTest"
     ]

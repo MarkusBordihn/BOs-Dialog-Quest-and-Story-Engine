@@ -21,10 +21,10 @@ package de.markusbordihn.dialogqueststoryengine.quest.step.types;
 
 import com.google.gson.JsonObject;
 import de.markusbordihn.dialogqueststoryengine.Constants;
-import de.markusbordihn.dialogqueststoryengine.content.quest.RawQuestStep;
 import de.markusbordihn.dialogqueststoryengine.data.ContentType;
 import de.markusbordihn.dialogqueststoryengine.data.issue.ContentIssue;
 import de.markusbordihn.dialogqueststoryengine.data.issue.IssueCode;
+import de.markusbordihn.dialogqueststoryengine.data.quest.content.RawQuestStep;
 import de.markusbordihn.dialogqueststoryengine.quest.step.QuestStepContext;
 import de.markusbordihn.dialogqueststoryengine.registry.QuestStepHandler;
 import java.util.List;
@@ -61,7 +61,7 @@ public final class InteractEntityStepType implements QuestStepHandler {
   @Override
   public void validate(
       ResourceLocation questId, RawQuestStep step, String filePath, List<ContentIssue> issues) {
-    JsonObject jsonObject = step.jsonObject();
+    JsonObject jsonObject = step.typeSpecificJson();
     String fieldPath = "logic.steps." + step.id() + "." + FIELD_TARGET;
     if (!jsonObject.has(FIELD_TARGET) || !jsonObject.get(FIELD_TARGET).isJsonPrimitive()) {
       issues.add(
@@ -85,7 +85,7 @@ public final class InteractEntityStepType implements QuestStepHandler {
 
   @Override
   public void onEntityInteract(QuestStepContext context, Entity target) {
-    JsonObject jsonObject = context.step().jsonObject();
+    JsonObject jsonObject = context.step().typeSpecificJson();
     if (!jsonObject.has(FIELD_TARGET) || !jsonObject.get(FIELD_TARGET).isJsonPrimitive()) {
       return;
     }

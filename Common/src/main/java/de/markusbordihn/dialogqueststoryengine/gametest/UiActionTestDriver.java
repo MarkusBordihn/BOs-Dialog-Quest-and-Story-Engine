@@ -20,12 +20,16 @@
 package de.markusbordihn.dialogqueststoryengine.gametest;
 
 import de.markusbordihn.dialogqueststoryengine.network.NetworkMessageRecord;
+import de.markusbordihn.dialogqueststoryengine.network.message.session.ClaimQuestRewardsPacket;
 import de.markusbordihn.dialogqueststoryengine.network.message.session.ClientCloseSessionPacket;
 import de.markusbordihn.dialogqueststoryengine.network.message.session.SubmitChoicePacket;
+import de.markusbordihn.dialogqueststoryengine.network.message.session.TrackQuestPacket;
 import io.netty.buffer.Unpooled;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 
 public final class UiActionTestDriver {
@@ -48,5 +52,17 @@ public final class UiActionTestDriver {
   public static void closeSession(ServerPlayer player, UUID sessionId) {
     receiveOnServer(
         player, new ClientCloseSessionPacket(sessionId), ClientCloseSessionPacket::create);
+  }
+
+  public static void claimRewards(
+      ServerPlayer player, ResourceLocation questId, int knownRevision) {
+    receiveOnServer(
+        player,
+        new ClaimQuestRewardsPacket(questId, knownRevision),
+        ClaimQuestRewardsPacket::create);
+  }
+
+  public static void trackQuest(ServerPlayer player, Optional<ResourceLocation> questId) {
+    receiveOnServer(player, new TrackQuestPacket(questId), TrackQuestPacket::create);
   }
 }

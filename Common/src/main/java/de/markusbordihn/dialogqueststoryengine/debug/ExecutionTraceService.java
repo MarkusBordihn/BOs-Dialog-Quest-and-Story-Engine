@@ -19,6 +19,7 @@
 
 package de.markusbordihn.dialogqueststoryengine.debug;
 
+import de.markusbordihn.dialogqueststoryengine.data.debug.ExecutionTraceEntry;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;

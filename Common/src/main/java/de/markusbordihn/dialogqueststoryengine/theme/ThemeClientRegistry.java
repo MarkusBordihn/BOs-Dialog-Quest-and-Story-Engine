@@ -20,6 +20,7 @@
 package de.markusbordihn.dialogqueststoryengine.theme;
 
 import de.markusbordihn.dialogqueststoryengine.Constants;
+import de.markusbordihn.dialogqueststoryengine.data.theme.Theme;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -42,7 +43,7 @@ public final class ThemeClientRegistry {
   public static void put(Theme theme) {
     if (entries.containsKey(theme.id())) {
       log.warn(
-          "{} Theme registry: duplicate id {} — overwriting.", Constants.LOG_PREFIX, theme.id());
+          "{} Theme registry: duplicate id {} - overwriting.", Constants.LOG_PREFIX, theme.id());
     }
 
     entries.put(theme.id(), theme);

@@ -20,6 +20,7 @@
 package de.markusbordihn.dialogqueststoryengine.story.entry;
 
 import de.markusbordihn.dialogqueststoryengine.Constants;
+import de.markusbordihn.dialogqueststoryengine.data.story.StoryEntry;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -39,7 +40,7 @@ public final class StoryEntryClientRegistry {
   public static void put(StoryEntry entry) {
     if (entries.containsKey(entry.id())) {
       log.warn(
-          "{} StoryEntry registry: duplicate id {} — overwriting.",
+          "{} StoryEntry registry: duplicate id {} - overwriting.",
           Constants.LOG_PREFIX,
           entry.id());
     }

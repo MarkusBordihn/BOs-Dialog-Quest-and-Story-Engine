@@ -19,6 +19,7 @@
 
 package de.markusbordihn.dialogqueststoryengine.content.interaction;
 
+import de.markusbordihn.dialogqueststoryengine.data.interaction.content.InteractionDefinition;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;

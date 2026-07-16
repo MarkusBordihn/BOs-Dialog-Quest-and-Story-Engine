@@ -26,7 +26,7 @@ import de.markusbordihn.dialogqueststoryengine.client.screen.ui.components.Bread
 import de.markusbordihn.dialogqueststoryengine.client.screen.ui.components.ColumnListPanel;
 import de.markusbordihn.dialogqueststoryengine.client.screen.ui.components.ScaledText;
 import de.markusbordihn.dialogqueststoryengine.client.screen.ui.components.TextComponent;
-import de.markusbordihn.dialogqueststoryengine.story.entry.StoryEntry;
+import de.markusbordihn.dialogqueststoryengine.data.story.StoryEntry;
 import de.markusbordihn.dialogqueststoryengine.story.entry.StoryEntryClientRegistry;
 import java.util.List;
 import net.minecraft.client.Minecraft;

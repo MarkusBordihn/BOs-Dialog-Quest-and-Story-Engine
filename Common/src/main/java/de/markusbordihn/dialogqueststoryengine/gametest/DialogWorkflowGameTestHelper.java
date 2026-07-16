@@ -21,19 +21,23 @@ package de.markusbordihn.dialogqueststoryengine.gametest;
 
 import com.google.gson.JsonParser;
 import de.markusbordihn.dialogqueststoryengine.Constants;
-import de.markusbordihn.dialogqueststoryengine.content.NarrativeMetadata;
-import de.markusbordihn.dialogqueststoryengine.content.dialog.DialogChoiceDefinition;
 import de.markusbordihn.dialogqueststoryengine.content.dialog.DialogContentRegistry;
-import de.markusbordihn.dialogqueststoryengine.content.dialog.DialogDefinition;
-import de.markusbordihn.dialogqueststoryengine.content.dialog.DialogNodeDefinition;
-import de.markusbordihn.dialogqueststoryengine.content.quest.CompletionPolicy;
-import de.markusbordihn.dialogqueststoryengine.content.quest.DisplaySection;
-import de.markusbordihn.dialogqueststoryengine.content.quest.LogicSection;
 import de.markusbordihn.dialogqueststoryengine.content.quest.QuestContentRegistry;
-import de.markusbordihn.dialogqueststoryengine.content.quest.QuestDefinition;
-import de.markusbordihn.dialogqueststoryengine.content.quest.QuestPrerequisites;
-import de.markusbordihn.dialogqueststoryengine.content.quest.RawQuestStep;
-import de.markusbordihn.dialogqueststoryengine.content.quest.RewardSection;
+import de.markusbordihn.dialogqueststoryengine.data.dialog.DialogChoiceDefinition;
+import de.markusbordihn.dialogqueststoryengine.data.dialog.DialogDefinition;
+import de.markusbordihn.dialogqueststoryengine.data.dialog.DialogNodeDefinition;
+import de.markusbordihn.dialogqueststoryengine.data.quest.QuestState;
+import de.markusbordihn.dialogqueststoryengine.data.quest.content.CompletionPolicy;
+import de.markusbordihn.dialogqueststoryengine.data.quest.content.DisplaySection;
+import de.markusbordihn.dialogqueststoryengine.data.quest.content.LogicSection;
+import de.markusbordihn.dialogqueststoryengine.data.quest.content.NarrativeMetadata;
+import de.markusbordihn.dialogqueststoryengine.data.quest.content.QuestDefinition;
+import de.markusbordihn.dialogqueststoryengine.data.quest.content.QuestPrerequisites;
+import de.markusbordihn.dialogqueststoryengine.data.quest.content.RawQuestStep;
+import de.markusbordihn.dialogqueststoryengine.data.quest.content.RewardSection;
+import de.markusbordihn.dialogqueststoryengine.data.session.SessionRejectionReason;
+import de.markusbordihn.dialogqueststoryengine.data.state.FactScope;
+import de.markusbordihn.dialogqueststoryengine.data.state.FactValue;
 import de.markusbordihn.dialogqueststoryengine.logic.action.Action;
 import de.markusbordihn.dialogqueststoryengine.logic.action.ActionList;
 import de.markusbordihn.dialogqueststoryengine.logic.action.types.StartQuestAction;
@@ -41,8 +45,6 @@ import de.markusbordihn.dialogqueststoryengine.logic.condition.Condition;
 import de.markusbordihn.dialogqueststoryengine.logic.condition.ConditionGroup;
 import de.markusbordihn.dialogqueststoryengine.logic.condition.GroupOperator;
 import de.markusbordihn.dialogqueststoryengine.logic.condition.types.FactEqualsCondition;
-import de.markusbordihn.dialogqueststoryengine.network.NetworkHandlerInterface;
-import de.markusbordihn.dialogqueststoryengine.network.NetworkHandlerManager;
 import de.markusbordihn.dialogqueststoryengine.network.NetworkMessageRecord;
 import de.markusbordihn.dialogqueststoryengine.network.message.session.CloseSessionPacket;
 import de.markusbordihn.dialogqueststoryengine.network.message.session.DialogSessionPacket;
@@ -50,24 +52,16 @@ import de.markusbordihn.dialogqueststoryengine.network.message.session.DialogSes
 import de.markusbordihn.dialogqueststoryengine.network.message.session.SessionRejectedPacket;
 import de.markusbordihn.dialogqueststoryengine.session.DialogSession;
 import de.markusbordihn.dialogqueststoryengine.session.SessionManager;
-import de.markusbordihn.dialogqueststoryengine.session.SessionRejectionReason;
-import de.markusbordihn.dialogqueststoryengine.state.FactScope;
-import de.markusbordihn.dialogqueststoryengine.state.FactValue;
 import de.markusbordihn.dialogqueststoryengine.state.PlayerStateEvents;
 import de.markusbordihn.dialogqueststoryengine.state.PlayerStateService;
-import de.markusbordihn.dialogqueststoryengine.state.QuestState;
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.function.Function;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 
@@ -77,8 +71,7 @@ public class DialogWorkflowGameTestHelper {
   private static final ResourceLocation QUEST_ID = new ResourceLocation("test", "workflow_quest");
   private static final String GATED_FACT = "gate_open";
 
-  private static final List<NetworkMessageRecord> captured = new ArrayList<>();
-  private static NetworkHandlerInterface previousHandler;
+  private static CapturingNetworkTestHandler network;
   private static Map<ResourceLocation, QuestDefinition> previousQuests;
 
   private DialogWorkflowGameTestHelper() {}
@@ -426,35 +419,20 @@ public class DialogWorkflowGameTestHelper {
   }
 
   private static DialogSessionPacket lastDialogPacket() {
-    for (int i = captured.size() - 1; i >= 0; i--) {
-      if (captured.get(i) instanceof DialogSessionPacket packet) {
-        return packet;
-      }
-    }
-    throw new IllegalStateException("No DialogSessionPacket captured");
+    return network.last(DialogSessionPacket.class);
   }
 
   private static SessionRejectedPacket lastRejection() {
-    for (int i = captured.size() - 1; i >= 0; i--) {
-      if (captured.get(i) instanceof SessionRejectedPacket packet) {
-        return packet;
-      }
-    }
-    throw new IllegalStateException("No SessionRejectedPacket captured");
+    return network.last(SessionRejectedPacket.class);
   }
 
   private static boolean hasPacket(Class<? extends NetworkMessageRecord> type) {
-    return captured.stream().anyMatch(type::isInstance);
+    return network.has(type);
   }
 
   private static void installEnv(Map<ResourceLocation, DialogDefinition> dialogs) {
-    captured.clear();
+    network = CapturingNetworkTestHandler.install();
     try {
-      Field handlerField = NetworkHandlerManager.class.getDeclaredField("networkHandler");
-      handlerField.setAccessible(true);
-      previousHandler = (NetworkHandlerInterface) handlerField.get(null);
-      handlerField.set(null, new CapturingHandler());
-
       Method replaceAll = DialogContentRegistry.class.getDeclaredMethod("replaceAll", Map.class);
       replaceAll.setAccessible(true);
       replaceAll.invoke(null, dialogs);
@@ -464,12 +442,9 @@ public class DialogWorkflowGameTestHelper {
   }
 
   private static void teardownEnv(UUID playerUuid) {
-    try {
-      Field handlerField = NetworkHandlerManager.class.getDeclaredField("networkHandler");
-      handlerField.setAccessible(true);
-      handlerField.set(null, previousHandler);
-    } catch (ReflectiveOperationException e) {
-      // Best-effort restore; ignore in teardown.
+    if (network != null) {
+      network.restore();
+      network = null;
     }
     DialogContentRegistry.clear();
     if (previousQuests != null) {
@@ -479,29 +454,5 @@ public class DialogWorkflowGameTestHelper {
     SessionManager.invalidateAll();
     PlayerStateService.onPlayerLoggedOut(playerUuid);
     PlayerStateEvents.clearAll();
-    captured.clear();
-  }
-
-  private static final class CapturingHandler implements NetworkHandlerInterface {
-
-    @Override
-    public <M extends NetworkMessageRecord> void registerClientNetworkMessageHandler(
-        ResourceLocation messageId,
-        Class<M> networkMessage,
-        Function<FriendlyByteBuf, M> creator) {}
-
-    @Override
-    public <M extends NetworkMessageRecord> void registerServerNetworkMessageHandler(
-        ResourceLocation messageId,
-        Class<M> networkMessage,
-        Function<FriendlyByteBuf, M> creator) {}
-
-    @Override
-    public void sendToPlayer(ServerPlayer serverPlayer, NetworkMessageRecord networkMessageRecord) {
-      captured.add(networkMessageRecord);
-    }
-
-    @Override
-    public void sendToServer(NetworkMessageRecord networkMessageRecord) {}
   }
 }

@@ -19,7 +19,7 @@
 
 package de.markusbordihn.dialogqueststoryengine.registry;
 
-import de.markusbordihn.dialogqueststoryengine.content.text.ContextArgument;
+import de.markusbordihn.dialogqueststoryengine.data.text.ContextArgument;
 import de.markusbordihn.dialogqueststoryengine.logic.context.NarrativeContextResolution;
 import java.util.Optional;
 import net.minecraft.network.chat.Component;

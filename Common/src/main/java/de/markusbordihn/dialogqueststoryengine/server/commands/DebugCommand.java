@@ -19,9 +19,12 @@
 
 package de.markusbordihn.dialogqueststoryengine.server.commands;
 
+import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.builder.ArgumentBuilder;
+import de.markusbordihn.dialogqueststoryengine.Constants;
 import de.markusbordihn.dialogqueststoryengine.commands.Command;
-import de.markusbordihn.dialogqueststoryengine.debug.ExecutionTraceEntry;
+import de.markusbordihn.dialogqueststoryengine.data.debug.ExecutionTraceEntry;
+import de.markusbordihn.dialogqueststoryengine.debug.DebugManager;
 import de.markusbordihn.dialogqueststoryengine.debug.ExecutionTraceService;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -42,8 +45,32 @@ public class DebugCommand extends Command {
   public static ArgumentBuilder<CommandSourceStack, ?> register() {
     return Commands.literal("debug")
         .requires(source -> source.hasPermission(PERMISSION_LEVEL))
+        .then(buildCoreSubCommand())
         .then(buildPlayerSubCommand())
         .then(buildTraceSubCommand());
+  }
+
+  private static ArgumentBuilder<CommandSourceStack, ?> buildCoreSubCommand() {
+    return Commands.literal("core")
+        .then(
+            Commands.argument("enable", BoolArgumentType.bool())
+                .executes(
+                    context ->
+                        setDebug(
+                            context.getSource(), BoolArgumentType.getBool(context, "enable"))));
+  }
+
+  private static int setDebug(CommandSourceStack source, boolean enable) {
+    DebugManager.enableDebugLevel(enable);
+    if (enable) {
+      sendSuccessMessage(
+          source,
+          "Enabled debug logging for " + Constants.MOD_NAME + ". See debug.log for output.");
+      sendInfoMessage(source, "Use '/" + Constants.MOD_COMMAND + " debug core false' to disable.");
+    } else {
+      sendSuccessMessage(source, "Disabled debug logging for " + Constants.MOD_NAME + ".");
+    }
+    return 1;
   }
 
   private static ArgumentBuilder<CommandSourceStack, ?> buildPlayerSubCommand() {

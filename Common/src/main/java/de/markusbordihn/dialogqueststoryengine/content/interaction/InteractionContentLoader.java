@@ -23,6 +23,7 @@ import com.google.gson.JsonObject;
 import de.markusbordihn.dialogqueststoryengine.Constants;
 import de.markusbordihn.dialogqueststoryengine.content.AbstractJsonContentLoader;
 import de.markusbordihn.dialogqueststoryengine.data.ContentType;
+import de.markusbordihn.dialogqueststoryengine.data.interaction.content.InteractionDefinition;
 import de.markusbordihn.dialogqueststoryengine.data.json.ParseResult;
 import de.markusbordihn.dialogqueststoryengine.interaction.InteractionManager;
 import java.util.Map;

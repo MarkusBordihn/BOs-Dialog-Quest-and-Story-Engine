@@ -24,6 +24,7 @@ public enum RegistryType {
   ACTIONS("ActionType"),
   INTERACTIONS("InteractionEvent"),
   QUEST_STEPS("QuestStepType"),
+  REWARDS("RewardHandler"),
   THEMES("ThemeProvider"),
   CONTEXT_VALUES("ContextValueProvider"),
   VALIDATORS("ContentValidator");

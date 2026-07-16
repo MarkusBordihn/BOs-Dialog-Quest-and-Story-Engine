@@ -26,10 +26,10 @@ import de.markusbordihn.dialogqueststoryengine.Constants;
 import de.markusbordihn.dialogqueststoryengine.data.ContentType;
 import de.markusbordihn.dialogqueststoryengine.data.issue.ContentIssue;
 import de.markusbordihn.dialogqueststoryengine.data.issue.IssueCode;
+import de.markusbordihn.dialogqueststoryengine.data.state.FactScope;
+import de.markusbordihn.dialogqueststoryengine.data.state.FactValue;
 import de.markusbordihn.dialogqueststoryengine.logic.action.Action;
 import de.markusbordihn.dialogqueststoryengine.logic.action.ActionContext;
-import de.markusbordihn.dialogqueststoryengine.state.FactScope;
-import de.markusbordihn.dialogqueststoryengine.state.FactValue;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -124,7 +124,7 @@ public record SetFactAction(FactScope scope, String fact, FactValue value) imple
   public void execute(ActionContext actionContext) {
     if (this.scope != FactScope.PLAYER) {
       log.warn(
-          "{} set_fact: non-PLAYER scope '{}' is not supported in V1 — skipping fact '{}'",
+          "{} set_fact: non-PLAYER scope '{}' is not supported in V1 - skipping fact '{}'",
           Constants.LOG_PREFIX,
           this.scope,
           this.fact);

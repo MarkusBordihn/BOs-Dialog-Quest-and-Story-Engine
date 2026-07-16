@@ -58,12 +58,12 @@ class StoryProgressTest {
   }
 
   @Test
-  void readDoesNotImplyUnlocked() {
+  void readImpliesUnlocked() {
     StoryProgress storyProgress = new StoryProgress();
     storyProgress.markRead(STORY_B);
 
     assertTrue(storyProgress.isRead(STORY_B));
-    assertFalse(storyProgress.isUnlocked(STORY_B));
+    assertTrue(storyProgress.isUnlocked(STORY_B));
   }
 
   @Test

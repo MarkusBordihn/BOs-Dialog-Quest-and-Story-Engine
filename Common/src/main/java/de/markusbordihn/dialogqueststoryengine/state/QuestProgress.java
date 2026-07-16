@@ -19,6 +19,9 @@
 
 package de.markusbordihn.dialogqueststoryengine.state;
 
+import de.markusbordihn.dialogqueststoryengine.data.quest.QuestState;
+import de.markusbordihn.dialogqueststoryengine.data.quest.RewardClaimState;
+import de.markusbordihn.dialogqueststoryengine.data.quest.StepProgress;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -29,6 +32,7 @@ public final class QuestProgress {
   private QuestState state;
   private int revision;
   private int lastRewardedRevision;
+  private RewardClaimState rewardClaimState = RewardClaimState.NONE;
 
   public QuestProgress(QuestState state) {
     this.state = state;
@@ -77,6 +81,19 @@ public final class QuestProgress {
 
   public void setLastRewardedRevision(int revision) {
     this.lastRewardedRevision = revision;
+  }
+
+  public RewardClaimState rewardClaimState() {
+    return this.rewardClaimState;
+  }
+
+  public void setRewardClaimState(RewardClaimState rewardClaimState) {
+    this.rewardClaimState = rewardClaimState;
+    bump();
+  }
+
+  public void restoreRewardClaimState(RewardClaimState rewardClaimState) {
+    this.rewardClaimState = rewardClaimState;
   }
 
   public StepProgress incrementStep(String stepId, int delta) {

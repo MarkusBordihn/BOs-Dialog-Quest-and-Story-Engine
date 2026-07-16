@@ -25,18 +25,22 @@ import de.markusbordihn.dialogqueststoryengine.config.DqseSecurityConfig;
 import de.markusbordihn.dialogqueststoryengine.content.DataPackReloadNotifier;
 import de.markusbordihn.dialogqueststoryengine.content.ResourceServerEventsFabric;
 import de.markusbordihn.dialogqueststoryengine.core.DqseBootstrap;
+import de.markusbordihn.dialogqueststoryengine.data.session.SessionCloseReason;
+import de.markusbordihn.dialogqueststoryengine.debug.DebugManager;
 import de.markusbordihn.dialogqueststoryengine.entity.InteractionEventHandler;
 import de.markusbordihn.dialogqueststoryengine.entity.QuestStepEventHandler;
 import de.markusbordihn.dialogqueststoryengine.item.ModItems;
+import de.markusbordihn.dialogqueststoryengine.network.C2SRateLimiter;
+import de.markusbordihn.dialogqueststoryengine.network.FabricServerHandshake;
 import de.markusbordihn.dialogqueststoryengine.network.NetworkHandler;
 import de.markusbordihn.dialogqueststoryengine.network.NetworkHandlerManager;
 import de.markusbordihn.dialogqueststoryengine.network.NetworkHandlerManagerType;
 import de.markusbordihn.dialogqueststoryengine.server.ServerEvents;
-import de.markusbordihn.dialogqueststoryengine.session.SessionCloseReason;
 import de.markusbordihn.dialogqueststoryengine.session.SessionManager;
-import de.markusbordihn.dialogqueststoryengine.state.PlayerProgressSync;
+import de.markusbordihn.dialogqueststoryengine.state.LoginProgressSync;
 import de.markusbordihn.dialogqueststoryengine.state.PlayerStateService;
 import de.markusbordihn.dialogqueststoryengine.state.PlayerStateStorage;
+import de.markusbordihn.dialogqueststoryengine.state.QuestProgressSync;
 import de.markusbordihn.dialogqueststoryengine.tabs.ModTabs;
 import java.io.File;
 import java.nio.file.Path;
@@ -76,6 +80,11 @@ public class DialogQuestStoryEngine implements ModInitializer {
   public void onInitialize() {
     log.info("Initializing {} (Fabric) ...", Constants.MOD_NAME);
 
+    if (System.getProperty("fabric.development") != null) {
+      DebugManager.setDevelopmentEnvironment(true);
+    }
+    DebugManager.checkForDebugLogging(Constants.LOG_NAME);
+
     log.info("{} Constants ...", Constants.LOG_REGISTER_PREFIX);
     Constants.GAME_DIR = FabricLoader.getInstance().getGameDir();
     Constants.CONFIG_DIR = FabricLoader.getInstance().getConfigDir();
@@ -95,6 +104,7 @@ public class DialogQuestStoryEngine implements ModInitializer {
     log.info("{} Network ...", Constants.LOG_REGISTER_PREFIX);
     NetworkHandler.register();
     NetworkHandlerManager.registerNetworkMessages(NetworkHandlerManagerType.SERVER);
+    FabricServerHandshake.register();
 
     log.info("{} Commands ...", Constants.LOG_REGISTER_PREFIX);
     CommandRegistrationCallback.EVENT.register(
@@ -111,7 +121,7 @@ public class DialogQuestStoryEngine implements ModInitializer {
               resolvePlayerDataFile(server.getWorldPath(LevelResource.ROOT), playerUuid);
           CompoundTag nbt = readPlayerNbt(dataFile, playerUuid);
           PlayerStateService.onPlayerDataLoaded(playerUuid, nbt != null ? nbt : new CompoundTag());
-          PlayerProgressSync.send(handler.player);
+          LoginProgressSync.send(handler.player);
         });
 
     ServerPlayConnectionEvents.DISCONNECT.register(
@@ -127,6 +137,8 @@ public class DialogQuestStoryEngine implements ModInitializer {
           }
           PlayerStateService.onPlayerLoggedOut(playerUuid);
           SessionManager.invalidatePlayerSessions(playerUuid);
+          C2SRateLimiter.clear(playerUuid);
+          QuestProgressSync.forget(playerUuid);
         });
 
     ServerEntityWorldChangeEvents.AFTER_PLAYER_CHANGE_WORLD.register(

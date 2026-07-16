@@ -59,7 +59,7 @@ public class ValidateCommand extends Command {
     }
 
     if (issues.isEmpty()) {
-      sendSuccessMessage(source, "Validation passed — 0 errors, 0 warnings.");
+      sendSuccessMessage(source, "Validation passed - 0 errors, 0 warnings.");
       return 1;
     }
 
@@ -69,7 +69,7 @@ public class ValidateCommand extends Command {
             + errorCount
             + " error(s), "
             + warningCount
-            + " warning(s) — showing first "
+            + " warning(s) - showing first "
             + Math.min(issues.size(), MAX_INLINE_ISSUES)
             + ":");
 
@@ -100,7 +100,7 @@ public class ValidateCommand extends Command {
 
     if (issues.size() > MAX_INLINE_ISSUES) {
       int remaining = issues.size() - MAX_INLINE_ISSUES;
-      sendInfoMessage(source, "  ... and " + remaining + " more — see log for full report.");
+      sendInfoMessage(source, "  ... and " + remaining + " more - see log for full report.");
       issues.stream()
           .skip(MAX_INLINE_ISSUES)
           .forEach(issue -> log.warn("{} {}", Constants.LOG_PREFIX, formatIssue(issue)));

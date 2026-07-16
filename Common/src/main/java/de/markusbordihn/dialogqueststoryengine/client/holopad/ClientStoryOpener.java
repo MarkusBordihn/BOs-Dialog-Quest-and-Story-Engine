@@ -20,11 +20,11 @@
 package de.markusbordihn.dialogqueststoryengine.client.holopad;
 
 import de.markusbordihn.dialogqueststoryengine.Constants;
+import de.markusbordihn.dialogqueststoryengine.data.story.StoryEntry;
+import de.markusbordihn.dialogqueststoryengine.data.story.StoryEntryType;
+import de.markusbordihn.dialogqueststoryengine.data.theme.Theme;
 import de.markusbordihn.dialogqueststoryengine.network.message.session.OpenStorySessionPacket;
-import de.markusbordihn.dialogqueststoryengine.story.entry.StoryEntry;
 import de.markusbordihn.dialogqueststoryengine.story.entry.StoryEntryClientRegistry;
-import de.markusbordihn.dialogqueststoryengine.story.entry.StoryEntryType;
-import de.markusbordihn.dialogqueststoryengine.theme.Theme;
 import de.markusbordihn.dialogqueststoryengine.theme.ThemeClientRegistry;
 import java.util.UUID;
 import net.minecraft.client.Minecraft;

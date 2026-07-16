@@ -23,6 +23,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import de.markusbordihn.dialogqueststoryengine.data.dialog.DialogDefinition;
+import de.markusbordihn.dialogqueststoryengine.data.dialog.DialogNodeDefinition;
 import de.markusbordihn.dialogqueststoryengine.data.json.ParseResult;
 import java.io.IOException;
 import java.io.InputStream;

@@ -24,6 +24,7 @@ import de.markusbordihn.dialogqueststoryengine.Constants;
 import de.markusbordihn.dialogqueststoryengine.content.AbstractJsonContentLoader;
 import de.markusbordihn.dialogqueststoryengine.data.ContentType;
 import de.markusbordihn.dialogqueststoryengine.data.json.ParseResult;
+import de.markusbordihn.dialogqueststoryengine.data.story.StoryEntry;
 import java.util.Map;
 import net.minecraft.resources.ResourceLocation;
 

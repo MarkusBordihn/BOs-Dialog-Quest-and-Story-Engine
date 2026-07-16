@@ -23,6 +23,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import de.markusbordihn.dialogqueststoryengine.data.quest.StepProgress;
+import de.markusbordihn.dialogqueststoryengine.data.quest.StepState;
 import org.junit.jupiter.api.Test;
 
 class StepProgressTest {

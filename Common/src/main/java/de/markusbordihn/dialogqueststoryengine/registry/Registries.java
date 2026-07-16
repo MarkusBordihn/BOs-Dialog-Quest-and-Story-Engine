@@ -33,6 +33,8 @@ public final class Registries {
       new ExtensionRegistry<>(RegistryType.INTERACTIONS);
   public static final ExtensionRegistry<QuestStepHandler> QUEST_STEPS =
       new ExtensionRegistry<>(RegistryType.QUEST_STEPS);
+  public static final ExtensionRegistry<RewardHandler> REWARDS =
+      new ExtensionRegistry<>(RegistryType.REWARDS);
   public static final ExtensionRegistry<ThemeProvider> THEMES =
       new ExtensionRegistry<>(RegistryType.THEMES);
   public static final ExtensionRegistry<ContextValueProvider> CONTEXT_VALUES =
@@ -48,6 +50,7 @@ public final class Registries {
     ALL.put(RegistryType.ACTIONS, ACTIONS);
     ALL.put(RegistryType.INTERACTIONS, INTERACTIONS);
     ALL.put(RegistryType.QUEST_STEPS, QUEST_STEPS);
+    ALL.put(RegistryType.REWARDS, REWARDS);
     ALL.put(RegistryType.THEMES, THEMES);
     ALL.put(RegistryType.CONTEXT_VALUES, CONTEXT_VALUES);
     ALL.put(RegistryType.VALIDATORS, VALIDATORS);

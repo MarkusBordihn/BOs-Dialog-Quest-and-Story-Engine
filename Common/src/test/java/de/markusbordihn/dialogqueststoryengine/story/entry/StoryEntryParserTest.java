@@ -27,6 +27,8 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import de.markusbordihn.dialogqueststoryengine.data.issue.IssueCode;
 import de.markusbordihn.dialogqueststoryengine.data.json.ParseResult;
+import de.markusbordihn.dialogqueststoryengine.data.story.StoryEntry;
+import de.markusbordihn.dialogqueststoryengine.data.story.StoryEntryType;
 import net.minecraft.resources.ResourceLocation;
 import org.junit.jupiter.api.Test;
 

@@ -23,6 +23,7 @@ import com.google.gson.JsonObject;
 import de.markusbordihn.dialogqueststoryengine.data.ContentType;
 import de.markusbordihn.dialogqueststoryengine.data.issue.ContentIssue;
 import de.markusbordihn.dialogqueststoryengine.data.json.OptionalFieldReader;
+import de.markusbordihn.dialogqueststoryengine.data.quest.content.NarrativeMetadata;
 import java.util.List;
 import java.util.Optional;
 import net.minecraft.resources.ResourceLocation;

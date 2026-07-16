@@ -24,6 +24,8 @@ import de.markusbordihn.dialogqueststoryengine.data.interaction.InteractionEntry
 import de.markusbordihn.dialogqueststoryengine.data.interaction.InteractionSource;
 import de.markusbordihn.dialogqueststoryengine.data.interaction.InteractionType;
 import de.markusbordihn.dialogqueststoryengine.data.interaction.TargetKind;
+import de.markusbordihn.dialogqueststoryengine.data.interaction.content.InteractionBinding;
+import de.markusbordihn.dialogqueststoryengine.data.interaction.content.InteractionDefinition;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 import java.util.UUID;

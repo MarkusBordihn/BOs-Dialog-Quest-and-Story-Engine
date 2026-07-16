@@ -20,17 +20,18 @@
 package de.markusbordihn.dialogqueststoryengine.quest.step;
 
 import de.markusbordihn.dialogqueststoryengine.content.quest.QuestContentRegistry;
-import de.markusbordihn.dialogqueststoryengine.content.quest.QuestDefinition;
-import de.markusbordihn.dialogqueststoryengine.content.quest.RawQuestStep;
+import de.markusbordihn.dialogqueststoryengine.data.quest.QuestState;
+import de.markusbordihn.dialogqueststoryengine.data.quest.StepProgress;
+import de.markusbordihn.dialogqueststoryengine.data.quest.StepState;
+import de.markusbordihn.dialogqueststoryengine.data.quest.content.QuestDefinition;
+import de.markusbordihn.dialogqueststoryengine.data.quest.content.RawQuestStep;
 import de.markusbordihn.dialogqueststoryengine.registry.QuestStepHandler;
 import de.markusbordihn.dialogqueststoryengine.registry.Registries;
 import de.markusbordihn.dialogqueststoryengine.server.ServerEvents;
 import de.markusbordihn.dialogqueststoryengine.state.PlayerState;
 import de.markusbordihn.dialogqueststoryengine.state.PlayerStateService;
 import de.markusbordihn.dialogqueststoryengine.state.QuestProgress;
-import de.markusbordihn.dialogqueststoryengine.state.QuestState;
-import de.markusbordihn.dialogqueststoryengine.state.StepProgress;
-import de.markusbordihn.dialogqueststoryengine.state.StepState;
+import java.util.Collection;
 import java.util.Map;
 import java.util.function.BiConsumer;
 import net.minecraft.resources.ResourceLocation;
@@ -65,7 +66,7 @@ public final class QuestStepEvents {
 
   public static void handleQuestStarted(
       PlayerState playerState, Player player, ResourceLocation questId) {
-    dispatchLifecycle(playerState, player, questId, QuestStepHandler::onQuestStarted);
+    dispatchLifecycle(playerState, player, questId, QuestStepHandler::onQuestStarted, true);
   }
 
   public static void handleQuestCompleted(PlayerState playerState, ResourceLocation questId) {
@@ -74,7 +75,38 @@ public final class QuestStepEvents {
 
   public static void handleQuestCompleted(
       PlayerState playerState, Player player, ResourceLocation questId) {
-    dispatchLifecycle(playerState, player, questId, QuestStepHandler::onQuestCompleted);
+    dispatchLifecycle(playerState, player, questId, QuestStepHandler::onQuestCompleted, false);
+  }
+
+  public static void handleStepsActivated(
+      PlayerState playerState, ResourceLocation questId, Collection<String> stepIds) {
+    Player player = resolvePlayer(playerState);
+    QuestProgress questProgress = playerState.getQuest(questId);
+    if (questProgress == null) {
+      return;
+    }
+
+    QuestContentRegistry.get(questId)
+        .ifPresent(
+            definition -> {
+              for (RawQuestStep step : definition.logic().steps().values()) {
+                if (!stepIds.contains(step.id())) {
+                  continue;
+                }
+                StepProgress stepProgress = questProgress.steps().get(step.id());
+                if (stepProgress == null || stepProgress.state() != StepState.ACTIVE) {
+                  continue;
+                }
+                Registries.QUEST_STEPS
+                    .get(step.type())
+                    .filter(QuestStepHandler::supported)
+                    .ifPresent(
+                        handler ->
+                            handler.onQuestStarted(
+                                new QuestStepContext(
+                                    player, playerState, definition.id(), step, stepProgress)));
+              }
+            });
   }
 
   private static void dispatch(Player player, BiConsumer<QuestStepHandler, QuestStepContext> hook) {
@@ -104,7 +136,8 @@ public final class QuestStepEvents {
       PlayerState playerState,
       Player player,
       ResourceLocation questId,
-      BiConsumer<QuestStepHandler, QuestStepContext> hook) {
+      BiConsumer<QuestStepHandler, QuestStepContext> hook,
+      boolean activeStepsOnly) {
     QuestProgress questProgress = playerState.getQuest(questId);
     if (questProgress == null) {
       return;
@@ -113,7 +146,8 @@ public final class QuestStepEvents {
     QuestContentRegistry.get(questId)
         .ifPresent(
             definition ->
-                dispatchSteps(player, playerState, definition, questProgress, hook, false));
+                dispatchSteps(
+                    player, playerState, definition, questProgress, hook, activeStepsOnly));
   }
 
   private static void dispatchSteps(

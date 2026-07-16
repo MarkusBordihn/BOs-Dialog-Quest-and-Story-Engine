@@ -92,7 +92,7 @@ public record AdvanceQuestStepAction(ResourceLocation questId, String stepId, in
     if (QuestService.progressStep(actionContext, this.questId, this.stepId, this.amount)
         .isEmpty()) {
       log.warn(
-          "{} advance_quest_step: step '{}' not found in quest '{}' — skipping",
+          "{} advance_quest_step: step '{}' not found in quest '{}' - skipping",
           Constants.LOG_PREFIX,
           this.stepId,
           this.questId);

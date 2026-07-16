@@ -19,6 +19,7 @@
 
 package de.markusbordihn.dialogqueststoryengine.content.dialog;
 
+import de.markusbordihn.dialogqueststoryengine.data.dialog.DialogDefinition;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;

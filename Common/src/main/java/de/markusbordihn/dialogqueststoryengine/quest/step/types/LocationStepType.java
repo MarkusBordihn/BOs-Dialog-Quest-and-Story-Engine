@@ -20,10 +20,10 @@
 package de.markusbordihn.dialogqueststoryengine.quest.step.types;
 
 import de.markusbordihn.dialogqueststoryengine.Constants;
-import de.markusbordihn.dialogqueststoryengine.content.quest.RawQuestStep;
 import de.markusbordihn.dialogqueststoryengine.data.ContentType;
 import de.markusbordihn.dialogqueststoryengine.data.issue.ContentIssue;
 import de.markusbordihn.dialogqueststoryengine.data.issue.IssueCode;
+import de.markusbordihn.dialogqueststoryengine.data.quest.content.RawQuestStep;
 import de.markusbordihn.dialogqueststoryengine.registry.QuestStepHandler;
 import java.util.List;
 import net.minecraft.resources.ResourceLocation;

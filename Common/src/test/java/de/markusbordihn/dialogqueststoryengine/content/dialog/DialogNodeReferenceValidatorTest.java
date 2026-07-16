@@ -22,6 +22,9 @@ package de.markusbordihn.dialogqueststoryengine.content.dialog;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import de.markusbordihn.dialogqueststoryengine.data.dialog.DialogChoiceDefinition;
+import de.markusbordihn.dialogqueststoryengine.data.dialog.DialogDefinition;
+import de.markusbordihn.dialogqueststoryengine.data.dialog.DialogNodeDefinition;
 import de.markusbordihn.dialogqueststoryengine.data.issue.ContentIssue;
 import de.markusbordihn.dialogqueststoryengine.data.issue.IssueCode;
 import de.markusbordihn.dialogqueststoryengine.logic.action.ActionList;

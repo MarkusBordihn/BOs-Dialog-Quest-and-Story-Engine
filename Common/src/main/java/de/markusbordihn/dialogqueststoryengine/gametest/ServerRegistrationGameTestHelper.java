@@ -34,7 +34,7 @@ public class ServerRegistrationGameTestHelper {
   public static void testConditionsRegistryFrozenOnServer(GameTestHelper helper) {
     GameTestHelpers.assertTrue(
         helper,
-        "CONDITIONS registry must be frozen after server start — BuiltinConditions.register() and"
+        "CONDITIONS registry must be frozen after server start - BuiltinConditions.register() and"
             + " Registries.freezeAll() did not run",
         Registries.CONDITIONS.isFrozen());
   }

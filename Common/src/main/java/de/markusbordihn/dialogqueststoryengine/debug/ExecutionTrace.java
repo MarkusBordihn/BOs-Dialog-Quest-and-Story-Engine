@@ -19,6 +19,7 @@
 
 package de.markusbordihn.dialogqueststoryengine.debug;
 
+import de.markusbordihn.dialogqueststoryengine.data.debug.ExecutionTraceEntry;
 import java.util.ArrayDeque;
 import java.util.Collections;
 import java.util.List;

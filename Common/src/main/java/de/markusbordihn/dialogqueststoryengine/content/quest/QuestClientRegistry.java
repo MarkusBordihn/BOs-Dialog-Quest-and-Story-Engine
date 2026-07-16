@@ -20,6 +20,7 @@
 package de.markusbordihn.dialogqueststoryengine.content.quest;
 
 import de.markusbordihn.dialogqueststoryengine.Constants;
+import de.markusbordihn.dialogqueststoryengine.data.quest.content.QuestDefinition;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -39,7 +40,7 @@ public final class QuestClientRegistry {
   public static void put(QuestDefinition definition) {
     if (entries.containsKey(definition.id())) {
       log.warn(
-          "{} Quest registry: duplicate id {} — overwriting.",
+          "{} Quest registry: duplicate id {} - overwriting.",
           Constants.LOG_PREFIX,
           definition.id());
     }

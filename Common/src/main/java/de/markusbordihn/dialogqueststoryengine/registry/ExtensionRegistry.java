@@ -48,13 +48,13 @@ public final class ExtensionRegistry<V> {
           Constants.LOG_PREFIX
               + " Registry '"
               + this.registryType.displayName()
-              + "' is frozen — cannot register "
+              + "' is frozen - cannot register "
               + id);
     }
 
     if (this.entries.containsKey(id)) {
       log.warn(
-          "{} Registry '{}': duplicate id {} — overwriting.",
+          "{} Registry '{}': duplicate id {} - overwriting.",
           Constants.LOG_PREFIX,
           this.registryType.displayName(),
           id);

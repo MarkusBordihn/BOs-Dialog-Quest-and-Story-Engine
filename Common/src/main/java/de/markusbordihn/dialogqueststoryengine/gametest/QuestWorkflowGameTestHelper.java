@@ -19,11 +19,11 @@
 
 package de.markusbordihn.dialogqueststoryengine.gametest;
 
+import de.markusbordihn.dialogqueststoryengine.data.quest.QuestState;
 import de.markusbordihn.dialogqueststoryengine.state.PlayerState;
 import de.markusbordihn.dialogqueststoryengine.state.PlayerStateEvents;
 import de.markusbordihn.dialogqueststoryengine.state.PlayerStateService;
 import de.markusbordihn.dialogqueststoryengine.state.QuestProgress;
-import de.markusbordihn.dialogqueststoryengine.state.QuestState;
 import java.util.UUID;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.nbt.CompoundTag;

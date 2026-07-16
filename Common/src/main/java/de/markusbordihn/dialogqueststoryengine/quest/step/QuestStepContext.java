@@ -19,11 +19,11 @@
 
 package de.markusbordihn.dialogqueststoryengine.quest.step;
 
-import de.markusbordihn.dialogqueststoryengine.content.quest.RawQuestStep;
+import de.markusbordihn.dialogqueststoryengine.data.quest.StepProgress;
+import de.markusbordihn.dialogqueststoryengine.data.quest.content.RawQuestStep;
 import de.markusbordihn.dialogqueststoryengine.logic.action.ActionContext;
 import de.markusbordihn.dialogqueststoryengine.quest.runtime.QuestService;
 import de.markusbordihn.dialogqueststoryengine.state.PlayerState;
-import de.markusbordihn.dialogqueststoryengine.state.StepProgress;
 import java.util.Optional;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;

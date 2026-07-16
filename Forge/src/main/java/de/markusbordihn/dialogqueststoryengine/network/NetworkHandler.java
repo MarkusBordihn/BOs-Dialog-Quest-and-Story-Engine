@@ -32,7 +32,7 @@ import net.minecraftforge.network.simple.SimpleChannel;
 
 public final class NetworkHandler implements NetworkHandlerInterface {
 
-  private static final String PROTOCOL_VERSION = "2";
+  private static final String PROTOCOL_VERSION = ProtocolVersion.current();
   private static final SimpleChannel CHANNEL =
       NetworkRegistry.newSimpleChannel(
           ResourceLocation.tryParse(Constants.MOD_ID + ":network"),

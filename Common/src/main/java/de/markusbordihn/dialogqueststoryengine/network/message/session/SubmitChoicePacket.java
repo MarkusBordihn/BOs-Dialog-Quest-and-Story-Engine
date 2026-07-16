@@ -20,6 +20,7 @@
 package de.markusbordihn.dialogqueststoryengine.network.message.session;
 
 import de.markusbordihn.dialogqueststoryengine.Constants;
+import de.markusbordihn.dialogqueststoryengine.network.C2SRateLimiter;
 import de.markusbordihn.dialogqueststoryengine.network.NetworkMessageRecord;
 import de.markusbordihn.dialogqueststoryengine.session.SessionManager;
 import java.util.UUID;
@@ -33,9 +34,11 @@ public record SubmitChoicePacket(UUID sessionId, String choiceId, int clientRevi
   public static final ResourceLocation MESSAGE_ID =
       ResourceLocation.tryParse(Constants.MOD_ID + ":submit_choice");
 
+  private static final int MAX_CHOICE_ID_LENGTH = 256;
+
   public static SubmitChoicePacket create(FriendlyByteBuf buffer) {
     UUID sessionId = buffer.readUUID();
-    String choiceId = buffer.readUtf();
+    String choiceId = buffer.readUtf(MAX_CHOICE_ID_LENGTH);
     int clientRevision = buffer.readInt();
 
     return new SubmitChoicePacket(sessionId, choiceId, clientRevision);
@@ -55,6 +58,9 @@ public record SubmitChoicePacket(UUID sessionId, String choiceId, int clientRevi
 
   @Override
   public void handleServer(ServerPlayer serverPlayer) {
+    if (!C2SRateLimiter.allow(serverPlayer.getUUID())) {
+      return;
+    }
     SessionManager.submitChoice(serverPlayer, this.sessionId, this.choiceId, this.clientRevision);
   }
 }

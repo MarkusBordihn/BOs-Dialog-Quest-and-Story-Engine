@@ -19,6 +19,7 @@
 
 package de.markusbordihn.dialogqueststoryengine.session;
 
+import de.markusbordihn.dialogqueststoryengine.data.session.SessionType;
 import java.util.UUID;
 import net.minecraft.resources.ResourceLocation;
 

@@ -19,8 +19,8 @@
 
 package de.markusbordihn.dialogqueststoryengine.quest.runtime;
 
+import de.markusbordihn.dialogqueststoryengine.data.quest.StepProgress;
 import de.markusbordihn.dialogqueststoryengine.state.QuestProgress;
-import de.markusbordihn.dialogqueststoryengine.state.StepProgress;
 import java.util.Map;
 import net.minecraft.resources.ResourceLocation;
 

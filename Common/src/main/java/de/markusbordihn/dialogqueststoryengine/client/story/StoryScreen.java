@@ -20,7 +20,7 @@
 package de.markusbordihn.dialogqueststoryengine.client.story;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import de.markusbordihn.dialogqueststoryengine.theme.ScreenLayout;
+import de.markusbordihn.dialogqueststoryengine.data.theme.ScreenLayout;
 import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;

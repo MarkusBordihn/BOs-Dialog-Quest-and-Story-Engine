@@ -22,8 +22,9 @@ package de.markusbordihn.dialogqueststoryengine.network.message.session;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
-import de.markusbordihn.dialogqueststoryengine.state.QuestState;
-import de.markusbordihn.dialogqueststoryengine.state.StepProgress;
+import de.markusbordihn.dialogqueststoryengine.data.quest.QuestState;
+import de.markusbordihn.dialogqueststoryengine.data.quest.RewardClaimState;
+import de.markusbordihn.dialogqueststoryengine.data.quest.StepProgress;
 import io.netty.buffer.Unpooled;
 import java.util.Map;
 import net.minecraft.network.FriendlyByteBuf;
@@ -40,6 +41,7 @@ class QuestDeltaPacketTest {
             questId,
             QuestState.ACTIVE,
             Map.of("collect", StepProgress.active(5).withProgress(2)),
+            RewardClaimState.AVAILABLE,
             7);
 
     FriendlyByteBuf buffer = new FriendlyByteBuf(Unpooled.buffer());
@@ -48,6 +50,7 @@ class QuestDeltaPacketTest {
 
     assertEquals(questId, decoded.questId());
     assertEquals(QuestState.ACTIVE, decoded.questState());
+    assertEquals(RewardClaimState.AVAILABLE, decoded.rewardClaimState());
     assertEquals(7, decoded.revision());
     assertEquals(1, decoded.changedSteps().size());
     assertEquals(2, decoded.changedSteps().get("collect").progress());

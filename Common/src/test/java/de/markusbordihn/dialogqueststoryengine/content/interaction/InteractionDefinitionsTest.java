@@ -24,6 +24,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import de.markusbordihn.dialogqueststoryengine.data.interaction.InteractionEntry;
 import de.markusbordihn.dialogqueststoryengine.data.interaction.InteractionEventType;
+import de.markusbordihn.dialogqueststoryengine.data.interaction.content.InteractionBinding;
+import de.markusbordihn.dialogqueststoryengine.data.interaction.content.InteractionDefinition;
 import de.markusbordihn.dialogqueststoryengine.logic.action.ActionList;
 import de.markusbordihn.dialogqueststoryengine.logic.condition.ConditionGroup;
 import java.util.Optional;

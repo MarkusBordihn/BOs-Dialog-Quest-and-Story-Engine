@@ -20,6 +20,7 @@
 package de.markusbordihn.dialogqueststoryengine.content.dialog;
 
 import de.markusbordihn.dialogqueststoryengine.Constants;
+import de.markusbordihn.dialogqueststoryengine.data.dialog.DialogDefinition;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -39,7 +40,7 @@ public final class DialogClientRegistry {
   public static void put(DialogDefinition definition) {
     if (entries.containsKey(definition.id())) {
       log.warn(
-          "{} Dialog registry: duplicate id {} — overwriting.",
+          "{} Dialog registry: duplicate id {} - overwriting.",
           Constants.LOG_PREFIX,
           definition.id());
     }

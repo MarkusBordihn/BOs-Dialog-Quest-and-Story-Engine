@@ -81,7 +81,7 @@ public record GiveItemAction(ResourceLocation itemId, int count) implements Acti
     }
     Item item = BuiltInRegistries.ITEM.getOptional(this.itemId).orElse(null);
     if (item == null) {
-      log.warn("{} give_item: unknown item '{}' — skipping", Constants.LOG_PREFIX, this.itemId);
+      log.warn("{} give_item: unknown item '{}' - skipping", Constants.LOG_PREFIX, this.itemId);
       return;
     }
     ItemStack stack = new ItemStack(item, this.count);

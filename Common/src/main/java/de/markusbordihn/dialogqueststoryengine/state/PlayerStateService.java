@@ -20,6 +20,9 @@
 package de.markusbordihn.dialogqueststoryengine.state;
 
 import de.markusbordihn.dialogqueststoryengine.Constants;
+import de.markusbordihn.dialogqueststoryengine.data.quest.StepProgress;
+import de.markusbordihn.dialogqueststoryengine.data.state.FactScope;
+import de.markusbordihn.dialogqueststoryengine.data.state.FactValue;
 import de.markusbordihn.dialogqueststoryengine.quest.runtime.QuestChangeResult;
 import de.markusbordihn.dialogqueststoryengine.quest.runtime.QuestService;
 import java.util.Optional;
@@ -87,7 +90,7 @@ public final class PlayerStateService {
 
   public static void onServerStopping(MinecraftServer server) {
     log.info(
-        "{} Server stopping — clearing player state cache ({} entries).",
+        "{} Server stopping - clearing player state cache ({} entries).",
         Constants.LOG_PREFIX,
         cache.size());
     cache.clear();
@@ -104,7 +107,7 @@ public final class PlayerStateService {
   public static Optional<QuestProgress> startQuest(UUID playerUuid, ResourceLocation questId) {
     if (!cache.containsKey(playerUuid)) {
       log.warn(
-          "{} Cannot start quest {} — player {} not loaded.",
+          "{} Cannot start quest {} - player {} not loaded.",
           Constants.LOG_PREFIX,
           questId,
           playerUuid);

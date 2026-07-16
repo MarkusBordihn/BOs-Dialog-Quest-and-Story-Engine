@@ -21,7 +21,7 @@ package de.markusbordihn.dialogqueststoryengine.network.message.session;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import de.markusbordihn.dialogqueststoryengine.session.SessionCloseReason;
+import de.markusbordihn.dialogqueststoryengine.data.session.SessionCloseReason;
 import io.netty.buffer.Unpooled;
 import java.util.UUID;
 import net.minecraft.network.FriendlyByteBuf;

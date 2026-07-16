@@ -21,11 +21,11 @@ package de.markusbordihn.dialogqueststoryengine.client.screen.dialog;
 
 import de.markusbordihn.dialogqueststoryengine.client.story.StoryScreen;
 import de.markusbordihn.dialogqueststoryengine.client.story.TypewriterAnimator;
+import de.markusbordihn.dialogqueststoryengine.data.theme.ScreenLayout;
+import de.markusbordihn.dialogqueststoryengine.data.theme.Theme;
 import de.markusbordihn.dialogqueststoryengine.network.NetworkHandlerManager;
 import de.markusbordihn.dialogqueststoryengine.network.message.session.ClientCloseSessionPacket;
 import de.markusbordihn.dialogqueststoryengine.network.message.session.SubmitChoicePacket;
-import de.markusbordihn.dialogqueststoryengine.theme.ScreenLayout;
-import de.markusbordihn.dialogqueststoryengine.theme.Theme;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;

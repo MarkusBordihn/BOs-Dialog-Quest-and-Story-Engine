@@ -23,10 +23,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import de.markusbordihn.dialogqueststoryengine.data.state.FactScope;
+import de.markusbordihn.dialogqueststoryengine.data.state.FactValue;
+import de.markusbordihn.dialogqueststoryengine.data.text.ContextArgument;
+import de.markusbordihn.dialogqueststoryengine.data.text.LocalizedText;
+import de.markusbordihn.dialogqueststoryengine.data.text.LocalizedTextSource;
 import de.markusbordihn.dialogqueststoryengine.logic.context.BuiltinContextValueProviders;
 import de.markusbordihn.dialogqueststoryengine.logic.context.NarrativeContextResolution;
-import de.markusbordihn.dialogqueststoryengine.state.FactScope;
-import de.markusbordihn.dialogqueststoryengine.state.FactValue;
 import de.markusbordihn.dialogqueststoryengine.state.PlayerState;
 import java.util.List;
 import java.util.Map;

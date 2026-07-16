@@ -19,12 +19,15 @@
 
 package de.markusbordihn.dialogqueststoryengine;
 
+import cpw.mods.modlauncher.Launcher;
+import cpw.mods.modlauncher.api.IEnvironment;
 import de.markusbordihn.dialogqueststoryengine.block.ModBlocks;
 import de.markusbordihn.dialogqueststoryengine.commands.CommandsEventHandler;
 import de.markusbordihn.dialogqueststoryengine.config.DqseSecurityConfig;
 import de.markusbordihn.dialogqueststoryengine.content.DataPackReloadEventHandler;
 import de.markusbordihn.dialogqueststoryengine.content.DataPackReloadNotifier;
 import de.markusbordihn.dialogqueststoryengine.core.DqseBootstrap;
+import de.markusbordihn.dialogqueststoryengine.debug.DebugManager;
 import de.markusbordihn.dialogqueststoryengine.entity.InteractionEventHandler;
 import de.markusbordihn.dialogqueststoryengine.entity.QuestStepEventHandler;
 import de.markusbordihn.dialogqueststoryengine.item.ModItems;
@@ -33,6 +36,7 @@ import de.markusbordihn.dialogqueststoryengine.server.PlayerStateEventHandler;
 import de.markusbordihn.dialogqueststoryengine.server.ServerEventHandler;
 import de.markusbordihn.dialogqueststoryengine.session.SessionManager;
 import de.markusbordihn.dialogqueststoryengine.tabs.ModTabs;
+import java.util.Optional;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -54,6 +58,13 @@ public class DialogQuestStoryEngine {
     final IEventBus modEventBus = context.getModEventBus();
 
     log.info("Initializing {} (Forge) ...", Constants.MOD_NAME);
+
+    Optional<String> version =
+        Launcher.INSTANCE.environment().getProperty(IEnvironment.Keys.VERSION.get());
+    if (version.isPresent() && "MOD_DEV".equals(version.get())) {
+      DebugManager.setDevelopmentEnvironment(true);
+    }
+    DebugManager.checkForDebugLogging(Constants.LOG_NAME);
 
     log.info("{} Constants ...", Constants.LOG_REGISTER_PREFIX);
     Constants.GAME_DIR = FMLPaths.GAMEDIR.get();

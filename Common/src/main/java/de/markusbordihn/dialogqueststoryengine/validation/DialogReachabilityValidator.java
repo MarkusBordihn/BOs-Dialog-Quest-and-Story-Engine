@@ -20,9 +20,9 @@
 package de.markusbordihn.dialogqueststoryengine.validation;
 
 import de.markusbordihn.dialogqueststoryengine.content.dialog.DialogContentRegistry;
-import de.markusbordihn.dialogqueststoryengine.content.dialog.DialogDefinition;
-import de.markusbordihn.dialogqueststoryengine.content.dialog.DialogNodeDefinition;
 import de.markusbordihn.dialogqueststoryengine.data.ContentType;
+import de.markusbordihn.dialogqueststoryengine.data.dialog.DialogDefinition;
+import de.markusbordihn.dialogqueststoryengine.data.dialog.DialogNodeDefinition;
 import de.markusbordihn.dialogqueststoryengine.data.issue.ContentIssue;
 import de.markusbordihn.dialogqueststoryengine.data.issue.IssueCode;
 import de.markusbordihn.dialogqueststoryengine.registry.ContentValidator;

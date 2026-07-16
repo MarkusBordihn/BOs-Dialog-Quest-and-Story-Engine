@@ -26,6 +26,7 @@ import de.markusbordihn.dialogqueststoryengine.data.issue.ContentIssue;
 import de.markusbordihn.dialogqueststoryengine.data.issue.IssueCode;
 import de.markusbordihn.dialogqueststoryengine.logic.action.Action;
 import de.markusbordihn.dialogqueststoryengine.logic.action.ActionContext;
+import de.markusbordihn.dialogqueststoryengine.state.StoryProgressService;
 import java.util.List;
 import java.util.Map;
 import net.minecraft.resources.ResourceLocation;
@@ -63,6 +64,7 @@ public record MarkStoryReadAction(ResourceLocation storyId) implements Action {
 
   @Override
   public void execute(ActionContext actionContext) {
-    actionContext.playerState().markStoryRead(this.storyId);
+    StoryProgressService.markRead(
+        actionContext.player(), actionContext.playerState(), this.storyId);
   }
 }

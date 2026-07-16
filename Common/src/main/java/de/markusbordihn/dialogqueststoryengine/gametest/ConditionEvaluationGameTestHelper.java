@@ -19,18 +19,18 @@
 
 package de.markusbordihn.dialogqueststoryengine.gametest;
 
+import de.markusbordihn.dialogqueststoryengine.data.quest.QuestState;
+import de.markusbordihn.dialogqueststoryengine.data.state.FactScope;
+import de.markusbordihn.dialogqueststoryengine.data.state.FactValue;
 import de.markusbordihn.dialogqueststoryengine.logic.condition.Condition;
 import de.markusbordihn.dialogqueststoryengine.logic.condition.ConditionContext;
 import de.markusbordihn.dialogqueststoryengine.logic.condition.ConditionGroup;
 import de.markusbordihn.dialogqueststoryengine.logic.condition.GroupOperator;
 import de.markusbordihn.dialogqueststoryengine.logic.condition.types.FactEqualsCondition;
 import de.markusbordihn.dialogqueststoryengine.logic.condition.types.QuestStateCondition;
-import de.markusbordihn.dialogqueststoryengine.state.FactScope;
-import de.markusbordihn.dialogqueststoryengine.state.FactValue;
 import de.markusbordihn.dialogqueststoryengine.state.PlayerState;
 import de.markusbordihn.dialogqueststoryengine.state.PlayerStateEvents;
 import de.markusbordihn.dialogqueststoryengine.state.PlayerStateService;
-import de.markusbordihn.dialogqueststoryengine.state.QuestState;
 import java.util.List;
 import java.util.UUID;
 import net.minecraft.gametest.framework.GameTestHelper;

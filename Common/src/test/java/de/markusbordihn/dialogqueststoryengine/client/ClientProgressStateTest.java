@@ -21,9 +21,10 @@ package de.markusbordihn.dialogqueststoryengine.client;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import de.markusbordihn.dialogqueststoryengine.data.quest.QuestState;
+import de.markusbordihn.dialogqueststoryengine.data.quest.RewardClaimState;
+import de.markusbordihn.dialogqueststoryengine.data.quest.StepProgress;
 import de.markusbordihn.dialogqueststoryengine.network.message.session.QuestDeltaPacket;
-import de.markusbordihn.dialogqueststoryengine.state.QuestState;
-import de.markusbordihn.dialogqueststoryengine.state.StepProgress;
 import java.util.Map;
 import net.minecraft.resources.ResourceLocation;
 import org.junit.jupiter.api.AfterEach;
@@ -42,8 +43,13 @@ class ClientProgressStateTest {
   void staleQuestDeltaDoesNotOverwriteNewerState() {
     ClientProgressState.apply(
         new QuestDeltaPacket(
-            QUEST_ID, QuestState.ACTIVE, Map.of("step", StepProgress.active(5)), 2));
-    ClientProgressState.apply(new QuestDeltaPacket(QUEST_ID, QuestState.COMPLETED, Map.of(), 1));
+            QUEST_ID,
+            QuestState.ACTIVE,
+            Map.of("step", StepProgress.active(5)),
+            RewardClaimState.NONE,
+            2));
+    ClientProgressState.apply(
+        new QuestDeltaPacket(QUEST_ID, QuestState.COMPLETED, Map.of(), RewardClaimState.NONE, 1));
 
     ClientProgressState.ClientQuestProgress progress = ClientProgressState.quests().get(QUEST_ID);
     assertEquals(QuestState.ACTIVE, progress.state());

@@ -19,15 +19,15 @@
 
 package de.markusbordihn.dialogqueststoryengine.gametest;
 
+import de.markusbordihn.dialogqueststoryengine.data.quest.StepProgress;
+import de.markusbordihn.dialogqueststoryengine.data.state.FactScope;
+import de.markusbordihn.dialogqueststoryengine.data.state.FactValue;
 import de.markusbordihn.dialogqueststoryengine.quest.runtime.QuestService;
 import de.markusbordihn.dialogqueststoryengine.quest.step.QuestStepEvents;
 import de.markusbordihn.dialogqueststoryengine.quest.step.types.CollectItemStepType;
-import de.markusbordihn.dialogqueststoryengine.state.FactScope;
-import de.markusbordihn.dialogqueststoryengine.state.FactValue;
 import de.markusbordihn.dialogqueststoryengine.state.PlayerState;
 import de.markusbordihn.dialogqueststoryengine.state.PlayerStateEvents;
 import de.markusbordihn.dialogqueststoryengine.state.PlayerStateService;
-import de.markusbordihn.dialogqueststoryengine.state.StepProgress;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTestHelper;

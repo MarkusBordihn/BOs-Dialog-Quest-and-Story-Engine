@@ -26,6 +26,8 @@ import de.markusbordihn.dialogqueststoryengine.data.issue.ContentIssue;
 import de.markusbordihn.dialogqueststoryengine.data.issue.IssueCode;
 import de.markusbordihn.dialogqueststoryengine.data.json.JsonFieldReader;
 import de.markusbordihn.dialogqueststoryengine.data.json.ParseResult;
+import de.markusbordihn.dialogqueststoryengine.data.story.InteractiveStoryChoice;
+import de.markusbordihn.dialogqueststoryengine.data.story.InteractiveStoryDefinition;
 import de.markusbordihn.dialogqueststoryengine.logic.action.ActionList;
 import de.markusbordihn.dialogqueststoryengine.logic.action.ActionParser;
 import de.markusbordihn.dialogqueststoryengine.logic.condition.ConditionGroup;

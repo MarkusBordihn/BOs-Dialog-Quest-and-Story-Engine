@@ -21,6 +21,12 @@ package de.markusbordihn.dialogqueststoryengine.state;
 
 import de.markusbordihn.dialogqueststoryengine.Constants;
 import de.markusbordihn.dialogqueststoryengine.data.PlayerStateSchema;
+import de.markusbordihn.dialogqueststoryengine.data.quest.QuestState;
+import de.markusbordihn.dialogqueststoryengine.data.quest.RewardClaimState;
+import de.markusbordihn.dialogqueststoryengine.data.quest.StepProgress;
+import de.markusbordihn.dialogqueststoryengine.data.quest.StepState;
+import de.markusbordihn.dialogqueststoryengine.data.state.FactScope;
+import de.markusbordihn.dialogqueststoryengine.data.state.FactValue;
 import de.markusbordihn.dialogqueststoryengine.migration.PlayerStateMigrationRegistry;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -47,6 +53,7 @@ public final class PlayerStateCodec {
   private static final String TAG_QUEST_STATE = "quest_state";
   private static final String TAG_QUEST_REVISION = "quest_revision";
   private static final String TAG_QUEST_LAST_REWARDED_REVISION = "quest_last_rewarded_revision";
+  private static final String TAG_QUEST_REWARD_CLAIM_STATE = "quest_reward_claim_state";
   private static final String TAG_STEPS = "steps";
   private static final String TAG_STEP_ID = "step_id";
   private static final String TAG_STEP_STATE = "step_state";
@@ -56,6 +63,8 @@ public final class PlayerStateCodec {
   private static final String TAG_STORIES = "stories";
   private static final String TAG_UNLOCKED = "unlocked";
   private static final String TAG_READ = "read";
+  private static final String TAG_STORY_REVISION = "story_revision";
+  private static final String TAG_TRACKED_QUEST_ID = "tracked_quest_id";
 
   private PlayerStateCodec() {}
 
@@ -68,6 +77,9 @@ public final class PlayerStateCodec {
     data.put(TAG_FACTS, encodeFacts(playerState));
     data.put(TAG_QUESTS, encodeQuests(playerState));
     data.put(TAG_STORIES, encodeStories(playerState));
+    if (playerState.trackedQuestId() != null) {
+      data.putString(TAG_TRACKED_QUEST_ID, playerState.trackedQuestId().toString());
+    }
 
     root.put(TAG_ROOT, data);
     return root;
@@ -87,11 +99,18 @@ public final class PlayerStateCodec {
       decodeFacts(migrated, playerState);
       decodeQuests(migrated, playerState);
       decodeStories(migrated, playerState);
+      if (migrated.contains(TAG_TRACKED_QUEST_ID)) {
+        ResourceLocation tracked =
+            ResourceLocation.tryParse(migrated.getString(TAG_TRACKED_QUEST_ID));
+        if (tracked != null) {
+          playerState.restoreTrackedQuestId(tracked);
+        }
+      }
       playerState.clearDirty();
       return playerState;
     } catch (Exception exception) {
       log.warn(
-          "{} Corrupt player state for UUID {} — resetting to empty state. Cause: {}",
+          "{} Corrupt player state for UUID {} - resetting to empty state. Cause: {}",
           Constants.LOG_PREFIX,
           playerUuid,
           exception.getMessage());
@@ -170,6 +189,7 @@ public final class PlayerStateCodec {
       questTag.putString(TAG_QUEST_STATE, questProgress.state().name());
       questTag.putInt(TAG_QUEST_REVISION, questProgress.revision());
       questTag.putInt(TAG_QUEST_LAST_REWARDED_REVISION, questProgress.lastRewardedRevision());
+      questTag.putString(TAG_QUEST_REWARD_CLAIM_STATE, questProgress.rewardClaimState().name());
       questTag.put(TAG_STEPS, encodeSteps(questProgress));
       questsList.add(questTag);
     }
@@ -211,8 +231,11 @@ public final class PlayerStateCodec {
               ? questTag.getInt(TAG_QUEST_LAST_REWARDED_REVISION)
               : -1;
       Map<String, StepProgress> steps = decodeSteps(questTag);
-      playerState.putQuestFromCodec(
-          questId, new QuestProgress(questState, revision, lastRewardedRevision, steps));
+      QuestProgress questProgress =
+          new QuestProgress(questState, revision, lastRewardedRevision, steps);
+      questProgress.restoreRewardClaimState(
+          RewardClaimState.fromName(questTag.getString(TAG_QUEST_REWARD_CLAIM_STATE)));
+      playerState.putQuestFromCodec(questId, questProgress);
     }
   }
 
@@ -256,6 +279,7 @@ public final class PlayerStateCodec {
       readList.add(entry);
     }
     storiesTag.put(TAG_READ, readList);
+    storiesTag.putInt(TAG_STORY_REVISION, playerState.stories().revision());
     return storiesTag;
   }
 
@@ -264,6 +288,9 @@ public final class PlayerStateCodec {
       return;
     }
     CompoundTag storiesTag = data.getCompound(TAG_STORIES);
+    if (storiesTag.contains(TAG_STORY_REVISION, Tag.TAG_INT)) {
+      playerState.stories().setRevision(storiesTag.getInt(TAG_STORY_REVISION));
+    }
 
     if (storiesTag.contains(TAG_UNLOCKED, Tag.TAG_LIST)) {
       ListTag unlockedList = storiesTag.getList(TAG_UNLOCKED, Tag.TAG_COMPOUND);

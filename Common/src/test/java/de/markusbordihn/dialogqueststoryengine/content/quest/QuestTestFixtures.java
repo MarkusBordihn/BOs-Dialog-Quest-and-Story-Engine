@@ -19,7 +19,13 @@
 
 package de.markusbordihn.dialogqueststoryengine.content.quest;
 
-import de.markusbordihn.dialogqueststoryengine.content.NarrativeMetadata;
+import de.markusbordihn.dialogqueststoryengine.data.quest.content.CompletionPolicy;
+import de.markusbordihn.dialogqueststoryengine.data.quest.content.DisplaySection;
+import de.markusbordihn.dialogqueststoryengine.data.quest.content.LogicSection;
+import de.markusbordihn.dialogqueststoryengine.data.quest.content.NarrativeMetadata;
+import de.markusbordihn.dialogqueststoryengine.data.quest.content.QuestDefinition;
+import de.markusbordihn.dialogqueststoryengine.data.quest.content.QuestPrerequisites;
+import de.markusbordihn.dialogqueststoryengine.data.quest.content.RewardSection;
 import de.markusbordihn.dialogqueststoryengine.logic.action.ActionList;
 import java.util.Arrays;
 import java.util.Map;
@@ -34,6 +40,10 @@ public final class QuestTestFixtures {
   public static void install(ResourceLocation... questIds) {
     Map<ResourceLocation, QuestDefinition> definitions =
         Arrays.stream(questIds).collect(Collectors.toMap(id -> id, QuestTestFixtures::definition));
+    QuestContentRegistry.replaceAll(definitions);
+  }
+
+  public static void installDefinitions(Map<ResourceLocation, QuestDefinition> definitions) {
     QuestContentRegistry.replaceAll(definitions);
   }
 

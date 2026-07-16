@@ -26,7 +26,7 @@ import de.markusbordihn.dialogqueststoryengine.client.screen.ui.components.Colum
 import de.markusbordihn.dialogqueststoryengine.client.screen.ui.components.ScaledText;
 import de.markusbordihn.dialogqueststoryengine.client.screen.ui.components.TextComponent;
 import de.markusbordihn.dialogqueststoryengine.content.quest.QuestClientRegistry;
-import de.markusbordihn.dialogqueststoryengine.content.quest.QuestDefinition;
+import de.markusbordihn.dialogqueststoryengine.data.quest.content.QuestDefinition;
 import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;

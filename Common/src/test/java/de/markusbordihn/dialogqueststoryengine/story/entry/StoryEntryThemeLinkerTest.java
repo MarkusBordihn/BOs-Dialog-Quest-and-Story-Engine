@@ -24,11 +24,14 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import de.markusbordihn.dialogqueststoryengine.data.issue.ContentIssueTracker;
 import de.markusbordihn.dialogqueststoryengine.data.issue.IssueCode;
-import de.markusbordihn.dialogqueststoryengine.theme.Theme;
-import de.markusbordihn.dialogqueststoryengine.theme.ThemeArea;
+import de.markusbordihn.dialogqueststoryengine.data.story.StoryEntry;
+import de.markusbordihn.dialogqueststoryengine.data.story.StoryEntryType;
+import de.markusbordihn.dialogqueststoryengine.data.story.StoryPage;
+import de.markusbordihn.dialogqueststoryengine.data.theme.Theme;
+import de.markusbordihn.dialogqueststoryengine.data.theme.ThemeArea;
+import de.markusbordihn.dialogqueststoryengine.data.theme.ThemeLayout;
+import de.markusbordihn.dialogqueststoryengine.data.theme.ThemeTextAlignment;
 import de.markusbordihn.dialogqueststoryengine.theme.ThemeClientRegistry;
-import de.markusbordihn.dialogqueststoryengine.theme.ThemeLayout;
-import de.markusbordihn.dialogqueststoryengine.theme.ThemeTextAlignment;
 import java.util.List;
 import java.util.UUID;
 import net.minecraft.resources.ResourceLocation;

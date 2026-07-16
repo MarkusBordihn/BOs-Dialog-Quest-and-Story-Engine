@@ -26,6 +26,7 @@ import de.markusbordihn.dialogqueststoryengine.data.issue.ContentIssue;
 import de.markusbordihn.dialogqueststoryengine.data.issue.IssueCode;
 import de.markusbordihn.dialogqueststoryengine.logic.action.Action;
 import de.markusbordihn.dialogqueststoryengine.logic.action.ActionContext;
+import de.markusbordihn.dialogqueststoryengine.state.StoryProgressService;
 import java.util.List;
 import java.util.Map;
 import net.minecraft.resources.ResourceLocation;
@@ -65,6 +66,6 @@ public record UnlockStoryAction(ResourceLocation storyId) implements Action {
 
   @Override
   public void execute(ActionContext actionContext) {
-    actionContext.playerState().unlockStory(this.storyId);
+    StoryProgressService.unlock(actionContext.player(), actionContext.playerState(), this.storyId);
   }
 }

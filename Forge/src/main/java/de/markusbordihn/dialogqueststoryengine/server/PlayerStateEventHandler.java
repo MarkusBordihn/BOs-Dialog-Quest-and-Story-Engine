@@ -19,11 +19,13 @@
 
 package de.markusbordihn.dialogqueststoryengine.server;
 
-import de.markusbordihn.dialogqueststoryengine.session.SessionCloseReason;
+import de.markusbordihn.dialogqueststoryengine.data.session.SessionCloseReason;
+import de.markusbordihn.dialogqueststoryengine.network.C2SRateLimiter;
 import de.markusbordihn.dialogqueststoryengine.session.SessionManager;
-import de.markusbordihn.dialogqueststoryengine.state.PlayerProgressSync;
+import de.markusbordihn.dialogqueststoryengine.state.LoginProgressSync;
 import de.markusbordihn.dialogqueststoryengine.state.PlayerStateService;
 import de.markusbordihn.dialogqueststoryengine.state.PlayerStateStorage;
+import de.markusbordihn.dialogqueststoryengine.state.QuestProgressSync;
 import java.io.File;
 import java.util.UUID;
 import net.minecraft.nbt.CompoundTag;
@@ -79,12 +81,14 @@ public class PlayerStateEventHandler {
     }
     PlayerStateService.onPlayerLoggedOut(playerUuid);
     SessionManager.invalidatePlayerSessions(playerUuid);
+    C2SRateLimiter.clear(playerUuid);
+    QuestProgressSync.forget(playerUuid);
   }
 
   @SubscribeEvent
   public static void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
     if (event.getEntity() instanceof ServerPlayer serverPlayer) {
-      PlayerProgressSync.send(serverPlayer);
+      LoginProgressSync.send(serverPlayer);
     }
   }
 

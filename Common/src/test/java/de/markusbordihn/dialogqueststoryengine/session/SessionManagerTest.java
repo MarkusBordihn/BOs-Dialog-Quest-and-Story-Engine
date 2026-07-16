@@ -21,6 +21,8 @@ package de.markusbordihn.dialogqueststoryengine.session;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import de.markusbordihn.dialogqueststoryengine.data.session.SessionState;
+import de.markusbordihn.dialogqueststoryengine.data.session.SessionType;
 import java.lang.reflect.Field;
 import java.util.EnumMap;
 import java.util.UUID;

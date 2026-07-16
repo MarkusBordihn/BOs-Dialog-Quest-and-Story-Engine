@@ -23,9 +23,16 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.google.gson.JsonParser;
-import de.markusbordihn.dialogqueststoryengine.content.NarrativeMetadata;
 import de.markusbordihn.dialogqueststoryengine.data.issue.ContentIssue;
 import de.markusbordihn.dialogqueststoryengine.data.issue.IssueCode;
+import de.markusbordihn.dialogqueststoryengine.data.quest.content.CompletionPolicy;
+import de.markusbordihn.dialogqueststoryengine.data.quest.content.DisplaySection;
+import de.markusbordihn.dialogqueststoryengine.data.quest.content.LogicSection;
+import de.markusbordihn.dialogqueststoryengine.data.quest.content.NarrativeMetadata;
+import de.markusbordihn.dialogqueststoryengine.data.quest.content.QuestDefinition;
+import de.markusbordihn.dialogqueststoryengine.data.quest.content.QuestPrerequisites;
+import de.markusbordihn.dialogqueststoryengine.data.quest.content.RawQuestStep;
+import de.markusbordihn.dialogqueststoryengine.data.quest.content.RewardSection;
 import de.markusbordihn.dialogqueststoryengine.logic.action.ActionList;
 import de.markusbordihn.dialogqueststoryengine.quest.step.BuiltinQuestSteps;
 import de.markusbordihn.dialogqueststoryengine.validation.QuestStepValidator;

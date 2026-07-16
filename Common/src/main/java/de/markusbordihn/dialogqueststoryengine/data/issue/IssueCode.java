@@ -47,17 +47,17 @@ public enum IssueCode {
   UNKNOWN_BINDING_KIND(IssueSeverity.ERROR, "Unknown interaction binding kind"),
   UNKNOWN_INTERACTION_EVENT(IssueSeverity.ERROR, "Unknown interaction event type"),
   COMMAND_ACTION_DISABLED(
-      IssueSeverity.WARNING, "run_command action is disabled by server config — action skipped"),
-  UNKNOWN_ACTION_TYPE(IssueSeverity.ERROR, "Action type is not registered — action skipped"),
+      IssueSeverity.WARNING, "run_command action is disabled by server config - action skipped"),
+  UNKNOWN_ACTION_TYPE(IssueSeverity.ERROR, "Action type is not registered - action skipped"),
   AMBIGUOUS_ACTION_TYPE(
       IssueSeverity.ERROR,
-      "Action shorthand matches more than one action type — use explicit type"),
+      "Action shorthand matches more than one action type - use explicit type"),
   CHOICE_NEXT_CLOSE_CONFLICT(
       IssueSeverity.ERROR, "Dialog choice 'next' and 'close' are mutually exclusive"),
   UNKNOWN_CONDITION_TYPE(
-      IssueSeverity.ERROR, "Condition type is not registered — evaluates to false"),
+      IssueSeverity.ERROR, "Condition type is not registered - evaluates to false"),
   UNKNOWN_STEP_TYPE(
-      IssueSeverity.WARNING, "Quest step type is not registered — step only progresses manually"),
+      IssueSeverity.WARNING, "Quest step type is not registered - step only progresses manually"),
   UNKNOWN_STEP_PREREQUISITE(
       IssueSeverity.ERROR, "Step requires references a step that does not exist"),
   SELF_STEP_PREREQUISITE(IssueSeverity.ERROR, "Step requires itself"),

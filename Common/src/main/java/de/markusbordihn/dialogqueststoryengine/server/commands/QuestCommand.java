@@ -20,11 +20,11 @@
 package de.markusbordihn.dialogqueststoryengine.server.commands;
 
 import com.mojang.brigadier.builder.ArgumentBuilder;
+import de.markusbordihn.dialogqueststoryengine.api.quest.QuestManager;
 import de.markusbordihn.dialogqueststoryengine.commands.Command;
-import de.markusbordihn.dialogqueststoryengine.quest.runtime.QuestService;
+import de.markusbordihn.dialogqueststoryengine.data.quest.StepProgress;
 import de.markusbordihn.dialogqueststoryengine.state.PlayerStateService;
 import de.markusbordihn.dialogqueststoryengine.state.QuestProgress;
-import de.markusbordihn.dialogqueststoryengine.state.StepProgress;
 import java.util.Map;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -98,7 +98,7 @@ public class QuestCommand extends Command {
 
   private static int executeStart(
       CommandSourceStack source, ResourceLocation questId, ServerPlayer target) {
-    return QuestService.startQuest(target, questId)
+    return QuestManager.start(target, questId)
         .map(
             result -> {
               sendSuccessMessage(
@@ -124,7 +124,7 @@ public class QuestCommand extends Command {
 
   private static int executeComplete(
       CommandSourceStack source, ResourceLocation questId, ServerPlayer target) {
-    return QuestService.completeQuest(target, questId)
+    return QuestManager.complete(target, questId)
         .map(
             result -> {
               sendSuccessMessage(

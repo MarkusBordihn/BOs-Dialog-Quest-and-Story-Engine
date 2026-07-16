@@ -21,17 +21,20 @@ package de.markusbordihn.dialogqueststoryengine.session;
 
 import de.markusbordihn.dialogqueststoryengine.Constants;
 import de.markusbordihn.dialogqueststoryengine.content.ChoiceDefinition;
-import de.markusbordihn.dialogqueststoryengine.content.dialog.DialogChoiceDefinition;
 import de.markusbordihn.dialogqueststoryengine.content.dialog.DialogContentRegistry;
-import de.markusbordihn.dialogqueststoryengine.content.dialog.DialogDefinition;
-import de.markusbordihn.dialogqueststoryengine.content.dialog.DialogNodeDefinition;
-import de.markusbordihn.dialogqueststoryengine.content.story.InteractiveStoryChoice;
 import de.markusbordihn.dialogqueststoryengine.content.story.InteractiveStoryContentRegistry;
-import de.markusbordihn.dialogqueststoryengine.content.story.InteractiveStoryDefinition;
-import de.markusbordihn.dialogqueststoryengine.debug.ConditionResult;
-import de.markusbordihn.dialogqueststoryengine.debug.ExecutionTraceEntry;
+import de.markusbordihn.dialogqueststoryengine.data.debug.ConditionResult;
+import de.markusbordihn.dialogqueststoryengine.data.debug.ExecutionTraceEntry;
+import de.markusbordihn.dialogqueststoryengine.data.debug.TraceEventType;
+import de.markusbordihn.dialogqueststoryengine.data.dialog.DialogChoiceDefinition;
+import de.markusbordihn.dialogqueststoryengine.data.dialog.DialogDefinition;
+import de.markusbordihn.dialogqueststoryengine.data.dialog.DialogNodeDefinition;
+import de.markusbordihn.dialogqueststoryengine.data.session.SessionCloseReason;
+import de.markusbordihn.dialogqueststoryengine.data.session.SessionRejectionReason;
+import de.markusbordihn.dialogqueststoryengine.data.session.SessionType;
+import de.markusbordihn.dialogqueststoryengine.data.story.InteractiveStoryChoice;
+import de.markusbordihn.dialogqueststoryengine.data.story.InteractiveStoryDefinition;
 import de.markusbordihn.dialogqueststoryengine.debug.ExecutionTraceService;
-import de.markusbordihn.dialogqueststoryengine.debug.TraceEventType;
 import de.markusbordihn.dialogqueststoryengine.logic.action.ActionContext;
 import de.markusbordihn.dialogqueststoryengine.logic.condition.ConditionContext;
 import de.markusbordihn.dialogqueststoryengine.network.NetworkHandlerManager;
@@ -39,14 +42,10 @@ import de.markusbordihn.dialogqueststoryengine.network.message.session.CloseSess
 import de.markusbordihn.dialogqueststoryengine.network.message.session.DialogSessionPacket;
 import de.markusbordihn.dialogqueststoryengine.network.message.session.DialogSessionPacketType;
 import de.markusbordihn.dialogqueststoryengine.network.message.session.OpenStorySessionPacket;
-import de.markusbordihn.dialogqueststoryengine.network.message.session.QuestDeltaPacket;
 import de.markusbordihn.dialogqueststoryengine.network.message.session.SessionRejectedPacket;
-import de.markusbordihn.dialogqueststoryengine.network.message.session.StoryDeltaPacket;
 import de.markusbordihn.dialogqueststoryengine.server.ServerEvents;
 import de.markusbordihn.dialogqueststoryengine.state.PlayerState;
 import de.markusbordihn.dialogqueststoryengine.state.PlayerStateService;
-import de.markusbordihn.dialogqueststoryengine.state.QuestProgress;
-import de.markusbordihn.dialogqueststoryengine.state.StepProgress;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.HashMap;
@@ -80,7 +79,7 @@ public final class SessionManager {
     Optional<DialogDefinition> optionalDefinition = DialogContentRegistry.get(dialogId);
     if (optionalDefinition.isEmpty()) {
       log.warn(
-          "{} openDialogSession: no dialog found for '{}' — player {}",
+          "{} openDialogSession: no dialog found for '{}' - player {}",
           Constants.LOG_PREFIX,
           dialogId,
           player.getName().getString());
@@ -148,7 +147,7 @@ public final class SessionManager {
         InteractiveStoryContentRegistry.get(storyId);
     if (optionalDefinition.isEmpty()) {
       log.warn(
-          "{} openStorySession: no story found for '{}' — player {}",
+          "{} openStorySession: no story found for '{}' - player {}",
           Constants.LOG_PREFIX,
           storyId,
           player.getName().getString());
@@ -175,16 +174,11 @@ public final class SessionManager {
             "session-" + sessionId,
             Optional.of(sessionContext));
 
-    Set<ResourceLocation> unlockedBefore = new HashSet<>(playerState.stories().unlockedIds());
-    Set<ResourceLocation> readBefore = new HashSet<>(playerState.stories().readIds());
-
     definition.onOpen().execute(actionContext);
 
     if (!isCurrentSession(session)) {
       return null;
     }
-
-    sendStoryDelta(player, session, playerState, unlockedBefore, readBefore);
 
     ConditionContext conditionContext = new ConditionContext(player, playerState, player.server);
     List<String> allowedChoiceIds = filterAllowedChoiceIds(definition.choices(), conditionContext);
@@ -382,10 +376,6 @@ public final class SessionManager {
       return;
     }
 
-    Map<ResourceLocation, QuestSnapshot> questSnapshotsBefore = snapshotQuests(playerState);
-    Set<ResourceLocation> unlockedBefore = new HashSet<>(playerState.stories().unlockedIds());
-    Set<ResourceLocation> readBefore = new HashSet<>(playerState.stories().readIds());
-
     SessionContext sessionContext = new SessionContext(session.sessionId(), SessionType.DIALOG);
     ActionContext actionContext =
         new ActionContext(
@@ -400,9 +390,6 @@ public final class SessionManager {
       return;
     }
     session.bumpRevision();
-
-    sendQuestDeltas(player, playerState, questSnapshotsBefore);
-    sendStoryDelta(player, session, playerState, unlockedBefore, readBefore);
 
     if (choice.close() || choice.next().isEmpty()) {
       removeAndClose(session, player, SessionCloseReason.PLAYER_CLOSED);
@@ -471,10 +458,6 @@ public final class SessionManager {
       return;
     }
 
-    Map<ResourceLocation, QuestSnapshot> questSnapshotsBefore = snapshotQuests(playerState);
-    Set<ResourceLocation> unlockedBefore = new HashSet<>(playerState.stories().unlockedIds());
-    Set<ResourceLocation> readBefore = new HashSet<>(playerState.stories().readIds());
-
     SessionContext sessionContext =
         new SessionContext(session.sessionId(), SessionType.INTERACTIVE_STORY);
     ActionContext actionContext =
@@ -490,9 +473,6 @@ public final class SessionManager {
       return;
     }
     session.bumpRevision();
-
-    sendQuestDeltas(player, playerState, questSnapshotsBefore);
-    sendStoryDelta(player, session, playerState, unlockedBefore, readBefore);
 
     removeAndClose(session, player, SessionCloseReason.PLAYER_CLOSED);
   }
@@ -588,73 +568,5 @@ public final class SessionManager {
       }
     }
     return labels;
-  }
-
-  private static Map<ResourceLocation, QuestSnapshot> snapshotQuests(PlayerState playerState) {
-    Map<ResourceLocation, QuestSnapshot> snapshot = new HashMap<>();
-    for (Map.Entry<ResourceLocation, QuestProgress> entry : playerState.allQuests().entrySet()) {
-      QuestProgress progress = entry.getValue();
-      snapshot.put(entry.getKey(), new QuestSnapshot(progress.revision(), progress.steps()));
-    }
-
-    return snapshot;
-  }
-
-  private static void sendQuestDeltas(
-      ServerPlayer player,
-      PlayerState playerState,
-      Map<ResourceLocation, QuestSnapshot> questSnapshotsBefore) {
-    for (Map.Entry<ResourceLocation, QuestProgress> entry : playerState.allQuests().entrySet()) {
-      ResourceLocation questId = entry.getKey();
-      QuestProgress progress = entry.getValue();
-      QuestSnapshot snapshotBefore = questSnapshotsBefore.get(questId);
-      int revisionBefore = snapshotBefore == null ? -1 : snapshotBefore.revision();
-      if (progress.revision() != revisionBefore) {
-        Map<String, StepProgress> changedSteps =
-            changedSteps(snapshotBefore == null ? Map.of() : snapshotBefore.steps(), progress);
-        NetworkHandlerManager.sendToPlayer(
-            player,
-            new QuestDeltaPacket(questId, progress.state(), changedSteps, progress.revision()));
-      }
-    }
-  }
-
-  private static Map<String, StepProgress> changedSteps(
-      Map<String, StepProgress> stepsBefore, QuestProgress progress) {
-    Map<String, StepProgress> changedSteps = new HashMap<>();
-    for (Map.Entry<String, StepProgress> entry : progress.steps().entrySet()) {
-      if (!entry.getValue().equals(stepsBefore.get(entry.getKey()))) {
-        changedSteps.put(entry.getKey(), entry.getValue());
-      }
-    }
-    return changedSteps;
-  }
-
-  private static void sendStoryDelta(
-      ServerPlayer player,
-      Session session,
-      PlayerState playerState,
-      Set<ResourceLocation> unlockedBefore,
-      Set<ResourceLocation> readBefore) {
-    Set<ResourceLocation> newlyUnlocked = new HashSet<>(playerState.stories().unlockedIds());
-    newlyUnlocked.removeAll(unlockedBefore);
-    Set<ResourceLocation> newlyRead = new HashSet<>(playerState.stories().readIds());
-    newlyRead.removeAll(readBefore);
-    if (newlyUnlocked.isEmpty() && newlyRead.isEmpty()) {
-      return;
-    }
-    NetworkHandlerManager.sendToPlayer(
-        player,
-        new StoryDeltaPacket(
-            session.sessionId(),
-            new ArrayList<>(newlyUnlocked),
-            new ArrayList<>(newlyRead),
-            session.revision()));
-  }
-
-  private record QuestSnapshot(int revision, Map<String, StepProgress> steps) {
-    private QuestSnapshot {
-      steps = Map.copyOf(steps);
-    }
   }
 }

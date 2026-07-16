@@ -21,6 +21,7 @@ package de.markusbordihn.dialogqueststoryengine;
 
 import de.markusbordihn.dialogqueststoryengine.client.ClientEventHandler;
 import de.markusbordihn.dialogqueststoryengine.client.ResourceClientEventsFabric;
+import de.markusbordihn.dialogqueststoryengine.network.FabricClientHandshake;
 import de.markusbordihn.dialogqueststoryengine.network.NetworkHandlerManager;
 import de.markusbordihn.dialogqueststoryengine.network.NetworkHandlerManagerType;
 import net.fabricmc.api.ClientModInitializer;
@@ -37,6 +38,7 @@ public class DialogQuestStoryEngineClient implements ClientModInitializer {
   public void onInitializeClient() {
     log.info("Initializing {} (Fabric-Client) ...", Constants.MOD_NAME);
     NetworkHandlerManager.registerNetworkMessages(NetworkHandlerManagerType.CLIENT);
+    FabricClientHandshake.register();
     ClientEventHandler.registerEvents();
     ResourceClientEventsFabric.registerReloadListeners(
         ResourceManagerHelper.get(PackType.CLIENT_RESOURCES));

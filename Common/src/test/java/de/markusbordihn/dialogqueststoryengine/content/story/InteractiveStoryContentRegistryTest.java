@@ -22,6 +22,7 @@ package de.markusbordihn.dialogqueststoryengine.content.story;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import de.markusbordihn.dialogqueststoryengine.data.story.InteractiveStoryDefinition;
 import de.markusbordihn.dialogqueststoryengine.logic.action.ActionList;
 import java.util.List;
 import java.util.Map;

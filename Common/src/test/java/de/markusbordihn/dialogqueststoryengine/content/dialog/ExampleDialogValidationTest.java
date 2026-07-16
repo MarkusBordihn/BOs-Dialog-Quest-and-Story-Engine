@@ -24,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import de.markusbordihn.dialogqueststoryengine.data.dialog.DialogDefinition;
 import de.markusbordihn.dialogqueststoryengine.data.json.ParseResult;
 import de.markusbordihn.dialogqueststoryengine.validation.DialogNodeReferenceValidator;
 import de.markusbordihn.dialogqueststoryengine.validation.DialogReachabilityValidator;

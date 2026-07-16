@@ -19,7 +19,6 @@
 
 package de.markusbordihn.dialogqueststoryengine.logic.action.types;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import de.markusbordihn.dialogqueststoryengine.logic.action.ActionContext;
@@ -43,13 +42,13 @@ class MarkStoryReadActionTest {
   }
 
   @Test
-  void execute_markReadDoesNotImplyUnlocked() {
+  void execute_markReadImpliesUnlocked() {
     PlayerState playerState = new PlayerState(UUID.randomUUID());
     ActionContext ctx = ActionContext.ofTest(playerState);
 
     new MarkStoryReadAction(STORY_ID).execute(ctx);
 
-    assertFalse(playerState.stories().isUnlocked(STORY_ID));
+    assertTrue(playerState.stories().isUnlocked(STORY_ID));
   }
 
   @Test

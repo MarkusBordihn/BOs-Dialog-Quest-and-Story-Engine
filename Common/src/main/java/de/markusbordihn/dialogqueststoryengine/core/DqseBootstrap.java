@@ -23,7 +23,9 @@ import de.markusbordihn.dialogqueststoryengine.interaction.InteractionRegistry;
 import de.markusbordihn.dialogqueststoryengine.logic.action.BuiltinActions;
 import de.markusbordihn.dialogqueststoryengine.logic.condition.BuiltinConditions;
 import de.markusbordihn.dialogqueststoryengine.logic.context.BuiltinContextValueProviders;
+import de.markusbordihn.dialogqueststoryengine.quest.reward.BuiltinRewardHandlers;
 import de.markusbordihn.dialogqueststoryengine.quest.step.BuiltinQuestSteps;
+import de.markusbordihn.dialogqueststoryengine.state.QuestProgressSync;
 import de.markusbordihn.dialogqueststoryengine.validation.BuiltinValidators;
 
 public final class DqseBootstrap {
@@ -41,8 +43,10 @@ public final class DqseBootstrap {
     BuiltinConditions.register();
     BuiltinContextValueProviders.register();
     BuiltinQuestSteps.register();
+    BuiltinRewardHandlers.register();
     InteractionRegistry.registerBuiltIns();
     BuiltinValidators.register();
+    QuestProgressSync.register();
     initialized = true;
   }
 }

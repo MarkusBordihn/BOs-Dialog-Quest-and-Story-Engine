@@ -20,11 +20,11 @@
 package de.markusbordihn.dialogqueststoryengine.validation;
 
 import de.markusbordihn.dialogqueststoryengine.content.quest.QuestContentRegistry;
-import de.markusbordihn.dialogqueststoryengine.content.quest.QuestDefinition;
-import de.markusbordihn.dialogqueststoryengine.content.quest.RawQuestStep;
 import de.markusbordihn.dialogqueststoryengine.data.ContentType;
 import de.markusbordihn.dialogqueststoryengine.data.issue.ContentIssue;
 import de.markusbordihn.dialogqueststoryengine.data.issue.IssueCode;
+import de.markusbordihn.dialogqueststoryengine.data.quest.content.QuestDefinition;
+import de.markusbordihn.dialogqueststoryengine.data.quest.content.RawQuestStep;
 import de.markusbordihn.dialogqueststoryengine.registry.ContentValidator;
 import de.markusbordihn.dialogqueststoryengine.registry.Registries;
 import java.util.ArrayList;

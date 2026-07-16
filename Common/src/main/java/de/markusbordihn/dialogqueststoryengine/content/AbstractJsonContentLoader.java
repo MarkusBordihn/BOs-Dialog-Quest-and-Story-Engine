@@ -84,7 +84,7 @@ public abstract class AbstractJsonContentLoader<T> extends SimpleJsonResourceRel
             ContentIssue.of(
                 IssueCode.JSON_PARSE_FAILED, contentType(), resourceLocation, filePath, null));
         log.error(
-            "{} {} {} — root element is not a JSON object, skipping.",
+            "{} {} {} - root element is not a JSON object, skipping.",
             Constants.LOG_PREFIX,
             capitalizedName(),
             resourceLocation);
@@ -105,7 +105,7 @@ public abstract class AbstractJsonContentLoader<T> extends SimpleJsonResourceRel
         loaded.put(resourceLocation, result.value().get());
       } else {
         log.error(
-            "{} Skipped {} {} — see issues above for details.",
+            "{} Skipped {} {} - see issues above for details.",
             Constants.LOG_PREFIX,
             contentName(),
             resourceLocation);

@@ -24,22 +24,17 @@ import de.markusbordihn.dialogqueststoryengine.client.ClientProgressState;
 import de.markusbordihn.dialogqueststoryengine.network.NetworkMessageRecord;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 
 public record StoryDeltaPacket(
-    UUID sessionId,
-    List<ResourceLocation> unlockedStoryIds,
-    List<ResourceLocation> readStoryIds,
-    int revision)
+    List<ResourceLocation> unlockedStoryIds, List<ResourceLocation> readStoryIds, int revision)
     implements NetworkMessageRecord {
 
   public static final ResourceLocation MESSAGE_ID =
       ResourceLocation.tryParse(Constants.MOD_ID + ":story_delta");
 
   public static StoryDeltaPacket create(FriendlyByteBuf buffer) {
-    UUID sessionId = buffer.readUUID();
     int unlockedCount = buffer.readInt();
     List<ResourceLocation> unlockedStoryIds = new ArrayList<>(unlockedCount);
     for (int i = 0; i < unlockedCount; i++) {
@@ -51,12 +46,11 @@ public record StoryDeltaPacket(
       readStoryIds.add(buffer.readResourceLocation());
     }
     int revision = buffer.readInt();
-    return new StoryDeltaPacket(sessionId, unlockedStoryIds, readStoryIds, revision);
+    return new StoryDeltaPacket(unlockedStoryIds, readStoryIds, revision);
   }
 
   @Override
   public void write(FriendlyByteBuf buffer) {
-    buffer.writeUUID(this.sessionId);
     buffer.writeInt(this.unlockedStoryIds.size());
     this.unlockedStoryIds.forEach(buffer::writeResourceLocation);
     buffer.writeInt(this.readStoryIds.size());

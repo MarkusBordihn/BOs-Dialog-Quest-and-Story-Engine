@@ -22,8 +22,8 @@ package de.markusbordihn.dialogqueststoryengine.content.dialog.runtime;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import de.markusbordihn.dialogqueststoryengine.content.dialog.DialogDefinition;
-import de.markusbordihn.dialogqueststoryengine.content.dialog.DialogNodeDefinition;
+import de.markusbordihn.dialogqueststoryengine.data.dialog.DialogDefinition;
+import de.markusbordihn.dialogqueststoryengine.data.dialog.DialogNodeDefinition;
 import java.util.List;
 import java.util.Map;
 import net.minecraft.resources.ResourceLocation;

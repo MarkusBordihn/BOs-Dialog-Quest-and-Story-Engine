@@ -74,5 +74,6 @@
   "message.dialog_quest_and_story_engine.session.rejected.wrong_owner": "This session belongs to another player.",
   "message.dialog_quest_and_story_engine.session.rejected.session_closed": "This session is already closed.",
   "message.dialog_quest_and_story_engine.session.rejected.unknown_choice": "This choice is no longer available.",
-  "message.dialog_quest_and_story_engine.session.rejected.condition_failed": "The requirements for this choice are no longer met."
+  "message.dialog_quest_and_story_engine.session.rejected.condition_failed": "The requirements for this choice are no longer met.",
+  "message.dialog_quest_and_story_engine.protocol.mismatch": "Dialog, Quest and Story Engine version mismatch. Please install a matching version to join this server."
 }

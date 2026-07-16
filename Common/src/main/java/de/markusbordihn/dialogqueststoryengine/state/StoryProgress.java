@@ -28,13 +28,27 @@ public final class StoryProgress {
 
   private final Set<ResourceLocation> unlocked = new LinkedHashSet<>();
   private final Set<ResourceLocation> read = new LinkedHashSet<>();
+  private int revision;
 
-  public void unlock(ResourceLocation storyId) {
-    this.unlocked.add(storyId);
+  public boolean unlock(ResourceLocation storyId) {
+    return this.unlocked.add(storyId);
   }
 
-  public void markRead(ResourceLocation storyId) {
-    this.read.add(storyId);
+  public boolean markRead(ResourceLocation storyId) {
+    this.unlocked.add(storyId);
+    return this.read.add(storyId);
+  }
+
+  public int revision() {
+    return this.revision;
+  }
+
+  public int bumpRevision() {
+    return ++this.revision;
+  }
+
+  public void setRevision(int revision) {
+    this.revision = revision;
   }
 
   public boolean isUnlocked(ResourceLocation storyId) {

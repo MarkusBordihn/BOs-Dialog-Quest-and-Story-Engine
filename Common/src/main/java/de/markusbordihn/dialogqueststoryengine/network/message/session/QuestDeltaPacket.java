@@ -21,10 +21,11 @@ package de.markusbordihn.dialogqueststoryengine.network.message.session;
 
 import de.markusbordihn.dialogqueststoryengine.Constants;
 import de.markusbordihn.dialogqueststoryengine.client.ClientProgressState;
+import de.markusbordihn.dialogqueststoryengine.data.quest.QuestState;
+import de.markusbordihn.dialogqueststoryengine.data.quest.RewardClaimState;
+import de.markusbordihn.dialogqueststoryengine.data.quest.StepProgress;
+import de.markusbordihn.dialogqueststoryengine.data.quest.StepState;
 import de.markusbordihn.dialogqueststoryengine.network.NetworkMessageRecord;
-import de.markusbordihn.dialogqueststoryengine.state.QuestState;
-import de.markusbordihn.dialogqueststoryengine.state.StepProgress;
-import de.markusbordihn.dialogqueststoryengine.state.StepState;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import net.minecraft.network.FriendlyByteBuf;
@@ -34,6 +35,7 @@ public record QuestDeltaPacket(
     ResourceLocation questId,
     QuestState questState,
     Map<String, StepProgress> changedSteps,
+    RewardClaimState rewardClaimState,
     int revision)
     implements NetworkMessageRecord {
 
@@ -52,9 +54,10 @@ public record QuestDeltaPacket(
       int required = buffer.readInt();
       changedSteps.put(stepId, new StepProgress(stepState, progress, required));
     }
+    RewardClaimState rewardClaimState = buffer.readEnum(RewardClaimState.class);
     int revision = buffer.readInt();
 
-    return new QuestDeltaPacket(questId, questState, changedSteps, revision);
+    return new QuestDeltaPacket(questId, questState, changedSteps, rewardClaimState, revision);
   }
 
   @Override
@@ -69,6 +72,7 @@ public record QuestDeltaPacket(
           buffer.writeInt(stepProgress.progress());
           buffer.writeInt(stepProgress.required());
         });
+    buffer.writeEnum(this.rewardClaimState);
     buffer.writeInt(this.revision);
   }
 

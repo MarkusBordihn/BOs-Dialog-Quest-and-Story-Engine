@@ -19,8 +19,8 @@
 
 package de.markusbordihn.dialogqueststoryengine.content.dialog.runtime;
 
-import de.markusbordihn.dialogqueststoryengine.content.dialog.DialogDefinition;
-import de.markusbordihn.dialogqueststoryengine.content.dialog.DialogNodeDefinition;
+import de.markusbordihn.dialogqueststoryengine.data.dialog.DialogDefinition;
+import de.markusbordihn.dialogqueststoryengine.data.dialog.DialogNodeDefinition;
 import java.util.Optional;
 import net.minecraft.resources.ResourceLocation;
 

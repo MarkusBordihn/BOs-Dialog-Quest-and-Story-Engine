@@ -21,6 +21,9 @@ package de.markusbordihn.dialogqueststoryengine.debug;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import de.markusbordihn.dialogqueststoryengine.data.debug.ConditionResult;
+import de.markusbordihn.dialogqueststoryengine.data.debug.ExecutionTraceEntry;
+import de.markusbordihn.dialogqueststoryengine.data.debug.TraceEventType;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;

@@ -21,9 +21,9 @@ package de.markusbordihn.dialogqueststoryengine.client.holopad;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
-import de.markusbordihn.dialogqueststoryengine.story.entry.StoryEntry;
+import de.markusbordihn.dialogqueststoryengine.data.story.StoryEntry;
+import de.markusbordihn.dialogqueststoryengine.data.story.StoryEntryType;
 import de.markusbordihn.dialogqueststoryengine.story.entry.StoryEntryClientRegistry;
-import de.markusbordihn.dialogqueststoryengine.story.entry.StoryEntryType;
 import de.markusbordihn.dialogqueststoryengine.theme.ThemeClientRegistry;
 import java.util.List;
 import java.util.UUID;

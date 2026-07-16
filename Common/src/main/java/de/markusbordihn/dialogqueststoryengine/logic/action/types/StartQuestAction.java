@@ -73,7 +73,7 @@ public record StartQuestAction(ResourceLocation questId) implements Action {
         .ifPresent(
             result ->
                 log.debug(
-                    "{} start_quest: quest '{}' is already {} — skipping",
+                    "{} start_quest: quest '{}' is already {} - skipping",
                     Constants.LOG_PREFIX,
                     this.questId,
                     result.questProgress().state()));

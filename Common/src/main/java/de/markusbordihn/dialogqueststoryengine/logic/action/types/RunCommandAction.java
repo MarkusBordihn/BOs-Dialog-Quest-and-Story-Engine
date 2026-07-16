@@ -66,7 +66,7 @@ public record RunCommandAction(String command, int permissionLevel) implements A
   public void execute(ActionContext actionContext) {
     if (!DqseSecurityConfig.isCommandActionsEnabled()) {
       log.warn(
-          "{} run_command is disabled by security config — skipping for event '{}'",
+          "{} run_command is disabled by security config - skipping for event '{}'",
           Constants.LOG_PREFIX,
           actionContext.interactionEventId());
       return;
@@ -85,7 +85,7 @@ public record RunCommandAction(String command, int permissionLevel) implements A
 
     if (!DqseSecurityConfig.isCommandAllowed(resolved)) {
       log.warn(
-          "{} run_command: command '{}' is not in the whitelist — skipping",
+          "{} run_command: command '{}' is not in the whitelist - skipping",
           Constants.LOG_PREFIX,
           resolved);
       return;

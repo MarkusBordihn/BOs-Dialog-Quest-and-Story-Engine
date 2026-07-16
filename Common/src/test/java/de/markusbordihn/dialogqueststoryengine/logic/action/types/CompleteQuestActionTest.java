@@ -22,9 +22,9 @@ package de.markusbordihn.dialogqueststoryengine.logic.action.types;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+import de.markusbordihn.dialogqueststoryengine.data.quest.QuestState;
 import de.markusbordihn.dialogqueststoryengine.logic.action.ActionContext;
 import de.markusbordihn.dialogqueststoryengine.state.PlayerState;
-import de.markusbordihn.dialogqueststoryengine.state.QuestState;
 import java.util.UUID;
 import net.minecraft.resources.ResourceLocation;
 import org.junit.jupiter.api.Test;

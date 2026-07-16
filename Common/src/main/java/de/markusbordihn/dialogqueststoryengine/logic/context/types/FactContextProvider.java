@@ -20,11 +20,11 @@
 package de.markusbordihn.dialogqueststoryengine.logic.context.types;
 
 import de.markusbordihn.dialogqueststoryengine.Constants;
-import de.markusbordihn.dialogqueststoryengine.content.text.ContextArgument;
+import de.markusbordihn.dialogqueststoryengine.data.state.FactScope;
+import de.markusbordihn.dialogqueststoryengine.data.state.FactValue;
+import de.markusbordihn.dialogqueststoryengine.data.text.ContextArgument;
 import de.markusbordihn.dialogqueststoryengine.logic.context.NarrativeContextResolution;
 import de.markusbordihn.dialogqueststoryengine.registry.ContextValueProvider;
-import de.markusbordihn.dialogqueststoryengine.state.FactScope;
-import de.markusbordihn.dialogqueststoryengine.state.FactValue;
 import java.util.Locale;
 import java.util.Optional;
 import net.minecraft.network.chat.Component;

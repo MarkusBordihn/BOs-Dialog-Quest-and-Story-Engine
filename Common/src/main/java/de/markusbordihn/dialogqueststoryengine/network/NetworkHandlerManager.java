@@ -27,15 +27,22 @@ import de.markusbordihn.dialogqueststoryengine.network.message.OpenOverviewScree
 import de.markusbordihn.dialogqueststoryengine.network.message.RemoveInteractionMessage;
 import de.markusbordihn.dialogqueststoryengine.network.message.SaveInteractionMessage;
 import de.markusbordihn.dialogqueststoryengine.network.message.SyncInteractionDataMessage;
+import de.markusbordihn.dialogqueststoryengine.network.message.session.ClaimQuestRewardsPacket;
 import de.markusbordihn.dialogqueststoryengine.network.message.session.ClientCloseSessionPacket;
 import de.markusbordihn.dialogqueststoryengine.network.message.session.CloseSessionPacket;
 import de.markusbordihn.dialogqueststoryengine.network.message.session.DialogSessionPacket;
 import de.markusbordihn.dialogqueststoryengine.network.message.session.OpenStorySessionPacket;
 import de.markusbordihn.dialogqueststoryengine.network.message.session.QuestDeltaPacket;
+import de.markusbordihn.dialogqueststoryengine.network.message.session.QuestDisplayCatalogRemovePacket;
+import de.markusbordihn.dialogqueststoryengine.network.message.session.QuestDisplayCatalogResetPacket;
+import de.markusbordihn.dialogqueststoryengine.network.message.session.QuestDisplayCatalogUpsertPacket;
+import de.markusbordihn.dialogqueststoryengine.network.message.session.QuestRewardClaimResultPacket;
 import de.markusbordihn.dialogqueststoryengine.network.message.session.ResetProgressPacket;
 import de.markusbordihn.dialogqueststoryengine.network.message.session.SessionRejectedPacket;
 import de.markusbordihn.dialogqueststoryengine.network.message.session.StoryDeltaPacket;
 import de.markusbordihn.dialogqueststoryengine.network.message.session.SubmitChoicePacket;
+import de.markusbordihn.dialogqueststoryengine.network.message.session.TrackQuestPacket;
+import de.markusbordihn.dialogqueststoryengine.network.message.session.TrackedQuestPacket;
 import de.markusbordihn.dialogqueststoryengine.network.message.story.OpenClientStoryPacket;
 import net.minecraft.server.level.ServerPlayer;
 import org.apache.logging.log4j.LogManager;
@@ -110,6 +117,24 @@ public final class NetworkHandlerManager {
     networkHandler.registerClientNetworkMessageHandler(
         QuestDeltaPacket.MESSAGE_ID, QuestDeltaPacket.class, QuestDeltaPacket::create);
     networkHandler.registerClientNetworkMessageHandler(
+        QuestRewardClaimResultPacket.MESSAGE_ID,
+        QuestRewardClaimResultPacket.class,
+        QuestRewardClaimResultPacket::create);
+    networkHandler.registerClientNetworkMessageHandler(
+        TrackedQuestPacket.MESSAGE_ID, TrackedQuestPacket.class, TrackedQuestPacket::create);
+    networkHandler.registerClientNetworkMessageHandler(
+        QuestDisplayCatalogResetPacket.MESSAGE_ID,
+        QuestDisplayCatalogResetPacket.class,
+        QuestDisplayCatalogResetPacket::create);
+    networkHandler.registerClientNetworkMessageHandler(
+        QuestDisplayCatalogUpsertPacket.MESSAGE_ID,
+        QuestDisplayCatalogUpsertPacket.class,
+        QuestDisplayCatalogUpsertPacket::create);
+    networkHandler.registerClientNetworkMessageHandler(
+        QuestDisplayCatalogRemovePacket.MESSAGE_ID,
+        QuestDisplayCatalogRemovePacket.class,
+        QuestDisplayCatalogRemovePacket::create);
+    networkHandler.registerClientNetworkMessageHandler(
         ResetProgressPacket.MESSAGE_ID, ResetProgressPacket.class, ResetProgressPacket::create);
     networkHandler.registerClientNetworkMessageHandler(
         CloseSessionPacket.MESSAGE_ID, CloseSessionPacket.class, CloseSessionPacket::create);
@@ -151,6 +176,12 @@ public final class NetworkHandlerManager {
         ClientCloseSessionPacket.MESSAGE_ID,
         ClientCloseSessionPacket.class,
         ClientCloseSessionPacket::create);
+    networkHandler.registerServerNetworkMessageHandler(
+        ClaimQuestRewardsPacket.MESSAGE_ID,
+        ClaimQuestRewardsPacket.class,
+        ClaimQuestRewardsPacket::create);
+    networkHandler.registerServerNetworkMessageHandler(
+        TrackQuestPacket.MESSAGE_ID, TrackQuestPacket.class, TrackQuestPacket::create);
   }
 
   public static void sendToPlayer(ServerPlayer player, NetworkMessageRecord message) {

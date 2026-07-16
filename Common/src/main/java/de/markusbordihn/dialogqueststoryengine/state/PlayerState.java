@@ -19,6 +19,9 @@
 
 package de.markusbordihn.dialogqueststoryengine.state;
 
+import de.markusbordihn.dialogqueststoryengine.data.quest.QuestState;
+import de.markusbordihn.dialogqueststoryengine.data.state.FactScope;
+import de.markusbordihn.dialogqueststoryengine.data.state.FactValue;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashMap;
@@ -33,6 +36,7 @@ public final class PlayerState {
   private final EnumMap<FactScope, Map<String, FactValue>> facts;
   private final Map<ResourceLocation, QuestProgress> quests;
   private final StoryProgress stories;
+  private ResourceLocation trackedQuestId;
   private volatile boolean dirty;
 
   public PlayerState(UUID playerUuid) {
@@ -121,6 +125,19 @@ public final class PlayerState {
 
   void putQuestFromCodec(ResourceLocation questId, QuestProgress questProgress) {
     this.quests.put(questId, questProgress);
+  }
+
+  public ResourceLocation trackedQuestId() {
+    return this.trackedQuestId;
+  }
+
+  public void setTrackedQuestId(ResourceLocation trackedQuestId) {
+    this.trackedQuestId = trackedQuestId;
+    this.markDirty();
+  }
+
+  public void restoreTrackedQuestId(ResourceLocation trackedQuestId) {
+    this.trackedQuestId = trackedQuestId;
   }
 
   public void unlockStory(ResourceLocation storyId) {

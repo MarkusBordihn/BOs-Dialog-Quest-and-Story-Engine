@@ -19,8 +19,8 @@
 
 package de.markusbordihn.dialogqueststoryengine.registry;
 
-import de.markusbordihn.dialogqueststoryengine.content.quest.RawQuestStep;
 import de.markusbordihn.dialogqueststoryengine.data.issue.ContentIssue;
+import de.markusbordihn.dialogqueststoryengine.data.quest.content.RawQuestStep;
 import de.markusbordihn.dialogqueststoryengine.quest.step.QuestStepContext;
 import java.util.List;
 import net.minecraft.resources.ResourceLocation;

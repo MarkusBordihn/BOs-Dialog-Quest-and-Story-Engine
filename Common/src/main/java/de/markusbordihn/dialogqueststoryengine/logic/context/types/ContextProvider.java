@@ -20,7 +20,7 @@
 package de.markusbordihn.dialogqueststoryengine.logic.context.types;
 
 import de.markusbordihn.dialogqueststoryengine.Constants;
-import de.markusbordihn.dialogqueststoryengine.content.text.ContextArgument;
+import de.markusbordihn.dialogqueststoryengine.data.text.ContextArgument;
 import de.markusbordihn.dialogqueststoryengine.logic.context.NarrativeContextResolution;
 import de.markusbordihn.dialogqueststoryengine.registry.ContextValueProvider;
 import java.util.Optional;

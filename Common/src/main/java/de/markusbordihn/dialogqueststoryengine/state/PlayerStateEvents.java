@@ -19,6 +19,10 @@
 
 package de.markusbordihn.dialogqueststoryengine.state;
 
+import de.markusbordihn.dialogqueststoryengine.data.quest.StepProgress;
+import de.markusbordihn.dialogqueststoryengine.data.state.FactScope;
+import de.markusbordihn.dialogqueststoryengine.data.state.FactValue;
+import de.markusbordihn.dialogqueststoryengine.quest.runtime.QuestChangeResult;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -36,6 +40,11 @@ public final class PlayerStateEvents {
       new CopyOnWriteArrayList<>();
   private static final List<StepProgressedListener> stepProgressedListeners =
       new CopyOnWriteArrayList<>();
+  private static final List<QuestChangedListener> questChangedListeners =
+      new CopyOnWriteArrayList<>();
+  private static final List<StoryUnlockedListener> storyUnlockedListeners =
+      new CopyOnWriteArrayList<>();
+  private static final List<StoryReadListener> storyReadListeners = new CopyOnWriteArrayList<>();
   private static final List<FactChangedListener> factChangedListeners =
       new CopyOnWriteArrayList<>();
 
@@ -59,6 +68,18 @@ public final class PlayerStateEvents {
 
   public static void addStepProgressedListener(StepProgressedListener listener) {
     stepProgressedListeners.add(listener);
+  }
+
+  public static void addQuestChangedListener(QuestChangedListener listener) {
+    questChangedListeners.add(listener);
+  }
+
+  public static void addStoryUnlockedListener(StoryUnlockedListener listener) {
+    storyUnlockedListeners.add(listener);
+  }
+
+  public static void addStoryReadListener(StoryReadListener listener) {
+    storyReadListeners.add(listener);
   }
 
   public static void addFactChangedListener(FactChangedListener listener) {
@@ -99,6 +120,24 @@ public final class PlayerStateEvents {
     }
   }
 
+  public static void fireQuestChanged(UUID playerUuid, QuestChangeResult change) {
+    for (QuestChangedListener listener : questChangedListeners) {
+      listener.onQuestChanged(playerUuid, change);
+    }
+  }
+
+  public static void fireStoryUnlocked(UUID playerUuid, ResourceLocation storyId) {
+    for (StoryUnlockedListener listener : storyUnlockedListeners) {
+      listener.onStoryUnlocked(playerUuid, storyId);
+    }
+  }
+
+  public static void fireStoryRead(UUID playerUuid, ResourceLocation storyId) {
+    for (StoryReadListener listener : storyReadListeners) {
+      listener.onStoryRead(playerUuid, storyId);
+    }
+  }
+
   public static void fireFactChanged(
       UUID playerUuid, FactScope scope, String key, FactValue value) {
     for (FactChangedListener listener : factChangedListeners) {
@@ -112,6 +151,9 @@ public final class PlayerStateEvents {
     questCompletedListeners.clear();
     questFailedListeners.clear();
     stepProgressedListeners.clear();
+    questChangedListeners.clear();
+    storyUnlockedListeners.clear();
+    storyReadListeners.clear();
     factChangedListeners.clear();
   }
 
@@ -139,6 +181,21 @@ public final class PlayerStateEvents {
   public interface StepProgressedListener {
     void onStepProgressed(
         UUID playerUuid, ResourceLocation questId, String stepId, StepProgress stepProgress);
+  }
+
+  @FunctionalInterface
+  public interface QuestChangedListener {
+    void onQuestChanged(UUID playerUuid, QuestChangeResult change);
+  }
+
+  @FunctionalInterface
+  public interface StoryUnlockedListener {
+    void onStoryUnlocked(UUID playerUuid, ResourceLocation storyId);
+  }
+
+  @FunctionalInterface
+  public interface StoryReadListener {
+    void onStoryRead(UUID playerUuid, ResourceLocation storyId);
   }
 
   @FunctionalInterface

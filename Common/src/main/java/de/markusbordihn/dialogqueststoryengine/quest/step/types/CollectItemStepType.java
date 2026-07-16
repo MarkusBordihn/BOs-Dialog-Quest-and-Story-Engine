@@ -21,14 +21,14 @@ package de.markusbordihn.dialogqueststoryengine.quest.step.types;
 
 import com.google.gson.JsonObject;
 import de.markusbordihn.dialogqueststoryengine.Constants;
-import de.markusbordihn.dialogqueststoryengine.content.quest.RawQuestStep;
 import de.markusbordihn.dialogqueststoryengine.data.ContentType;
 import de.markusbordihn.dialogqueststoryengine.data.issue.ContentIssue;
 import de.markusbordihn.dialogqueststoryengine.data.issue.IssueCode;
+import de.markusbordihn.dialogqueststoryengine.data.quest.content.RawQuestStep;
+import de.markusbordihn.dialogqueststoryengine.data.state.FactScope;
+import de.markusbordihn.dialogqueststoryengine.data.state.FactValue;
 import de.markusbordihn.dialogqueststoryengine.quest.step.QuestStepContext;
 import de.markusbordihn.dialogqueststoryengine.registry.QuestStepHandler;
-import de.markusbordihn.dialogqueststoryengine.state.FactScope;
-import de.markusbordihn.dialogqueststoryengine.state.FactValue;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -54,7 +54,7 @@ public final class CollectItemStepType implements QuestStepHandler {
   }
 
   private static Optional<Item> resolveItem(RawQuestStep step) {
-    JsonObject jsonObject = step.jsonObject();
+    JsonObject jsonObject = step.typeSpecificJson();
     if (!jsonObject.has(FIELD_ITEM) || !jsonObject.get(FIELD_ITEM).isJsonPrimitive()) {
       return Optional.empty();
     }
@@ -69,7 +69,7 @@ public final class CollectItemStepType implements QuestStepHandler {
   @Override
   public void validate(
       ResourceLocation questId, RawQuestStep step, String filePath, List<ContentIssue> issues) {
-    JsonObject jsonObject = step.jsonObject();
+    JsonObject jsonObject = step.typeSpecificJson();
     String fieldPath = "logic.steps." + step.id() + "." + FIELD_ITEM;
     if (!jsonObject.has(FIELD_ITEM) || !jsonObject.get(FIELD_ITEM).isJsonPrimitive()) {
       issues.add(

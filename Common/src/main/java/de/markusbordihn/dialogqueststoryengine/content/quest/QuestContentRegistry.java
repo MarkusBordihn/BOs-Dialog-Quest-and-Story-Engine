@@ -19,19 +19,25 @@
 
 package de.markusbordihn.dialogqueststoryengine.content.quest;
 
+import de.markusbordihn.dialogqueststoryengine.data.quest.content.QuestDefinition;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import net.minecraft.resources.ResourceLocation;
 
 public final class QuestContentRegistry {
 
   private static volatile Map<ResourceLocation, QuestDefinition> entries = Map.of();
+  private static volatile Map<ResourceLocation, Set<ResourceLocation>> dependents = Map.of();
 
   private QuestContentRegistry() {}
 
   static void replaceAll(Map<ResourceLocation, QuestDefinition> newEntries) {
     entries = Map.copyOf(newEntries);
+    dependents = buildDependents(entries);
   }
 
   public static Optional<QuestDefinition> get(ResourceLocation id) {
@@ -42,11 +48,29 @@ public final class QuestContentRegistry {
     return entries.values();
   }
 
+  public static Set<ResourceLocation> dependentsOf(ResourceLocation questId) {
+    return dependents.getOrDefault(questId, Set.of());
+  }
+
   public static int size() {
     return entries.size();
   }
 
   public static void clear() {
     entries = Map.of();
+    dependents = Map.of();
+  }
+
+  private static Map<ResourceLocation, Set<ResourceLocation>> buildDependents(
+      Map<ResourceLocation, QuestDefinition> definitions) {
+    Map<ResourceLocation, Set<ResourceLocation>> index = new HashMap<>();
+    for (QuestDefinition definition : definitions.values()) {
+      for (ResourceLocation prerequisite : definition.logic().prerequisites().quests()) {
+        index.computeIfAbsent(prerequisite, ignored -> new HashSet<>()).add(definition.id());
+      }
+    }
+    Map<ResourceLocation, Set<ResourceLocation>> immutable = new HashMap<>();
+    index.forEach((prerequisite, ids) -> immutable.put(prerequisite, Set.copyOf(ids)));
+    return Map.copyOf(immutable);
   }
 }
