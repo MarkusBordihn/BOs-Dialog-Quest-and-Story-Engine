@@ -20,11 +20,15 @@
 package de.markusbordihn.dialogqueststoryengine.logic.action;
 
 import de.markusbordihn.dialogqueststoryengine.logic.action.types.AdvanceQuestStepAction;
+import de.markusbordihn.dialogqueststoryengine.logic.action.types.CloseSessionAction;
 import de.markusbordihn.dialogqueststoryengine.logic.action.types.CompleteQuestAction;
+import de.markusbordihn.dialogqueststoryengine.logic.action.types.FailQuestAction;
+import de.markusbordihn.dialogqueststoryengine.logic.action.types.GiveExperienceAction;
 import de.markusbordihn.dialogqueststoryengine.logic.action.types.GiveItemAction;
 import de.markusbordihn.dialogqueststoryengine.logic.action.types.MarkStoryReadAction;
 import de.markusbordihn.dialogqueststoryengine.logic.action.types.OpenDialogAction;
 import de.markusbordihn.dialogqueststoryengine.logic.action.types.OpenStoryAction;
+import de.markusbordihn.dialogqueststoryengine.logic.action.types.RemoveFactAction;
 import de.markusbordihn.dialogqueststoryengine.logic.action.types.RunCommandAction;
 import de.markusbordihn.dialogqueststoryengine.logic.action.types.RunFunctionAction;
 import de.markusbordihn.dialogqueststoryengine.logic.action.types.SetFactAction;
@@ -38,15 +42,19 @@ public final class BuiltinActions {
 
   public static void register() {
     Registries.ACTIONS.register(SetFactAction.TYPE_ID, SetFactAction::parse);
+    Registries.ACTIONS.register(RemoveFactAction.TYPE_ID, RemoveFactAction::parse);
     Registries.ACTIONS.register(StartQuestAction.TYPE_ID, StartQuestAction::parse);
     Registries.ACTIONS.register(CompleteQuestAction.TYPE_ID, CompleteQuestAction::parse);
+    Registries.ACTIONS.register(FailQuestAction.TYPE_ID, FailQuestAction::parse);
     Registries.ACTIONS.register(AdvanceQuestStepAction.TYPE_ID, AdvanceQuestStepAction::parse);
     Registries.ACTIONS.register(UnlockStoryAction.TYPE_ID, UnlockStoryAction::parse);
     Registries.ACTIONS.register(MarkStoryReadAction.TYPE_ID, MarkStoryReadAction::parse);
     Registries.ACTIONS.register(OpenStoryAction.TYPE_ID, OpenStoryAction::parse);
     Registries.ACTIONS.register(OpenDialogAction.TYPE_ID, OpenDialogAction::parse);
     Registries.ACTIONS.register(GiveItemAction.TYPE_ID, GiveItemAction::parse);
+    Registries.ACTIONS.register(GiveExperienceAction.TYPE_ID, GiveExperienceAction::parse);
     Registries.ACTIONS.register(RunFunctionAction.TYPE_ID, RunFunctionAction::parse);
     Registries.ACTIONS.register(RunCommandAction.TYPE_ID, RunCommandAction::parse);
+    Registries.ACTIONS.register(CloseSessionAction.TYPE_ID, CloseSessionAction::parse);
   }
 }

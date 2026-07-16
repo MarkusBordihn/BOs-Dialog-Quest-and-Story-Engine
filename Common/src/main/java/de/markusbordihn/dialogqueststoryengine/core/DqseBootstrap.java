@@ -22,6 +22,8 @@ package de.markusbordihn.dialogqueststoryengine.core;
 import de.markusbordihn.dialogqueststoryengine.interaction.InteractionRegistry;
 import de.markusbordihn.dialogqueststoryengine.logic.action.BuiltinActions;
 import de.markusbordihn.dialogqueststoryengine.logic.condition.BuiltinConditions;
+import de.markusbordihn.dialogqueststoryengine.logic.context.BuiltinContextValueProviders;
+import de.markusbordihn.dialogqueststoryengine.quest.step.BuiltinQuestSteps;
 import de.markusbordihn.dialogqueststoryengine.validation.BuiltinValidators;
 
 public final class DqseBootstrap {
@@ -37,6 +39,8 @@ public final class DqseBootstrap {
 
     BuiltinActions.register();
     BuiltinConditions.register();
+    BuiltinContextValueProviders.register();
+    BuiltinQuestSteps.register();
     InteractionRegistry.registerBuiltIns();
     BuiltinValidators.register();
     initialized = true;

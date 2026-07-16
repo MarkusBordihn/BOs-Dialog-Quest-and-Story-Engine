@@ -1,0 +1,54 @@
+{
+  "schema": 1,
+  "start_node": "intro",
+  "nodes": {
+    "intro": {
+      "speaker_key": "example.merchant.name",
+      "text_key": "example.dialog.merchant.intro.text",
+      "choices": [
+        {
+          "id": "browse",
+          "label_key": "example.dialog.merchant.intro.choice.browse",
+          "next": "wares"
+        },
+        {
+          "id": "leave",
+          "label_key": "example.dialog.merchant.intro.choice.leave",
+          "close": true
+        }
+      ]
+    },
+    "wares": {
+      "speaker_key": "example.merchant.name",
+      "text_key": "example.dialog.merchant.wares.text",
+      "choices": [
+        {
+          "id": "ask_price",
+          "label_key": "example.dialog.merchant.wares.choice.ask_price",
+          "next": "deal"
+        },
+        {
+          "id": "not_interested",
+          "label_key": "example.dialog.merchant.wares.choice.not_interested",
+          "close": true
+        }
+      ]
+    },
+    "deal": {
+      "speaker_key": "example.merchant.name",
+      "text_key": "example.dialog.merchant.deal.text",
+      "choices": [
+        {
+          "id": "accept",
+          "label_key": "example.dialog.merchant.deal.choice.accept",
+          "close": true
+        },
+        {
+          "id": "decline",
+          "label_key": "example.dialog.merchant.deal.choice.decline",
+          "close": true
+        }
+      ]
+    }
+  }
+}

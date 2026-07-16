@@ -19,11 +19,21 @@
 
 package de.markusbordihn.dialogqueststoryengine.gametest;
 
-import de.markusbordihn.dialogqueststoryengine.content.dialog.BuiltinChoiceAction;
+import com.google.gson.JsonParser;
+import de.markusbordihn.dialogqueststoryengine.Constants;
+import de.markusbordihn.dialogqueststoryengine.content.NarrativeMetadata;
 import de.markusbordihn.dialogqueststoryengine.content.dialog.DialogChoiceDefinition;
 import de.markusbordihn.dialogqueststoryengine.content.dialog.DialogContentRegistry;
 import de.markusbordihn.dialogqueststoryengine.content.dialog.DialogDefinition;
 import de.markusbordihn.dialogqueststoryengine.content.dialog.DialogNodeDefinition;
+import de.markusbordihn.dialogqueststoryengine.content.quest.CompletionPolicy;
+import de.markusbordihn.dialogqueststoryengine.content.quest.DisplaySection;
+import de.markusbordihn.dialogqueststoryengine.content.quest.LogicSection;
+import de.markusbordihn.dialogqueststoryengine.content.quest.QuestContentRegistry;
+import de.markusbordihn.dialogqueststoryengine.content.quest.QuestDefinition;
+import de.markusbordihn.dialogqueststoryengine.content.quest.QuestPrerequisites;
+import de.markusbordihn.dialogqueststoryengine.content.quest.RawQuestStep;
+import de.markusbordihn.dialogqueststoryengine.content.quest.RewardSection;
 import de.markusbordihn.dialogqueststoryengine.logic.action.Action;
 import de.markusbordihn.dialogqueststoryengine.logic.action.ActionList;
 import de.markusbordihn.dialogqueststoryengine.logic.action.types.StartQuestAction;
@@ -49,6 +59,7 @@ import de.markusbordihn.dialogqueststoryengine.state.QuestState;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -68,11 +79,12 @@ public class DialogWorkflowGameTestHelper {
 
   private static final List<NetworkMessageRecord> captured = new ArrayList<>();
   private static NetworkHandlerInterface previousHandler;
+  private static Map<ResourceLocation, QuestDefinition> previousQuests;
 
   private DialogWorkflowGameTestHelper() {}
 
   public static void testThreeNodeNavigation(GameTestHelper helper) {
-    ServerPlayer player = helper.makeMockServerPlayerInLevel();
+    ServerPlayer player = GameTestHelpers.mockConnectedServerPlayer(helper);
     UUID playerUuid = player.getUUID();
     try {
       installEnv(threeNodeDialog());
@@ -105,7 +117,7 @@ public class DialogWorkflowGameTestHelper {
   }
 
   public static void testGatedChoiceFilteredFromOpenPacket(GameTestHelper helper) {
-    ServerPlayer player = helper.makeMockServerPlayerInLevel();
+    ServerPlayer player = GameTestHelpers.mockConnectedServerPlayer(helper);
     UUID playerUuid = player.getUUID();
     try {
       installEnv(gatedDialog());
@@ -135,7 +147,7 @@ public class DialogWorkflowGameTestHelper {
   }
 
   public static void testBuiltinCloseEndsSession(GameTestHelper helper) {
-    ServerPlayer player = helper.makeMockServerPlayerInLevel();
+    ServerPlayer player = GameTestHelpers.mockConnectedServerPlayer(helper);
     UUID playerUuid = player.getUUID();
     try {
       installEnv(gatedDialog());
@@ -154,10 +166,11 @@ public class DialogWorkflowGameTestHelper {
   }
 
   public static void testQuestStartChoiceLandsOnNextNode(GameTestHelper helper) {
-    ServerPlayer player = helper.makeMockServerPlayerInLevel();
+    ServerPlayer player = GameTestHelpers.mockConnectedServerPlayer(helper);
     UUID playerUuid = player.getUUID();
     try {
       installEnv(questDialog());
+      installWorkflowQuest();
       PlayerStateService.onPlayerDataLoaded(playerUuid, new CompoundTag());
 
       DialogSession session = SessionManager.openDialogSession(player, DIALOG_ID, Optional.empty());
@@ -178,7 +191,7 @@ public class DialogWorkflowGameTestHelper {
   }
 
   public static void testStaleRevisionRejectedAndStateUnchanged(GameTestHelper helper) {
-    ServerPlayer player = helper.makeMockServerPlayerInLevel();
+    ServerPlayer player = GameTestHelpers.mockConnectedServerPlayer(helper);
     UUID playerUuid = player.getUUID();
     try {
       installEnv(threeNodeDialog());
@@ -202,7 +215,7 @@ public class DialogWorkflowGameTestHelper {
   }
 
   public static void testUnknownChoiceRejected(GameTestHelper helper) {
-    ServerPlayer player = helper.makeMockServerPlayerInLevel();
+    ServerPlayer player = GameTestHelpers.mockConnectedServerPlayer(helper);
     UUID playerUuid = player.getUUID();
     try {
       installEnv(threeNodeDialog());
@@ -224,11 +237,93 @@ public class DialogWorkflowGameTestHelper {
     }
   }
 
+  public static void testChoiceButtonPacketNavigates(GameTestHelper helper) {
+    ServerPlayer player = GameTestHelpers.mockConnectedServerPlayer(helper);
+    UUID playerUuid = player.getUUID();
+    try {
+      installEnv(threeNodeDialog());
+      PlayerStateService.onPlayerDataLoaded(playerUuid, new CompoundTag());
+
+      DialogSession session = SessionManager.openDialogSession(player, DIALOG_ID, Optional.empty());
+      UiActionTestDriver.pressChoice(player, session.sessionId(), "to_middle", session.revision());
+
+      GameTestHelpers.assertEquals(
+          helper, "Choice packet should navigate to 'middle'", "middle", session.currentNodeId());
+      GameTestHelpers.assertEquals(
+          helper,
+          "Response should be a NAVIGATE_NODE packet",
+          DialogSessionPacketType.NAVIGATE_NODE,
+          lastDialogPacket().type());
+    } finally {
+      teardownEnv(playerUuid);
+    }
+  }
+
+  public static void testChoiceButtonPacketStartsQuest(GameTestHelper helper) {
+    ServerPlayer player = GameTestHelpers.mockConnectedServerPlayer(helper);
+    UUID playerUuid = player.getUUID();
+    try {
+      installEnv(questDialog());
+      installWorkflowQuest();
+      PlayerStateService.onPlayerDataLoaded(playerUuid, new CompoundTag());
+
+      DialogSession session = SessionManager.openDialogSession(player, DIALOG_ID, Optional.empty());
+      UiActionTestDriver.pressChoice(player, session.sessionId(), "accept", session.revision());
+
+      GameTestHelpers.assertEquals(
+          helper,
+          "Choice packet should start the quest",
+          QuestState.ACTIVE,
+          PlayerStateService.get(playerUuid).get().getQuest(QUEST_ID).state());
+      GameTestHelpers.assertEquals(
+          helper, "Should land on 'thanks' node", "thanks", session.currentNodeId());
+    } finally {
+      teardownEnv(playerUuid);
+    }
+  }
+
+  public static void testCloseButtonPacketEndsSession(GameTestHelper helper) {
+    ServerPlayer player = GameTestHelpers.mockConnectedServerPlayer(helper);
+    UUID playerUuid = player.getUUID();
+    try {
+      installEnv(threeNodeDialog());
+      PlayerStateService.onPlayerDataLoaded(playerUuid, new CompoundTag());
+
+      DialogSession session = SessionManager.openDialogSession(player, DIALOG_ID, Optional.empty());
+      UiActionTestDriver.closeSession(player, session.sessionId());
+
+      GameTestHelpers.assertTrue(helper, "Close packet should end the session", !session.isOpen());
+    } finally {
+      teardownEnv(playerUuid);
+    }
+  }
+
+  public static void testStaleChoiceButtonPacketRejected(GameTestHelper helper) {
+    ServerPlayer player = GameTestHelpers.mockConnectedServerPlayer(helper);
+    UUID playerUuid = player.getUUID();
+    try {
+      installEnv(threeNodeDialog());
+      PlayerStateService.onPlayerDataLoaded(playerUuid, new CompoundTag());
+
+      DialogSession session = SessionManager.openDialogSession(player, DIALOG_ID, Optional.empty());
+      UiActionTestDriver.pressChoice(player, session.sessionId(), "to_middle", 99);
+
+      GameTestHelpers.assertEquals(
+          helper,
+          "Stale choice packet should be rejected",
+          SessionRejectionReason.STALE_REVISION,
+          lastRejection().reason());
+      GameTestHelpers.assertEquals(
+          helper, "Node should be unchanged after rejection", "start", session.currentNodeId());
+    } finally {
+      teardownEnv(playerUuid);
+    }
+  }
+
   private static Map<ResourceLocation, DialogDefinition> threeNodeDialog() {
-    DialogChoiceDefinition toMiddle = choice("to_middle", Optional.of("middle"), Optional.empty());
-    DialogChoiceDefinition leave =
-        choice("leave", Optional.empty(), Optional.of(BuiltinChoiceAction.CLOSE));
-    DialogChoiceDefinition toEnd = choice("to_end", Optional.of("end"), Optional.empty());
+    DialogChoiceDefinition toMiddle = choice("to_middle", Optional.of("middle"), false);
+    DialogChoiceDefinition leave = choice("leave", Optional.empty(), true);
+    DialogChoiceDefinition toEnd = choice("to_end", Optional.of("end"), false);
 
     Map<String, DialogNodeDefinition> nodes =
         Map.of(
@@ -247,7 +342,8 @@ public class DialogWorkflowGameTestHelper {
             ConditionGroup.ALWAYS_TRUE,
             ActionList.EMPTY,
             Optional.empty(),
-            Optional.of(BuiltinChoiceAction.CLOSE));
+            true,
+            false);
     DialogChoiceDefinition gated =
         new DialogChoiceDefinition(
             "gated_choice",
@@ -255,7 +351,8 @@ public class DialogWorkflowGameTestHelper {
             new ConditionGroup(GroupOperator.ALL, List.of(gate)),
             ActionList.EMPTY,
             Optional.empty(),
-            Optional.of(BuiltinChoiceAction.CLOSE));
+            true,
+            false);
 
     Map<String, DialogNodeDefinition> nodes = Map.of("root", node("root", List.of(open, gated)));
     return Map.of(DIALOG_ID, new DialogDefinition(DIALOG_ID, 1, "root", nodes));
@@ -268,8 +365,7 @@ public class DialogWorkflowGameTestHelper {
             "label.accept",
             ConditionGroup.ALWAYS_TRUE,
             new ActionList(List.<Action>of(new StartQuestAction(QUEST_ID))),
-            Optional.of("thanks"),
-            Optional.empty());
+            Optional.of("thanks"));
 
     Map<String, DialogNodeDefinition> nodes =
         Map.of(
@@ -278,10 +374,51 @@ public class DialogWorkflowGameTestHelper {
     return Map.of(DIALOG_ID, new DialogDefinition(DIALOG_ID, 1, "intro", nodes));
   }
 
-  private static DialogChoiceDefinition choice(
-      String id, Optional<String> next, Optional<BuiltinChoiceAction> builtin) {
+  private static void installWorkflowQuest() {
+    RawQuestStep step =
+        new RawQuestStep(
+            "step",
+            new ResourceLocation(Constants.MOD_NAMESPACE, "manual"),
+            JsonParser.parseString("{\"type\":\"dqse:manual\"}").getAsJsonObject());
+    QuestDefinition quest =
+        new QuestDefinition(
+            QUEST_ID,
+            1,
+            NarrativeMetadata.EMPTY,
+            new DisplaySection(
+                "title", "desc", Optional.empty(), Optional.empty(), Optional.empty(), 0),
+            new LogicSection(
+                Optional.empty(),
+                QuestPrerequisites.NONE,
+                Map.of("step", step),
+                CompletionPolicy.ALL_STEPS,
+                true),
+            ActionList.EMPTY,
+            RewardSection.EMPTY);
+    Map<ResourceLocation, QuestDefinition> snapshot = new LinkedHashMap<>();
+    for (QuestDefinition existing : QuestContentRegistry.all()) {
+      snapshot.put(existing.id(), existing);
+    }
+    previousQuests = snapshot;
+
+    Map<ResourceLocation, QuestDefinition> withWorkflow = new LinkedHashMap<>(snapshot);
+    withWorkflow.put(QUEST_ID, quest);
+    replaceQuests(withWorkflow);
+  }
+
+  private static void replaceQuests(Map<ResourceLocation, QuestDefinition> quests) {
+    try {
+      Method replaceAll = QuestContentRegistry.class.getDeclaredMethod("replaceAll", Map.class);
+      replaceAll.setAccessible(true);
+      replaceAll.invoke(null, quests);
+    } catch (ReflectiveOperationException e) {
+      throw new IllegalStateException("Failed to replace quest registry", e);
+    }
+  }
+
+  private static DialogChoiceDefinition choice(String id, Optional<String> next, boolean close) {
     return new DialogChoiceDefinition(
-        id, "label." + id, ConditionGroup.ALWAYS_TRUE, ActionList.EMPTY, next, builtin);
+        id, "label." + id, ConditionGroup.ALWAYS_TRUE, ActionList.EMPTY, next, close, false);
   }
 
   private static DialogNodeDefinition node(String id, List<DialogChoiceDefinition> choices) {
@@ -335,6 +472,10 @@ public class DialogWorkflowGameTestHelper {
       // Best-effort restore; ignore in teardown.
     }
     DialogContentRegistry.clear();
+    if (previousQuests != null) {
+      replaceQuests(previousQuests);
+      previousQuests = null;
+    }
     SessionManager.invalidateAll();
     PlayerStateService.onPlayerLoggedOut(playerUuid);
     PlayerStateEvents.clearAll();

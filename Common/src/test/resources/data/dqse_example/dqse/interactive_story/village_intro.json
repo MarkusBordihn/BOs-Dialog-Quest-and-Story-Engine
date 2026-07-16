@@ -1,0 +1,23 @@
+{
+  "schema": 1,
+  "display_story_id": "dqse_example:village_intro",
+  "on_open": [
+    {"type": "dqse:unlock_story", "story": "dqse_example:village_intro"}
+  ],
+  "choices": [
+    {
+      "id": "explore",
+      "label_key": "example.story.village_intro.choice.explore",
+      "actions": [
+        {"type": "dqse:unlock_story", "story": "dqse_example:village_chapter_1"}
+      ]
+    },
+    {
+      "id": "skip",
+      "label_key": "example.story.village_intro.choice.skip",
+      "actions": [
+        {"type": "dqse:mark_story_read", "story": "dqse_example:village_chapter_1"}
+      ]
+    }
+  ]
+}

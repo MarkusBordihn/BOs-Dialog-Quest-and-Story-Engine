@@ -51,8 +51,7 @@ class DialogNodeReferenceValidatorTest {
             "choice.label",
             ConditionGroup.ALWAYS_TRUE,
             ActionList.EMPTY,
-            Optional.of("nonexistent"),
-            Optional.empty());
+            Optional.of("nonexistent"));
     DialogNodeDefinition node =
         new DialogNodeDefinition("root", "npc.name", "dialog.text", List.of(badChoice));
     DialogDefinition dialog = new DialogDefinition(TEST_ID, 1, "root", Map.of("root", node));
@@ -69,12 +68,7 @@ class DialogNodeReferenceValidatorTest {
   void noIssuesForValidReferences() {
     DialogChoiceDefinition validChoice =
         new DialogChoiceDefinition(
-            "c1",
-            "choice.label",
-            ConditionGroup.ALWAYS_TRUE,
-            ActionList.EMPTY,
-            Optional.of("end"),
-            Optional.empty());
+            "c1", "choice.label", ConditionGroup.ALWAYS_TRUE, ActionList.EMPTY, Optional.of("end"));
     DialogNodeDefinition root =
         new DialogNodeDefinition("root", "npc.name", "dialog.text", List.of(validChoice));
     DialogNodeDefinition end = new DialogNodeDefinition("end", "npc.name", "dialog.end", List.of());
@@ -91,12 +85,7 @@ class DialogNodeReferenceValidatorTest {
   void emptyNextOptionalIsNotFlagged() {
     DialogChoiceDefinition closeChoice =
         new DialogChoiceDefinition(
-            "c1",
-            "choice.close",
-            ConditionGroup.ALWAYS_TRUE,
-            ActionList.EMPTY,
-            Optional.empty(),
-            Optional.empty());
+            "c1", "choice.close", ConditionGroup.ALWAYS_TRUE, ActionList.EMPTY, Optional.empty());
     DialogNodeDefinition root =
         new DialogNodeDefinition("root", "npc.name", "dialog.text", List.of(closeChoice));
     DialogDefinition dialog = new DialogDefinition(TEST_ID, 1, "root", Map.of("root", root));

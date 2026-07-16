@@ -23,8 +23,7 @@ public enum QuestState {
   NOT_STARTED,
   ACTIVE,
   COMPLETED,
-  FAILED,
-  LOCKED;
+  FAILED;
 
   public static QuestState fromName(String name) {
     for (QuestState state : values()) {

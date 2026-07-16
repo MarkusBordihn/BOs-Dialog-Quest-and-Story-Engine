@@ -1,0 +1,28 @@
+{
+  "schema": 1,
+  "display": {
+    "title_key": "example.quest.first_quest.title",
+    "description_key": "example.quest.first_quest.description",
+    "category": "dqse_example:tutorial"
+  },
+  "logic": {
+    "completion_policy": "all_steps",
+    "steps": {
+      "talk_to_villager": {
+        "type": "dqse:interact_entity",
+        "target": "minecraft:villager"
+      },
+      "collect_item": {
+        "type": "dqse:collect_item",
+        "item": "minecraft:oak_log",
+        "count": 5
+      }
+    }
+  },
+  "rewards": {
+    "claim_mode": "automatic",
+    "entries": [
+      {"type": "dqse:item", "item": "minecraft:emerald", "count": 1}
+    ]
+  }
+}

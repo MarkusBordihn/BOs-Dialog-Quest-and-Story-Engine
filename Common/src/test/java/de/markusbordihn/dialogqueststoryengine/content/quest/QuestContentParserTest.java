@@ -33,7 +33,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import net.minecraft.resources.ResourceLocation;
 import org.junit.jupiter.api.Test;
 
@@ -44,7 +46,7 @@ class QuestContentParserTest {
   private static final String TEST_FILE = "test.json";
 
   private static final ResourceLocation EXAMPLES_FIRST_QUEST_ID =
-      new ResourceLocation("dialog_quest_and_story_engine_examples", "first_quest");
+      new ResourceLocation("dqse_example", "first_quest");
 
   private static JsonObject loadJson(String classpathPath) {
     try (InputStream stream =
@@ -63,8 +65,7 @@ class QuestContentParserTest {
 
   @Test
   void parsesExampleFirstQuest() {
-    JsonObject input =
-        loadJson("data/dialog_quest_and_story_engine_examples/dqse/quests/first_quest.json");
+    JsonObject input = loadJson("data/dqse_example/dqse/quests/first_quest.json");
 
     ParseResult<QuestDefinition> result =
         QuestContentParser.parse(EXAMPLES_FIRST_QUEST_ID, "first_quest.json", input);
@@ -88,9 +89,21 @@ class QuestContentParserTest {
 
     assertTrue(result.isSuccess());
     assertTrue(result.issues().isEmpty());
-    assertEquals(CompletionPolicy.ALL_STEPS, result.value().get().logic().completionPolicy());
-    assertEquals(3, result.value().get().logic().steps().size());
-    assertEquals(1, result.value().get().rewards().actions().size());
+    QuestDefinition quest = result.value().get();
+    assertEquals(CompletionPolicy.ALL_STEPS, quest.logic().completionPolicy());
+    assertEquals(3, quest.logic().steps().size());
+    assertFalse(quest.logic().restartAfterFailure());
+    assertEquals(
+        List.of("find_the_missing_form"),
+        quest.logic().steps().get("stamp_it_three_times").requires());
+    assertEquals(
+        new ResourceLocation("test", "paperwork_saga"), quest.narrative().arc().orElseThrow());
+    assertEquals(new ResourceLocation("minecraft", "paper"), quest.display().icon().orElseThrow());
+    assertEquals(5, quest.display().sortOrder());
+    assertEquals(1, quest.onComplete().size());
+    assertEquals(RewardClaimMode.MANUAL, quest.rewards().claimMode());
+    assertEquals(2, quest.rewards().entries().size());
+    assertEquals(new RewardEntry.Experience(100), quest.rewards().entries().get(1));
   }
 
   @Test
@@ -156,7 +169,7 @@ class QuestContentParserTest {
   }
 
   @Test
-  void repeatableDefaultsFalse() {
+  void restartAfterFailureDefaultsTrue() {
     JsonObject input =
         json(
             """
@@ -177,7 +190,7 @@ class QuestContentParserTest {
     ParseResult<QuestDefinition> result = QuestContentParser.parse(TEST_ID, TEST_FILE, input);
 
     assertTrue(result.isSuccess());
-    assertFalse(result.value().get().logic().repeatable());
+    assertTrue(result.value().get().logic().restartAfterFailure());
   }
 
   @Test
@@ -235,7 +248,7 @@ class QuestContentParserTest {
   }
 
   @Test
-  void rewardsParsedAsRawActions() {
+  void typedRewardEntriesParsed() {
     JsonObject input =
         json(
             """
@@ -250,15 +263,296 @@ class QuestContentParserTest {
               "step_1": { "type": "dqse:collect_item", "item": "minecraft:apple", "count": 1 }
             }
           },
-          "rewards": [
-            { "type": "dqse:give_item", "item": "minecraft:diamond", "count": 1 }
-          ]
+          "rewards": {
+            "claim_mode": "manual",
+            "entries": [
+              { "type": "dqse:item", "item": "minecraft:diamond", "count": 2 },
+              { "type": "dqse:experience", "amount": 50 }
+            ]
+          }
         }
         """);
 
     ParseResult<QuestDefinition> result = QuestContentParser.parse(TEST_ID, TEST_FILE, input);
 
     assertTrue(result.isSuccess());
-    assertEquals(1, result.value().get().rewards().actions().size());
+    RewardSection rewards = result.value().get().rewards();
+    assertEquals(RewardClaimMode.MANUAL, rewards.claimMode());
+    assertEquals(
+        new RewardEntry.Item(new ResourceLocation("minecraft", "diamond"), 2),
+        rewards.entries().get(0));
+    assertEquals(new RewardEntry.Experience(50), rewards.entries().get(1));
+  }
+
+  @Test
+  void unknownRewardTypeIsReported() {
+    JsonObject input =
+        json(
+            """
+        {
+          "schema": 1,
+          "display": {
+            "title_key": "quest.test.title",
+            "description_key": "quest.test.desc"
+          },
+          "logic": {
+            "steps": {
+              "step_1": { "type": "dqse:manual" }
+            }
+          },
+          "rewards": {
+            "entries": [
+              { "type": "dqse:reputation", "amount": 5 }
+            ]
+          }
+        }
+        """);
+
+    ParseResult<QuestDefinition> result = QuestContentParser.parse(TEST_ID, TEST_FILE, input);
+
+    assertTrue(result.isSuccess());
+    assertTrue(
+        result.issues().stream().anyMatch(issue -> issue.code() == IssueCode.UNKNOWN_REWARD_TYPE));
+    assertTrue(result.value().get().rewards().isEmpty());
+  }
+
+  @Test
+  void invalidRewardAmountIsReported() {
+    JsonObject input =
+        json(
+            """
+        {
+          "schema": 1,
+          "display": {
+            "title_key": "quest.test.title",
+            "description_key": "quest.test.desc"
+          },
+          "logic": {
+            "steps": {
+              "step_1": { "type": "dqse:manual" }
+            }
+          },
+          "rewards": {
+            "entries": [
+              { "type": "dqse:experience", "amount": 0 }
+            ]
+          }
+        }
+        """);
+
+    ParseResult<QuestDefinition> result = QuestContentParser.parse(TEST_ID, TEST_FILE, input);
+
+    assertTrue(result.isSuccess());
+    assertTrue(
+        result.issues().stream()
+            .anyMatch(issue -> issue.code() == IssueCode.INVALID_REWARD_AMOUNT));
+  }
+
+  @Test
+  void prerequisitesParsed() {
+    JsonObject input =
+        json(
+            """
+        {
+          "schema": 1,
+          "display": {
+            "title_key": "quest.test.title",
+            "description_key": "quest.test.desc"
+          },
+          "logic": {
+            "prerequisites": {
+              "mode": "any",
+              "quests": ["test:intro", "test:tutorial"]
+            },
+            "steps": {
+              "step_1": { "type": "dqse:manual" }
+            }
+          }
+        }
+        """);
+
+    ParseResult<QuestDefinition> result = QuestContentParser.parse(TEST_ID, TEST_FILE, input);
+
+    assertTrue(result.isSuccess());
+    QuestPrerequisites prerequisites = result.value().get().logic().prerequisites();
+    assertEquals(PrerequisiteMode.ANY, prerequisites.mode());
+    assertEquals(
+        List.of(new ResourceLocation("test", "intro"), new ResourceLocation("test", "tutorial")),
+        prerequisites.quests());
+  }
+
+  @Test
+  void stepRequiresAndDescriptionKeyParsed() {
+    JsonObject input =
+        json(
+            """
+        {
+          "schema": 1,
+          "display": {
+            "title_key": "quest.test.title",
+            "description_key": "quest.test.desc"
+          },
+          "logic": {
+            "steps": {
+              "step_1": { "type": "dqse:collect_item", "item": "minecraft:apple", "count": 1 },
+              "step_2": {
+                "type": "dqse:manual",
+                "description_key": "quest.test.step.step_2",
+                "requires": ["step_1"]
+              }
+            }
+          }
+        }
+        """);
+
+    ParseResult<QuestDefinition> result = QuestContentParser.parse(TEST_ID, TEST_FILE, input);
+
+    assertTrue(result.isSuccess());
+    assertTrue(result.issues().isEmpty());
+    RawQuestStep firstStep = result.value().get().logic().steps().get("step_1");
+    assertEquals(Optional.empty(), firstStep.descriptionKey());
+    assertEquals(List.of(), firstStep.requires());
+    RawQuestStep secondStep = result.value().get().logic().steps().get("step_2");
+    assertEquals(Optional.of("quest.test.step.step_2"), secondStep.descriptionKey());
+    assertEquals(List.of("step_1"), secondStep.requires());
+  }
+
+  @Test
+  void unknownStepPrerequisiteFailsParse() {
+    JsonObject input =
+        json(
+            """
+        {
+          "schema": 1,
+          "display": {
+            "title_key": "quest.test.title",
+            "description_key": "quest.test.desc"
+          },
+          "logic": {
+            "steps": {
+              "step_1": { "type": "dqse:manual", "requires": ["missing_step"] }
+            }
+          }
+        }
+        """);
+
+    ParseResult<QuestDefinition> result = QuestContentParser.parse(TEST_ID, TEST_FILE, input);
+
+    assertFalse(result.isSuccess());
+    assertTrue(
+        result.issues().stream()
+            .anyMatch(issue -> issue.code() == IssueCode.UNKNOWN_STEP_PREREQUISITE));
+  }
+
+  @Test
+  void selfStepPrerequisiteFailsParse() {
+    JsonObject input =
+        json(
+            """
+        {
+          "schema": 1,
+          "display": {
+            "title_key": "quest.test.title",
+            "description_key": "quest.test.desc"
+          },
+          "logic": {
+            "steps": {
+              "step_1": { "type": "dqse:manual", "requires": ["step_1"] }
+            }
+          }
+        }
+        """);
+
+    ParseResult<QuestDefinition> result = QuestContentParser.parse(TEST_ID, TEST_FILE, input);
+
+    assertFalse(result.isSuccess());
+    assertTrue(
+        result.issues().stream()
+            .anyMatch(issue -> issue.code() == IssueCode.SELF_STEP_PREREQUISITE));
+  }
+
+  @Test
+  void duplicateStepPrerequisiteFailsParse() {
+    JsonObject input =
+        json(
+            """
+        {
+          "schema": 1,
+          "display": {
+            "title_key": "quest.test.title",
+            "description_key": "quest.test.desc"
+          },
+          "logic": {
+            "steps": {
+              "step_1": { "type": "dqse:manual" },
+              "step_2": { "type": "dqse:manual", "requires": ["step_1", "step_1"] }
+            }
+          }
+        }
+        """);
+
+    ParseResult<QuestDefinition> result = QuestContentParser.parse(TEST_ID, TEST_FILE, input);
+
+    assertFalse(result.isSuccess());
+    assertTrue(
+        result.issues().stream()
+            .anyMatch(issue -> issue.code() == IssueCode.DUPLICATE_STEP_PREREQUISITE));
+  }
+
+  @Test
+  void stepPrerequisiteCycleFailsParse() {
+    JsonObject input =
+        json(
+            """
+        {
+          "schema": 1,
+          "display": {
+            "title_key": "quest.test.title",
+            "description_key": "quest.test.desc"
+          },
+          "logic": {
+            "steps": {
+              "step_1": { "type": "dqse:manual", "requires": ["step_3"] },
+              "step_2": { "type": "dqse:manual", "requires": ["step_1"] },
+              "step_3": { "type": "dqse:manual", "requires": ["step_2"] }
+            }
+          }
+        }
+        """);
+
+    ParseResult<QuestDefinition> result = QuestContentParser.parse(TEST_ID, TEST_FILE, input);
+
+    assertFalse(result.isSuccess());
+    assertTrue(
+        result.issues().stream()
+            .anyMatch(issue -> issue.code() == IssueCode.STEP_PREREQUISITE_CYCLE));
+  }
+
+  @Test
+  void invalidRequiresTypeIsIgnoredWithIssue() {
+    JsonObject input =
+        json(
+            """
+        {
+          "schema": 1,
+          "display": {
+            "title_key": "quest.test.title",
+            "description_key": "quest.test.desc"
+          },
+          "logic": {
+            "steps": {
+              "step_1": { "type": "dqse:manual", "requires": "step_2" },
+              "step_2": { "type": "dqse:manual" }
+            }
+          }
+        }
+        """);
+
+    ParseResult<QuestDefinition> result = QuestContentParser.parse(TEST_ID, TEST_FILE, input);
+
+    assertTrue(result.isSuccess());
+    assertTrue(
+        result.issues().stream().anyMatch(issue -> issue.code() == IssueCode.INVALID_FIELD_TYPE));
+    assertEquals(List.of(), result.value().get().logic().steps().get("step_1").requires());
   }
 }

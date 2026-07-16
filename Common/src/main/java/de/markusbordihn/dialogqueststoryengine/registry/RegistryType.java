@@ -25,6 +25,7 @@ public enum RegistryType {
   INTERACTIONS("InteractionEvent"),
   QUEST_STEPS("QuestStepType"),
   THEMES("ThemeProvider"),
+  CONTEXT_VALUES("ContextValueProvider"),
   VALIDATORS("ContentValidator");
 
   private final String displayName;

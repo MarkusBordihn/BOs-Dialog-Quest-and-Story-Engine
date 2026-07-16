@@ -53,7 +53,7 @@ public class ValidationReloadListener implements PreparableReloadListener {
     int newIssues = ValidationService.validate();
     if (newIssues > 0) {
       log.warn(
-          "{} Validation found {} new issue(s). Run /dqs validate for details.",
+          "{} Validation found {} new issue(s). Run /dqse validate for details.",
           Constants.LOG_PREFIX,
           newIssues);
     } else {

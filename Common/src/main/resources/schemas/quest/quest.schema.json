@@ -3,40 +3,84 @@
   "$id": "dqse://schemas/quest",
   "title": "DQSE Quest Definition",
   "type": "object",
-  "required": ["schema", "id", "type"],
+  "required": ["schema", "display", "logic"],
   "additionalProperties": false,
   "properties": {
     "$schema": {"type": "string"},
     "schema": {"type": "integer", "const": 1},
-    "id": {
-      "type": "string",
-      "pattern": "^[a-z0-9_.-]+:[a-z0-9_./-]+$",
-      "description": "ResourceLocation ID, e.g. 'mymod:first_mission'"
-    },
-    "type": {"type": "string", "const": "quest"},
+    "narrative": {"$ref": "#/definitions/narrative"},
     "display": {
       "type": "object",
+      "required": ["title_key", "description_key"],
       "additionalProperties": false,
       "properties": {
         "title_key": {"type": "string"},
         "description_key": {"type": "string"},
-        "category": {"type": "string", "pattern": "^[a-z0-9_.-]+:[a-z0-9_./-]+$"}
+        "category": {"type": "string", "pattern": "^[a-z0-9_.-]+:[a-z0-9_./-]+$"},
+        "category_key": {"type": "string"},
+        "icon": {"type": "string", "pattern": "^[a-z0-9_.-]+:[a-z0-9_./-]+$"},
+        "sort_order": {"type": "integer"}
       }
     },
     "logic": {
       "type": "object",
-      "additionalProperties": true,
+      "required": ["steps"],
+      "additionalProperties": false,
       "properties": {
         "visibility": {"type": "object"},
-        "steps": {"type": "object"},
+        "prerequisites": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "mode": {"type": "string", "enum": ["all", "any"]},
+            "quests": {
+              "type": "array",
+              "items": {"type": "string", "pattern": "^[a-z0-9_.-]+:[a-z0-9_./-]+$"}
+            }
+          }
+        },
         "completion_policy": {"type": "string", "enum": ["all_steps", "any_step"]},
-        "repeatable": {"type": "boolean"},
-        "sync_scope": {"type": "string", "enum": ["player"]}
+        "restart_after_failure": {"type": "boolean", "default": true},
+        "steps": {
+          "type": "object",
+          "additionalProperties": {"$ref": "#/definitions/step"}
+        }
       }
     },
+    "on_complete": {"type": "array", "items": {"type": "object"}},
     "rewards": {
-      "type": "array",
-      "items": {"type": "object"}
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "claim_mode": {"type": "string", "enum": ["automatic", "manual"]},
+        "title_key": {"type": "string"},
+        "description_key": {"type": "string"},
+        "entries": {"type": "array", "items": {"type": "object"}}
+      }
+    }
+  },
+  "definitions": {
+    "narrative": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "arc": {"type": "string", "pattern": "^[a-z0-9_.-]+:[a-z0-9_./-]+$"},
+        "arc_key": {"type": "string"},
+        "arc_order": {"type": "integer"},
+        "chapter": {"type": "string", "pattern": "^[a-z0-9_.-]+:[a-z0-9_./-]+$"},
+        "chapter_key": {"type": "string"},
+        "chapter_order": {"type": "integer"}
+      }
+    },
+    "step": {
+      "type": "object",
+      "required": ["type"],
+      "additionalProperties": true,
+      "properties": {
+        "type": {"type": "string", "pattern": "^[a-z0-9_.-]+:[a-z0-9_./-]+$"},
+        "description_key": {"type": "string"},
+        "requires": {"type": "array", "items": {"type": "string"}}
+      }
     }
   }
 }

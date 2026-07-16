@@ -61,12 +61,7 @@ class DialogReachabilityValidatorTest {
   void detectsCycleInDialog() {
     DialogChoiceDefinition backToA =
         new DialogChoiceDefinition(
-            "c1",
-            "lbl",
-            ConditionGroup.ALWAYS_TRUE,
-            ActionList.EMPTY,
-            Optional.of("node_a"),
-            Optional.empty());
+            "c1", "lbl", ConditionGroup.ALWAYS_TRUE, ActionList.EMPTY, Optional.of("node_a"));
     DialogNodeDefinition nodeA =
         new DialogNodeDefinition("node_a", "npc", "text.a", List.of(backToA));
     DialogDefinition dialog = new DialogDefinition(TEST_ID, 1, "node_a", Map.of("node_a", nodeA));
@@ -81,12 +76,7 @@ class DialogReachabilityValidatorTest {
   void noIssuesForLinearDialog() {
     DialogChoiceDefinition toEnd =
         new DialogChoiceDefinition(
-            "c1",
-            "lbl",
-            ConditionGroup.ALWAYS_TRUE,
-            ActionList.EMPTY,
-            Optional.of("end"),
-            Optional.empty());
+            "c1", "lbl", ConditionGroup.ALWAYS_TRUE, ActionList.EMPTY, Optional.of("end"));
     DialogNodeDefinition root =
         new DialogNodeDefinition("root", "npc", "text.root", List.of(toEnd));
     DialogNodeDefinition end = new DialogNodeDefinition("end", "npc", "text.end", List.of());

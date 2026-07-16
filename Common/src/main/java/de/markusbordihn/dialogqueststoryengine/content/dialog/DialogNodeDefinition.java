@@ -22,9 +22,18 @@ package de.markusbordihn.dialogqueststoryengine.content.dialog;
 import java.util.List;
 
 public record DialogNodeDefinition(
-    String id, String speakerKey, String textKey, List<DialogChoiceDefinition> choices) {
+    String id,
+    String speakerKey,
+    String textKey,
+    List<DialogChoiceDefinition> choices,
+    DialogPresentation presentation) {
 
   public DialogNodeDefinition {
     choices = List.copyOf(choices);
+  }
+
+  public DialogNodeDefinition(
+      String id, String speakerKey, String textKey, List<DialogChoiceDefinition> choices) {
+    this(id, speakerKey, textKey, choices, DialogPresentation.EMPTY);
   }
 }

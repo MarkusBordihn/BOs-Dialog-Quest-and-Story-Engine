@@ -19,6 +19,7 @@
 
 package de.markusbordihn.dialogqueststoryengine.state;
 
+import java.util.OptionalDouble;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 
@@ -91,6 +92,12 @@ public sealed interface FactValue
 
   Type type();
 
+  String displayValue();
+
+  default OptionalDouble numericValue() {
+    return OptionalDouble.empty();
+  }
+
   enum Type {
     BOOLEAN,
     LONG,
@@ -113,12 +120,27 @@ public sealed interface FactValue
     public Type type() {
       return Type.BOOLEAN;
     }
+
+    @Override
+    public String displayValue() {
+      return Boolean.toString(this.value);
+    }
   }
 
   record LongValue(long value) implements FactValue {
     @Override
     public Type type() {
       return Type.LONG;
+    }
+
+    @Override
+    public String displayValue() {
+      return Long.toString(this.value);
+    }
+
+    @Override
+    public OptionalDouble numericValue() {
+      return OptionalDouble.of(this.value);
     }
   }
 
@@ -127,6 +149,16 @@ public sealed interface FactValue
     public Type type() {
       return Type.DOUBLE;
     }
+
+    @Override
+    public String displayValue() {
+      return Double.toString(this.value);
+    }
+
+    @Override
+    public OptionalDouble numericValue() {
+      return OptionalDouble.of(this.value);
+    }
   }
 
   record StringValue(String value) implements FactValue {
@@ -134,12 +166,22 @@ public sealed interface FactValue
     public Type type() {
       return Type.STRING;
     }
+
+    @Override
+    public String displayValue() {
+      return this.value;
+    }
   }
 
   record ResourceLocationValue(ResourceLocation value) implements FactValue {
     @Override
     public Type type() {
       return Type.RESOURCE_LOCATION;
+    }
+
+    @Override
+    public String displayValue() {
+      return this.value.toString();
     }
   }
 }

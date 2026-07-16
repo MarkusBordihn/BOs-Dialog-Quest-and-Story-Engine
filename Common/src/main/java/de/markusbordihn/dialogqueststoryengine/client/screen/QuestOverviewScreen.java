@@ -106,7 +106,7 @@ public class QuestOverviewScreen extends BaseScreen {
     ScaledText.draw(
         graphics,
         font,
-        String.valueOf(definition.rewards().actions().size()),
+        String.valueOf(definition.rewards().entries().size()),
         x + columnOffsets[2],
         y + 3,
         palette.onSurfaceLow(),

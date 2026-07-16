@@ -3,43 +3,44 @@
   "$id": "dqse://schemas/interactive_story",
   "title": "DQSE Interactive Story Definition",
   "type": "object",
-  "required": ["schema", "id", "type"],
+  "required": ["schema", "display_story_id"],
   "additionalProperties": false,
   "properties": {
     "$schema": {"type": "string"},
     "schema": {"type": "integer", "const": 1},
-    "id": {
+    "narrative": {"$ref": "#/definitions/narrative"},
+    "display_story_id": {
       "type": "string",
       "pattern": "^[a-z0-9_.-]+:[a-z0-9_./-]+$",
-      "description": "ResourceLocation ID, e.g. 'mymod:the_great_journey'"
+      "description": "ResourceLocation of the StoryEntry rendered for this interactive story"
     },
-    "type": {"type": "string", "const": "interactive_story"},
-    "display": {
-      "type": "object",
-      "additionalProperties": false,
-      "properties": {
-        "title_key": {"type": "string"},
-        "description_key": {"type": "string"}
-      }
-    },
-    "theme": {
-      "type": "string",
-      "pattern": "^[a-z0-9_.-]+:[a-z0-9_./-]+$",
-      "description": "ResourceLocation reference to a theme definition"
-    },
-    "entry_point": {"type": "string"},
-    "chapters": {
+    "on_open": {"type": "array", "items": {"type": "object"}},
+    "choices": {
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["chapter_id"],
+        "required": ["id", "label_key"],
+        "additionalProperties": false,
         "properties": {
-          "chapter_id": {"type": "string"},
-          "entries": {
-            "type": "array",
-            "items": {"type": "string", "pattern": "^[a-z0-9_.-]+:[a-z0-9_./-]+$"}
-          }
+          "id": {"type": "string", "pattern": "^[a-z0-9_.-]+$"},
+          "label_key": {"type": "string"},
+          "conditions": {"type": "array", "items": {"type": "object"}},
+          "actions": {"type": "array", "items": {"type": "object"}}
         }
+      }
+    }
+  },
+  "definitions": {
+    "narrative": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "arc": {"type": "string", "pattern": "^[a-z0-9_.-]+:[a-z0-9_./-]+$"},
+        "arc_key": {"type": "string"},
+        "arc_order": {"type": "integer"},
+        "chapter": {"type": "string", "pattern": "^[a-z0-9_.-]+:[a-z0-9_./-]+$"},
+        "chapter_key": {"type": "string"},
+        "chapter_order": {"type": "integer"}
       }
     }
   }

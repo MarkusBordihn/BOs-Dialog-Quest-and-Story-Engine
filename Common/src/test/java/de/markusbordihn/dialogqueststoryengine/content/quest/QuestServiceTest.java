@@ -24,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.google.gson.JsonParser;
+import de.markusbordihn.dialogqueststoryengine.content.NarrativeMetadata;
 import de.markusbordihn.dialogqueststoryengine.logic.action.ActionContext;
 import de.markusbordihn.dialogqueststoryengine.logic.action.ActionList;
 import de.markusbordihn.dialogqueststoryengine.quest.runtime.QuestService;
@@ -49,31 +50,36 @@ class QuestServiceTest {
     return new QuestDefinition(
         QUEST_ID,
         1,
-        new DisplaySection("title", "desc", Optional.empty()),
+        NarrativeMetadata.EMPTY,
+        new DisplaySection(
+            "title", "desc", Optional.empty(), Optional.empty(), Optional.empty(), 0),
         new LogicSection(
             Optional.empty(),
+            QuestPrerequisites.NONE,
             Map.of(
                 "collect",
                 step("collect", "dqse:collect_item", "\"count\": 5"),
                 "talk",
                 step("talk", "dqse:manual", "")),
             completionPolicy,
-            false,
-            SyncScope.PLAYER),
-        ActionList.EMPTY);
+            true),
+        ActionList.EMPTY,
+        RewardSection.EMPTY);
   }
 
   private static QuestDefinition rewardQuest(ResourceLocation questId) {
     return new QuestDefinition(
         questId,
         1,
-        new DisplaySection("title", "desc", Optional.empty()),
+        NarrativeMetadata.EMPTY,
+        new DisplaySection(
+            "title", "desc", Optional.empty(), Optional.empty(), Optional.empty(), 0),
         new LogicSection(
             Optional.empty(),
+            QuestPrerequisites.NONE,
             Map.of("done", step("done", "dqse:manual", "")),
             CompletionPolicy.ALL_STEPS,
-            false,
-            SyncScope.PLAYER),
+            true),
         new ActionList(
             List.of(
                 context -> {
@@ -83,7 +89,8 @@ class QuestServiceTest {
                   context
                       .playerState()
                       .setFact(FactScope.PLAYER, "reward_count", FactValue.of(current + 1));
-                })));
+                })),
+        RewardSection.EMPTY);
   }
 
   private static RawQuestStep step(String id, String type, String extraFields) {

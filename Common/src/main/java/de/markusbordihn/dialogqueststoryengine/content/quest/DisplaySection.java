@@ -23,4 +23,9 @@ import java.util.Optional;
 import net.minecraft.resources.ResourceLocation;
 
 public record DisplaySection(
-    String titleKey, String descriptionKey, Optional<ResourceLocation> category) {}
+    String titleKey,
+    String descriptionKey,
+    Optional<ResourceLocation> category,
+    Optional<String> categoryKey,
+    Optional<ResourceLocation> icon,
+    int sortOrder) {}

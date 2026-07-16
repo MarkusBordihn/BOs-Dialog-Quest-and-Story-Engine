@@ -27,6 +27,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import de.markusbordihn.dialogqueststoryengine.data.issue.IssueCode;
 import de.markusbordihn.dialogqueststoryengine.data.json.ParseResult;
+import de.markusbordihn.dialogqueststoryengine.logic.action.BuiltinActions;
 import de.markusbordihn.dialogqueststoryengine.logic.condition.BuiltinConditions;
 import java.io.IOException;
 import java.io.InputStream;
@@ -44,15 +45,16 @@ class DialogContentParserTest {
   private static final ResourceLocation TEST_ID = new ResourceLocation("test", "dialog_a");
   private static final String TEST_FILE = "test.json";
   private static final ResourceLocation EXAMPLES_HELLO_ID =
-      new ResourceLocation("dialog_quest_and_story_engine_examples", "hello");
+      new ResourceLocation("dqse_example", "hello");
   private static final ResourceLocation EXAMPLES_MERCHANT_ID =
-      new ResourceLocation("dialog_quest_and_story_engine_examples", "merchant");
+      new ResourceLocation("dqse_example", "merchant");
   private static final ResourceLocation EXAMPLES_GATEKEEPER_ID =
-      new ResourceLocation("dialog_quest_and_story_engine_examples", "gatekeeper");
+      new ResourceLocation("dqse_example", "gatekeeper");
 
   @BeforeAll
-  static void registerBuiltinConditions() {
+  static void registerBuiltins() {
     BuiltinConditions.register();
+    BuiltinActions.register();
   }
 
   private static JsonObject loadJson(String classpathPath) {
@@ -72,8 +74,7 @@ class DialogContentParserTest {
 
   @Test
   void parsesExampleHelloDialog() {
-    JsonObject input =
-        loadJson("data/dialog_quest_and_story_engine_examples/dqse/dialogs/hello.json");
+    JsonObject input = loadJson("data/dqse_example/dqse/dialogs/hello.json");
 
     ParseResult<DialogDefinition> result =
         DialogContentParser.parse(EXAMPLES_HELLO_ID, "hello.json", input);
@@ -89,8 +90,7 @@ class DialogContentParserTest {
 
   @Test
   void parsesExampleMerchantDialog() {
-    JsonObject input =
-        loadJson("data/dialog_quest_and_story_engine_examples/dqse/dialogs/merchant.json");
+    JsonObject input = loadJson("data/dqse_example/dqse/dialogs/merchant.json");
 
     ParseResult<DialogDefinition> result =
         DialogContentParser.parse(EXAMPLES_MERCHANT_ID, "merchant.json", input);
@@ -103,8 +103,7 @@ class DialogContentParserTest {
 
   @Test
   void parsesExampleGatekeeperDialog() {
-    JsonObject input =
-        loadJson("data/dialog_quest_and_story_engine_examples/dqse/dialogs/gatekeeper.json");
+    JsonObject input = loadJson("data/dqse_example/dqse/dialogs/gatekeeper.json");
 
     ParseResult<DialogDefinition> result =
         DialogContentParser.parse(EXAMPLES_GATEKEEPER_ID, "gatekeeper.json", input);
@@ -231,7 +230,7 @@ class DialogContentParserTest {
   }
 
   @Test
-  void choiceWithCloseBuiltin() {
+  void choiceWithClose() {
     JsonObject input =
         json(
             """
@@ -246,7 +245,8 @@ class DialogContentParserTest {
                 {
                   "id": "c1",
                   "label_key": "dialog.choice.close",
-                  "action": "close"
+                  "close": true,
+                  "once": true
                 }
               ]
             }
@@ -259,8 +259,40 @@ class DialogContentParserTest {
     assertTrue(result.isSuccess());
     DialogNodeDefinition node = result.value().get().nodes().get("root");
     assertEquals(1, node.choices().size());
-    assertTrue(node.choices().get(0).builtin().isPresent());
-    assertEquals(BuiltinChoiceAction.CLOSE, node.choices().get(0).builtin().get());
+    assertTrue(node.choices().get(0).close());
+    assertTrue(node.choices().get(0).once());
+  }
+
+  @Test
+  void choiceNextAndCloseConflict() {
+    JsonObject input =
+        json(
+            """
+        {
+          "schema": 1,
+          "start_node": "root",
+          "nodes": {
+            "root": {
+              "speaker_key": "npc.elder",
+              "text_key": "dialog.test.root",
+              "choices": [
+                {
+                  "id": "c1",
+                  "label_key": "dialog.choice.bad",
+                  "next": "root",
+                  "close": true
+                }
+              ]
+            }
+          }
+        }
+        """);
+
+    ParseResult<DialogDefinition> result = DialogContentParser.parse(TEST_ID, TEST_FILE, input);
+
+    assertTrue(
+        result.issues().stream()
+            .anyMatch(issue -> issue.code() == IssueCode.CHOICE_NEXT_CLOSE_CONFLICT));
   }
 
   @Test

@@ -40,7 +40,7 @@ import net.minecraft.resources.ResourceLocation;
 public class ConditionEvaluationGameTestHelper {
 
   private static final ResourceLocation TEST_QUEST =
-      new ResourceLocation("dialog_quest_and_story_engine_examples", "first_quest");
+      new ResourceLocation("dqse_example", "first_quest");
 
   private ConditionEvaluationGameTestHelper() {}
 
@@ -158,10 +158,6 @@ public class ConditionEvaluationGameTestHelper {
       PlayerStateService.setFact(playerUuid, FactScope.PLAYER, "f1", FactValue.of(1L));
       PlayerStateService.setFact(playerUuid, FactScope.PLAYER, "f2", FactValue.of(2L));
 
-      // ANY [ ALL[f1=1, f2=2], ALL[f1=1, missing=99] ]
-      // inner1 = ALL[f1=1, f2=2] → true
-      // inner2 = ALL[f1=1, missing=99] → false
-      // outer = ANY[true, false] → true
       ConditionGroup inner1 =
           new ConditionGroup(
               GroupOperator.ALL,

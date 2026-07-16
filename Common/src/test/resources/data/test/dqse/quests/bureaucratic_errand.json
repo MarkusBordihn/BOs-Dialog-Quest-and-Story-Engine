@@ -1,14 +1,22 @@
 {
   "schema": 1,
+  "narrative": {
+    "arc": "test:paperwork_saga",
+    "arc_order": 1,
+    "chapter": "test:the_form",
+    "chapter_order": 2
+  },
   "display": {
     "title_key": "quest.test.bureaucratic_errand.title",
     "description_key": "quest.test.bureaucratic_errand.description",
-    "category": "test:administration"
+    "category": "test:administration",
+    "category_key": "quest.category.test.administration",
+    "icon": "minecraft:paper",
+    "sort_order": 5
   },
   "logic": {
     "completion_policy": "all_steps",
-    "repeatable": false,
-    "sync_scope": "player",
+    "restart_after_failure": false,
     "steps": {
       "find_the_missing_form": {
         "type": "dqse:manual",
@@ -16,20 +24,31 @@
       },
       "stamp_it_three_times": {
         "type": "dqse:manual",
+        "description_key": "quest.test.bureaucratic_errand.step.stamp",
+        "requires": ["find_the_missing_form"],
         "required": 3
       },
       "return_to_the_overly_serious_clerk": {
         "type": "dqse:manual",
+        "requires": ["stamp_it_three_times"],
         "required": 1
       }
     }
   },
-  "rewards": [
+  "on_complete": [
     {
       "type": "dqse:set_fact",
       "scope": "player",
       "fact": "test.bureaucratic_errand.survived_paperwork",
       "value": true
     }
-  ]
+  ],
+  "rewards": {
+    "claim_mode": "manual",
+    "title_key": "quest.test.bureaucratic_errand.rewards.title",
+    "entries": [
+      {"type": "dqse:item", "item": "minecraft:emerald", "count": 4},
+      {"type": "dqse:experience", "amount": 100}
+    ]
+  }
 }

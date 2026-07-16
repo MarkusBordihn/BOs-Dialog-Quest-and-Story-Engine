@@ -39,8 +39,7 @@ import net.minecraft.resources.ResourceLocation;
 
 public final class InteractiveStoryContentParser {
 
-  static final String FIELD_DISPLAY = "display";
-  static final String FIELD_MODE = "mode";
+  static final String FIELD_DISPLAY_STORY_ID = "display_story_id";
   static final String FIELD_ON_OPEN = "on_open";
   static final String FIELD_CHOICES = "choices";
   static final String FIELD_LABEL_KEY = "label_key";
@@ -67,7 +66,12 @@ public final class InteractiveStoryContentParser {
 
     Optional<String> displayStr =
         JsonFieldReader.readString(
-            jsonObject, FIELD_DISPLAY, ContentType.INTERACTIVE_STORY, id, filePath, issues);
+            jsonObject,
+            FIELD_DISPLAY_STORY_ID,
+            ContentType.INTERACTIVE_STORY,
+            id,
+            filePath,
+            issues);
     if (displayStr.isEmpty()) {
       return ParseResult.failure(issues);
     }
@@ -82,28 +86,8 @@ public final class InteractiveStoryContentParser {
               ContentType.INTERACTIVE_STORY,
               id,
               filePath,
-              FIELD_DISPLAY,
+              FIELD_DISPLAY_STORY_ID,
               Map.of("value", displayStr.get())));
-      return ParseResult.failure(issues);
-    }
-
-    Optional<String> modeStr =
-        JsonFieldReader.readString(
-            jsonObject, FIELD_MODE, ContentType.INTERACTIVE_STORY, id, filePath, issues);
-    if (modeStr.isEmpty()) {
-      return ParseResult.failure(issues);
-    }
-
-    Optional<InteractiveStoryMode> mode = InteractiveStoryMode.fromKey(modeStr.get());
-    if (mode.isEmpty()) {
-      issues.add(
-          ContentIssue.of(
-              IssueCode.UNKNOWN_STORY_MODE,
-              ContentType.INTERACTIVE_STORY,
-              id,
-              filePath,
-              FIELD_MODE,
-              Map.of("value", modeStr.get())));
       return ParseResult.failure(issues);
     }
 
@@ -124,8 +108,7 @@ public final class InteractiveStoryContentParser {
     }
 
     return ParseResult.success(
-        new InteractiveStoryDefinition(id, schema.get(), displayId, mode.get(), onOpen, choices),
-        issues);
+        new InteractiveStoryDefinition(id, schema.get(), displayId, onOpen, choices), issues);
   }
 
   private static List<InteractiveStoryChoice> parseChoices(

@@ -1,0 +1,27 @@
+{
+  "schema": 1,
+  "display": {
+    "title_key": "example.quest.hunt_quest.title",
+    "description_key": "example.quest.hunt_quest.description",
+    "category": "dqse_example:tutorial"
+  },
+  "logic": {
+    "completion_policy": "all_steps",
+    "steps": {
+      "hunt": {
+        "type": "dqse:kill_entity",
+        "entity": "minecraft:zombie",
+        "count": 2
+      },
+      "report": {
+        "type": "dqse:manual"
+      }
+    }
+  },
+  "rewards": {
+    "claim_mode": "automatic",
+    "entries": [
+      {"type": "dqse:item", "item": "minecraft:emerald", "count": 1}
+    ]
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "de.markusbordihn.dialogqueststoryengine.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "mixins": [
+    "ItemEntityMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

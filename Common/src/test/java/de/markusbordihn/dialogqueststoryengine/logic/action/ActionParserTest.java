@@ -28,17 +28,11 @@ import com.google.gson.JsonObject;
 import de.markusbordihn.dialogqueststoryengine.data.ContentType;
 import de.markusbordihn.dialogqueststoryengine.data.issue.ContentIssue;
 import de.markusbordihn.dialogqueststoryengine.data.issue.IssueCode;
-import de.markusbordihn.dialogqueststoryengine.logic.action.types.AdvanceQuestStepAction;
-import de.markusbordihn.dialogqueststoryengine.logic.action.types.CompleteQuestAction;
+import de.markusbordihn.dialogqueststoryengine.logic.action.types.GiveExperienceAction;
 import de.markusbordihn.dialogqueststoryengine.logic.action.types.GiveItemAction;
-import de.markusbordihn.dialogqueststoryengine.logic.action.types.MarkStoryReadAction;
 import de.markusbordihn.dialogqueststoryengine.logic.action.types.OpenDialogAction;
-import de.markusbordihn.dialogqueststoryengine.logic.action.types.OpenStoryAction;
 import de.markusbordihn.dialogqueststoryengine.logic.action.types.RunCommandAction;
 import de.markusbordihn.dialogqueststoryengine.logic.action.types.RunFunctionAction;
-import de.markusbordihn.dialogqueststoryengine.logic.action.types.SetFactAction;
-import de.markusbordihn.dialogqueststoryengine.logic.action.types.StartQuestAction;
-import de.markusbordihn.dialogqueststoryengine.logic.action.types.UnlockStoryAction;
 import de.markusbordihn.dialogqueststoryengine.registry.Registries;
 import java.util.ArrayList;
 import java.util.List;
@@ -52,7 +46,8 @@ class ActionParserTest {
       new ResourceLocation("test", "action_parser_test");
 
   @BeforeAll
-  static void registerTestHandlers() {
+  static void registerHandlers() {
+    BuiltinActions.register();
     Registries.ACTIONS.register(
         new ResourceLocation("test", "custom_action"), (json, ct, id, fp, issues) -> Action.NOOP);
   }
@@ -61,194 +56,139 @@ class ActionParserTest {
     return new ArrayList<>();
   }
 
-  @Test
-  void infer_itemKey_parsesGiveItemAction() {
-    JsonObject json = new JsonObject();
-    json.addProperty("item", "minecraft:diamond");
-    List<ContentIssue> issues = noIssues();
+  private static Action parse(JsonObject json, List<ContentIssue> issues) {
+    return ActionParser.parseSingle(json, ContentType.QUEST, CONTENT_ID, "test.json", issues);
+  }
 
-    Action action =
-        ActionParser.parseSingle(json, ContentType.QUEST, CONTENT_ID, "test.json", issues);
+  private static JsonObject withProperty(String key, String value) {
+    JsonObject json = new JsonObject();
+    json.addProperty(key, value);
+    return json;
+  }
+
+  @Test
+  void itemShorthandParsesGiveItemAction() {
+    List<ContentIssue> issues = noIssues();
+    Action action = parse(withProperty("item", "minecraft:diamond"), issues);
 
     assertTrue(issues.isEmpty());
     assertInstanceOf(GiveItemAction.class, action);
   }
 
   @Test
-  void infer_dialogKey_parsesOpenDialogAction() {
-    JsonObject json = new JsonObject();
-    json.addProperty("dialog", "test:my_dialog");
+  void dialogShorthandParsesOpenDialogAction() {
     List<ContentIssue> issues = noIssues();
-
-    Action action =
-        ActionParser.parseSingle(json, ContentType.QUEST, CONTENT_ID, "test.json", issues);
+    Action action = parse(withProperty("dialog", "test:my_dialog"), issues);
 
     assertTrue(issues.isEmpty());
     assertInstanceOf(OpenDialogAction.class, action);
   }
 
   @Test
-  void infer_functionKey_parsesRunFunctionAction() {
-    JsonObject json = new JsonObject();
-    json.addProperty("function", "test:my_function");
+  void functionShorthandParsesRunFunctionAction() {
     List<ContentIssue> issues = noIssues();
-
-    Action action =
-        ActionParser.parseSingle(json, ContentType.QUEST, CONTENT_ID, "test.json", issues);
+    Action action = parse(withProperty("function", "test:my_function"), issues);
 
     assertTrue(issues.isEmpty());
     assertInstanceOf(RunFunctionAction.class, action);
   }
 
   @Test
-  void infer_commandKey_parsesRunCommandAction() {
-    JsonObject json = new JsonObject();
-    json.addProperty("command", "say hello");
+  void commandShorthandParsesRunCommandAction() {
     List<ContentIssue> issues = noIssues();
-
-    Action action =
-        ActionParser.parseSingle(json, ContentType.QUEST, CONTENT_ID, "test.json", issues);
+    Action action = parse(withProperty("command", "say hello"), issues);
 
     assertTrue(issues.isEmpty());
     assertInstanceOf(RunCommandAction.class, action);
   }
 
   @Test
-  void infer_factAndValueKeys_parsesSetFactAction() {
+  void giveExperienceRequiresExplicitType() {
+    JsonObject json = new JsonObject();
+    json.addProperty("type", "dqse:give_experience");
+    json.addProperty("amount", 25);
+    List<ContentIssue> issues = noIssues();
+
+    Action action = parse(json, issues);
+
+    assertTrue(issues.isEmpty());
+    assertInstanceOf(GiveExperienceAction.class, action);
+  }
+
+  @Test
+  void questShorthandIsAmbiguous() {
+    List<ContentIssue> issues = noIssues();
+    parse(withProperty("quest", "test:my_quest"), issues);
+
+    assertEquals(1, issues.size());
+    assertEquals(IssueCode.AMBIGUOUS_ACTION_TYPE, issues.get(0).code());
+  }
+
+  @Test
+  void storyShorthandIsAmbiguous() {
+    List<ContentIssue> issues = noIssues();
+    parse(withProperty("story", "test:my_story"), issues);
+
+    assertEquals(1, issues.size());
+    assertEquals(IssueCode.AMBIGUOUS_ACTION_TYPE, issues.get(0).code());
+  }
+
+  @Test
+  void factShorthandIsAmbiguous() {
     JsonObject json = new JsonObject();
     json.addProperty("fact", "coins");
     json.addProperty("value", 42);
     json.addProperty("scope", "player");
     List<ContentIssue> issues = noIssues();
 
-    Action action =
-        ActionParser.parseSingle(json, ContentType.QUEST, CONTENT_ID, "test.json", issues);
+    parse(json, issues);
 
-    assertTrue(issues.isEmpty());
-    assertInstanceOf(SetFactAction.class, action);
+    assertEquals(1, issues.size());
+    assertEquals(IssueCode.AMBIGUOUS_ACTION_TYPE, issues.get(0).code());
   }
 
   @Test
-  void infer_questWithStepKey_parsesAdvanceQuestStepAction() {
+  void multipleShorthandKeysAreAmbiguous() {
     JsonObject json = new JsonObject();
-    json.addProperty("quest", "test:my_quest");
-    json.addProperty("step", "find_artifact");
+    json.addProperty("item", "minecraft:diamond");
+    json.addProperty("dialog", "test:my_dialog");
     List<ContentIssue> issues = noIssues();
 
-    Action action =
-        ActionParser.parseSingle(json, ContentType.QUEST, CONTENT_ID, "test.json", issues);
+    parse(json, issues);
 
-    assertTrue(issues.isEmpty());
-    assertInstanceOf(AdvanceQuestStepAction.class, action);
+    assertEquals(1, issues.size());
+    assertEquals(IssueCode.AMBIGUOUS_ACTION_TYPE, issues.get(0).code());
   }
 
   @Test
-  void infer_questWithCompleteTrue_parsesCompleteQuestAction() {
-    JsonObject json = new JsonObject();
-    json.addProperty("quest", "test:my_quest");
-    json.addProperty("complete", true);
+  void explicitTypeDelegatesToHandler() {
     List<ContentIssue> issues = noIssues();
-
-    Action action =
-        ActionParser.parseSingle(json, ContentType.QUEST, CONTENT_ID, "test.json", issues);
-
-    assertTrue(issues.isEmpty());
-    assertInstanceOf(CompleteQuestAction.class, action);
-  }
-
-  @Test
-  void infer_questAlone_parsesStartQuestAction() {
-    JsonObject json = new JsonObject();
-    json.addProperty("quest", "test:my_quest");
-    List<ContentIssue> issues = noIssues();
-
-    Action action =
-        ActionParser.parseSingle(json, ContentType.QUEST, CONTENT_ID, "test.json", issues);
-
-    assertTrue(issues.isEmpty());
-    assertInstanceOf(StartQuestAction.class, action);
-  }
-
-  @Test
-  void infer_storyWithReadTrue_parsesMarkStoryReadAction() {
-    JsonObject json = new JsonObject();
-    json.addProperty("story", "test:my_story");
-    json.addProperty("read", true);
-    List<ContentIssue> issues = noIssues();
-
-    Action action =
-        ActionParser.parseSingle(json, ContentType.QUEST, CONTENT_ID, "test.json", issues);
-
-    assertTrue(issues.isEmpty());
-    assertInstanceOf(MarkStoryReadAction.class, action);
-  }
-
-  @Test
-  void infer_storyWithOpenTrue_parsesOpenStoryAction() {
-    JsonObject json = new JsonObject();
-    json.addProperty("story", "test:my_story");
-    json.addProperty("open", true);
-    List<ContentIssue> issues = noIssues();
-
-    Action action =
-        ActionParser.parseSingle(json, ContentType.QUEST, CONTENT_ID, "test.json", issues);
-
-    assertTrue(issues.isEmpty());
-    assertInstanceOf(OpenStoryAction.class, action);
-  }
-
-  @Test
-  void infer_storyAlone_parsesUnlockStoryAction() {
-    JsonObject json = new JsonObject();
-    json.addProperty("story", "test:my_story");
-    List<ContentIssue> issues = noIssues();
-
-    Action action =
-        ActionParser.parseSingle(json, ContentType.QUEST, CONTENT_ID, "test.json", issues);
-
-    assertTrue(issues.isEmpty());
-    assertInstanceOf(UnlockStoryAction.class, action);
-  }
-
-  @Test
-  void explicitType_registeredHandler_delegatesToHandler() {
-    JsonObject json = new JsonObject();
-    json.addProperty("type", "test:custom_action");
-    List<ContentIssue> issues = noIssues();
-
-    Action action =
-        ActionParser.parseSingle(json, ContentType.QUEST, CONTENT_ID, "test.json", issues);
+    Action action = parse(withProperty("type", "test:custom_action"), issues);
 
     assertTrue(issues.isEmpty());
     assertEquals(Action.NOOP, action);
   }
 
   @Test
-  void explicitType_unknownType_addsIssueAndReturnsNoop() {
-    JsonObject json = new JsonObject();
-    json.addProperty("type", "test:does_not_exist");
+  void explicitUnknownTypeReportsUnknownActionType() {
     List<ContentIssue> issues = noIssues();
-
-    ActionParser.parseSingle(json, ContentType.QUEST, CONTENT_ID, "test.json", issues);
+    parse(withProperty("type", "test:does_not_exist"), issues);
 
     assertEquals(1, issues.size());
     assertEquals(IssueCode.UNKNOWN_ACTION_TYPE, issues.get(0).code());
   }
 
   @Test
-  void noMatchingKey_addsIssueAndReturnsNoop() {
-    JsonObject json = new JsonObject();
-    json.addProperty("unknown_field", "value");
+  void noMatchingKeyReportsUnknownActionType() {
     List<ContentIssue> issues = noIssues();
-
-    ActionParser.parseSingle(json, ContentType.QUEST, CONTENT_ID, "test.json", issues);
+    parse(withProperty("unknown_field", "value"), issues);
 
     assertEquals(1, issues.size());
     assertEquals(IssueCode.UNKNOWN_ACTION_TYPE, issues.get(0).code());
   }
 
   @Test
-  void parseList_emptyArray_returnsEmpty() {
+  void parseListEmptyArrayReturnsEmpty() {
     ActionList list =
         ActionParser.parseList(
             new JsonArray(), ContentType.QUEST, CONTENT_ID, "test.json", noIssues());
@@ -256,7 +196,7 @@ class ActionParserTest {
   }
 
   @Test
-  void parseList_nonObjectElement_addsIssueAndSkipsElement() {
+  void parseListNonObjectElementReportsIssueAndSkips() {
     JsonArray array = new JsonArray();
     array.add("not an object");
     List<ContentIssue> issues = noIssues();

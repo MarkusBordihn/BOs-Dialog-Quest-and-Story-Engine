@@ -46,12 +46,41 @@ public enum IssueCode {
   UNREACHABLE_DIALOG_NODE(IssueSeverity.WARNING, "Dialog node has no path from start_node"),
   UNKNOWN_BINDING_KIND(IssueSeverity.ERROR, "Unknown interaction binding kind"),
   UNKNOWN_INTERACTION_EVENT(IssueSeverity.ERROR, "Unknown interaction event type"),
-  UNKNOWN_STORY_MODE(IssueSeverity.ERROR, "Unknown interactive story mode"),
   COMMAND_ACTION_DISABLED(
       IssueSeverity.WARNING, "run_command action is disabled by server config — action skipped"),
   UNKNOWN_ACTION_TYPE(IssueSeverity.ERROR, "Action type is not registered — action skipped"),
+  AMBIGUOUS_ACTION_TYPE(
+      IssueSeverity.ERROR,
+      "Action shorthand matches more than one action type — use explicit type"),
+  CHOICE_NEXT_CLOSE_CONFLICT(
+      IssueSeverity.ERROR, "Dialog choice 'next' and 'close' are mutually exclusive"),
   UNKNOWN_CONDITION_TYPE(
       IssueSeverity.ERROR, "Condition type is not registered — evaluates to false"),
+  UNKNOWN_STEP_TYPE(
+      IssueSeverity.WARNING, "Quest step type is not registered — step only progresses manually"),
+  UNKNOWN_STEP_PREREQUISITE(
+      IssueSeverity.ERROR, "Step requires references a step that does not exist"),
+  SELF_STEP_PREREQUISITE(IssueSeverity.ERROR, "Step requires itself"),
+  DUPLICATE_STEP_PREREQUISITE(
+      IssueSeverity.ERROR, "Step requires lists the same step more than once"),
+  STEP_PREREQUISITE_CYCLE(IssueSeverity.ERROR, "Step prerequisites form a dependency cycle"),
+  UNKNOWN_QUEST_PREREQUISITE(
+      IssueSeverity.ERROR, "Quest prerequisite references a quest that does not exist"),
+  SELF_QUEST_PREREQUISITE(IssueSeverity.ERROR, "Quest lists itself as a prerequisite"),
+  DUPLICATE_QUEST_PREREQUISITE(
+      IssueSeverity.ERROR, "Quest prerequisites list the same quest more than once"),
+  QUEST_PREREQUISITE_CYCLE(IssueSeverity.ERROR, "Quest prerequisites form a dependency cycle"),
+  UNKNOWN_REWARD_TYPE(IssueSeverity.ERROR, "Reward entry type is not a known reward type"),
+  INVALID_REWARD_AMOUNT(IssueSeverity.ERROR, "Reward amount or count must be a positive integer"),
+  LOCALIZED_TEXT_CONFLICT(
+      IssueSeverity.ERROR, "Literal text and localization key are mutually exclusive"),
+  LOCALIZED_ARGS_WITHOUT_KEY(
+      IssueSeverity.ERROR, "Text arguments require the localization key form"),
+  UNKNOWN_CONTEXT_PROVIDER(
+      IssueSeverity.ERROR, "Text argument provider type is not a registered ContextValueProvider"),
+  INVALID_CONTEXT_ARGUMENT(IssueSeverity.ERROR, "Text argument is not valid for its provider"),
+  UNSUPPORTED_STEP_TYPE(
+      IssueSeverity.WARNING, "Quest step type is reserved but not supported in this version"),
   UNKNOWN_STORY_TYPE(IssueSeverity.ERROR, "Unknown story entry type"),
   UNKNOWN_THEME_LAYOUT(IssueSeverity.ERROR, "Unknown theme layout"),
   UNSUPPORTED_SCHEMA(IssueSeverity.ERROR, "Schema version is not supported"),

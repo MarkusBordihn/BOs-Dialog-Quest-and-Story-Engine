@@ -1,0 +1,58 @@
+{
+  "schema": 1,
+  "start_node": "gate",
+  "nodes": {
+    "gate": {
+      "speaker_key": "example.gatekeeper.name",
+      "text_key": "example.dialog.gatekeeper.gate.text",
+      "choices": [
+        {
+          "id": "show_pass",
+          "label_key": "example.dialog.gatekeeper.gate.choice.show_pass",
+          "actions": [
+            {"type": "dqse:set_fact", "scope": "player", "fact": "example.gate_pass", "value": true}
+          ],
+          "next": "checkpoint"
+        },
+        {
+          "id": "enter",
+          "label_key": "example.dialog.gatekeeper.gate.choice.enter",
+          "conditions": [
+            {
+              "type": "dqse:fact_equals", "scope": "player", "fact": "example.gate_pass",
+              "value": true
+            }
+          ],
+          "next": "inside"
+        },
+        {
+          "id": "leave",
+          "label_key": "example.dialog.gatekeeper.gate.choice.leave",
+          "close": true
+        }
+      ]
+    },
+    "checkpoint": {
+      "speaker_key": "example.gatekeeper.name",
+      "text_key": "example.dialog.gatekeeper.checkpoint.text",
+      "choices": [
+        {
+          "id": "ok",
+          "label_key": "example.dialog.gatekeeper.checkpoint.choice.ok",
+          "close": true
+        }
+      ]
+    },
+    "inside": {
+      "speaker_key": "example.gatekeeper.name",
+      "text_key": "example.dialog.gatekeeper.inside.text",
+      "choices": [
+        {
+          "id": "done",
+          "label_key": "example.dialog.gatekeeper.inside.choice.done",
+          "close": true
+        }
+      ]
+    }
+  }
+}

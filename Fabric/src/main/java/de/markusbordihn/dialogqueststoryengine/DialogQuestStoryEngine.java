@@ -26,6 +26,7 @@ import de.markusbordihn.dialogqueststoryengine.content.DataPackReloadNotifier;
 import de.markusbordihn.dialogqueststoryengine.content.ResourceServerEventsFabric;
 import de.markusbordihn.dialogqueststoryengine.core.DqseBootstrap;
 import de.markusbordihn.dialogqueststoryengine.entity.InteractionEventHandler;
+import de.markusbordihn.dialogqueststoryengine.entity.QuestStepEventHandler;
 import de.markusbordihn.dialogqueststoryengine.item.ModItems;
 import de.markusbordihn.dialogqueststoryengine.network.NetworkHandler;
 import de.markusbordihn.dialogqueststoryengine.network.NetworkHandlerManager;
@@ -136,6 +137,7 @@ public class DialogQuestStoryEngine implements ModInitializer {
             SessionManager.closePlayerSessions(newPlayer, SessionCloseReason.CONTEXT_CHANGED));
 
     InteractionEventHandler.registerEvents();
+    QuestStepEventHandler.registerEvents();
 
     log.info("{} Data Pack Reload Listeners ...", Constants.LOG_REGISTER_PREFIX);
     ResourceServerEventsFabric.registerReloadListeners(

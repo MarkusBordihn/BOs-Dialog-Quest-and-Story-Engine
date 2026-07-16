@@ -21,7 +21,6 @@ package de.markusbordihn.dialogqueststoryengine.session;
 
 import de.markusbordihn.dialogqueststoryengine.Constants;
 import de.markusbordihn.dialogqueststoryengine.content.ChoiceDefinition;
-import de.markusbordihn.dialogqueststoryengine.content.dialog.BuiltinChoiceAction;
 import de.markusbordihn.dialogqueststoryengine.content.dialog.DialogChoiceDefinition;
 import de.markusbordihn.dialogqueststoryengine.content.dialog.DialogContentRegistry;
 import de.markusbordihn.dialogqueststoryengine.content.dialog.DialogDefinition;
@@ -405,11 +404,7 @@ public final class SessionManager {
     sendQuestDeltas(player, playerState, questSnapshotsBefore);
     sendStoryDelta(player, session, playerState, unlockedBefore, readBefore);
 
-    if (choice
-            .builtin()
-            .filter(builtinAction -> builtinAction == BuiltinChoiceAction.CLOSE)
-            .isPresent()
-        || choice.next().isEmpty()) {
+    if (choice.close() || choice.next().isEmpty()) {
       removeAndClose(session, player, SessionCloseReason.PLAYER_CLOSED);
       return;
     }

@@ -32,6 +32,8 @@ public final class PlayerStateEvents {
       new CopyOnWriteArrayList<>();
   private static final List<QuestCompletedListener> questCompletedListeners =
       new CopyOnWriteArrayList<>();
+  private static final List<QuestFailedListener> questFailedListeners =
+      new CopyOnWriteArrayList<>();
   private static final List<StepProgressedListener> stepProgressedListeners =
       new CopyOnWriteArrayList<>();
   private static final List<FactChangedListener> factChangedListeners =
@@ -49,6 +51,10 @@ public final class PlayerStateEvents {
 
   public static void addQuestCompletedListener(QuestCompletedListener listener) {
     questCompletedListeners.add(listener);
+  }
+
+  public static void addQuestFailedListener(QuestFailedListener listener) {
+    questFailedListeners.add(listener);
   }
 
   public static void addStepProgressedListener(StepProgressedListener listener) {
@@ -79,6 +85,13 @@ public final class PlayerStateEvents {
     }
   }
 
+  public static void fireQuestFailed(
+      UUID playerUuid, ResourceLocation questId, QuestProgress questProgress) {
+    for (QuestFailedListener listener : questFailedListeners) {
+      listener.onQuestFailed(playerUuid, questId, questProgress);
+    }
+  }
+
   public static void fireStepProgressed(
       UUID playerUuid, ResourceLocation questId, String stepId, StepProgress stepProgress) {
     for (StepProgressedListener listener : stepProgressedListeners) {
@@ -97,6 +110,7 @@ public final class PlayerStateEvents {
     playerStateLoadedListeners.clear();
     questStartedListeners.clear();
     questCompletedListeners.clear();
+    questFailedListeners.clear();
     stepProgressedListeners.clear();
     factChangedListeners.clear();
   }
@@ -114,6 +128,11 @@ public final class PlayerStateEvents {
   @FunctionalInterface
   public interface QuestCompletedListener {
     void onQuestCompleted(UUID playerUuid, ResourceLocation questId, QuestProgress questProgress);
+  }
+
+  @FunctionalInterface
+  public interface QuestFailedListener {
+    void onQuestFailed(UUID playerUuid, ResourceLocation questId, QuestProgress questProgress);
   }
 
   @FunctionalInterface

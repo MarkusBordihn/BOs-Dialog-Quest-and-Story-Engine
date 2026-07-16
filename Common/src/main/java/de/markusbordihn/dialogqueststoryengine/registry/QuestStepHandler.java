@@ -19,4 +19,30 @@
 
 package de.markusbordihn.dialogqueststoryengine.registry;
 
-public interface QuestStepHandler {}
+import de.markusbordihn.dialogqueststoryengine.content.quest.RawQuestStep;
+import de.markusbordihn.dialogqueststoryengine.data.issue.ContentIssue;
+import de.markusbordihn.dialogqueststoryengine.quest.step.QuestStepContext;
+import java.util.List;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+
+public interface QuestStepHandler {
+
+  default boolean supported() {
+    return true;
+  }
+
+  default void validate(
+      ResourceLocation questId, RawQuestStep step, String filePath, List<ContentIssue> issues) {}
+
+  default void onQuestStarted(QuestStepContext context) {}
+
+  default void onQuestCompleted(QuestStepContext context) {}
+
+  default void onEntityInteract(QuestStepContext context, Entity target) {}
+
+  default void onItemPickup(QuestStepContext context) {}
+
+  default void onEntityKilled(QuestStepContext context, LivingEntity killed) {}
+}

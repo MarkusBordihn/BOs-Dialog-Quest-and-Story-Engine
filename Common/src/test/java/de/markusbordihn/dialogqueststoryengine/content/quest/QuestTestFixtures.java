@@ -19,6 +19,7 @@
 
 package de.markusbordihn.dialogqueststoryengine.content.quest;
 
+import de.markusbordihn.dialogqueststoryengine.content.NarrativeMetadata;
 import de.markusbordihn.dialogqueststoryengine.logic.action.ActionList;
 import java.util.Arrays;
 import java.util.Map;
@@ -44,9 +45,12 @@ public final class QuestTestFixtures {
     return new QuestDefinition(
         questId,
         1,
-        new DisplaySection("title", "description", Optional.empty()),
+        NarrativeMetadata.EMPTY,
+        new DisplaySection(
+            "title", "description", Optional.empty(), Optional.empty(), Optional.empty(), 0),
         new LogicSection(
-            Optional.empty(), Map.of(), CompletionPolicy.ALL_STEPS, false, SyncScope.PLAYER),
-        ActionList.EMPTY);
+            Optional.empty(), QuestPrerequisites.NONE, Map.of(), CompletionPolicy.ALL_STEPS, true),
+        ActionList.EMPTY,
+        RewardSection.EMPTY);
   }
 }

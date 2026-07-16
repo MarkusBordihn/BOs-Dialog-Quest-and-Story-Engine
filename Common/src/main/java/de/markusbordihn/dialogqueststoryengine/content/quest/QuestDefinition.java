@@ -19,12 +19,15 @@
 
 package de.markusbordihn.dialogqueststoryengine.content.quest;
 
+import de.markusbordihn.dialogqueststoryengine.content.NarrativeMetadata;
 import de.markusbordihn.dialogqueststoryengine.logic.action.ActionList;
 import net.minecraft.resources.ResourceLocation;
 
 public record QuestDefinition(
     ResourceLocation id,
     int schema,
+    NarrativeMetadata narrative,
     DisplaySection display,
     LogicSection logic,
-    ActionList rewards) {}
+    ActionList onComplete,
+    RewardSection rewards) {}

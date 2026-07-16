@@ -26,6 +26,7 @@ import de.markusbordihn.dialogqueststoryengine.content.DataPackReloadEventHandle
 import de.markusbordihn.dialogqueststoryengine.content.DataPackReloadNotifier;
 import de.markusbordihn.dialogqueststoryengine.core.DqseBootstrap;
 import de.markusbordihn.dialogqueststoryengine.entity.InteractionEventHandler;
+import de.markusbordihn.dialogqueststoryengine.entity.QuestStepEventHandler;
 import de.markusbordihn.dialogqueststoryengine.item.ModItems;
 import de.markusbordihn.dialogqueststoryengine.network.NetworkHandler;
 import de.markusbordihn.dialogqueststoryengine.server.PlayerStateEventHandler;
@@ -79,6 +80,7 @@ public class DialogQuestStoryEngine {
     MinecraftForge.EVENT_BUS.register(PlayerStateEventHandler.class);
     MinecraftForge.EVENT_BUS.register(ServerEventHandler.class);
     MinecraftForge.EVENT_BUS.register(InteractionEventHandler.class);
+    MinecraftForge.EVENT_BUS.register(QuestStepEventHandler.class);
 
     DistExecutor.unsafeRunWhenOn(
         Dist.CLIENT, () -> () -> new DialogQuestStoryEngineClient(modEventBus));

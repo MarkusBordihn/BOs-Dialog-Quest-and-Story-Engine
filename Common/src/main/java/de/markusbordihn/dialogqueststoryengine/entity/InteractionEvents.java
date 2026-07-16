@@ -30,6 +30,7 @@ import de.markusbordihn.dialogqueststoryengine.data.saveddata.InteractionSavedDa
 import de.markusbordihn.dialogqueststoryengine.interaction.InteractionDispatcher;
 import de.markusbordihn.dialogqueststoryengine.interaction.InteractionManager;
 import de.markusbordihn.dialogqueststoryengine.item.InteractionWandItem;
+import de.markusbordihn.dialogqueststoryengine.quest.step.QuestStepEvents;
 import de.markusbordihn.dialogqueststoryengine.utils.BlockUUID;
 import java.util.HashMap;
 import java.util.Map;
@@ -82,6 +83,8 @@ public final class InteractionEvents {
         || player.getMainHandItem().getItem() instanceof InteractionWandItem) {
       return;
     }
+
+    QuestStepEvents.handleEntityInteract(player, target);
 
     ServerPlayer serverPlayer = (ServerPlayer) player;
     UUID targetId = target.getUUID();

@@ -26,6 +26,7 @@ import de.markusbordihn.dialogqueststoryengine.content.quest.QuestContentRegistr
 import de.markusbordihn.dialogqueststoryengine.content.quest.QuestDefinition;
 import de.markusbordihn.dialogqueststoryengine.content.quest.RawQuestStep;
 import de.markusbordihn.dialogqueststoryengine.logic.action.ActionContext;
+import de.markusbordihn.dialogqueststoryengine.quest.step.QuestStepEvents;
 import de.markusbordihn.dialogqueststoryengine.state.PlayerState;
 import de.markusbordihn.dialogqueststoryengine.state.PlayerStateEvents;
 import de.markusbordihn.dialogqueststoryengine.state.PlayerStateService;
@@ -90,6 +91,7 @@ public final class QuestService {
 
     playerState.putQuestDirect(questId, questProgress);
     PlayerStateEvents.fireQuestStarted(playerState.playerUuid(), questId, questProgress);
+    QuestStepEvents.handleQuestStarted(playerState, questId);
     return Optional.of(new QuestChangeResult(questId, questProgress, changedSteps, true));
   }
 
@@ -117,6 +119,36 @@ public final class QuestService {
       UUID playerUuid, ResourceLocation questId) {
     return PlayerStateService.get(playerUuid)
         .flatMap(playerState -> completeQuest(playerState, null, questId));
+  }
+
+  public static Optional<QuestChangeResult> failQuest(
+      ActionContext actionContext, ResourceLocation questId) {
+    return failQuest(actionContext.playerState(), questId);
+  }
+
+  public static Optional<QuestChangeResult> failQuest(UUID playerUuid, ResourceLocation questId) {
+    return PlayerStateService.get(playerUuid)
+        .flatMap(playerState -> failQuest(playerState, questId));
+  }
+
+  private static Optional<QuestChangeResult> failQuest(
+      PlayerState playerState, ResourceLocation questId) {
+    QuestProgress questProgress = playerState.getQuest(questId);
+    if (questProgress == null) {
+      log.warn(
+          "{} failQuest: quest '{}' not found in player state.", Constants.LOG_PREFIX, questId);
+      return Optional.empty();
+    }
+
+    if (questProgress.state() == QuestState.FAILED
+        || questProgress.state() == QuestState.COMPLETED) {
+      return Optional.of(new QuestChangeResult(questId, questProgress, Map.of(), false));
+    }
+
+    questProgress.setState(QuestState.FAILED);
+    playerState.markDirty();
+    PlayerStateEvents.fireQuestFailed(playerState.playerUuid(), questId, questProgress);
+    return Optional.of(new QuestChangeResult(questId, questProgress, Map.of(), true));
   }
 
   public static Optional<QuestChangeResult> progressStep(
@@ -152,14 +184,16 @@ public final class QuestService {
 
     Optional<QuestDefinition> definition = QuestContentRegistry.get(questId);
     if (questProgress.state() == QuestState.COMPLETED) {
-      boolean rewarded = dispatchRewardsOnce(playerState, actionContext, definition, questProgress);
-      return Optional.of(new QuestChangeResult(questId, questProgress, Map.of(), rewarded));
+      boolean applied =
+          applyCompletionActionsOnce(playerState, actionContext, definition, questProgress);
+      return Optional.of(new QuestChangeResult(questId, questProgress, Map.of(), applied));
     }
 
     questProgress.setState(QuestState.COMPLETED);
     playerState.markDirty();
     PlayerStateEvents.fireQuestCompleted(playerState.playerUuid(), questId, questProgress);
-    dispatchRewardsOnce(playerState, actionContext, definition, questProgress);
+    QuestStepEvents.handleQuestCompleted(playerState, questId);
+    applyCompletionActionsOnce(playerState, actionContext, definition, questProgress);
     return Optional.of(new QuestChangeResult(questId, questProgress, Map.of(), true));
   }
 
@@ -266,11 +300,12 @@ public final class QuestService {
     questProgress.setState(QuestState.COMPLETED);
     playerState.markDirty();
     PlayerStateEvents.fireQuestCompleted(playerState.playerUuid(), questId, questProgress);
-    dispatchRewardsOnce(playerState, actionContext, definition, questProgress);
+    QuestStepEvents.handleQuestCompleted(playerState, questId);
+    applyCompletionActionsOnce(playerState, actionContext, definition, questProgress);
     return true;
   }
 
-  private static boolean dispatchRewardsOnce(
+  private static boolean applyCompletionActionsOnce(
       PlayerState playerState,
       ActionContext actionContext,
       Optional<QuestDefinition> definition,
@@ -279,7 +314,7 @@ public final class QuestService {
       return false;
     }
 
-    definition.ifPresent(quest -> quest.rewards().execute(actionContext));
+    definition.ifPresent(quest -> quest.onComplete().execute(actionContext));
     questProgress.setLastRewardedRevision(questProgress.revision());
     playerState.markDirty();
     return true;

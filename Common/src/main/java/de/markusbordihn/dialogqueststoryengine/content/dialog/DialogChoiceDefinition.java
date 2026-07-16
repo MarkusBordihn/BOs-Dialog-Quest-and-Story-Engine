@@ -30,5 +30,16 @@ public record DialogChoiceDefinition(
     ConditionGroup conditions,
     ActionList actions,
     Optional<String> next,
-    Optional<BuiltinChoiceAction> builtin)
-    implements ChoiceDefinition {}
+    boolean close,
+    boolean once)
+    implements ChoiceDefinition {
+
+  public DialogChoiceDefinition(
+      String id,
+      String labelKey,
+      ConditionGroup conditions,
+      ActionList actions,
+      Optional<String> next) {
+    this(id, labelKey, conditions, actions, next, false, false);
+  }
+}

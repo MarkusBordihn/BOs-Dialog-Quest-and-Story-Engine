@@ -22,6 +22,7 @@ package de.markusbordihn.dialogqueststoryengine.content.quest;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import de.markusbordihn.dialogqueststoryengine.content.NarrativeMetadata;
 import de.markusbordihn.dialogqueststoryengine.logic.action.ActionList;
 import java.util.Map;
 import java.util.Optional;
@@ -38,10 +39,13 @@ class QuestContentRegistryTest {
     return new QuestDefinition(
         id,
         1,
-        new DisplaySection("title", "desc", Optional.empty()),
+        NarrativeMetadata.EMPTY,
+        new DisplaySection(
+            "title", "desc", Optional.empty(), Optional.empty(), Optional.empty(), 0),
         new LogicSection(
-            Optional.empty(), Map.of(), CompletionPolicy.ALL_STEPS, false, SyncScope.PLAYER),
-        ActionList.EMPTY);
+            Optional.empty(), QuestPrerequisites.NONE, Map.of(), CompletionPolicy.ALL_STEPS, true),
+        ActionList.EMPTY,
+        RewardSection.EMPTY);
   }
 
   @AfterEach

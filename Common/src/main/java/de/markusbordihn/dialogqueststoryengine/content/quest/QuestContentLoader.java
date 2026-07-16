@@ -19,98 +19,47 @@
 
 package de.markusbordihn.dialogqueststoryengine.content.quest;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import de.markusbordihn.dialogqueststoryengine.Constants;
+import de.markusbordihn.dialogqueststoryengine.content.AbstractJsonContentLoader;
 import de.markusbordihn.dialogqueststoryengine.data.ContentType;
-import de.markusbordihn.dialogqueststoryengine.data.issue.ContentIssue;
-import de.markusbordihn.dialogqueststoryengine.data.issue.ContentIssueTracker;
-import de.markusbordihn.dialogqueststoryengine.data.issue.IssueCode;
-import de.markusbordihn.dialogqueststoryengine.data.json.ContentParserGuard;
 import de.markusbordihn.dialogqueststoryengine.data.json.ParseResult;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
-import net.minecraft.util.profiling.ProfilerFiller;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
-public class QuestContentLoader extends SimpleJsonResourceReloadListener {
+public class QuestContentLoader extends AbstractJsonContentLoader<QuestDefinition> {
 
   public static final ResourceLocation ID = new ResourceLocation(Constants.MOD_ID, "quests");
-  static final String DIRECTORY = "dqse/quests";
-  private static final Logger log = LogManager.getLogger(Constants.LOG_NAME);
-  private static final Gson GSON = new Gson();
 
   public QuestContentLoader() {
-    super(GSON, DIRECTORY);
-  }
-
-  private static String buildFilePath(ResourceLocation resourceLocation) {
-    return "data/"
-        + resourceLocation.getNamespace()
-        + "/"
-        + DIRECTORY
-        + "/"
-        + resourceLocation.getPath()
-        + ".json";
+    super("data", "dqse/quests");
   }
 
   @Override
-  protected void apply(
-      Map<ResourceLocation, JsonElement> jsonEntries,
-      ResourceManager resourceManager,
-      ProfilerFiller profiler) {
-    ContentIssueTracker.clearFor(ContentType.QUEST);
+  protected ContentType contentType() {
+    return ContentType.QUEST;
+  }
+
+  @Override
+  protected ParseResult<QuestDefinition> parse(
+      ResourceLocation id, String filePath, JsonObject json) {
+    return QuestContentParser.parse(id, filePath, json);
+  }
+
+  @Override
+  protected void beforeLoad() {
     QuestClientRegistry.clear();
-    Map<ResourceLocation, QuestDefinition> loaded = new LinkedHashMap<>();
+  }
 
-    for (Map.Entry<ResourceLocation, JsonElement> fileEntry : jsonEntries.entrySet()) {
-      ResourceLocation resourceLocation = fileEntry.getKey();
-      String filePath = buildFilePath(resourceLocation);
-
-      if (!fileEntry.getValue().isJsonObject()) {
-        ContentIssueTracker.record(
-            ContentIssue.of(
-                IssueCode.JSON_PARSE_FAILED, ContentType.QUEST, resourceLocation, filePath, null));
-        log.error(
-            "{} Quest {} — root element is not a JSON object, skipping.",
-            Constants.LOG_PREFIX,
-            resourceLocation);
-        continue;
-      }
-
-      ParseResult<QuestDefinition> result =
-          ContentParserGuard.parse(
-              ContentType.QUEST,
-              resourceLocation,
-              filePath,
-              fileEntry.getValue().getAsJsonObject(),
-              json -> QuestContentParser.parse(resourceLocation, filePath, json));
-
-      result.issues().forEach(ContentIssueTracker::record);
-
-      if (result.isSuccess()) {
-        QuestDefinition definition = result.value().get();
-        loaded.put(resourceLocation, definition);
-        QuestClientRegistry.put(definition);
-      } else {
-        log.error(
-            "{} Skipped quest {} — see issues above for details.",
-            Constants.LOG_PREFIX,
-            resourceLocation);
-      }
-    }
-
+  @Override
+  protected void commit(Map<ResourceLocation, QuestDefinition> loaded) {
     QuestContentRegistry.replaceAll(loaded);
+    loaded.values().forEach(QuestClientRegistry::put);
+  }
 
-    log.info(
-        "{} Loaded {} {}.",
-        Constants.LOG_PREFIX,
-        loaded.size(),
-        loaded.size() == 1 ? "quest" : "quests");
+  @Override
+  protected String contentName() {
+    return "quest";
   }
 
   @Override

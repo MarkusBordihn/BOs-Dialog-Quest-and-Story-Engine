@@ -19,11 +19,44 @@
 
 package de.markusbordihn.dialogqueststoryengine.gametest;
 
+import com.mojang.authlib.GameProfile;
+import io.netty.channel.embedded.EmbeddedChannel;
+import java.util.UUID;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.network.Connection;
+import net.minecraft.network.protocol.PacketFlow;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 
 public class GameTestHelpers {
 
   private GameTestHelpers() {}
+
+  /**
+   * Mirrors {@link GameTestHelper#makeMockServerPlayerInLevel()} but backs the connection with a
+   * live {@link EmbeddedChannel}. The vanilla helper leaves the connection channel-less, which
+   * makes the Forge post-login network sync fail with a {@code Connection.channel()} NPE.
+   */
+  public static ServerPlayer mockConnectedServerPlayer(GameTestHelper helper) {
+    ServerLevel level = helper.getLevel();
+    ServerPlayer serverPlayer =
+        new ServerPlayer(
+            level.getServer(), level, new GameProfile(UUID.randomUUID(), "test-mock-player")) {
+          @Override
+          public boolean isSpectator() {
+            return false;
+          }
+
+          @Override
+          public boolean isCreative() {
+            return true;
+          }
+        };
+    Connection connection = new Connection(PacketFlow.SERVERBOUND);
+    new EmbeddedChannel(connection);
+    level.getServer().getPlayerList().placeNewPlayer(connection, serverPlayer);
+    return serverPlayer;
+  }
 
   public static void assertTrue(GameTestHelper helper, String message, boolean condition) {
     if (condition) {

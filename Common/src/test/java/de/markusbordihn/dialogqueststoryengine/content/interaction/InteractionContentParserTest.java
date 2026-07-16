@@ -29,6 +29,8 @@ import com.google.gson.JsonObject;
 import de.markusbordihn.dialogqueststoryengine.data.interaction.InteractionEventType;
 import de.markusbordihn.dialogqueststoryengine.data.issue.IssueCode;
 import de.markusbordihn.dialogqueststoryengine.data.json.ParseResult;
+import de.markusbordihn.dialogqueststoryengine.logic.action.BuiltinActions;
+import de.markusbordihn.dialogqueststoryengine.logic.condition.BuiltinConditions;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -36,6 +38,7 @@ import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 import net.minecraft.resources.ResourceLocation;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 class InteractionContentParserTest {
@@ -45,9 +48,15 @@ class InteractionContentParserTest {
   private static final String TEST_FILE = "test.json";
 
   private static final ResourceLocation EXAMPLES_ENTITY_BOUND_ID =
-      new ResourceLocation("dialog_quest_and_story_engine_examples", "entity_bound_dialog");
+      new ResourceLocation("dqse_example", "entity_bound_dialog");
   private static final ResourceLocation EXAMPLES_OPEN_HELLO_ID =
-      new ResourceLocation("dialog_quest_and_story_engine_examples", "open_hello_dialog");
+      new ResourceLocation("dqse_example", "open_hello_dialog");
+
+  @BeforeAll
+  static void registerBuiltins() {
+    BuiltinConditions.register();
+    BuiltinActions.register();
+  }
 
   private static JsonObject loadJson(String classpathPath) {
     try (InputStream stream =
@@ -66,9 +75,7 @@ class InteractionContentParserTest {
 
   @Test
   void parsesExampleEntityBoundDialog() {
-    JsonObject input =
-        loadJson(
-            "data/dialog_quest_and_story_engine_examples/dqse/interactions/entity_bound_dialog.json");
+    JsonObject input = loadJson("data/dqse_example/dqse/interactions/entity_bound_dialog.json");
 
     ParseResult<InteractionDefinition> result =
         InteractionContentParser.parse(EXAMPLES_ENTITY_BOUND_ID, "entity_bound_dialog.json", input);
@@ -112,9 +119,7 @@ class InteractionContentParserTest {
 
   @Test
   void parsesExampleOpenHelloDialog() {
-    JsonObject input =
-        loadJson(
-            "data/dialog_quest_and_story_engine_examples/dqse/interactions/open_hello_dialog.json");
+    JsonObject input = loadJson("data/dqse_example/dqse/interactions/open_hello_dialog.json");
 
     ParseResult<InteractionDefinition> result =
         InteractionContentParser.parse(EXAMPLES_OPEN_HELLO_ID, "open_hello_dialog.json", input);

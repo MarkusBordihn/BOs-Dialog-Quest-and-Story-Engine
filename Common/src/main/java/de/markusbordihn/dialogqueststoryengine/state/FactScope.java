@@ -20,15 +20,10 @@
 package de.markusbordihn.dialogqueststoryengine.state;
 
 public enum FactScope {
-  /** Per-player facts. */
   PLAYER,
-  /** World-wide state. */
   WORLD,
-  /** Server-wide state. */
   SERVER,
-  /** Group/party progress. */
   PARTY,
-  /** Optional profile-level state. */
   PROFILE;
 
   public static FactScope fromName(String name) {

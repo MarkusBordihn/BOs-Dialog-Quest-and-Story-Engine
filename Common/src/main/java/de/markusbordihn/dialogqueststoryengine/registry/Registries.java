@@ -35,6 +35,8 @@ public final class Registries {
       new ExtensionRegistry<>(RegistryType.QUEST_STEPS);
   public static final ExtensionRegistry<ThemeProvider> THEMES =
       new ExtensionRegistry<>(RegistryType.THEMES);
+  public static final ExtensionRegistry<ContextValueProvider> CONTEXT_VALUES =
+      new ExtensionRegistry<>(RegistryType.CONTEXT_VALUES);
   public static final ExtensionRegistry<ContentValidator> VALIDATORS =
       new ExtensionRegistry<>(RegistryType.VALIDATORS);
 
@@ -47,6 +49,7 @@ public final class Registries {
     ALL.put(RegistryType.INTERACTIONS, INTERACTIONS);
     ALL.put(RegistryType.QUEST_STEPS, QUEST_STEPS);
     ALL.put(RegistryType.THEMES, THEMES);
+    ALL.put(RegistryType.CONTEXT_VALUES, CONTEXT_VALUES);
     ALL.put(RegistryType.VALIDATORS, VALIDATORS);
   }
 

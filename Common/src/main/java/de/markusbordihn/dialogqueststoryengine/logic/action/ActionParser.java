@@ -25,28 +25,32 @@ import com.google.gson.JsonObject;
 import de.markusbordihn.dialogqueststoryengine.data.ContentType;
 import de.markusbordihn.dialogqueststoryengine.data.issue.ContentIssue;
 import de.markusbordihn.dialogqueststoryengine.data.issue.IssueCode;
-import de.markusbordihn.dialogqueststoryengine.logic.action.types.AdvanceQuestStepAction;
-import de.markusbordihn.dialogqueststoryengine.logic.action.types.CompleteQuestAction;
 import de.markusbordihn.dialogqueststoryengine.logic.action.types.GiveItemAction;
-import de.markusbordihn.dialogqueststoryengine.logic.action.types.MarkStoryReadAction;
 import de.markusbordihn.dialogqueststoryengine.logic.action.types.OpenDialogAction;
-import de.markusbordihn.dialogqueststoryengine.logic.action.types.OpenStoryAction;
 import de.markusbordihn.dialogqueststoryengine.logic.action.types.RunCommandAction;
 import de.markusbordihn.dialogqueststoryengine.logic.action.types.RunFunctionAction;
-import de.markusbordihn.dialogqueststoryengine.logic.action.types.SetFactAction;
-import de.markusbordihn.dialogqueststoryengine.logic.action.types.StartQuestAction;
-import de.markusbordihn.dialogqueststoryengine.logic.action.types.UnlockStoryAction;
 import de.markusbordihn.dialogqueststoryengine.registry.ActionHandler;
 import de.markusbordihn.dialogqueststoryengine.registry.Registries;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import net.minecraft.resources.ResourceLocation;
 
 public final class ActionParser {
 
   private static final String KEY_TYPE = "type";
+
+  private static final Map<String, ResourceLocation> SHORTHAND_KEYS =
+      Map.of(
+          "item", GiveItemAction.TYPE_ID,
+          "dialog", OpenDialogAction.TYPE_ID,
+          "function", RunFunctionAction.TYPE_ID,
+          "command", RunCommandAction.TYPE_ID);
+
+  private static final Set<String> AMBIGUOUS_KEYS = Set.of("quest", "story", "fact");
 
   private ActionParser() {}
 
@@ -130,47 +134,43 @@ public final class ActionParser {
       ResourceLocation contentId,
       String filePath,
       List<ContentIssue> issues) {
-    if (jsonObject.has("item")) {
-      return GiveItemAction.parse(jsonObject, contentType, contentId, filePath, issues);
-    }
-    if (jsonObject.has("dialog")) {
-      return OpenDialogAction.parse(jsonObject, contentType, contentId, filePath, issues);
-    }
-    if (jsonObject.has("function")) {
-      return RunFunctionAction.parse(jsonObject, contentType, contentId, filePath, issues);
-    }
-    if (jsonObject.has("command")) {
-      return RunCommandAction.parse(jsonObject, contentType, contentId, filePath, issues);
-    }
-    if (jsonObject.has("fact") && jsonObject.has("value")) {
-      return SetFactAction.parse(jsonObject, contentType, contentId, filePath, issues);
-    }
-    if (jsonObject.has("quest")) {
-      if (jsonObject.has("step")) {
-        return AdvanceQuestStepAction.parse(jsonObject, contentType, contentId, filePath, issues);
-      }
-      if (isTrue(jsonObject, "complete")) {
-        return CompleteQuestAction.parse(jsonObject, contentType, contentId, filePath, issues);
-      }
-      return StartQuestAction.parse(jsonObject, contentType, contentId, filePath, issues);
-    }
-    if (jsonObject.has("story")) {
-      if (isTrue(jsonObject, "read")) {
-        return MarkStoryReadAction.parse(jsonObject, contentType, contentId, filePath, issues);
-      }
-      if (isTrue(jsonObject, "open")) {
-        return OpenStoryAction.parse(jsonObject, contentType, contentId, filePath, issues);
-      }
-      return UnlockStoryAction.parse(jsonObject, contentType, contentId, filePath, issues);
+    if (jsonObject.keySet().stream().anyMatch(AMBIGUOUS_KEYS::contains)) {
+      issues.add(
+          ContentIssue.of(
+              IssueCode.AMBIGUOUS_ACTION_TYPE, contentType, contentId, filePath, "actions"));
+      return Action.NOOP;
     }
 
-    issues.add(
-        ContentIssue.of(
-            IssueCode.UNKNOWN_ACTION_TYPE, contentType, contentId, filePath, "actions"));
-    return Action.NOOP;
-  }
+    Map<String, ResourceLocation> matches = new LinkedHashMap<>();
+    for (Map.Entry<String, ResourceLocation> shorthand : SHORTHAND_KEYS.entrySet()) {
+      if (jsonObject.has(shorthand.getKey())) {
+        matches.put(shorthand.getKey(), shorthand.getValue());
+      }
+    }
 
-  private static boolean isTrue(JsonObject json, String key) {
-    return json.has(key) && json.get(key).isJsonPrimitive() && json.get(key).getAsBoolean();
+    if (matches.isEmpty()) {
+      issues.add(
+          ContentIssue.of(
+              IssueCode.UNKNOWN_ACTION_TYPE, contentType, contentId, filePath, "actions"));
+      return Action.NOOP;
+    }
+
+    if (matches.size() > 1) {
+      issues.add(
+          ContentIssue.of(
+              IssueCode.AMBIGUOUS_ACTION_TYPE,
+              contentType,
+              contentId,
+              filePath,
+              "actions",
+              Map.of("keys", String.join(", ", matches.keySet()))));
+      return Action.NOOP;
+    }
+
+    ResourceLocation typeId = matches.values().iterator().next();
+    return Registries.ACTIONS
+        .get(typeId)
+        .map(handler -> handler.parse(jsonObject, contentType, contentId, filePath, issues))
+        .orElse(Action.NOOP);
   }
 }

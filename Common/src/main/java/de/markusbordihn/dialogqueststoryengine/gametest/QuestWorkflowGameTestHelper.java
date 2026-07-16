@@ -31,8 +31,7 @@ import net.minecraft.resources.ResourceLocation;
 
 public class QuestWorkflowGameTestHelper {
 
-  static final ResourceLocation QUEST_1 =
-      new ResourceLocation("dialog_quest_and_story_engine_examples", "first_quest");
+  static final ResourceLocation QUEST_1 = new ResourceLocation("dqse_example", "first_quest");
   static final ResourceLocation QUEST_2 = new ResourceLocation("test", "quest_two");
 
   private QuestWorkflowGameTestHelper() {}

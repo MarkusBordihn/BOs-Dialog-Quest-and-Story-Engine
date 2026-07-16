@@ -19,10 +19,15 @@
 
 package de.markusbordihn.dialogqueststoryengine.logic.condition;
 
+import de.markusbordihn.dialogqueststoryengine.logic.condition.types.FactCompareCondition;
 import de.markusbordihn.dialogqueststoryengine.logic.condition.types.FactEqualsCondition;
+import de.markusbordihn.dialogqueststoryengine.logic.condition.types.FactExistsCondition;
 import de.markusbordihn.dialogqueststoryengine.logic.condition.types.HasItemCondition;
 import de.markusbordihn.dialogqueststoryengine.logic.condition.types.PermissionLevelCondition;
 import de.markusbordihn.dialogqueststoryengine.logic.condition.types.QuestStateCondition;
+import de.markusbordihn.dialogqueststoryengine.logic.condition.types.QuestStepStateCondition;
+import de.markusbordihn.dialogqueststoryengine.logic.condition.types.StoryReadCondition;
+import de.markusbordihn.dialogqueststoryengine.logic.condition.types.StoryUnlockedCondition;
 import de.markusbordihn.dialogqueststoryengine.registry.Registries;
 
 public final class BuiltinConditions {
@@ -31,7 +36,12 @@ public final class BuiltinConditions {
 
   public static void register() {
     Registries.CONDITIONS.register(FactEqualsCondition.TYPE_ID, FactEqualsCondition::parse);
+    Registries.CONDITIONS.register(FactExistsCondition.TYPE_ID, FactExistsCondition::parse);
+    Registries.CONDITIONS.register(FactCompareCondition.TYPE_ID, FactCompareCondition::parse);
     Registries.CONDITIONS.register(QuestStateCondition.TYPE_ID, QuestStateCondition::parse);
+    Registries.CONDITIONS.register(QuestStepStateCondition.TYPE_ID, QuestStepStateCondition::parse);
+    Registries.CONDITIONS.register(StoryUnlockedCondition.TYPE_ID, StoryUnlockedCondition::parse);
+    Registries.CONDITIONS.register(StoryReadCondition.TYPE_ID, StoryReadCondition::parse);
     Registries.CONDITIONS.register(HasItemCondition.TYPE_ID, HasItemCondition::parse);
     Registries.CONDITIONS.register(
         PermissionLevelCondition.TYPE_ID, PermissionLevelCondition::parse);

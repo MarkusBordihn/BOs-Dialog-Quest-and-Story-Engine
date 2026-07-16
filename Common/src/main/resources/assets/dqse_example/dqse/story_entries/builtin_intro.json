@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "type": "holopad",
+  "title_key": "story.dqse_example.builtin_intro.title",
+  "theme": "dqse_example:builtin_holopad",
+  "pages": [
+    {
+      "text_key": "story.dqse_example.builtin_intro.page_1"
+    },
+    {
+      "text_key": "story.dqse_example.builtin_intro.page_2"
+    }
+  ]
+}

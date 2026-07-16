@@ -24,6 +24,7 @@ public enum StepState {
   ACTIVE,
   COMPLETED,
   FAILED,
+  SKIPPED,
   HIDDEN;
 
   public static StepState fromName(String name) {

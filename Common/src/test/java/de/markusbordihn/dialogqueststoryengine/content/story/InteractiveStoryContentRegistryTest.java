@@ -37,8 +37,7 @@ class InteractiveStoryContentRegistryTest {
   private static final ResourceLocation LAYOUT = new ResourceLocation("test", "layout");
 
   private static InteractiveStoryDefinition minimal(ResourceLocation id) {
-    return new InteractiveStoryDefinition(
-        id, 1, LAYOUT, InteractiveStoryMode.SERVER_SYNCED, ActionList.EMPTY, List.of());
+    return new InteractiveStoryDefinition(id, 1, LAYOUT, ActionList.EMPTY, List.of());
   }
 
   @AfterEach

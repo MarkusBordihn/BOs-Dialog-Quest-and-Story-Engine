@@ -41,8 +41,7 @@ import org.junit.jupiter.api.Test;
 
 class ExampleDialogValidationTest {
 
-  private static final String DIALOG_DIR =
-      "data/dialog_quest_and_story_engine_examples/dqse/dialogs/";
+  private static final String DIALOG_DIR = "data/dqse_example/dqse/dialogs/";
 
   private static JsonObject loadJson(String classpathPath) {
     try (InputStream stream =
@@ -56,7 +55,7 @@ class ExampleDialogValidationTest {
   }
 
   private static DialogDefinition parse(String id) {
-    ResourceLocation contentId = new ResourceLocation("dialog_quest_and_story_engine_examples", id);
+    ResourceLocation contentId = new ResourceLocation("dqse_example", id);
     ParseResult<DialogDefinition> result =
         DialogContentParser.parse(contentId, id + ".json", loadJson(DIALOG_DIR + id + ".json"));
     assertTrue(result.isSuccess(), "Example dialog '" + id + "' should parse");

@@ -19,98 +19,51 @@
 
 package de.markusbordihn.dialogqueststoryengine.story.entry;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import de.markusbordihn.dialogqueststoryengine.Constants;
+import de.markusbordihn.dialogqueststoryengine.content.AbstractJsonContentLoader;
 import de.markusbordihn.dialogqueststoryengine.data.ContentType;
-import de.markusbordihn.dialogqueststoryengine.data.issue.ContentIssue;
-import de.markusbordihn.dialogqueststoryengine.data.issue.ContentIssueTracker;
-import de.markusbordihn.dialogqueststoryengine.data.issue.IssueCode;
-import de.markusbordihn.dialogqueststoryengine.data.json.ContentParserGuard;
 import de.markusbordihn.dialogqueststoryengine.data.json.ParseResult;
 import java.util.Map;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
-import net.minecraft.util.profiling.ProfilerFiller;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
-public class StoryEntryLoader extends SimpleJsonResourceReloadListener {
+public class StoryEntryLoader extends AbstractJsonContentLoader<StoryEntry> {
 
   public static final ResourceLocation ID = new ResourceLocation(Constants.MOD_ID, "story_entries");
-  static final String DIRECTORY = "dqse/story_entries";
-  private static final Logger log = LogManager.getLogger(Constants.LOG_NAME);
-  private static final Gson GSON = new Gson();
 
   public StoryEntryLoader() {
-    super(GSON, DIRECTORY);
-  }
-
-  private static String buildFilePath(ResourceLocation resourceLocation) {
-    return "assets/"
-        + resourceLocation.getNamespace()
-        + "/"
-        + DIRECTORY
-        + "/"
-        + resourceLocation.getPath()
-        + ".json";
+    super("assets", "dqse/story_entries");
   }
 
   @Override
-  protected void apply(
-      Map<ResourceLocation, JsonElement> jsonEntries,
-      ResourceManager resourceManager,
-      ProfilerFiller profiler) {
+  protected ContentType contentType() {
+    return ContentType.STORY_ENTRY;
+  }
+
+  @Override
+  protected ParseResult<StoryEntry> parse(ResourceLocation id, String filePath, JsonObject json) {
+    return StoryEntryParser.parse(id, filePath, json);
+  }
+
+  @Override
+  protected void beforeLoad() {
     StoryEntryClientRegistry.clear();
-    ContentIssueTracker.clearFor(ContentType.STORY_ENTRY);
+  }
 
-    for (Map.Entry<ResourceLocation, JsonElement> fileEntry : jsonEntries.entrySet()) {
-      ResourceLocation resourceLocation = fileEntry.getKey();
-      String filePath = buildFilePath(resourceLocation);
-
-      if (!fileEntry.getValue().isJsonObject()) {
-        ContentIssueTracker.record(
-            ContentIssue.of(
-                IssueCode.JSON_PARSE_FAILED,
-                ContentType.STORY_ENTRY,
-                resourceLocation,
-                filePath,
-                null));
-        log.error(
-            "{} Story entry {} — root element is not a JSON object, skipping.",
-            Constants.LOG_PREFIX,
-            resourceLocation);
-        continue;
-      }
-
-      ParseResult<StoryEntry> result =
-          ContentParserGuard.parse(
-              ContentType.STORY_ENTRY,
-              resourceLocation,
-              filePath,
-              fileEntry.getValue().getAsJsonObject(),
-              json -> StoryEntryParser.parse(resourceLocation, filePath, json));
-
-      result.issues().forEach(ContentIssueTracker::record);
-
-      if (result.isSuccess()) {
-        StoryEntryClientRegistry.put(result.value().get());
-      } else {
-        log.error(
-            "{} Skipped story entry {} — see issues above for details.",
-            Constants.LOG_PREFIX,
-            resourceLocation);
-      }
-    }
-
-    log.info(
-        "{} Loaded {} story {}.",
-        Constants.LOG_PREFIX,
-        StoryEntryClientRegistry.size(),
-        StoryEntryClientRegistry.size() == 1 ? "entry" : "entries");
-
+  @Override
+  protected void commit(Map<ResourceLocation, StoryEntry> loaded) {
+    loaded.values().forEach(StoryEntryClientRegistry::put);
     StoryEntryThemeLinker.validate();
+  }
+
+  @Override
+  protected String contentName() {
+    return "story entry";
+  }
+
+  @Override
+  protected String contentNamePlural() {
+    return "story entries";
   }
 
   @Override

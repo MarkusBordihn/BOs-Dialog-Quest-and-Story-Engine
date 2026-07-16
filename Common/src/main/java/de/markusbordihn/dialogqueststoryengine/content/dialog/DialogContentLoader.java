@@ -19,102 +19,56 @@
 
 package de.markusbordihn.dialogqueststoryengine.content.dialog;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import de.markusbordihn.dialogqueststoryengine.Constants;
+import de.markusbordihn.dialogqueststoryengine.content.AbstractJsonContentLoader;
 import de.markusbordihn.dialogqueststoryengine.content.dialog.runtime.DialogRuntimeRegistry;
 import de.markusbordihn.dialogqueststoryengine.content.dialog.runtime.JsonDialogRuntime;
 import de.markusbordihn.dialogqueststoryengine.data.ContentType;
-import de.markusbordihn.dialogqueststoryengine.data.issue.ContentIssue;
-import de.markusbordihn.dialogqueststoryengine.data.issue.ContentIssueTracker;
-import de.markusbordihn.dialogqueststoryengine.data.issue.IssueCode;
-import de.markusbordihn.dialogqueststoryengine.data.json.ContentParserGuard;
 import de.markusbordihn.dialogqueststoryengine.data.json.ParseResult;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
-import net.minecraft.util.profiling.ProfilerFiller;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
-public class DialogContentLoader extends SimpleJsonResourceReloadListener {
+public class DialogContentLoader extends AbstractJsonContentLoader<DialogDefinition> {
 
   public static final ResourceLocation ID = new ResourceLocation(Constants.MOD_ID, "dialogs");
-  static final String DIRECTORY = "dqse/dialogs";
-  private static final Logger log = LogManager.getLogger(Constants.LOG_NAME);
-  private static final Gson GSON = new Gson();
 
   public DialogContentLoader() {
-    super(GSON, DIRECTORY);
-  }
-
-  private static String buildFilePath(ResourceLocation resourceLocation) {
-    return "data/"
-        + resourceLocation.getNamespace()
-        + "/"
-        + DIRECTORY
-        + "/"
-        + resourceLocation.getPath()
-        + ".json";
+    super("data", "dqse/dialogs");
   }
 
   @Override
-  protected void apply(
-      Map<ResourceLocation, JsonElement> jsonEntries,
-      ResourceManager resourceManager,
-      ProfilerFiller profiler) {
-    ContentIssueTracker.clearFor(ContentType.DIALOG);
+  protected ContentType contentType() {
+    return ContentType.DIALOG;
+  }
+
+  @Override
+  protected ParseResult<DialogDefinition> parse(
+      ResourceLocation id, String filePath, JsonObject json) {
+    return DialogContentParser.parse(id, filePath, json);
+  }
+
+  @Override
+  protected void beforeLoad() {
     DialogClientRegistry.clear();
     DialogRuntimeRegistry.invalidateAll();
-    Map<ResourceLocation, DialogDefinition> loaded = new LinkedHashMap<>();
+  }
 
-    for (Map.Entry<ResourceLocation, JsonElement> fileEntry : jsonEntries.entrySet()) {
-      ResourceLocation resourceLocation = fileEntry.getKey();
-      String filePath = buildFilePath(resourceLocation);
-
-      if (!fileEntry.getValue().isJsonObject()) {
-        ContentIssueTracker.record(
-            ContentIssue.of(
-                IssueCode.JSON_PARSE_FAILED, ContentType.DIALOG, resourceLocation, filePath, null));
-        log.error(
-            "{} Dialog {} — root element is not a JSON object, skipping.",
-            Constants.LOG_PREFIX,
-            resourceLocation);
-        continue;
-      }
-
-      ParseResult<DialogDefinition> result =
-          ContentParserGuard.parse(
-              ContentType.DIALOG,
-              resourceLocation,
-              filePath,
-              fileEntry.getValue().getAsJsonObject(),
-              json -> DialogContentParser.parse(resourceLocation, filePath, json));
-
-      result.issues().forEach(ContentIssueTracker::record);
-
-      if (result.isSuccess()) {
-        DialogDefinition definition = result.value().get();
-        loaded.put(resourceLocation, definition);
-        DialogClientRegistry.put(definition);
-        DialogRuntimeRegistry.put(new JsonDialogRuntime(definition));
-      } else {
-        log.error(
-            "{} Skipped dialog {} — see issues above for details.",
-            Constants.LOG_PREFIX,
-            resourceLocation);
-      }
-    }
-
+  @Override
+  protected void commit(Map<ResourceLocation, DialogDefinition> loaded) {
     DialogContentRegistry.replaceAll(loaded);
+    loaded
+        .values()
+        .forEach(
+            definition -> {
+              DialogClientRegistry.put(definition);
+              DialogRuntimeRegistry.put(new JsonDialogRuntime(definition));
+            });
+  }
 
-    log.info(
-        "{} Loaded {} {}.",
-        Constants.LOG_PREFIX,
-        loaded.size(),
-        loaded.size() == 1 ? "dialog" : "dialogs");
+  @Override
+  protected String contentName() {
+    return "dialog";
   }
 
   @Override

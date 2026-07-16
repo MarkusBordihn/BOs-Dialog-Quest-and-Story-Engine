@@ -34,5 +34,10 @@ public final class BuiltinValidators {
     Registries.VALIDATORS.register(
         new ResourceLocation(Constants.MOD_ID, "dialog_reachability"),
         new DialogReachabilityValidator());
+    Registries.VALIDATORS.register(
+        new ResourceLocation(Constants.MOD_ID, "quest_step_types"), new QuestStepValidator());
+    Registries.VALIDATORS.register(
+        new ResourceLocation(Constants.MOD_ID, "quest_prerequisites"),
+        new QuestPrerequisiteValidator());
   }
 }

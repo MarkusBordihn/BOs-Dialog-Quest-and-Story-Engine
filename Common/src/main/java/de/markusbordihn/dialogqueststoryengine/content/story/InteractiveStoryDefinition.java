@@ -27,7 +27,6 @@ public record InteractiveStoryDefinition(
     ResourceLocation id,
     int schema,
     ResourceLocation displayStoryId,
-    InteractiveStoryMode mode,
     ActionList onOpen,
     List<InteractiveStoryChoice> choices) {
 

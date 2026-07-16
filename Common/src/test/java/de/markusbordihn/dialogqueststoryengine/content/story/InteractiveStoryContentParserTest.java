@@ -27,6 +27,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import de.markusbordihn.dialogqueststoryengine.data.issue.IssueCode;
 import de.markusbordihn.dialogqueststoryengine.data.json.ParseResult;
+import de.markusbordihn.dialogqueststoryengine.logic.action.BuiltinActions;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -34,6 +35,7 @@ import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 import net.minecraft.resources.ResourceLocation;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 class InteractiveStoryContentParserTest {
@@ -43,7 +45,12 @@ class InteractiveStoryContentParserTest {
   private static final String TEST_FILE = "test.json";
 
   private static final ResourceLocation EXAMPLES_VILLAGE_INTRO_ID =
-      new ResourceLocation("dialog_quest_and_story_engine_examples", "village_intro");
+      new ResourceLocation("dqse_example", "village_intro");
+
+  @BeforeAll
+  static void registerBuiltins() {
+    BuiltinActions.register();
+  }
 
   private static JsonObject loadJson(String classpathPath) {
     try (InputStream stream =
@@ -64,9 +71,7 @@ class InteractiveStoryContentParserTest {
 
   @Test
   void parsesExampleVillageIntro() {
-    JsonObject input =
-        loadJson(
-            "data/dialog_quest_and_story_engine_examples/dqse/interactive_story/village_intro.json");
+    JsonObject input = loadJson("data/dqse_example/dqse/interactive_story/village_intro.json");
 
     ParseResult<InteractiveStoryDefinition> result =
         InteractiveStoryContentParser.parse(EXAMPLES_VILLAGE_INTRO_ID, "village_intro.json", input);
@@ -75,29 +80,10 @@ class InteractiveStoryContentParserTest {
     assertTrue(result.issues().isEmpty());
     assertEquals(EXAMPLES_VILLAGE_INTRO_ID, result.value().get().id());
     assertEquals(
-        new ResourceLocation("dialog_quest_and_story_engine_examples", "village_intro"),
+        new ResourceLocation("dqse_example", "village_intro"),
         result.value().get().displayStoryId());
-    assertEquals(InteractiveStoryMode.SERVER_SYNCED, result.value().get().mode());
     assertEquals(2, result.value().get().choices().size());
     assertEquals(1, result.value().get().onOpen().size());
-  }
-
-  @Test
-  void missingMode() {
-    JsonObject input =
-        json(
-            """
-        {
-          "schema": 1,
-          "display": "test:story_layout"
-        }
-        """);
-
-    ParseResult<InteractiveStoryDefinition> result =
-        InteractiveStoryContentParser.parse(TEST_ID, TEST_FILE, input);
-
-    assertFalse(result.isSuccess());
-    assertTrue(result.issues().stream().anyMatch(issue -> issue.code() == IssueCode.MISSING_FIELD));
   }
 
   @Test
@@ -106,8 +92,7 @@ class InteractiveStoryContentParserTest {
         json(
             """
         {
-          "schema": 1,
-          "mode": "server_synced"
+          "schema": 1
         }
         """);
 
@@ -116,26 +101,6 @@ class InteractiveStoryContentParserTest {
 
     assertFalse(result.isSuccess());
     assertTrue(result.issues().stream().anyMatch(issue -> issue.code() == IssueCode.MISSING_FIELD));
-  }
-
-  @Test
-  void unknownMode() {
-    JsonObject input =
-        json(
-            """
-        {
-          "schema": 1,
-          "display": "test:story_layout",
-          "mode": "invalid_mode"
-        }
-        """);
-
-    ParseResult<InteractiveStoryDefinition> result =
-        InteractiveStoryContentParser.parse(TEST_ID, TEST_FILE, input);
-
-    assertFalse(result.isSuccess());
-    assertTrue(
-        result.issues().stream().anyMatch(issue -> issue.code() == IssueCode.UNKNOWN_STORY_MODE));
   }
 
   @Test
@@ -145,8 +110,7 @@ class InteractiveStoryContentParserTest {
             """
         {
           "schema": 1,
-          "display": "test:story_layout",
-          "mode": "client_only",
+          "display_story_id": "test:story_layout",
           "on_open": [
             { "type": "dqse:play_sound", "sound": "minecraft:block.note_block.harp" }
           ]
@@ -167,8 +131,7 @@ class InteractiveStoryContentParserTest {
             """
         {
           "schema": 1,
-          "display": "test:story_layout",
-          "mode": "server_synced",
+          "display_story_id": "test:story_layout",
           "choices": [
             {
               "id": "accept",

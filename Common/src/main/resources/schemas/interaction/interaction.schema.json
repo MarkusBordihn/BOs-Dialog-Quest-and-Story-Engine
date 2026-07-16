@@ -1,0 +1,31 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "dqse://schemas/interaction",
+  "title": "DQSE Interaction Definition",
+  "type": "object",
+  "required": ["schema", "event"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {"type": "string"},
+    "schema": {"type": "integer", "const": 1},
+    "event": {
+      "type": "string",
+      "enum": ["on_entity_interact", "on_block_interact", "on_step_on", "on_holopad_use"]
+    },
+    "binding": {
+      "type": "object",
+      "required": ["kind"],
+      "additionalProperties": false,
+      "properties": {
+        "kind": {"type": "string", "enum": ["entity", "block", "unbound"]},
+        "target_id": {"type": "string"},
+        "dimension": {"type": "string", "pattern": "^[a-z0-9_.-]+:[a-z0-9_./-]+$"},
+        "x": {"type": "integer"},
+        "y": {"type": "integer"},
+        "z": {"type": "integer"}
+      }
+    },
+    "conditions": {"type": "array", "items": {"type": "object"}},
+    "actions": {"type": "array", "items": {"type": "object"}}
+  }
+}

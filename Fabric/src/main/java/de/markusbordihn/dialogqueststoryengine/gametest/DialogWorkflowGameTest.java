@@ -60,4 +60,28 @@ public class DialogWorkflowGameTest {
     DialogWorkflowGameTestHelper.testUnknownChoiceRejected(helper);
     helper.succeed();
   }
+
+  @GameTest(template = "dialog_quest_and_story_engine:gametest.3x3x3")
+  public void testChoiceButtonPacketNavigates(GameTestHelper helper) {
+    DialogWorkflowGameTestHelper.testChoiceButtonPacketNavigates(helper);
+    helper.succeed();
+  }
+
+  @GameTest(template = "dialog_quest_and_story_engine:gametest.3x3x3")
+  public void testChoiceButtonPacketStartsQuest(GameTestHelper helper) {
+    DialogWorkflowGameTestHelper.testChoiceButtonPacketStartsQuest(helper);
+    helper.succeed();
+  }
+
+  @GameTest(template = "dialog_quest_and_story_engine:gametest.3x3x3")
+  public void testCloseButtonPacketEndsSession(GameTestHelper helper) {
+    DialogWorkflowGameTestHelper.testCloseButtonPacketEndsSession(helper);
+    helper.succeed();
+  }
+
+  @GameTest(template = "dialog_quest_and_story_engine:gametest.3x3x3")
+  public void testStaleChoiceButtonPacketRejected(GameTestHelper helper) {
+    DialogWorkflowGameTestHelper.testStaleChoiceButtonPacketRejected(helper);
+    helper.succeed();
+  }
 }

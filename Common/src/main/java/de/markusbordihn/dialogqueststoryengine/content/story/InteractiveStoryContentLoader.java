@@ -19,100 +19,48 @@
 
 package de.markusbordihn.dialogqueststoryengine.content.story;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import de.markusbordihn.dialogqueststoryengine.Constants;
+import de.markusbordihn.dialogqueststoryengine.content.AbstractJsonContentLoader;
 import de.markusbordihn.dialogqueststoryengine.data.ContentType;
-import de.markusbordihn.dialogqueststoryengine.data.issue.ContentIssue;
-import de.markusbordihn.dialogqueststoryengine.data.issue.ContentIssueTracker;
-import de.markusbordihn.dialogqueststoryengine.data.issue.IssueCode;
-import de.markusbordihn.dialogqueststoryengine.data.json.ContentParserGuard;
 import de.markusbordihn.dialogqueststoryengine.data.json.ParseResult;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
-import net.minecraft.util.profiling.ProfilerFiller;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
-public class InteractiveStoryContentLoader extends SimpleJsonResourceReloadListener {
+public class InteractiveStoryContentLoader
+    extends AbstractJsonContentLoader<InteractiveStoryDefinition> {
 
   public static final ResourceLocation ID =
       new ResourceLocation(Constants.MOD_ID, "interactive_stories");
-  static final String DIRECTORY = "dqse/interactive_story";
-  private static final Logger log = LogManager.getLogger(Constants.LOG_NAME);
-  private static final Gson GSON = new Gson();
 
   public InteractiveStoryContentLoader() {
-    super(GSON, DIRECTORY);
-  }
-
-  private static String buildFilePath(ResourceLocation resourceLocation) {
-    return "data/"
-        + resourceLocation.getNamespace()
-        + "/"
-        + DIRECTORY
-        + "/"
-        + resourceLocation.getPath()
-        + ".json";
+    super("data", "dqse/interactive_story");
   }
 
   @Override
-  protected void apply(
-      Map<ResourceLocation, JsonElement> jsonEntries,
-      ResourceManager resourceManager,
-      ProfilerFiller profiler) {
-    ContentIssueTracker.clearFor(ContentType.INTERACTIVE_STORY);
-    Map<ResourceLocation, InteractiveStoryDefinition> loaded = new LinkedHashMap<>();
+  protected ContentType contentType() {
+    return ContentType.INTERACTIVE_STORY;
+  }
 
-    for (Map.Entry<ResourceLocation, JsonElement> fileEntry : jsonEntries.entrySet()) {
-      ResourceLocation resourceLocation = fileEntry.getKey();
-      String filePath = buildFilePath(resourceLocation);
+  @Override
+  protected ParseResult<InteractiveStoryDefinition> parse(
+      ResourceLocation id, String filePath, JsonObject json) {
+    return InteractiveStoryContentParser.parse(id, filePath, json);
+  }
 
-      if (!fileEntry.getValue().isJsonObject()) {
-        ContentIssueTracker.record(
-            ContentIssue.of(
-                IssueCode.JSON_PARSE_FAILED,
-                ContentType.INTERACTIVE_STORY,
-                resourceLocation,
-                filePath,
-                null));
-        log.error(
-            "{} Interactive story {} — root element is not a JSON object, skipping.",
-            Constants.LOG_PREFIX,
-            resourceLocation);
-        continue;
-      }
-
-      ParseResult<InteractiveStoryDefinition> result =
-          ContentParserGuard.parse(
-              ContentType.INTERACTIVE_STORY,
-              resourceLocation,
-              filePath,
-              fileEntry.getValue().getAsJsonObject(),
-              json -> InteractiveStoryContentParser.parse(resourceLocation, filePath, json));
-
-      result.issues().forEach(ContentIssueTracker::record);
-
-      if (result.isSuccess()) {
-        loaded.put(resourceLocation, result.value().get());
-      } else {
-        log.error(
-            "{} Skipped interactive story {} — see issues above for details.",
-            Constants.LOG_PREFIX,
-            resourceLocation);
-      }
-    }
-
+  @Override
+  protected void commit(Map<ResourceLocation, InteractiveStoryDefinition> loaded) {
     InteractiveStoryContentRegistry.replaceAll(loaded);
+  }
 
-    log.info(
-        "{} Loaded {} interactive {}.",
-        Constants.LOG_PREFIX,
-        loaded.size(),
-        loaded.size() == 1 ? "story" : "stories");
+  @Override
+  protected String contentName() {
+    return "interactive story";
+  }
+
+  @Override
+  protected String contentNamePlural() {
+    return "interactive stories";
   }
 
   @Override

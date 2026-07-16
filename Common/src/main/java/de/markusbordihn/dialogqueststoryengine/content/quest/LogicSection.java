@@ -25,10 +25,10 @@ import java.util.Optional;
 
 public record LogicSection(
     Optional<Condition> visibilityCondition,
+    QuestPrerequisites prerequisites,
     Map<String, RawQuestStep> steps,
     CompletionPolicy completionPolicy,
-    boolean repeatable,
-    SyncScope syncScope) {
+    boolean restartAfterFailure) {
 
   public LogicSection {
     steps = Map.copyOf(steps);

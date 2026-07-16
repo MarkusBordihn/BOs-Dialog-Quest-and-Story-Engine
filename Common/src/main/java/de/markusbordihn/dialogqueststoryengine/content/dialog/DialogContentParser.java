@@ -26,6 +26,7 @@ import de.markusbordihn.dialogqueststoryengine.data.ContentType;
 import de.markusbordihn.dialogqueststoryengine.data.issue.ContentIssue;
 import de.markusbordihn.dialogqueststoryengine.data.issue.IssueCode;
 import de.markusbordihn.dialogqueststoryengine.data.json.JsonFieldReader;
+import de.markusbordihn.dialogqueststoryengine.data.json.OptionalFieldReader;
 import de.markusbordihn.dialogqueststoryengine.data.json.ParseResult;
 import de.markusbordihn.dialogqueststoryengine.logic.action.ActionList;
 import de.markusbordihn.dialogqueststoryengine.logic.action.ActionParser;
@@ -49,7 +50,13 @@ public final class DialogContentParser {
   static final String FIELD_CONDITIONS = "conditions";
   static final String FIELD_ACTIONS = "actions";
   static final String FIELD_NEXT = "next";
-  static final String FIELD_ACTION = "action";
+  static final String FIELD_CLOSE = "close";
+  static final String FIELD_ONCE = "once";
+  static final String FIELD_PRESENTATION = "presentation";
+  static final String FIELD_PORTRAIT = "portrait";
+  static final String FIELD_SCENE = "scene";
+  static final String FIELD_MOOD = "mood";
+  static final String FIELD_THEME = "theme";
 
   private DialogContentParser() {}
 
@@ -180,7 +187,9 @@ public final class DialogContentParser {
               FIELD_NODES + "." + nodeId + "." + FIELD_CHOICES));
     }
 
-    return Optional.of(new DialogNodeDefinition(nodeId, speakerKey.get(), textKey.get(), choices));
+    DialogPresentation presentation = parsePresentation(nodeJson, nodeId, id, filePath, issues);
+    return Optional.of(
+        new DialogNodeDefinition(nodeId, speakerKey.get(), textKey.get(), choices, presentation));
   }
 
   private static List<DialogChoiceDefinition> parseChoices(
@@ -250,13 +259,84 @@ public final class DialogContentParser {
             ? Optional.of(choiceJson.get(FIELD_NEXT).getAsString())
             : Optional.empty();
 
-    Optional<BuiltinChoiceAction> builtin =
-        choiceJson.has(FIELD_ACTION) && choiceJson.get(FIELD_ACTION).isJsonPrimitive()
-            ? BuiltinChoiceAction.fromKey(choiceJson.get(FIELD_ACTION).getAsString())
-            : Optional.empty();
+    String choicePath = FIELD_NODES + "." + nodeId + ".choices[" + index + "]";
+    boolean close =
+        OptionalFieldReader.bool(
+            choiceJson,
+            FIELD_CLOSE,
+            choicePath + "." + FIELD_CLOSE,
+            false,
+            ContentType.DIALOG,
+            id,
+            filePath,
+            issues);
+    boolean once =
+        OptionalFieldReader.bool(
+            choiceJson,
+            FIELD_ONCE,
+            choicePath + "." + FIELD_ONCE,
+            false,
+            ContentType.DIALOG,
+            id,
+            filePath,
+            issues);
+
+    if (next.isPresent() && close) {
+      issues.add(
+          ContentIssue.of(
+              IssueCode.CHOICE_NEXT_CLOSE_CONFLICT, ContentType.DIALOG, id, filePath, choicePath));
+      return Optional.empty();
+    }
 
     return Optional.of(
         new DialogChoiceDefinition(
-            choiceId.get(), labelKey.get(), conditions, actions, next, builtin));
+            choiceId.get(), labelKey.get(), conditions, actions, next, close, once));
+  }
+
+  private static DialogPresentation parsePresentation(
+      JsonObject nodeJson,
+      String nodeId,
+      ResourceLocation id,
+      String filePath,
+      List<ContentIssue> issues) {
+    if (!nodeJson.has(FIELD_PRESENTATION) || !nodeJson.get(FIELD_PRESENTATION).isJsonObject()) {
+      return DialogPresentation.EMPTY;
+    }
+
+    JsonObject presentationJson = nodeJson.getAsJsonObject(FIELD_PRESENTATION);
+    String path = FIELD_NODES + "." + nodeId + "." + FIELD_PRESENTATION + ".";
+    return new DialogPresentation(
+        OptionalFieldReader.resourceLocation(
+            presentationJson,
+            FIELD_PORTRAIT,
+            path + FIELD_PORTRAIT,
+            ContentType.DIALOG,
+            id,
+            filePath,
+            issues),
+        OptionalFieldReader.resourceLocation(
+            presentationJson,
+            FIELD_SCENE,
+            path + FIELD_SCENE,
+            ContentType.DIALOG,
+            id,
+            filePath,
+            issues),
+        OptionalFieldReader.string(
+            presentationJson,
+            FIELD_MOOD,
+            path + FIELD_MOOD,
+            ContentType.DIALOG,
+            id,
+            filePath,
+            issues),
+        OptionalFieldReader.resourceLocation(
+            presentationJson,
+            FIELD_THEME,
+            path + FIELD_THEME,
+            ContentType.DIALOG,
+            id,
+            filePath,
+            issues));
   }
 }

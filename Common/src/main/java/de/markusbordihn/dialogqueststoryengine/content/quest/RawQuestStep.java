@@ -20,11 +20,23 @@
 package de.markusbordihn.dialogqueststoryengine.content.quest;
 
 import com.google.gson.JsonObject;
+import java.util.List;
+import java.util.Optional;
 import net.minecraft.resources.ResourceLocation;
 
-public record RawQuestStep(String id, ResourceLocation type, JsonObject jsonObject) {
+public record RawQuestStep(
+    String id,
+    ResourceLocation type,
+    Optional<String> descriptionKey,
+    List<String> requires,
+    JsonObject jsonObject) {
 
   public RawQuestStep {
+    requires = List.copyOf(requires);
     jsonObject = jsonObject.deepCopy();
+  }
+
+  public RawQuestStep(String id, ResourceLocation type, JsonObject jsonObject) {
+    this(id, type, Optional.empty(), List.of(), jsonObject);
   }
 }

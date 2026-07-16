@@ -1,0 +1,11 @@
+{
+  "schema": 1,
+  "event": "on_entity_interact",
+  "binding": {
+    "kind": "unbound"
+  },
+  "conditions": [],
+  "actions": [
+    {"dialog": "dqse_example:hello"}
+  ]
+}

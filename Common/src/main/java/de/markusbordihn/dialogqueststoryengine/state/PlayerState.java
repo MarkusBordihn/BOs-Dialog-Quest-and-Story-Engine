@@ -71,6 +71,12 @@ public final class PlayerState {
     return this.facts.get(scope).get(key);
   }
 
+  public void removeFact(FactScope scope, String key) {
+    if (this.facts.get(scope).remove(key) != null) {
+      this.markDirty();
+    }
+  }
+
   public boolean hasFact(FactScope scope, String key) {
     return this.facts.get(scope).containsKey(key);
   }

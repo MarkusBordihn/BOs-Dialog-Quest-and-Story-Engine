@@ -19,95 +19,47 @@
 
 package de.markusbordihn.dialogqueststoryengine.theme;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import de.markusbordihn.dialogqueststoryengine.Constants;
+import de.markusbordihn.dialogqueststoryengine.content.AbstractJsonContentLoader;
 import de.markusbordihn.dialogqueststoryengine.data.ContentType;
-import de.markusbordihn.dialogqueststoryengine.data.issue.ContentIssue;
-import de.markusbordihn.dialogqueststoryengine.data.issue.ContentIssueTracker;
-import de.markusbordihn.dialogqueststoryengine.data.issue.IssueCode;
-import de.markusbordihn.dialogqueststoryengine.data.json.ContentParserGuard;
 import de.markusbordihn.dialogqueststoryengine.data.json.ParseResult;
 import de.markusbordihn.dialogqueststoryengine.story.entry.StoryEntryThemeLinker;
 import java.util.Map;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
-import net.minecraft.util.profiling.ProfilerFiller;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
-public class ThemeLoader extends SimpleJsonResourceReloadListener {
+public class ThemeLoader extends AbstractJsonContentLoader<Theme> {
 
   public static final ResourceLocation ID = new ResourceLocation(Constants.MOD_ID, "themes");
-  static final String DIRECTORY = "dqse/themes";
-  private static final Logger log = LogManager.getLogger(Constants.LOG_NAME);
-  private static final Gson GSON = new Gson();
 
   public ThemeLoader() {
-    super(GSON, DIRECTORY);
-  }
-
-  private static String buildFilePath(ResourceLocation resourceLocation) {
-    return "assets/"
-        + resourceLocation.getNamespace()
-        + "/"
-        + DIRECTORY
-        + "/"
-        + resourceLocation.getPath()
-        + ".json";
+    super("assets", "dqse/themes");
   }
 
   @Override
-  protected void apply(
-      Map<ResourceLocation, JsonElement> jsonEntries,
-      ResourceManager resourceManager,
-      ProfilerFiller profiler) {
+  protected ContentType contentType() {
+    return ContentType.THEME;
+  }
+
+  @Override
+  protected ParseResult<Theme> parse(ResourceLocation id, String filePath, JsonObject json) {
+    return ThemeParser.parse(id, filePath, json);
+  }
+
+  @Override
+  protected void beforeLoad() {
     ThemeClientRegistry.clear();
-    ContentIssueTracker.clearFor(ContentType.THEME);
+  }
 
-    for (Map.Entry<ResourceLocation, JsonElement> fileEntry : jsonEntries.entrySet()) {
-      ResourceLocation resourceLocation = fileEntry.getKey();
-      String filePath = buildFilePath(resourceLocation);
-
-      if (!fileEntry.getValue().isJsonObject()) {
-        ContentIssueTracker.record(
-            ContentIssue.of(
-                IssueCode.JSON_PARSE_FAILED, ContentType.THEME, resourceLocation, filePath, null));
-        log.error(
-            "{} Theme {} — root element is not a JSON object, skipping.",
-            Constants.LOG_PREFIX,
-            resourceLocation);
-        continue;
-      }
-
-      ParseResult<Theme> result =
-          ContentParserGuard.parse(
-              ContentType.THEME,
-              resourceLocation,
-              filePath,
-              fileEntry.getValue().getAsJsonObject(),
-              json -> ThemeParser.parse(resourceLocation, filePath, json));
-
-      result.issues().forEach(ContentIssueTracker::record);
-
-      if (result.isSuccess()) {
-        ThemeClientRegistry.put(result.value().get());
-      } else {
-        log.error(
-            "{} Skipped theme {} — see issues above for details.",
-            Constants.LOG_PREFIX,
-            resourceLocation);
-      }
-    }
-
-    log.info(
-        "{} Loaded {} theme{}.",
-        Constants.LOG_PREFIX,
-        ThemeClientRegistry.size(),
-        ThemeClientRegistry.size() == 1 ? "" : "s");
-
+  @Override
+  protected void commit(Map<ResourceLocation, Theme> loaded) {
+    loaded.values().forEach(ThemeClientRegistry::put);
     StoryEntryThemeLinker.validate();
+  }
+
+  @Override
+  protected String contentName() {
+    return "theme";
   }
 
   @Override

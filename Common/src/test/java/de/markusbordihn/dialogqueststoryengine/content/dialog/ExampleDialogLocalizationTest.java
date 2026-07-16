@@ -38,9 +38,8 @@ import org.junit.jupiter.api.Test;
 class ExampleDialogLocalizationTest {
 
   private static final String[] EXAMPLE_DIALOGS = {"hello", "merchant", "gatekeeper"};
-  private static final String DIALOG_DIR =
-      "data/dialog_quest_and_story_engine_examples/dqse/dialogs/";
-  private static final String LANG_DIR = "assets/dialog_quest_and_story_engine_examples/lang/";
+  private static final String DIALOG_DIR = "data/dqse_example/dqse/dialogs/";
+  private static final String LANG_DIR = "assets/dqse_example/lang/";
 
   private static JsonObject loadJson(String classpathPath) {
     try (InputStream stream =
@@ -56,8 +55,7 @@ class ExampleDialogLocalizationTest {
   private static Set<String> referencedKeys() {
     Set<String> keys = new LinkedHashSet<>();
     for (String id : EXAMPLE_DIALOGS) {
-      ResourceLocation contentId =
-          new ResourceLocation("dialog_quest_and_story_engine_examples", id);
+      ResourceLocation contentId = new ResourceLocation("dqse_example", id);
       ParseResult<DialogDefinition> result =
           DialogContentParser.parse(contentId, id + ".json", loadJson(DIALOG_DIR + id + ".json"));
       DialogDefinition definition = result.value().orElseThrow();

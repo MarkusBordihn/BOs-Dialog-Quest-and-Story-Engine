@@ -3,20 +3,29 @@
   "$id": "dqse://schemas/story_entry",
   "title": "DQSE Story Entry Definition",
   "type": "object",
-  "required": ["schema", "id", "type"],
+  "required": ["schema", "type", "title_key", "theme", "pages"],
   "additionalProperties": false,
   "properties": {
     "$schema": {"type": "string"},
     "schema": {"type": "integer", "const": 1},
-    "id": {
+    "type": {"type": "string"},
+    "title_key": {"type": "string"},
+    "theme": {
       "type": "string",
       "pattern": "^[a-z0-9_.-]+:[a-z0-9_./-]+$",
-      "description": "ResourceLocation ID, e.g. 'mymod:chapter1/intro'"
+      "description": "ResourceLocation reference to a theme definition"
     },
-    "type": {"type": "string", "const": "story_entry"},
-    "text_key": {"type": "string"},
-    "tags": {"type": "array", "items": {"type": "string"}},
-    "conditions": {"type": "array", "items": {"type": "object"}},
-    "actions": {"type": "array", "items": {"type": "object"}}
+    "pages": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["text_key"],
+        "additionalProperties": false,
+        "properties": {
+          "text_key": {"type": "string"}
+        }
+      }
+    }
   }
 }
