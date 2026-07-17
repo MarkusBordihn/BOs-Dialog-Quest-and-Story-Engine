@@ -29,6 +29,7 @@ import de.markusbordihn.dialogqueststoryengine.data.issue.IssueCode;
 import de.markusbordihn.dialogqueststoryengine.data.json.JsonFieldReader;
 import de.markusbordihn.dialogqueststoryengine.data.json.OptionalFieldReader;
 import de.markusbordihn.dialogqueststoryengine.data.json.ParseResult;
+import de.markusbordihn.dialogqueststoryengine.data.json.RegistryReferenceValidator;
 import de.markusbordihn.dialogqueststoryengine.data.quest.content.CompletionPolicy;
 import de.markusbordihn.dialogqueststoryengine.data.quest.content.DisplaySection;
 import de.markusbordihn.dialogqueststoryengine.data.quest.content.LogicSection;
@@ -53,6 +54,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import net.minecraft.ResourceLocationException;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 
 public final class QuestContentParser {
@@ -425,6 +427,17 @@ public final class QuestContentParser {
         JsonFieldReader.readResourceLocation(
             entryJson, FIELD_ITEM, ContentType.QUEST, id, filePath, issues);
     if (item.isEmpty()) {
+      return Optional.empty();
+    }
+
+    if (!RegistryReferenceValidator.requireRegistered(
+        BuiltInRegistries.ITEM,
+        item.get(),
+        ContentType.QUEST,
+        id,
+        filePath,
+        entryPath + "." + FIELD_ITEM,
+        issues)) {
       return Optional.empty();
     }
 

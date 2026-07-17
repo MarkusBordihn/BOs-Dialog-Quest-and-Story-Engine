@@ -20,53 +20,59 @@
 package de.markusbordihn.dialogqueststoryengine.config;
 
 import com.google.gson.JsonObject;
-import de.markusbordihn.dialogqueststoryengine.Constants;
-import java.io.IOException;
-import java.io.Reader;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
-public final class DqseSecurityConfig {
+public final class SecurityConfig extends Config {
 
-  private static final Logger log = LogManager.getLogger(Constants.LOG_NAME);
   private static final String CONFIG_FILE = "dialog_quest_and_story_engine-security.properties";
-  private static volatile boolean enableCommandActions = false;
-  private static volatile List<String> commandActionWhitelist = List.of();
-  private static volatile int defaultCommandPermissionLevel = 2;
+  private static final String CONFIG_HEADER =
+      """
+      Dialog, Quest and Story Engine - Security Configuration
 
-  private DqseSecurityConfig() {}
+      enable_command_actions: Master switch for command and function actions triggered by dialogs
+        and quests. Disabled by default for safety. (default: false)
+      command_action_whitelist: Comma-separated list of allowed command roots (e.g. "say, give").
+        Use "*" to allow all commands. An empty list blocks every command. (default: empty)
+      default_command_permission_level: Minecraft permission level (0-4) used when a command or
+        function action does not specify its own. (default: 2)
+      """;
+  private static final String KEY_ENABLE_COMMAND_ACTIONS = "enable_command_actions";
+  private static final String KEY_COMMAND_ACTION_WHITELIST = "command_action_whitelist";
+  private static final String KEY_DEFAULT_COMMAND_PERMISSION_LEVEL =
+      "default_command_permission_level";
+  private static final boolean DEFAULT_ENABLE_COMMAND_ACTIONS = false;
+  private static final List<String> DEFAULT_COMMAND_ACTION_WHITELIST = List.of();
+  private static final int DEFAULT_COMMAND_PERMISSION_LEVEL = 2;
+
+  private static volatile boolean enableCommandActions = DEFAULT_ENABLE_COMMAND_ACTIONS;
+  private static volatile List<String> commandActionWhitelist = DEFAULT_COMMAND_ACTION_WHITELIST;
+  private static volatile int defaultCommandPermissionLevel = DEFAULT_COMMAND_PERMISSION_LEVEL;
+
+  private SecurityConfig() {}
 
   public static void load(Path configDirectory) {
-    configure(false, List.of(), 2);
     Path configFile = configDirectory.resolve(CONFIG_FILE);
-    if (!Files.isRegularFile(configFile)) {
-      log.info(
-          "{} Security config {} not found, using safe defaults.",
-          Constants.LOG_PREFIX,
-          configFile);
-      return;
-    }
+    Properties properties = readConfigFile(configFile);
+    Properties unmodifiedProperties = (Properties) properties.clone();
 
-    Properties properties = new Properties();
-    try (Reader reader = Files.newBufferedReader(configFile)) {
-      properties.load(reader);
-      configure(
-          Boolean.parseBoolean(properties.getProperty("enable_command_actions", "false")),
-          parseWhitelist(properties.getProperty("command_action_whitelist", "")),
-          parsePermissionLevel(properties.getProperty("default_command_permission_level", "2")));
-    } catch (IOException | IllegalArgumentException exception) {
-      log.error(
-          "{} Failed to load security config {}: {}",
-          Constants.LOG_PREFIX,
-          configFile,
-          exception.getMessage());
-    }
+    configure(
+        parseConfigValue(properties, KEY_ENABLE_COMMAND_ACTIONS, DEFAULT_ENABLE_COMMAND_ACTIONS),
+        parseConfigValue(
+            properties, KEY_COMMAND_ACTION_WHITELIST, DEFAULT_COMMAND_ACTION_WHITELIST),
+        parseConfigValue(
+            properties, KEY_DEFAULT_COMMAND_PERMISSION_LEVEL, DEFAULT_COMMAND_PERMISSION_LEVEL));
+
+    updateConfigFileIfChanged(configFile, CONFIG_HEADER, properties, unmodifiedProperties);
+  }
+
+  public static void configure(
+      boolean enableCommandActions, List<String> whitelist, int defaultPermissionLevel) {
+    SecurityConfig.enableCommandActions = enableCommandActions;
+    SecurityConfig.commandActionWhitelist = List.copyOf(whitelist);
+    SecurityConfig.defaultCommandPermissionLevel = Math.max(0, Math.min(4, defaultPermissionLevel));
   }
 
   public static boolean isCommandActionsEnabled() {
@@ -86,6 +92,7 @@ public final class DqseSecurityConfig {
     if (jsonObject.has(field) && jsonObject.get(field).isJsonPrimitive()) {
       return Math.max(0, Math.min(4, jsonObject.get(field).getAsInt()));
     }
+
     return defaultCommandPermissionLevel;
   }
 
@@ -93,34 +100,12 @@ public final class DqseSecurityConfig {
     String normalizedCommand = normalizeCommand(command);
     return !commandActionWhitelist.isEmpty()
         && commandActionWhitelist.stream()
-            .map(DqseSecurityConfig::normalizeCommand)
+            .map(SecurityConfig::normalizeCommand)
             .anyMatch(
                 allowed ->
                     allowed.equals("*")
                         || normalizedCommand.equals(allowed)
                         || normalizedCommand.startsWith(allowed + " "));
-  }
-
-  public static void configure(
-      boolean enableCommandActions, List<String> whitelist, int defaultPermissionLevel) {
-    DqseSecurityConfig.enableCommandActions = enableCommandActions;
-    DqseSecurityConfig.commandActionWhitelist = List.copyOf(whitelist);
-    DqseSecurityConfig.defaultCommandPermissionLevel =
-        Math.max(0, Math.min(4, defaultPermissionLevel));
-  }
-
-  private static List<String> parseWhitelist(String value) {
-    if (value.isBlank()) {
-      return List.of();
-    }
-    return Arrays.stream(value.split(","))
-        .map(String::trim)
-        .filter(entry -> !entry.isEmpty())
-        .toList();
-  }
-
-  private static int parsePermissionLevel(String value) {
-    return Integer.parseInt(value.trim());
   }
 
   private static String normalizeCommand(String command) {

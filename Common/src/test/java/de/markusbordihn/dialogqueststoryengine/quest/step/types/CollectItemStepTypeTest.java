@@ -90,4 +90,14 @@ class CollectItemStepTypeTest {
     assertEquals(1, issues.size());
     assertEquals(IssueCode.INVALID_RESOURCE_LOCATION, issues.get(0).code());
   }
+
+  @Test
+  void validateReportsUnregisteredItem() {
+    List<ContentIssue> issues = new ArrayList<>();
+    new CollectItemStepType()
+        .validate(QUEST_ID, step("{\"item\": \"minecraft:not_a_real_item\"}"), "file", issues);
+
+    assertEquals(1, issues.size());
+    assertEquals(IssueCode.UNKNOWN_REGISTRY_REFERENCE, issues.get(0).code());
+  }
 }

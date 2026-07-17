@@ -17,48 +17,44 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package de.markusbordihn.dialogqueststoryengine.data.issue;
+package de.markusbordihn.dialogqueststoryengine.data.json;
 
+import de.markusbordihn.dialogqueststoryengine.config.ValidationConfig;
 import de.markusbordihn.dialogqueststoryengine.data.ContentType;
+import de.markusbordihn.dialogqueststoryengine.data.issue.ContentIssue;
+import de.markusbordihn.dialogqueststoryengine.data.issue.IssueCode;
+import de.markusbordihn.dialogqueststoryengine.data.issue.IssueSeverity;
+import java.util.List;
 import java.util.Map;
+import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 
-public record ContentIssue(
-    IssueSeverity severity,
-    IssueCode code,
-    ContentType contentType,
-    ResourceLocation id,
-    String file,
-    String field,
-    Map<String, String> details) {
+public final class RegistryReferenceValidator {
 
-  public ContentIssue {
-    details = Map.copyOf(details);
-  }
+  private RegistryReferenceValidator() {}
 
-  public static ContentIssue of(
-      IssueCode code, ContentType contentType, ResourceLocation id, String file, String field) {
-    return new ContentIssue(code.defaultSeverity(), code, contentType, id, file, field, Map.of());
-  }
-
-  public static ContentIssue of(
-      IssueCode code,
+  public static boolean requireRegistered(
+      Registry<?> registry,
+      ResourceLocation value,
       ContentType contentType,
       ResourceLocation id,
       String file,
       String field,
-      Map<String, String> details) {
-    return new ContentIssue(code.defaultSeverity(), code, contentType, id, file, field, details);
-  }
+      List<ContentIssue> issues) {
+    if (registry.getOptional(value).isPresent()) {
+      return true;
+    }
 
-  public static ContentIssue of(
-      IssueSeverity severity,
-      IssueCode code,
-      ContentType contentType,
-      ResourceLocation id,
-      String file,
-      String field,
-      Map<String, String> details) {
-    return new ContentIssue(severity, code, contentType, id, file, field, details);
+    IssueSeverity severity = ValidationConfig.unknownRegistryReferenceSeverity();
+    issues.add(
+        ContentIssue.of(
+            severity,
+            IssueCode.UNKNOWN_REGISTRY_REFERENCE,
+            contentType,
+            id,
+            file,
+            field,
+            Map.of("value", value.toString(), "registry", registry.key().location().toString())));
+    return severity != IssueSeverity.ERROR;
   }
 }

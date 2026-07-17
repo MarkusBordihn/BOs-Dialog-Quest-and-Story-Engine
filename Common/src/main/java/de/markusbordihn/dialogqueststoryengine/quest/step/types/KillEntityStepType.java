@@ -24,6 +24,7 @@ import de.markusbordihn.dialogqueststoryengine.Constants;
 import de.markusbordihn.dialogqueststoryengine.data.ContentType;
 import de.markusbordihn.dialogqueststoryengine.data.issue.ContentIssue;
 import de.markusbordihn.dialogqueststoryengine.data.issue.IssueCode;
+import de.markusbordihn.dialogqueststoryengine.data.json.RegistryReferenceValidator;
 import de.markusbordihn.dialogqueststoryengine.data.quest.content.RawQuestStep;
 import de.markusbordihn.dialogqueststoryengine.quest.step.QuestStepContext;
 import de.markusbordihn.dialogqueststoryengine.registry.QuestStepHandler;
@@ -53,7 +54,8 @@ public final class KillEntityStepType implements QuestStepHandler {
     }
 
     String entity = jsonObject.get(FIELD_ENTITY).getAsString();
-    if (ResourceLocation.tryParse(entity) == null) {
+    ResourceLocation entityId = ResourceLocation.tryParse(entity);
+    if (entityId == null) {
       issues.add(
           ContentIssue.of(
               IssueCode.INVALID_RESOURCE_LOCATION,
@@ -62,7 +64,17 @@ public final class KillEntityStepType implements QuestStepHandler {
               filePath,
               fieldPath,
               Map.of("value", entity)));
+      return;
     }
+
+    RegistryReferenceValidator.requireRegistered(
+        BuiltInRegistries.ENTITY_TYPE,
+        entityId,
+        ContentType.QUEST,
+        questId,
+        filePath,
+        fieldPath,
+        issues);
   }
 
   @Override

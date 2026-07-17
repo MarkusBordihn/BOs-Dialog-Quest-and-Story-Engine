@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import de.markusbordihn.dialogqueststoryengine.config.DqseSecurityConfig;
+import de.markusbordihn.dialogqueststoryengine.config.SecurityConfig;
 import de.markusbordihn.dialogqueststoryengine.logic.action.ActionContext;
 import de.markusbordihn.dialogqueststoryengine.state.PlayerState;
 import java.util.List;
@@ -35,7 +35,7 @@ class RunCommandActionTest {
 
   @AfterEach
   void resetSecurityConfig() {
-    DqseSecurityConfig.configure(false, List.of(), 2);
+    SecurityConfig.configure(false, List.of(), 2);
   }
 
   @Test
@@ -47,7 +47,7 @@ class RunCommandActionTest {
 
   @Test
   void execute_commandActionsEnabled_nullServerDoesNotCrash() {
-    DqseSecurityConfig.configure(true, List.of(), 2);
+    SecurityConfig.configure(true, List.of(), 2);
     ActionContext ctx = ActionContext.ofTest(new PlayerState(UUID.randomUUID()));
 
     assertDoesNotThrow(() -> new RunCommandAction("say hello", 2).execute(ctx));
@@ -55,7 +55,7 @@ class RunCommandActionTest {
 
   @Test
   void execute_commandActionsEnabled_nullPlayerDoesNotCrash() {
-    DqseSecurityConfig.configure(true, List.of(), 2);
+    SecurityConfig.configure(true, List.of(), 2);
     ActionContext ctx = ActionContext.ofTest(new PlayerState(UUID.randomUUID()));
 
     assertDoesNotThrow(() -> new RunCommandAction("say hello", 2).execute(ctx));
@@ -63,7 +63,7 @@ class RunCommandActionTest {
 
   @Test
   void execute_commandActionsEnabledWithWhitelist_unlistedCommandDoesNotCrash() {
-    DqseSecurityConfig.configure(true, List.of("say"), 2);
+    SecurityConfig.configure(true, List.of("say"), 2);
     ActionContext ctx = ActionContext.ofTest(new PlayerState(UUID.randomUUID()));
 
     assertDoesNotThrow(() -> new RunCommandAction("give @s diamond 1", 2).execute(ctx));
@@ -71,10 +71,10 @@ class RunCommandActionTest {
 
   @Test
   void whitelistMatchesCommandBoundaries() {
-    DqseSecurityConfig.configure(true, List.of("say"), 2);
+    SecurityConfig.configure(true, List.of("say"), 2);
 
-    assertTrue(DqseSecurityConfig.isCommandAllowed("/say hello"));
-    assertFalse(DqseSecurityConfig.isCommandAllowed("say_private hello"));
-    assertFalse(DqseSecurityConfig.isCommandAllowed("give @s diamond"));
+    assertTrue(SecurityConfig.isCommandAllowed("/say hello"));
+    assertFalse(SecurityConfig.isCommandAllowed("say_private hello"));
+    assertFalse(SecurityConfig.isCommandAllowed("give @s diamond"));
   }
 }

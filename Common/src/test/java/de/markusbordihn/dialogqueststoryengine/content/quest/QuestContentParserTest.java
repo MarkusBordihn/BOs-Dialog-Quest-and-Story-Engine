@@ -293,6 +293,39 @@ class QuestContentParserTest {
   }
 
   @Test
+  void unregisteredRewardItemIsReported() {
+    JsonObject input =
+        json(
+            """
+        {
+          "schema": 1,
+          "display": {
+            "title_key": "quest.test.title",
+            "description_key": "quest.test.desc"
+          },
+          "logic": {
+            "steps": {
+              "step_1": { "type": "dqse:manual" }
+            }
+          },
+          "rewards": {
+            "entries": [
+              { "type": "dqse:item", "item": "minecraft:not_a_real_item", "count": 1 }
+            ]
+          }
+        }
+        """);
+
+    ParseResult<QuestDefinition> result = QuestContentParser.parse(TEST_ID, TEST_FILE, input);
+
+    assertTrue(result.isSuccess());
+    assertTrue(
+        result.issues().stream()
+            .anyMatch(issue -> issue.code() == IssueCode.UNKNOWN_REGISTRY_REFERENCE));
+    assertTrue(result.value().get().rewards().isEmpty());
+  }
+
+  @Test
   void unknownRewardTypeIsReported() {
     JsonObject input =
         json(

@@ -28,11 +28,11 @@ import de.markusbordihn.dialogqueststoryengine.quest.step.BuiltinQuestSteps;
 import de.markusbordihn.dialogqueststoryengine.state.QuestProgressSync;
 import de.markusbordihn.dialogqueststoryengine.validation.BuiltinValidators;
 
-public final class DqseBootstrap {
+public final class ModBootstrap {
 
   private static boolean initialized;
 
-  private DqseBootstrap() {}
+  private ModBootstrap() {}
 
   public static synchronized void initialize() {
     if (initialized) {

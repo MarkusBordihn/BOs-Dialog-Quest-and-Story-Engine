@@ -24,6 +24,7 @@ import de.markusbordihn.dialogqueststoryengine.Constants;
 import de.markusbordihn.dialogqueststoryengine.data.ContentType;
 import de.markusbordihn.dialogqueststoryengine.data.issue.ContentIssue;
 import de.markusbordihn.dialogqueststoryengine.data.issue.IssueCode;
+import de.markusbordihn.dialogqueststoryengine.data.json.RegistryReferenceValidator;
 import de.markusbordihn.dialogqueststoryengine.logic.action.Action;
 import de.markusbordihn.dialogqueststoryengine.logic.action.ActionContext;
 import java.util.List;
@@ -63,6 +64,11 @@ public record GiveItemAction(ResourceLocation itemId, int count) implements Acti
               filePath,
               "item",
               Map.of("value", jsonObject.get("item").getAsString())));
+      return Action.NOOP;
+    }
+
+    if (!RegistryReferenceValidator.requireRegistered(
+        BuiltInRegistries.ITEM, itemId, contentType, contentId, filePath, "item", issues)) {
       return Action.NOOP;
     }
 

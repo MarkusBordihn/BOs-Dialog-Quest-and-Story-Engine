@@ -71,6 +71,16 @@ class KillEntityStepTypeTest {
   }
 
   @Test
+  void validateReportsUnregisteredEntity() {
+    List<ContentIssue> issues = new ArrayList<>();
+    new KillEntityStepType()
+        .validate(QUEST_ID, step("{\"entity\": \"minecraft:not_a_real_entity\"}"), "file", issues);
+
+    assertEquals(1, issues.size());
+    assertEquals(IssueCode.UNKNOWN_REGISTRY_REFERENCE, issues.get(0).code());
+  }
+
+  @Test
   void locationStepTypeIsRegisteredButUnsupported() {
     LocationStepType locationStepType = new LocationStepType();
     assertFalse(locationStepType.supported());

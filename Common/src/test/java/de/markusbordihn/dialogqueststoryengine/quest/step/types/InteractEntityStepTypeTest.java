@@ -99,4 +99,14 @@ class InteractEntityStepTypeTest {
     assertEquals(1, issues.size());
     assertEquals(IssueCode.INVALID_RESOURCE_LOCATION, issues.get(0).code());
   }
+
+  @Test
+  void validateReportsUnregisteredEntityTarget() {
+    List<ContentIssue> issues = new ArrayList<>();
+    new InteractEntityStepType()
+        .validate(QUEST_ID, step("{\"target\": \"minecraft:not_a_real_entity\"}"), "file", issues);
+
+    assertEquals(1, issues.size());
+    assertEquals(IssueCode.UNKNOWN_REGISTRY_REFERENCE, issues.get(0).code());
+  }
 }

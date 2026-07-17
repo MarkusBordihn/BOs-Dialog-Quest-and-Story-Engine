@@ -21,7 +21,7 @@ package de.markusbordihn.dialogqueststoryengine.logic.action.types;
 
 import com.google.gson.JsonObject;
 import de.markusbordihn.dialogqueststoryengine.Constants;
-import de.markusbordihn.dialogqueststoryengine.config.DqseSecurityConfig;
+import de.markusbordihn.dialogqueststoryengine.config.SecurityConfig;
 import de.markusbordihn.dialogqueststoryengine.data.ContentType;
 import de.markusbordihn.dialogqueststoryengine.data.issue.ContentIssue;
 import de.markusbordihn.dialogqueststoryengine.data.issue.IssueCode;
@@ -66,7 +66,7 @@ public record RunFunctionAction(ResourceLocation function, int permissionLevel) 
       return Action.NOOP;
     }
 
-    return new RunFunctionAction(functionId, DqseSecurityConfig.parsePermissionLevel(jsonObject));
+    return new RunFunctionAction(functionId, SecurityConfig.parsePermissionLevel(jsonObject));
   }
 
   @Override

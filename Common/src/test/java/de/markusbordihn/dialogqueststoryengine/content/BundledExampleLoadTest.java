@@ -27,7 +27,7 @@ import de.markusbordihn.dialogqueststoryengine.content.dialog.DialogContentParse
 import de.markusbordihn.dialogqueststoryengine.content.interaction.InteractionContentParser;
 import de.markusbordihn.dialogqueststoryengine.content.quest.QuestContentParser;
 import de.markusbordihn.dialogqueststoryengine.content.story.InteractiveStoryContentParser;
-import de.markusbordihn.dialogqueststoryengine.core.DqseBootstrap;
+import de.markusbordihn.dialogqueststoryengine.core.ModBootstrap;
 import de.markusbordihn.dialogqueststoryengine.data.issue.ContentIssue;
 import de.markusbordihn.dialogqueststoryengine.data.json.ParseResult;
 import de.markusbordihn.dialogqueststoryengine.story.entry.StoryEntryParser;
@@ -48,7 +48,7 @@ class BundledExampleLoadTest {
 
   @BeforeAll
   static void registerBuiltins() {
-    DqseBootstrap.initialize();
+    ModBootstrap.initialize();
   }
 
   private static JsonObject load(String classpathPath) {

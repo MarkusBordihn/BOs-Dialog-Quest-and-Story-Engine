@@ -22,7 +22,7 @@ package de.markusbordihn.dialogqueststoryengine.logic.action.types;
 import com.google.gson.JsonObject;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import de.markusbordihn.dialogqueststoryengine.Constants;
-import de.markusbordihn.dialogqueststoryengine.config.DqseSecurityConfig;
+import de.markusbordihn.dialogqueststoryengine.config.SecurityConfig;
 import de.markusbordihn.dialogqueststoryengine.data.ContentType;
 import de.markusbordihn.dialogqueststoryengine.data.issue.ContentIssue;
 import de.markusbordihn.dialogqueststoryengine.data.issue.IssueCode;
@@ -59,12 +59,12 @@ public record RunCommandAction(String command, int permissionLevel) implements A
       return Action.NOOP;
     }
 
-    return new RunCommandAction(command, DqseSecurityConfig.parsePermissionLevel(jsonObject));
+    return new RunCommandAction(command, SecurityConfig.parsePermissionLevel(jsonObject));
   }
 
   @Override
   public void execute(ActionContext actionContext) {
-    if (!DqseSecurityConfig.isCommandActionsEnabled()) {
+    if (!SecurityConfig.isCommandActionsEnabled()) {
       log.warn(
           "{} run_command is disabled by security config - skipping for event '{}'",
           Constants.LOG_PREFIX,
@@ -83,7 +83,7 @@ public record RunCommandAction(String command, int permissionLevel) implements A
             .replace(
                 "{dimension}", actionContext.player().level().dimension().location().toString());
 
-    if (!DqseSecurityConfig.isCommandAllowed(resolved)) {
+    if (!SecurityConfig.isCommandAllowed(resolved)) {
       log.warn(
           "{} run_command: command '{}' is not in the whitelist - skipping",
           Constants.LOG_PREFIX,

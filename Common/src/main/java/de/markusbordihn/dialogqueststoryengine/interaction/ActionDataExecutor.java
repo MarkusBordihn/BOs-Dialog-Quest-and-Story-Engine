@@ -20,7 +20,7 @@
 package de.markusbordihn.dialogqueststoryengine.interaction;
 
 import de.markusbordihn.dialogqueststoryengine.Constants;
-import de.markusbordihn.dialogqueststoryengine.config.DqseSecurityConfig;
+import de.markusbordihn.dialogqueststoryengine.config.SecurityConfig;
 import de.markusbordihn.dialogqueststoryengine.data.action.ActionDataEntry;
 import de.markusbordihn.dialogqueststoryengine.data.action.ActionDataSet;
 import de.markusbordihn.dialogqueststoryengine.data.state.FactScope;
@@ -90,8 +90,7 @@ public final class ActionDataExecutor {
         PlayerStateService.get(player.getUUID())
             .ifPresent(
                 playerState ->
-                    new RunCommandAction(
-                            command, DqseSecurityConfig.getDefaultCommandPermissionLevel())
+                    new RunCommandAction(command, SecurityConfig.getDefaultCommandPermissionLevel())
                         .execute(
                             new ActionContext(
                                 player,

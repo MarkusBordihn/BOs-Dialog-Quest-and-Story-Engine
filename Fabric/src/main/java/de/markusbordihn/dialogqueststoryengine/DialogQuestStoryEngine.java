@@ -21,10 +21,11 @@ package de.markusbordihn.dialogqueststoryengine;
 
 import de.markusbordihn.dialogqueststoryengine.block.ModBlocks;
 import de.markusbordihn.dialogqueststoryengine.commands.manager.CommandManager;
-import de.markusbordihn.dialogqueststoryengine.config.DqseSecurityConfig;
+import de.markusbordihn.dialogqueststoryengine.config.SecurityConfig;
+import de.markusbordihn.dialogqueststoryengine.config.ValidationConfig;
 import de.markusbordihn.dialogqueststoryengine.content.DataPackReloadNotifier;
 import de.markusbordihn.dialogqueststoryengine.content.ResourceServerEventsFabric;
-import de.markusbordihn.dialogqueststoryengine.core.DqseBootstrap;
+import de.markusbordihn.dialogqueststoryengine.core.ModBootstrap;
 import de.markusbordihn.dialogqueststoryengine.data.session.SessionCloseReason;
 import de.markusbordihn.dialogqueststoryengine.debug.DebugManager;
 import de.markusbordihn.dialogqueststoryengine.entity.InteractionEventHandler;
@@ -89,8 +90,9 @@ public class DialogQuestStoryEngine implements ModInitializer {
     Constants.GAME_DIR = FabricLoader.getInstance().getGameDir();
     Constants.CONFIG_DIR = FabricLoader.getInstance().getConfigDir();
 
-    DqseSecurityConfig.load(Constants.CONFIG_DIR);
-    DqseBootstrap.initialize();
+    SecurityConfig.load(Constants.CONFIG_DIR);
+    ValidationConfig.load(Constants.CONFIG_DIR);
+    ModBootstrap.initialize();
 
     log.info("{} Blocks ...", Constants.LOG_REGISTER_PREFIX);
     ModBlocks.registerModBlocks();

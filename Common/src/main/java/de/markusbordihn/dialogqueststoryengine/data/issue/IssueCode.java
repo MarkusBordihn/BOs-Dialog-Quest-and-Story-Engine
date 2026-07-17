@@ -71,6 +71,9 @@ public enum IssueCode {
       IssueSeverity.ERROR, "Quest prerequisites list the same quest more than once"),
   QUEST_PREREQUISITE_CYCLE(IssueSeverity.ERROR, "Quest prerequisites form a dependency cycle"),
   UNKNOWN_REWARD_TYPE(IssueSeverity.ERROR, "Reward entry type is not a known reward type"),
+  UNKNOWN_REGISTRY_REFERENCE(
+      IssueSeverity.ERROR,
+      "Referenced game object is not registered - step can never complete or reward never grants"),
   INVALID_REWARD_AMOUNT(IssueSeverity.ERROR, "Reward amount or count must be a positive integer"),
   LOCALIZED_TEXT_CONFLICT(
       IssueSeverity.ERROR, "Literal text and localization key are mutually exclusive"),

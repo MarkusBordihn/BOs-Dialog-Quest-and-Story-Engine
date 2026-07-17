@@ -24,10 +24,12 @@ import de.markusbordihn.dialogqueststoryengine.Constants;
 import de.markusbordihn.dialogqueststoryengine.data.ContentType;
 import de.markusbordihn.dialogqueststoryengine.data.issue.ContentIssue;
 import de.markusbordihn.dialogqueststoryengine.data.issue.IssueCode;
+import de.markusbordihn.dialogqueststoryengine.data.json.RegistryReferenceValidator;
 import de.markusbordihn.dialogqueststoryengine.logic.condition.Condition;
 import de.markusbordihn.dialogqueststoryengine.logic.condition.ConditionContext;
 import java.util.List;
 import java.util.Map;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
@@ -58,6 +60,11 @@ public record HasItemCondition(ResourceLocation itemId, int count) implements Co
               filePath,
               "item",
               Map.of("value", json.get("item").getAsString())));
+      return Condition.NEVER;
+    }
+
+    if (!RegistryReferenceValidator.requireRegistered(
+        BuiltInRegistries.ITEM, itemId, contentType, id, filePath, "item", issues)) {
       return Condition.NEVER;
     }
 
