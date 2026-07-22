@@ -46,11 +46,11 @@ public class RadioButton extends AbstractButton {
     super(posX, posY, CIRCLE_SIZE, CIRCLE_SIZE);
     this.label = label;
     this.selected = initialSelected;
-    updateWidth();
+    this.updateWidth();
   }
 
   public boolean isSelected() {
-    return selected;
+    return this.selected;
   }
 
   public void setSelected(boolean selected) {
@@ -58,68 +58,72 @@ public class RadioButton extends AbstractButton {
   }
 
   public Component getLabel() {
-    return label;
+    return this.label;
   }
 
   public void setLabel(String label) {
     this.label = label != null ? TextComponent.of(label) : null;
-    updateWidth();
+    this.updateWidth();
   }
 
   public void setLabel(Component label) {
     this.label = label;
-    updateWidth();
+    this.updateWidth();
   }
 
   @Override
   protected void onPress() {
-    if (ownerGroup != null) {
-      ownerGroup.selectIndex(groupIndex);
+    if (this.ownerGroup != null) {
+      this.ownerGroup.selectIndex(this.groupIndex);
     } else {
-      selected = true;
+      this.selected = true;
     }
   }
 
   @Override
   public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-    if (!visible) {
+    if (!this.visible) {
       return;
     }
     ColorPalette palette = ColorPalette.current();
-    int x = getX();
-    int y = getY();
-    hovered = isMouseOver(mouseX, mouseY);
+    int x = this.getX();
+    int y = this.getY();
+    this.hovered = this.isMouseOver(mouseX, mouseY);
 
-    int ringColor =
-        !active
-            ? palette.onSurfaceLow()
-            : selected ? palette.primary() : (hovered ? palette.primary() : palette.outline());
+    int ringColor;
+    if (!this.active) {
+      ringColor = palette.onSurfaceLow();
+    } else if (this.selected || this.hovered) {
+      ringColor = palette.primary();
+    } else {
+      ringColor = palette.outline();
+    }
     drawBorderRounded(graphics, x, y, CIRCLE_SIZE, CIRCLE_SIZE, ringColor);
 
-    if (hovered && !selected && active) {
+    if (this.hovered && !this.selected && this.active) {
       fillRoundedRect(
           graphics, x + 1, y + 1, CIRCLE_SIZE - 2, CIRCLE_SIZE - 2, palette.listHover());
     }
 
-    if (selected) {
-      int dotColor = active ? palette.primary() : palette.onSurfaceLow();
-      int innerPad = 3;
+    if (this.selected) {
+      int dotColor = this.active ? palette.primary() : palette.onSurfaceLow();
+      int innerPadding = 3;
       fillRoundedRect(
           graphics,
-          x + innerPad,
-          y + innerPad,
-          CIRCLE_SIZE - innerPad * 2,
-          CIRCLE_SIZE - innerPad * 2,
+          x + innerPadding,
+          y + innerPadding,
+          CIRCLE_SIZE - innerPadding * 2,
+          CIRCLE_SIZE - innerPadding * 2,
           dotColor);
     }
 
-    if (label != null && !label.getString().isEmpty()) {
+    if (this.label != null && !this.label.getString().isEmpty()) {
       Font font = Minecraft.getInstance().font;
-      int textColor = active ? palette.onSurface() : palette.onSurfaceLow();
+      int textColor = this.active ? palette.onSurface() : palette.onSurfaceLow();
       ScaledText.draw(
           graphics,
           font,
-          label,
+          this.label,
           x + CIRCLE_SIZE + LABEL_GAP,
           y + (CIRCLE_SIZE - ScaledText.getScaledHeight(font, ScaledText.SCALE_BODY)) / 2,
           textColor,
@@ -128,12 +132,14 @@ public class RadioButton extends AbstractButton {
   }
 
   private void updateWidth() {
-    if (label != null && !label.getString().isEmpty()) {
+    if (this.label != null && !this.label.getString().isEmpty()) {
       Font font = Minecraft.getInstance().font;
-      width =
-          CIRCLE_SIZE + LABEL_GAP + ScaledText.getScaledWidth(font, label, ScaledText.SCALE_BODY);
+      this.width =
+          CIRCLE_SIZE
+              + LABEL_GAP
+              + ScaledText.getScaledWidth(font, this.label, ScaledText.SCALE_BODY);
     } else {
-      width = CIRCLE_SIZE;
+      this.width = CIRCLE_SIZE;
     }
   }
 }

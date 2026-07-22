@@ -22,6 +22,7 @@ package de.markusbordihn.dialogqueststoryengine.server;
 import de.markusbordihn.dialogqueststoryengine.Constants;
 import de.markusbordihn.dialogqueststoryengine.data.saveddata.InteractionSavedData;
 import de.markusbordihn.dialogqueststoryengine.entity.InteractionEvents;
+import de.markusbordihn.dialogqueststoryengine.interaction.ActionDiagnostics;
 import de.markusbordihn.dialogqueststoryengine.interaction.InteractionManager;
 import de.markusbordihn.dialogqueststoryengine.item.InteractionWandItem;
 import de.markusbordihn.dialogqueststoryengine.network.NetworkHandlerManager;
@@ -64,6 +65,7 @@ public final class ServerEvents {
     syncStates.clear();
     InteractionManager.onServerStopping();
     InteractionEvents.clearTrackingData();
+    ActionDiagnostics.clearAll();
   }
 
   public static MinecraftServer getServer() {

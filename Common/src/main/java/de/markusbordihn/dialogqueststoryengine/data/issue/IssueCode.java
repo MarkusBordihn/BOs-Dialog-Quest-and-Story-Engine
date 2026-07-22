@@ -86,6 +86,15 @@ public enum IssueCode {
       IssueSeverity.WARNING, "Quest step type is reserved but not supported in this version"),
   UNKNOWN_STORY_TYPE(IssueSeverity.ERROR, "Unknown story entry type"),
   UNKNOWN_THEME_LAYOUT(IssueSeverity.ERROR, "Unknown theme layout"),
+  MISSING_THEME_SLOT(IssueSeverity.ERROR, "Theme is missing a required layout slot"),
+  UNKNOWN_THEME_SLOT(IssueSeverity.ERROR, "Theme declares a slot the layout does not define"),
+  THEME_AREA_OUT_OF_BOUNDS(IssueSeverity.ERROR, "Theme area exceeds the logical viewport bounds"),
+  INVALID_THEME_SPRITE(IssueSeverity.ERROR, "Theme sprite is invalid"),
+  INVALID_THEME_OPTION(IssueSeverity.ERROR, "Theme option key or value is invalid"),
+  INVALID_THEME_COLOR(IssueSeverity.ERROR, "Theme color name or value is invalid"),
+  INVALID_THEME_SCALE_LIMITS(IssueSeverity.ERROR, "Theme scale limits are invalid"),
+  THEME_LAYOUT_MISMATCH(
+      IssueSeverity.ERROR, "Referenced theme uses a layout incompatible with its usage"),
   UNSUPPORTED_SCHEMA(IssueSeverity.ERROR, "Schema version is not supported"),
   CONDITION_FACT_TYPE_MISMATCH(
       IssueSeverity.WARNING, "Condition value type does not match expected fact value type");

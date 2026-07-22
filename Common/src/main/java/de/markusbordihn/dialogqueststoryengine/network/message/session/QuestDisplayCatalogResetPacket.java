@@ -41,7 +41,7 @@ public record QuestDisplayCatalogResetPacket(List<QuestDisplayCatalogEntry> entr
 
   @Override
   public void write(FriendlyByteBuf buffer) {
-    buffer.writeCollection(this.entries, (buf, entry) -> entry.write(buf));
+    buffer.writeCollection(this.entries, (elementBuffer, entry) -> entry.write(elementBuffer));
   }
 
   @Override

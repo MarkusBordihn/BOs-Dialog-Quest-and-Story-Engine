@@ -27,6 +27,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import de.markusbordihn.dialogqueststoryengine.data.dialog.DialogChoiceDefinition;
 import de.markusbordihn.dialogqueststoryengine.data.dialog.DialogDefinition;
+import de.markusbordihn.dialogqueststoryengine.data.dialog.DialogMood;
 import de.markusbordihn.dialogqueststoryengine.data.dialog.DialogNodeDefinition;
 import de.markusbordihn.dialogqueststoryengine.data.issue.IssueCode;
 import de.markusbordihn.dialogqueststoryengine.data.json.ParseResult;
@@ -38,6 +39,7 @@ import java.io.InputStreamReader;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
+import java.util.Optional;
 import net.minecraft.resources.ResourceLocation;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -127,7 +129,7 @@ class DialogContentParserTest {
   @Test
   void missingSchema() {
     JsonObject input =
-        json(
+        this.json(
             """
         {
           "start_node": "root",
@@ -145,7 +147,7 @@ class DialogContentParserTest {
   @Test
   void unsupportedSchema() {
     JsonObject input =
-        json(
+        this.json(
             """
         {
           "schema": 999,
@@ -164,7 +166,7 @@ class DialogContentParserTest {
   @Test
   void missingStartNode() {
     JsonObject input =
-        json(
+        this.json(
             """
         {
           "schema": 1,
@@ -186,7 +188,7 @@ class DialogContentParserTest {
   @Test
   void startNodeNotInNodes() {
     JsonObject input =
-        json(
+        this.json(
             """
         {
           "schema": 1,
@@ -216,7 +218,7 @@ class DialogContentParserTest {
     nodesJson.add("root", nodeA);
 
     JsonObject input =
-        json(
+        this.json(
             """
         {
           "schema": 1,
@@ -235,7 +237,7 @@ class DialogContentParserTest {
   @Test
   void choiceWithClose() {
     JsonObject input =
-        json(
+        this.json(
             """
         {
           "schema": 1,
@@ -269,7 +271,7 @@ class DialogContentParserTest {
   @Test
   void choiceNextAndCloseConflict() {
     JsonObject input =
-        json(
+        this.json(
             """
         {
           "schema": 1,
@@ -301,7 +303,7 @@ class DialogContentParserTest {
   @Test
   void emptyChoicesWarning() {
     JsonObject input =
-        json(
+        this.json(
             """
         {
           "schema": 1,
@@ -324,7 +326,7 @@ class DialogContentParserTest {
   @Test
   void choiceWithRawConditionsPreserved() {
     JsonObject input =
-        json(
+        this.json(
             """
         {
           "schema": 1,
@@ -352,5 +354,55 @@ class DialogContentParserTest {
     assertTrue(result.isSuccess());
     DialogNodeDefinition node = result.value().get().nodes().get("root");
     assertEquals(1, node.choices().get(0).conditions().members().size());
+  }
+
+  @Test
+  void presentationParsesValidMoodCaseInsensitively() {
+    JsonObject input =
+        this.json(
+            """
+        {
+          "schema": 1,
+          "start_node": "root",
+          "nodes": {
+            "root": {
+              "speaker_key": "npc.elder",
+              "text_key": "dialog.test.root",
+              "presentation": { "mood": "Happy" }
+            }
+          }
+        }
+        """);
+
+    ParseResult<DialogDefinition> result = DialogContentParser.parse(TEST_ID, TEST_FILE, input);
+
+    assertTrue(result.isSuccess());
+    DialogNodeDefinition node = result.value().get().nodes().get("root");
+    assertEquals(Optional.of(DialogMood.HAPPY), node.presentation().mood());
+  }
+
+  @Test
+  void presentationUnknownMoodReportsIssue() {
+    JsonObject input =
+        this.json(
+            """
+        {
+          "schema": 1,
+          "start_node": "root",
+          "nodes": {
+            "root": {
+              "speaker_key": "npc.elder",
+              "text_key": "dialog.test.root",
+              "presentation": { "mood": "ecstatic" }
+            }
+          }
+        }
+        """);
+
+    ParseResult<DialogDefinition> result = DialogContentParser.parse(TEST_ID, TEST_FILE, input);
+
+    assertTrue(
+        result.issues().stream().anyMatch(issue -> issue.code() == IssueCode.INVALID_FIELD_TYPE));
+    assertTrue(result.value().get().nodes().get("root").presentation().mood().isEmpty());
   }
 }

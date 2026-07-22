@@ -57,13 +57,13 @@ public final class InteractionDefinitions {
               InteractionSource.DATAPACK,
               definition.event(),
               UUID.nameUUIDFromBytes(
-                  (blockBinding.dimension() + "@" + blockBinding.pos().toShortString())
+                  (blockBinding.dimension() + "@" + blockBinding.blockPos().toShortString())
                       .getBytes(StandardCharsets.UTF_8)),
               TargetKind.BLOCK,
               InteractionType.RIGHT_CLICK,
               definition.id().toString(),
               blockBinding.dimension(),
-              blockBinding.pos(),
+              blockBinding.blockPos(),
               new ActionDataSet()));
     }
 

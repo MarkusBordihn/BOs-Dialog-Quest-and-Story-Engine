@@ -44,35 +44,35 @@ public final class StackLayout {
   }
 
   public int apply(Widget... widgets) {
-    int cursor = vertical ? startY : startX;
+    int cursor = this.vertical ? this.startY : this.startX;
     for (Widget widget : widgets) {
-      if (vertical) {
-        widget.setPosition(startX, cursor);
-        cursor += widget.getHeight() + spacing;
+      if (this.vertical) {
+        widget.setPosition(this.startX, cursor);
+        cursor += widget.getHeight() + this.spacing;
       } else {
-        widget.setPosition(cursor, startY);
-        cursor += widget.getWidth() + spacing;
+        widget.setPosition(cursor, this.startY);
+        cursor += widget.getWidth() + this.spacing;
       }
     }
 
-    return cursor - spacing;
+    return cursor - this.spacing;
   }
 
   public int applyVisible(Widget... widgets) {
-    int cursor = vertical ? startY : startX;
+    int cursor = this.vertical ? this.startY : this.startX;
     for (Widget widget : widgets) {
       if (!widget.isVisible()) {
         continue;
       }
-      if (vertical) {
-        widget.setPosition(startX, cursor);
-        cursor += widget.getHeight() + spacing;
+      if (this.vertical) {
+        widget.setPosition(this.startX, cursor);
+        cursor += widget.getHeight() + this.spacing;
       } else {
-        widget.setPosition(cursor, startY);
-        cursor += widget.getWidth() + spacing;
+        widget.setPosition(cursor, this.startY);
+        cursor += widget.getWidth() + this.spacing;
       }
     }
 
-    return cursor > (vertical ? startY : startX) ? cursor - spacing : cursor;
+    return cursor > (this.vertical ? this.startY : this.startX) ? cursor - this.spacing : cursor;
   }
 }

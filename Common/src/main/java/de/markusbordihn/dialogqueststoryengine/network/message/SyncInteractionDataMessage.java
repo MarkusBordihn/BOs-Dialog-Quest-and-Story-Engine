@@ -43,16 +43,16 @@ public record SyncInteractionDataMessage(List<InteractionEntry> entries)
     int count = buffer.readInt();
     List<InteractionEntry> entries = new ArrayList<>(count);
     for (int i = 0; i < count; i++) {
-      entries.add(InteractionEntry.readFromBuf(buffer));
+      entries.add(InteractionEntry.readFromBuffer(buffer));
     }
     return new SyncInteractionDataMessage(entries);
   }
 
   @Override
   public void write(FriendlyByteBuf buffer) {
-    buffer.writeInt(entries.size());
-    for (InteractionEntry entry : entries) {
-      entry.writeToBuf(buffer);
+    buffer.writeInt(this.entries.size());
+    for (InteractionEntry entry : this.entries) {
+      entry.writeToBuffer(buffer);
     }
   }
 
@@ -63,6 +63,6 @@ public record SyncInteractionDataMessage(List<InteractionEntry> entries)
 
   @Override
   public void handleClient() {
-    InteractionClientData.setEntries(entries);
+    InteractionClientData.setEntries(this.entries);
   }
 }

@@ -47,8 +47,8 @@ class PermissionLevelConditionTest {
   @Test
   void evaluate_nullPlayer_returnsFalse() {
     PermissionLevelCondition condition = new PermissionLevelCondition(2);
-    ConditionContext ctx = ConditionContext.ofTest(new PlayerState(UUID.randomUUID()));
-    assertFalse(condition.evaluate(ctx));
+    ConditionContext context = ConditionContext.ofTest(new PlayerState(UUID.randomUUID()));
+    assertFalse(condition.evaluate(context));
   }
 
   @Test

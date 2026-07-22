@@ -44,7 +44,7 @@ class QuestChangeEventTest {
   void setUp() {
     QuestTestFixtures.install(QUEST_1);
     PlayerStateService.onPlayerDataLoaded(PLAYER_UUID, new CompoundTag());
-    PlayerStateEvents.addQuestChangedListener((uuid, change) -> changes.add(change));
+    PlayerStateEvents.addQuestChangedListener((uuid, change) -> this.changes.add(change));
   }
 
   @AfterEach
@@ -59,29 +59,29 @@ class QuestChangeEventTest {
   void startQuestPublishesExactlyOneChange() {
     PlayerStateService.startQuest(PLAYER_UUID, QUEST_1);
 
-    assertEquals(1, changes.size());
-    assertEquals(QUEST_1, changes.get(0).questId());
-    assertEquals(QuestState.ACTIVE, changes.get(0).questProgress().state());
+    assertEquals(1, this.changes.size());
+    assertEquals(QUEST_1, this.changes.get(0).questId());
+    assertEquals(QuestState.ACTIVE, this.changes.get(0).questProgress().state());
   }
 
   @Test
   void completeQuestPublishesExactlyOneChange() {
     PlayerStateService.startQuest(PLAYER_UUID, QUEST_1);
-    changes.clear();
+    this.changes.clear();
 
     PlayerStateService.completeQuest(PLAYER_UUID, QUEST_1);
 
-    assertEquals(1, changes.size());
-    assertEquals(QuestState.COMPLETED, changes.get(0).questProgress().state());
+    assertEquals(1, this.changes.size());
+    assertEquals(QuestState.COMPLETED, this.changes.get(0).questProgress().state());
   }
 
   @Test
   void redundantStartPublishesNoChange() {
     PlayerStateService.startQuest(PLAYER_UUID, QUEST_1);
-    changes.clear();
+    this.changes.clear();
 
     PlayerStateService.startQuest(PLAYER_UUID, QUEST_1);
 
-    assertEquals(0, changes.size());
+    assertEquals(0, this.changes.size());
   }
 }

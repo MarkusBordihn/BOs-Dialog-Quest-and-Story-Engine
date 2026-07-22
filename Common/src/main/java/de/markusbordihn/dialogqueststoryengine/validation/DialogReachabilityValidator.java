@@ -150,7 +150,7 @@ public final class DialogReachabilityValidator implements ContentValidator {
           }
 
           if (!visited.contains(nextId)) {
-            if (dfsCycleDetect(nextId, nodes, visited, inStack)) {
+            if (this.dfsCycleDetect(nextId, nodes, visited, inStack)) {
               return true;
             }
           } else if (inStack.contains(nextId)) {

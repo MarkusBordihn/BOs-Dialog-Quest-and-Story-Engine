@@ -20,12 +20,12 @@
 package de.markusbordihn.dialogqueststoryengine.client.holopad;
 
 import de.markusbordihn.dialogqueststoryengine.Constants;
+import de.markusbordihn.dialogqueststoryengine.client.screen.theme.LayoutContentKind;
+import de.markusbordihn.dialogqueststoryengine.client.screen.theme.LayoutScreenRegistry;
 import de.markusbordihn.dialogqueststoryengine.data.story.StoryEntry;
-import de.markusbordihn.dialogqueststoryengine.data.story.StoryEntryType;
 import de.markusbordihn.dialogqueststoryengine.data.theme.Theme;
 import de.markusbordihn.dialogqueststoryengine.network.message.session.OpenStorySessionPacket;
 import de.markusbordihn.dialogqueststoryengine.story.entry.StoryEntryClientRegistry;
-import de.markusbordihn.dialogqueststoryengine.theme.ThemeClientRegistry;
 import java.util.UUID;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
@@ -56,32 +56,9 @@ public final class ClientStoryOpener {
       return;
     }
 
-    Theme theme =
-        ThemeClientRegistry.getOrDefault(
-                themeOverrideId != null ? themeOverrideId : entry.themeId())
-            .orElseGet(
-                () -> {
-                  log.warn(
-                      "{} No theme found for story {}, not even default_holopad",
-                      Constants.LOG_PREFIX,
-                      storyId);
-                  return null;
-                });
-
-    if (theme == null) {
-      return;
-    }
-
-    if (entry.type() == StoryEntryType.HOLOPAD) {
-      HolopadScreen.open(entry, theme);
-      return;
-    }
-
-    log.warn(
-        "{} Unsupported story entry type {} for story {}",
-        Constants.LOG_PREFIX,
-        entry.type(),
-        storyId);
+    ResourceLocation requestedThemeId = themeOverrideId != null ? themeOverrideId : entry.themeId();
+    Theme theme = LayoutScreenRegistry.resolveTheme(requestedThemeId, LayoutContentKind.STORY);
+    HolopadScreen.open(entry, theme);
   }
 
   public static void openFromSession(OpenStorySessionPacket packet) {
@@ -100,20 +77,7 @@ public final class ClientStoryOpener {
       return;
     }
 
-    Theme theme =
-        ThemeClientRegistry.getOrDefault(entry.themeId())
-            .orElseGet(
-                () -> {
-                  log.warn(
-                      "{} No theme found for interactive story {}, not even default_holopad",
-                      Constants.LOG_PREFIX,
-                      packet.displayStoryId());
-                  return null;
-                });
-
-    if (theme == null) {
-      return;
-    }
+    Theme theme = LayoutScreenRegistry.resolveTheme(entry.themeId(), LayoutContentKind.STORY);
 
     HolopadScreen.openInteractive(
         entry,

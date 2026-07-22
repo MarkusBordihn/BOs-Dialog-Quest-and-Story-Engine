@@ -223,7 +223,7 @@ public final class QuestContentParser {
     }
 
     boolean restartAfterFailure =
-        OptionalFieldReader.bool(
+        OptionalFieldReader.booleanValue(
             logicJson,
             FIELD_RESTART_AFTER_FAILURE,
             FIELD_LOGIC + "." + FIELD_RESTART_AFTER_FAILURE,
@@ -531,13 +531,13 @@ public final class QuestContentParser {
         continue;
       }
 
-      String typeStr = stepJson.get(FIELD_TYPE).getAsString();
+      String typeString = stepJson.get(FIELD_TYPE).getAsString();
       try {
         steps.put(
             stepId,
             new RawQuestStep(
                 stepId,
-                new ResourceLocation(typeStr),
+                new ResourceLocation(typeString),
                 parseStepDescriptionKey(stepJson, stepId, id, filePath, issues),
                 parseStepRequires(stepJson, stepId, id, filePath, issues),
                 stepJson));
@@ -549,7 +549,7 @@ public final class QuestContentParser {
                 id,
                 filePath,
                 FIELD_STEPS + "." + stepId + "." + FIELD_TYPE,
-                Map.of("value", typeStr)));
+                Map.of("value", typeString)));
       }
     }
 

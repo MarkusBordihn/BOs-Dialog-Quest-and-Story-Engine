@@ -36,31 +36,32 @@ public class ScrollPanel extends Panel {
 
   @Override
   protected void renderForeground(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-    int maxScroll = getMaxScrollY();
+    int maxScroll = this.getMaxScrollY();
     if (maxScroll <= 0) {
       return;
     }
     ColorPalette palette = ColorPalette.current();
-    int x = getX() + width - scrollBarWidth;
-    int y = getY();
+    int x = this.getX() + this.width - this.scrollBarWidth;
+    int y = this.getY();
 
-    graphics.fill(x, y, x + scrollBarWidth, y + height, palette.scrollTrack());
+    graphics.fill(x, y, x + this.scrollBarWidth, y + this.height, palette.scrollTrack());
 
-    int totalTrack = height;
-    int handleHeight = Math.max(15, (int) ((float) height / (height + maxScroll) * totalTrack));
-    float scrollFraction = (float) scrollY / maxScroll;
+    int totalTrack = this.height;
+    int handleHeight =
+        Math.max(15, (int) ((float) this.height / (this.height + maxScroll) * totalTrack));
+    float scrollFraction = (float) this.scrollY / maxScroll;
     int handleY = y + (int) (scrollFraction * (totalTrack - handleHeight));
 
     graphics.fill(
-        x + 1, handleY, x + scrollBarWidth - 1, handleY + handleHeight, palette.scrollThumb());
+        x + 1, handleY, x + this.scrollBarWidth - 1, handleY + handleHeight, palette.scrollThumb());
   }
 
   @Override
   public boolean mouseClicked(double mouseX, double mouseY, int button) {
-    if (button == 0 && isMouseOverScrollBar(mouseX, mouseY)) {
-      draggingScrollBar = true;
-      dragStartY = mouseY;
-      dragStartScroll = scrollY;
+    if (button == 0 && this.isMouseOverScrollBar(mouseX, mouseY)) {
+      this.draggingScrollBar = true;
+      this.dragStartY = mouseY;
+      this.dragStartScroll = this.scrollY;
       return true;
     }
     return super.mouseClicked(mouseX, mouseY, button);
@@ -69,14 +70,15 @@ public class ScrollPanel extends Panel {
   @Override
   public boolean mouseDragged(
       double mouseX, double mouseY, int button, double dragX, double dragY) {
-    if (draggingScrollBar) {
-      int maxScroll = getMaxScrollY();
+    if (this.draggingScrollBar) {
+      int maxScroll = this.getMaxScrollY();
       if (maxScroll > 0) {
-        double deltaY = mouseY - dragStartY;
-        int totalTrack = height;
-        int handleHeight = Math.max(15, (int) ((float) height / (height + maxScroll) * totalTrack));
+        double deltaY = mouseY - this.dragStartY;
+        int totalTrack = this.height;
+        int handleHeight =
+            Math.max(15, (int) ((float) this.height / (this.height + maxScroll) * totalTrack));
         float scrollPerPixel = (float) maxScroll / (totalTrack - handleHeight);
-        setScrollY(dragStartScroll + (int) (deltaY * scrollPerPixel));
+        this.setScrollY(this.dragStartScroll + (int) (deltaY * scrollPerPixel));
       }
       return true;
     }
@@ -85,19 +87,19 @@ public class ScrollPanel extends Panel {
 
   @Override
   public boolean mouseReleased(double mouseX, double mouseY, int button) {
-    if (draggingScrollBar) {
-      draggingScrollBar = false;
+    if (this.draggingScrollBar) {
+      this.draggingScrollBar = false;
       return true;
     }
     return super.mouseReleased(mouseX, mouseY, button);
   }
 
   private boolean isMouseOverScrollBar(double mouseX, double mouseY) {
-    int barX = getX() + width - scrollBarWidth;
-    int barY = getY();
+    int barX = this.getX() + this.width - this.scrollBarWidth;
+    int barY = this.getY();
     return mouseX >= barX
-        && mouseX < barX + scrollBarWidth
+        && mouseX < barX + this.scrollBarWidth
         && mouseY >= barY
-        && mouseY < barY + height;
+        && mouseY < barY + this.height;
   }
 }

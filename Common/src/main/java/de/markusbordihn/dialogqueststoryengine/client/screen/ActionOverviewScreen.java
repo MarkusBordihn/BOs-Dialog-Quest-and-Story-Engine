@@ -31,7 +31,7 @@ import net.minecraft.network.chat.Component;
 public class ActionOverviewScreen extends BaseScreen {
 
   public ActionOverviewScreen(List<BreadcrumbBar.Segment> ancestors) {
-    setBreadcrumb(ancestors, "Actions");
+    this.setBreadcrumb(ancestors, "Actions");
   }
 
   public static void open(List<BreadcrumbBar.Segment> ancestors) {
@@ -50,15 +50,15 @@ public class ActionOverviewScreen extends BaseScreen {
 
   @Override
   public void onScreenInit(int screenWidth, int screenHeight) {
-    setSizeCentered(400, 260);
-    refreshWidgets();
+    this.setSizeCentered(400, 260);
+    this.refreshWidgets();
   }
 
   @Override
   protected void addWidgets() {
-    addWidget(
+    this.addWidget(
         new Label(
-            getInnerWidth() / 2,
+            this.getInnerWidth() / 2,
             16,
             "coming_soon",
             0,

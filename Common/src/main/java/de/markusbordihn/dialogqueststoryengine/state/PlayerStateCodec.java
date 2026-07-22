@@ -19,6 +19,9 @@
 
 package de.markusbordihn.dialogqueststoryengine.state;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import de.markusbordihn.dialogqueststoryengine.Constants;
 import de.markusbordihn.dialogqueststoryengine.data.PlayerStateSchema;
 import de.markusbordihn.dialogqueststoryengine.data.quest.QuestState;
@@ -32,7 +35,9 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.IntTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 import org.apache.logging.log4j.LogManager;
@@ -315,25 +320,25 @@ public final class PlayerStateCodec {
     }
   }
 
-  private static com.google.gson.JsonObject jsonFromNbt(CompoundTag tag) {
-    com.google.gson.JsonObject jsonObject = new com.google.gson.JsonObject();
+  private static JsonObject jsonFromNbt(CompoundTag tag) {
+    JsonObject jsonObject = new JsonObject();
     for (String key : tag.getAllKeys()) {
       Tag nbtValue = tag.get(key);
-      if (nbtValue instanceof net.minecraft.nbt.StringTag stringTag) {
+      if (nbtValue instanceof StringTag stringTag) {
         jsonObject.addProperty(key, stringTag.getAsString());
-      } else if (nbtValue instanceof net.minecraft.nbt.IntTag intTag) {
+      } else if (nbtValue instanceof IntTag intTag) {
         jsonObject.addProperty(key, intTag.getAsInt());
       }
     }
     return jsonObject;
   }
 
-  private static CompoundTag nbtFromJson(com.google.gson.JsonObject jsonObject) {
+  private static CompoundTag nbtFromJson(JsonObject jsonObject) {
     CompoundTag tag = new CompoundTag();
-    for (Map.Entry<String, com.google.gson.JsonElement> entry : jsonObject.entrySet()) {
-      com.google.gson.JsonElement element = entry.getValue();
+    for (Map.Entry<String, JsonElement> entry : jsonObject.entrySet()) {
+      JsonElement element = entry.getValue();
       if (element.isJsonPrimitive()) {
-        com.google.gson.JsonPrimitive primitive = element.getAsJsonPrimitive();
+        JsonPrimitive primitive = element.getAsJsonPrimitive();
         if (primitive.isString()) {
           tag.putString(entry.getKey(), primitive.getAsString());
         } else if (primitive.isNumber()) {

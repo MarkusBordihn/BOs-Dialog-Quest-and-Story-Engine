@@ -99,30 +99,30 @@ public record ColorPalette(
   }
 
   public int surfaceContainerHigh() {
-    return dark ? lighten(surfaceContainer, 0.30f) : darken(surfaceContainer, 0.12f);
+    return this.dark ? lighten(this.surfaceContainer, 0.30f) : darken(this.surfaceContainer, 0.12f);
   }
 
   public int surfaceContainerLow() {
-    return darken(surfaceContainer, 0.35f);
+    return darken(this.surfaceContainer, 0.35f);
   }
 
   public int scrollTrack() {
-    return (outline & 0x00FFFFFF) | 0x60000000;
+    return (this.outline & 0x00FFFFFF) | 0x60000000;
   }
 
   public int scrollThumb() {
-    return outline;
+    return this.outline;
   }
 
   public int listHighlight() {
-    return (primaryVariant & 0x00FFFFFF) | 0x60000000;
+    return (this.primaryVariant & 0x00FFFFFF) | 0x60000000;
   }
 
   public int listHover() {
-    return (primary & 0x00FFFFFF) | 0x20000000;
+    return (this.primary & 0x00FFFFFF) | 0x20000000;
   }
 
   public int listStripe() {
-    return (primary & 0x00FFFFFF) | 0x10000000;
+    return (this.primary & 0x00FFFFFF) | 0x10000000;
   }
 }

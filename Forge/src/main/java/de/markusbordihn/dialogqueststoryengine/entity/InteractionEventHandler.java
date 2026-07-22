@@ -20,6 +20,7 @@
 package de.markusbordihn.dialogqueststoryengine.entity;
 
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
@@ -30,15 +31,22 @@ public class InteractionEventHandler {
 
   @SubscribeEvent
   public static void handleEntityInteract(PlayerInteractEvent.EntityInteract event) {
-    if (!event.getLevel().isClientSide() && event.getHand() == InteractionHand.MAIN_HAND) {
-      InteractionEvents.handleRightClickEntity(event.getEntity(), event.getTarget());
+    if (!event.getLevel().isClientSide()
+        && event.getHand() == InteractionHand.MAIN_HAND
+        && InteractionEvents.handleRightClickEntity(event.getEntity(), event.getTarget())) {
+      event.setCanceled(true);
+      event.setCancellationResult(InteractionResult.SUCCESS);
     }
   }
 
   @SubscribeEvent
   public static void handleRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
-    if (!event.getLevel().isClientSide() && event.getHand() == InteractionHand.MAIN_HAND) {
-      InteractionEvents.handleRightClickBlock(event.getEntity(), event.getPos(), event.getLevel());
+    if (!event.getLevel().isClientSide()
+        && event.getHand() == InteractionHand.MAIN_HAND
+        && InteractionEvents.handleRightClickBlock(
+            event.getEntity(), event.getPos(), event.getLevel())) {
+      event.setCanceled(true);
+      event.setCancellationResult(InteractionResult.SUCCESS);
     }
   }
 

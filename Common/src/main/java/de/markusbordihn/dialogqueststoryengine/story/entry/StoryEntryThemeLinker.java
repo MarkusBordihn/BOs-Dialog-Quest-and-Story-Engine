@@ -20,11 +20,15 @@
 package de.markusbordihn.dialogqueststoryengine.story.entry;
 
 import de.markusbordihn.dialogqueststoryengine.Constants;
+import de.markusbordihn.dialogqueststoryengine.client.screen.theme.LayoutContentKind;
+import de.markusbordihn.dialogqueststoryengine.client.screen.theme.LayoutScreenRegistry;
 import de.markusbordihn.dialogqueststoryengine.data.ContentType;
 import de.markusbordihn.dialogqueststoryengine.data.issue.ContentIssue;
 import de.markusbordihn.dialogqueststoryengine.data.issue.ContentIssueTracker;
 import de.markusbordihn.dialogqueststoryengine.data.issue.IssueCode;
+import de.markusbordihn.dialogqueststoryengine.data.issue.IssueSeverity;
 import de.markusbordihn.dialogqueststoryengine.data.story.StoryEntry;
+import de.markusbordihn.dialogqueststoryengine.data.theme.Theme;
 import de.markusbordihn.dialogqueststoryengine.theme.ThemeClientRegistry;
 import java.util.Map;
 import net.minecraft.resources.ResourceLocation;
@@ -39,12 +43,14 @@ public final class StoryEntryThemeLinker {
 
   public static void validate() {
     ContentIssueTracker.clearByCode(IssueCode.MISSING_THEME_REFERENCE);
+    ContentIssueTracker.clearByCode(IssueCode.THEME_LAYOUT_MISMATCH);
 
     int missingCount = 0;
     for (ResourceLocation storyId : StoryEntryClientRegistry.ids()) {
       StoryEntry entry = StoryEntryClientRegistry.get(storyId).orElseThrow();
 
-      if (!ThemeClientRegistry.contains(entry.themeId())) {
+      Theme theme = ThemeClientRegistry.get(entry.themeId()).orElse(null);
+      if (theme == null) {
         ContentIssueTracker.record(
             ContentIssue.of(
                 IssueCode.MISSING_THEME_REFERENCE,
@@ -54,6 +60,25 @@ public final class StoryEntryThemeLinker {
                 "theme",
                 Map.of("theme_id", entry.themeId().toString())));
         missingCount++;
+        continue;
+      }
+
+      if (!LayoutScreenRegistry.isCompatible(theme.layoutId(), LayoutContentKind.STORY)) {
+        ContentIssueTracker.record(
+            ContentIssue.of(
+                IssueSeverity.WARNING,
+                IssueCode.THEME_LAYOUT_MISMATCH,
+                ContentType.STORY_ENTRY,
+                storyId,
+                "[cross-reference validation]",
+                "theme",
+                Map.of(
+                    "theme_id",
+                    entry.themeId().toString(),
+                    "layout",
+                    theme.layoutId().toString(),
+                    "expected_kind",
+                    "story")));
       }
     }
 

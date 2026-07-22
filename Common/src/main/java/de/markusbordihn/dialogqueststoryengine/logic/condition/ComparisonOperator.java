@@ -19,7 +19,7 @@
 
 package de.markusbordihn.dialogqueststoryengine.logic.condition;
 
-import java.util.Locale;
+import de.markusbordihn.dialogqueststoryengine.data.json.EnumKeys;
 import java.util.Optional;
 
 public enum ComparisonOperator {
@@ -31,15 +31,7 @@ public enum ComparisonOperator {
   GREATER_OR_EQUAL;
 
   public static Optional<ComparisonOperator> fromKey(String key) {
-    if (key == null) {
-      return Optional.empty();
-    }
-
-    try {
-      return Optional.of(valueOf(key.toUpperCase(Locale.ROOT)));
-    } catch (IllegalArgumentException e) {
-      return Optional.empty();
-    }
+    return EnumKeys.byName(ComparisonOperator.class, key);
   }
 
   public boolean requiresNumericOrder() {

@@ -102,7 +102,7 @@ class LocalizedTextParserTest {
     assertTrue(result.isPresent());
     assertEquals(2, result.get().arguments().size());
     assertEquals(new ResourceLocation("dqse", "context"), result.get().arguments().get(0).type());
-    assertEquals("example:alert_level", result.get().arguments().get(1).param("fact"));
+    assertEquals("example:alert_level", result.get().arguments().get(1).parameter("fact"));
   }
 
   @Test

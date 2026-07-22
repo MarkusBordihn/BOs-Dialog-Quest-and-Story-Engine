@@ -36,6 +36,9 @@ public final class BlockInteractHandler implements InteractionHandler {
         context.entry().targetId(),
         context.player().getDisplayName().getString());
     ActionDataExecutor.execute(
-        context.entry().actionDataSet(), context.player(), context.level().getServer());
+        context.entry().actionDataSet(),
+        context.player(),
+        context.level().getServer(),
+        context.entry().targetId());
   }
 }

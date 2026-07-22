@@ -40,7 +40,7 @@ public final class FactContextProvider implements ContextValueProvider {
 
   @Override
   public Component resolve(ContextArgument argument, NarrativeContextResolution resolution) {
-    String fact = argument.param(PARAM_FACT);
+    String fact = argument.parameter(PARAM_FACT);
     if (fact == null || resolution.playerState() == null) {
       return Component.empty();
     }
@@ -51,7 +51,7 @@ public final class FactContextProvider implements ContextValueProvider {
 
   @Override
   public Optional<String> validate(ContextArgument argument) {
-    String scope = argument.param(PARAM_SCOPE);
+    String scope = argument.parameter(PARAM_SCOPE);
     if (scope == null) {
       return Optional.of("missing required '" + PARAM_SCOPE + "' parameter");
     }
@@ -59,7 +59,7 @@ public final class FactContextProvider implements ContextValueProvider {
       return Optional.of("only the 'player' fact scope is supported");
     }
 
-    String fact = argument.param(PARAM_FACT);
+    String fact = argument.parameter(PARAM_FACT);
     if (fact == null || fact.isBlank()) {
       return Optional.of("missing required '" + PARAM_FACT + "' parameter");
     }

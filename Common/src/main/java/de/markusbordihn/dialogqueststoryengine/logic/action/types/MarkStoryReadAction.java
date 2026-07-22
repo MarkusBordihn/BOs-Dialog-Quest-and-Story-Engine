@@ -47,6 +47,7 @@ public record MarkStoryReadAction(ResourceLocation storyId) implements Action {
           ContentIssue.of(IssueCode.MISSING_FIELD, contentType, contentId, filePath, "story"));
       return Action.NOOP;
     }
+
     ResourceLocation storyId = ResourceLocation.tryParse(jsonObject.get("story").getAsString());
     if (storyId == null) {
       issues.add(
@@ -59,6 +60,7 @@ public record MarkStoryReadAction(ResourceLocation storyId) implements Action {
               Map.of("value", jsonObject.get("story").getAsString())));
       return Action.NOOP;
     }
+
     return new MarkStoryReadAction(storyId);
   }
 

@@ -25,14 +25,14 @@ import java.util.Map;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
-public record ContextArgument(ResourceLocation type, Map<String, String> params) {
+public record ContextArgument(ResourceLocation type, Map<String, String> parameters) {
 
   public ContextArgument {
-    params = Map.copyOf(params);
+    parameters = Map.copyOf(parameters);
   }
 
-  public String param(String key) {
-    return this.params.get(key);
+  public String parameter(String key) {
+    return this.parameters.get(key);
   }
 
   public Component resolve(NarrativeContextResolution resolution) {

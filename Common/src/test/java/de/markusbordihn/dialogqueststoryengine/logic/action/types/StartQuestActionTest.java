@@ -48,9 +48,9 @@ class StartQuestActionTest {
   @Test
   void execute_questNotStarted_becomesActive() {
     PlayerState playerState = new PlayerState(UUID.randomUUID());
-    ActionContext ctx = ActionContext.ofTest(playerState);
+    ActionContext context = ActionContext.ofTest(playerState);
 
-    new StartQuestAction(QUEST_ID).execute(ctx);
+    new StartQuestAction(QUEST_ID).execute(context);
 
     assertEquals(QuestState.ACTIVE, playerState.getQuest(QUEST_ID).state());
   }
@@ -59,9 +59,9 @@ class StartQuestActionTest {
   void execute_questAlreadyActive_noStateChange() {
     PlayerState playerState = new PlayerState(UUID.randomUUID());
     playerState.getOrCreateQuest(QUEST_ID, QuestState.ACTIVE);
-    ActionContext ctx = ActionContext.ofTest(playerState);
+    ActionContext context = ActionContext.ofTest(playerState);
 
-    new StartQuestAction(QUEST_ID).execute(ctx);
+    new StartQuestAction(QUEST_ID).execute(context);
 
     assertEquals(QuestState.ACTIVE, playerState.getQuest(QUEST_ID).state());
   }
@@ -70,9 +70,9 @@ class StartQuestActionTest {
   void execute_questAlreadyCompleted_noStateChange() {
     PlayerState playerState = new PlayerState(UUID.randomUUID());
     playerState.getOrCreateQuest(QUEST_ID, QuestState.COMPLETED);
-    ActionContext ctx = ActionContext.ofTest(playerState);
+    ActionContext context = ActionContext.ofTest(playerState);
 
-    new StartQuestAction(QUEST_ID).execute(ctx);
+    new StartQuestAction(QUEST_ID).execute(context);
 
     assertEquals(QuestState.COMPLETED, playerState.getQuest(QUEST_ID).state());
   }

@@ -52,6 +52,7 @@ public record RunFunctionAction(ResourceLocation function, int permissionLevel) 
           ContentIssue.of(IssueCode.MISSING_FIELD, contentType, contentId, filePath, "function"));
       return Action.NOOP;
     }
+
     ResourceLocation functionId =
         ResourceLocation.tryParse(jsonObject.get("function").getAsString());
     if (functionId == null) {
@@ -74,6 +75,7 @@ public record RunFunctionAction(ResourceLocation function, int permissionLevel) 
     if (actionContext.server() == null) {
       return;
     }
+
     ServerFunctionManager functionManager = actionContext.server().getFunctions();
     functionManager
         .get(this.function)

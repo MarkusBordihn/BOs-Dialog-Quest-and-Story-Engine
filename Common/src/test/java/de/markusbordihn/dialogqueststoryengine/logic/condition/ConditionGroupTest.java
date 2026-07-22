@@ -47,35 +47,39 @@ class ConditionGroupTest {
 
   @Test
   void allOperator_allTrue_returnsTrue() {
-    ConditionGroup group = new ConditionGroup(GroupOperator.ALL, List.of(ctx -> true, ctx -> true));
+    ConditionGroup group =
+        new ConditionGroup(GroupOperator.ALL, List.of(context -> true, context -> true));
     assertTrue(group.evaluate(emptyContext()));
   }
 
   @Test
   void allOperator_oneFalse_returnsFalse() {
     ConditionGroup group =
-        new ConditionGroup(GroupOperator.ALL, List.of(ctx -> true, ctx -> false, ctx -> true));
+        new ConditionGroup(
+            GroupOperator.ALL, List.of(context -> true, context -> false, context -> true));
     assertFalse(group.evaluate(emptyContext()));
   }
 
   @Test
   void anyOperator_oneTrue_returnsTrue() {
     ConditionGroup group =
-        new ConditionGroup(GroupOperator.ANY, List.of(ctx -> false, ctx -> true, ctx -> false));
+        new ConditionGroup(
+            GroupOperator.ANY, List.of(context -> false, context -> true, context -> false));
     assertTrue(group.evaluate(emptyContext()));
   }
 
   @Test
   void anyOperator_allFalse_returnsFalse() {
     ConditionGroup group =
-        new ConditionGroup(GroupOperator.ANY, List.of(ctx -> false, ctx -> false));
+        new ConditionGroup(GroupOperator.ANY, List.of(context -> false, context -> false));
     assertFalse(group.evaluate(emptyContext()));
   }
 
   @Test
   void nestedGroups_evaluate_correctly() {
-    Condition inner = new ConditionGroup(GroupOperator.ANY, List.of(ctx -> false, ctx -> true));
-    ConditionGroup outer = new ConditionGroup(GroupOperator.ALL, List.of(ctx -> true, inner));
+    Condition inner =
+        new ConditionGroup(GroupOperator.ANY, List.of(context -> false, context -> true));
+    ConditionGroup outer = new ConditionGroup(GroupOperator.ALL, List.of(context -> true, inner));
     assertTrue(outer.evaluate(emptyContext()));
   }
 

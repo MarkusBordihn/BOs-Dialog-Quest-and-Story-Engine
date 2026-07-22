@@ -23,6 +23,7 @@ import cpw.mods.modlauncher.Launcher;
 import cpw.mods.modlauncher.api.IEnvironment;
 import de.markusbordihn.dialogqueststoryengine.block.ModBlocks;
 import de.markusbordihn.dialogqueststoryengine.commands.CommandsEventHandler;
+import de.markusbordihn.dialogqueststoryengine.config.FeedbackConfig;
 import de.markusbordihn.dialogqueststoryengine.config.SecurityConfig;
 import de.markusbordihn.dialogqueststoryengine.config.ValidationConfig;
 import de.markusbordihn.dialogqueststoryengine.content.DataPackReloadEventHandler;
@@ -73,6 +74,7 @@ public class DialogQuestStoryEngine {
 
     SecurityConfig.load(Constants.CONFIG_DIR);
     ValidationConfig.load(Constants.CONFIG_DIR);
+    FeedbackConfig.load(Constants.CONFIG_DIR);
     ModBootstrap.initialize();
 
     log.info("{} Items ...", Constants.LOG_REGISTER_PREFIX);

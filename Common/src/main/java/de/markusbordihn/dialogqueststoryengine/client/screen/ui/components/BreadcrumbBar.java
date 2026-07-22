@@ -35,8 +35,8 @@ public class BreadcrumbBar extends Widget {
   private final List<Segment> ancestors;
   private final String currentLabel;
   private final List<int[]> segmentBounds = new ArrayList<>();
-  private final HomeButton homeBtn;
-  private final CloseButton closeBtn;
+  private final HomeButton homeButton;
+  private final CloseButton closeButton;
 
   public BreadcrumbBar(
       int posX,
@@ -48,48 +48,49 @@ public class BreadcrumbBar extends Widget {
     super(posX, posY, width, 16);
     this.ancestors = ancestors != null ? ancestors : List.of();
     this.currentLabel = currentLabel;
-    this.homeBtn = new HomeButton(0, 0, MainScreen::open);
-    this.closeBtn = new CloseButton(0, 0, closeAllAction);
+    this.homeButton = new HomeButton(0, 0, MainScreen::open);
+    this.closeButton = new CloseButton(0, 0, closeAllAction);
   }
 
   @Override
   public int getX() {
-    return posX;
+    return this.posX;
   }
 
   @Override
   public int getY() {
-    return posY;
+    return this.posY;
   }
 
   @Override
   public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-    if (!visible) {
+    if (!this.visible) {
       return;
     }
 
     ColorPalette palette = ColorPalette.current();
     Font font = Minecraft.getInstance().font;
-    int x = getX();
-    int y = getY();
+    int x = this.getX();
+    int y = this.getY();
 
-    graphics.fill(x, y, x + width, y + height, (palette.outline() & 0x00FFFFFF) | 0x30000000);
-    graphics.fill(x, y + height - 1, x + width, y + height, palette.outline());
+    graphics.fill(
+        x, y, x + this.width, y + this.height, (palette.outline() & 0x00FFFFFF) | 0x30000000);
+    graphics.fill(x, y + this.height - 1, x + this.width, y + this.height, palette.outline());
 
-    segmentBounds.clear();
+    this.segmentBounds.clear();
     int cursorX = x + 22;
     int textY = y + 4;
 
-    homeBtn.setPosition(x + 2, y + 2);
-    homeBtn.render(graphics, mouseX, mouseY, partialTick);
+    this.homeButton.setPosition(x + 2, y + 2);
+    this.homeButton.render(graphics, mouseX, mouseY, partialTick);
 
-    for (Segment segment : ancestors) {
+    for (Segment segment : this.ancestors) {
       int segmentWidth = ScaledText.getScaledWidth(font, segment.label, SCALE);
       boolean hovered =
           mouseX >= cursorX
               && mouseX < cursorX + segmentWidth
               && mouseY >= y
-              && mouseY < y + height;
+              && mouseY < y + this.height;
 
       int color = hovered ? palette.onSurface() : palette.onSurfaceLow();
       ScaledText.draw(graphics, font, segment.label, cursorX, textY, color, SCALE);
@@ -99,7 +100,7 @@ public class BreadcrumbBar extends Widget {
         graphics.fill(cursorX, lineY, cursorX + segmentWidth, lineY + 1, color);
       }
 
-      segmentBounds.add(new int[] {cursorX, cursorX + segmentWidth});
+      this.segmentBounds.add(new int[] {cursorX, cursorX + segmentWidth});
       cursorX += segmentWidth;
 
       int separatorWidth = ScaledText.getScaledWidth(font, SEPARATOR, SCALE);
@@ -107,31 +108,31 @@ public class BreadcrumbBar extends Widget {
       cursorX += separatorWidth;
     }
 
-    ScaledText.draw(graphics, font, currentLabel, cursorX, textY, palette.onSurface(), SCALE);
+    ScaledText.draw(graphics, font, this.currentLabel, cursorX, textY, palette.onSurface(), SCALE);
 
-    closeBtn.setPosition(x + width - 16, y + 2);
-    closeBtn.render(graphics, mouseX, mouseY, partialTick);
+    this.closeButton.setPosition(x + this.width - 16, y + 2);
+    this.closeButton.render(graphics, mouseX, mouseY, partialTick);
   }
 
   @Override
   public boolean mouseClicked(double mouseX, double mouseY, int button) {
-    if (!active || !visible || button != 0 || !isMouseOver(mouseX, mouseY)) {
+    if (!this.active || !this.visible || button != 0 || !this.isMouseOver(mouseX, mouseY)) {
       return false;
     }
 
-    if (homeBtn.mouseClicked(mouseX, mouseY, button)) {
+    if (this.homeButton.mouseClicked(mouseX, mouseY, button)) {
       return true;
     }
 
-    if (closeBtn.mouseClicked(mouseX, mouseY, button)) {
+    if (this.closeButton.mouseClicked(mouseX, mouseY, button)) {
       return true;
     }
 
-    int y = getY();
-    for (int i = 0; i < segmentBounds.size() && i < ancestors.size(); i++) {
-      int[] bounds = segmentBounds.get(i);
-      if (mouseX >= bounds[0] && mouseX < bounds[1] && mouseY >= y && mouseY < y + height) {
-        Runnable action = ancestors.get(i).action;
+    int y = this.getY();
+    for (int i = 0; i < this.segmentBounds.size() && i < this.ancestors.size(); i++) {
+      int[] bounds = this.segmentBounds.get(i);
+      if (mouseX >= bounds[0] && mouseX < bounds[1] && mouseY >= y && mouseY < y + this.height) {
+        Runnable action = this.ancestors.get(i).action;
         if (action != null) {
           action.run();
         }
@@ -144,11 +145,11 @@ public class BreadcrumbBar extends Widget {
 
   @Override
   public boolean mouseReleased(double mouseX, double mouseY, int button) {
-    if (homeBtn.mouseReleased(mouseX, mouseY, button)) {
+    if (this.homeButton.mouseReleased(mouseX, mouseY, button)) {
       return true;
     }
 
-    return closeBtn.mouseReleased(mouseX, mouseY, button);
+    return this.closeButton.mouseReleased(mouseX, mouseY, button);
   }
 
   public record Segment(String label, Runnable action) {}

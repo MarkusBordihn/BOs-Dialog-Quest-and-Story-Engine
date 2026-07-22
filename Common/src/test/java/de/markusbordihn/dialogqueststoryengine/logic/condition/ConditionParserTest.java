@@ -46,9 +46,11 @@ class ConditionParserTest {
   @BeforeAll
   static void registerTestHandlers() {
     Registries.CONDITIONS.register(
-        new ResourceLocation("test", "always_true"), (json, ct, id, fp, issues) -> ctx -> true);
+        new ResourceLocation("test", "always_true"),
+        (json, contentType, id, filePath, issues) -> context -> true);
     Registries.CONDITIONS.register(
-        new ResourceLocation("test", "always_false"), (json, ct, id, fp, issues) -> ctx -> false);
+        new ResourceLocation("test", "always_false"),
+        (json, contentType, id, filePath, issues) -> context -> false);
   }
 
   private static ConditionContext emptyContext() {

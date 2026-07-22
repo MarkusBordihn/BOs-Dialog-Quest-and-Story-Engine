@@ -66,7 +66,7 @@ public class InteractionConfigScreen extends BaseScreen {
     this.isNew = isNew;
     this.editLabel = entry.label();
     this.editType = entry.interactionType();
-    setBreadcrumb(ancestors, currentLabel);
+    this.setBreadcrumb(ancestors, currentLabel);
   }
 
   public InteractionConfigScreen(
@@ -114,45 +114,45 @@ public class InteractionConfigScreen extends BaseScreen {
 
   @Override
   public void onScreenInit(int screenWidth, int screenHeight) {
-    setSizeCentered(320, 220);
-    refreshWidgets();
+    this.setSizeCentered(320, 220);
+    this.refreshWidgets();
   }
 
   @Override
   protected void addWidgets() {
-    int innerWidth = getInnerWidth();
+    int innerWidth = this.getInnerWidth();
     int labelColumnX = 0;
     int fieldColumnX = 70;
     int fieldWidth = innerWidth - fieldColumnX - 10;
     int row = 0;
     int rowHeight = 22;
 
-    addWidget(
+    this.addWidget(
         new Label(
             labelColumnX, row + 4, "field.label", 0, ScaledText.SCALE_SMALL, Label.Alignment.LEFT));
-    labelInput =
+    this.labelInput =
         new TextInput(
             fieldColumnX,
             row,
             fieldWidth,
             16,
             value -> {
-              editLabel = value;
-              updateButtonStates();
+              this.editLabel = value;
+              this.updateButtonStates();
             });
-    labelInput.setValue(editLabel);
-    labelInput.setMaxLength(128);
-    addWidget(labelInput);
+    this.labelInput.setValue(this.editLabel);
+    this.labelInput.setMaxLength(128);
+    this.addWidget(this.labelInput);
     row += rowHeight;
 
     List<SelectOption<InteractionType>> typeOptions =
         Arrays.stream(InteractionType.values())
-            .map(t -> SelectOption.of(t.name(), t))
+            .map(interactionType -> SelectOption.of(interactionType.name(), interactionType))
             .collect(Collectors.toList());
-    addWidget(
+    this.addWidget(
         new Label(
             labelColumnX, row + 4, "field.type", 0, ScaledText.SCALE_SMALL, Label.Alignment.LEFT));
-    typeSelect =
+    this.typeSelect =
         new SelectBox<>(
             fieldColumnX,
             row,
@@ -160,16 +160,16 @@ public class InteractionConfigScreen extends BaseScreen {
             16,
             typeOptions,
             type -> {
-              editType = type;
-              updateButtonStates();
+              this.editType = type;
+              this.updateButtonStates();
             },
             this::openOverlay,
             this::closeOverlay);
-    typeSelect.selectByValue(editType);
-    addWidget(typeSelect);
+    this.typeSelect.selectByValue(this.editType);
+    this.addWidget(this.typeSelect);
     row += rowHeight;
 
-    addWidget(
+    this.addWidget(
         new Label(
             labelColumnX,
             row + 4,
@@ -177,18 +177,18 @@ public class InteractionConfigScreen extends BaseScreen {
             0,
             ScaledText.SCALE_SMALL,
             Label.Alignment.LEFT));
-    addWidget(
+    this.addWidget(
         new Label(
             fieldColumnX,
             row + 4,
-            entry.targetKind().name(),
+            this.entry.targetKind().name(),
             0,
             ScaledText.SCALE_SMALL,
             Label.Alignment.LEFT));
     row += rowHeight;
 
-    if (entry.blockPos() != null) {
-      addWidget(
+    if (this.entry.blockPos() != null) {
+      this.addWidget(
           new Label(
               labelColumnX,
               row + 4,
@@ -196,18 +196,18 @@ public class InteractionConfigScreen extends BaseScreen {
               0,
               ScaledText.SCALE_SMALL,
               Label.Alignment.LEFT));
-      addWidget(
+      this.addWidget(
           new Label(
               fieldColumnX,
               row + 4,
-              entry.blockPos().toShortString(),
+              this.entry.blockPos().toShortString(),
               0,
               ScaledText.SCALE_SMALL,
               Label.Alignment.LEFT));
       row += rowHeight;
     }
 
-    addWidget(
+    this.addWidget(
         new Label(
             labelColumnX,
             row + 4,
@@ -215,17 +215,17 @@ public class InteractionConfigScreen extends BaseScreen {
             0,
             ScaledText.SCALE_SMALL,
             Label.Alignment.LEFT));
-    addWidget(
+    this.addWidget(
         new Label(
             fieldColumnX,
             row + 4,
-            entry.dimension().toString(),
+            this.entry.dimension().toString(),
             0,
             ScaledText.SCALE_SMALL,
             Label.Alignment.LEFT));
     row += rowHeight;
 
-    addWidget(new Separator(0, row, innerWidth, true));
+    this.addWidget(new Separator(0, row, innerWidth, true));
     row += 6;
 
     TextButton actionsButton =
@@ -235,84 +235,87 @@ public class InteractionConfigScreen extends BaseScreen {
             Math.min(innerWidth, 160),
             20,
             "button.edit_actions",
-            btn -> {
-              List<BreadcrumbBar.Segment> childAncestors = buildChildAncestors();
+            button -> {
+              List<BreadcrumbBar.Segment> childAncestors = this.buildChildAncestors();
               ActionEditorScreen editorScreen =
                   new ActionEditorScreen(
-                      entry, childAncestors, updatedEntry -> this.entry = updatedEntry);
+                      this.entry, childAncestors, updatedEntry -> this.entry = updatedEntry);
               editorScreen.openScreen();
             });
-    addWidget(actionsButton);
+    this.addWidget(actionsButton);
     row += 28;
 
     int buttonWidth = 70;
-    int btnSpacing = 8;
-    int buttonCount = isNew ? 2 : 3;
-    int totalButtonWidth = buttonWidth * buttonCount + btnSpacing * (buttonCount - 1);
+    int buttonSpacing = 8;
+    int buttonCount = this.isNew ? 2 : 3;
+    int totalButtonWidth = buttonWidth * buttonCount + buttonSpacing * (buttonCount - 1);
     int buttonStartX = (innerWidth - totalButtonWidth) / 2;
 
-    saveButton =
-        new TextButton(buttonStartX, row, buttonWidth, 20, "button.save", btn -> saveAndClose());
-    addWidget(saveButton);
-    cancelButton =
+    this.saveButton =
         new TextButton(
-            buttonStartX + buttonWidth + btnSpacing,
+            buttonStartX, row, buttonWidth, 20, "button.save", button -> this.saveAndClose());
+    this.addWidget(this.saveButton);
+    this.cancelButton =
+        new TextButton(
+            buttonStartX + buttonWidth + buttonSpacing,
             row,
             buttonWidth,
             20,
             "button.cancel",
-            btn -> closeScreen());
-    addWidget(cancelButton);
+            button -> this.closeScreen());
+    this.addWidget(this.cancelButton);
 
-    if (!isNew) {
-      TextButton removeBtn =
+    if (!this.isNew) {
+      TextButton removeButton =
           new TextButton(
-              buttonStartX + (buttonWidth + btnSpacing) * 2,
+              buttonStartX + (buttonWidth + buttonSpacing) * 2,
               row,
               buttonWidth,
               20,
               "button.remove",
-              btn -> {
-                NetworkHandlerManager.sendToServer(new RemoveInteractionMessage(entry));
-                closeScreen();
+              button -> {
+                NetworkHandlerManager.sendToServer(new RemoveInteractionMessage(this.entry));
+                this.closeScreen();
               });
-      addWidget(removeBtn);
+      this.addWidget(removeButton);
     }
-    updateButtonStates();
+    this.updateButtonStates();
   }
 
   private void saveAndClose() {
-    if (!isNew && !hasUnsavedChanges()) {
+    if (!this.isNew && !this.hasUnsavedChanges()) {
       return;
     }
 
-    String label = labelInput.getValue();
+    String label = this.labelInput.getValue();
     if (label.isEmpty()) {
-      label = editLabel;
+      label = this.editLabel;
     }
-    InteractionEntry updatedEntry = entry.withEdits(editType, label);
+    InteractionEntry updatedEntry = this.entry.withEdits(this.editType, label);
     NetworkHandlerManager.sendToServer(new SaveInteractionMessage(updatedEntry));
-    closeScreen();
+    this.closeScreen();
   }
 
   private boolean hasUnsavedChanges() {
-    String label = labelInput != null ? labelInput.getValue() : editLabel;
-    return isNew || !entry.label().equals(label) || entry.interactionType() != editType;
+    String label = this.labelInput != null ? this.labelInput.getValue() : this.editLabel;
+    return this.isNew
+        || !this.entry.label().equals(label)
+        || this.entry.interactionType() != this.editType;
   }
 
   private void updateButtonStates() {
-    boolean hasUnsavedChanges = hasUnsavedChanges();
-    if (saveButton != null) {
-      saveButton.setActive(hasUnsavedChanges);
+    boolean hasUnsavedChanges = this.hasUnsavedChanges();
+    if (this.saveButton != null) {
+      this.saveButton.setActive(hasUnsavedChanges);
     }
-    if (cancelButton != null) {
-      cancelButton.setActive(hasUnsavedChanges);
+    if (this.cancelButton != null) {
+      this.cancelButton.setActive(hasUnsavedChanges);
     }
   }
 
   @Override
   public void tick() {
     super.tick();
-    updateButtonStates();
+    this.updateButtonStates();
   }
 }

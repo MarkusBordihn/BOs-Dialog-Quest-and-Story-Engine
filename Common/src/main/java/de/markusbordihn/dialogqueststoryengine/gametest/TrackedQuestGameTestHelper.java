@@ -52,7 +52,7 @@ public class TrackedQuestGameTestHelper {
   public static void firstStartAutoTracks(GameTestHelper helper) {
     ServerPlayer player = GameTestHelpers.mockConnectedServerPlayer(helper);
     UUID playerUuid = player.getUUID();
-    CapturingNetworkTestHandler network = installEnv();
+    CapturingNetworkTestHandler network = installEnvironment();
     Map<ResourceLocation, QuestDefinition> previous = QuestRegistryTestSupport.install(quests());
     try {
       PlayerStateService.onPlayerDataLoaded(playerUuid, new CompoundTag());
@@ -66,14 +66,14 @@ public class TrackedQuestGameTestHelper {
           Optional.of(QUEST_1),
           network.last(TrackedQuestPacket.class).trackedQuestId());
     } finally {
-      teardownEnv(playerUuid, network, previous);
+      teardownEnvironment(playerUuid, network, previous);
     }
   }
 
   public static void trackAndUntrackViaPacket(GameTestHelper helper) {
     ServerPlayer player = GameTestHelpers.mockConnectedServerPlayer(helper);
     UUID playerUuid = player.getUUID();
-    CapturingNetworkTestHandler network = installEnv();
+    CapturingNetworkTestHandler network = installEnvironment();
     Map<ResourceLocation, QuestDefinition> previous = QuestRegistryTestSupport.install(quests());
     try {
       PlayerStateService.onPlayerDataLoaded(playerUuid, new CompoundTag());
@@ -95,14 +95,14 @@ public class TrackedQuestGameTestHelper {
           Optional.empty(),
           network.last(TrackedQuestPacket.class).trackedQuestId());
     } finally {
-      teardownEnv(playerUuid, network, previous);
+      teardownEnvironment(playerUuid, network, previous);
     }
   }
 
   public static void trackingInactiveQuestKeepsCurrent(GameTestHelper helper) {
     ServerPlayer player = GameTestHelpers.mockConnectedServerPlayer(helper);
     UUID playerUuid = player.getUUID();
-    CapturingNetworkTestHandler network = installEnv();
+    CapturingNetworkTestHandler network = installEnvironment();
     Map<ResourceLocation, QuestDefinition> previous = QuestRegistryTestSupport.install(quests());
     try {
       PlayerStateService.onPlayerDataLoaded(playerUuid, new CompoundTag());
@@ -117,18 +117,18 @@ public class TrackedQuestGameTestHelper {
           Optional.of(QUEST_1),
           network.last(TrackedQuestPacket.class).trackedQuestId());
     } finally {
-      teardownEnv(playerUuid, network, previous);
+      teardownEnvironment(playerUuid, network, previous);
     }
   }
 
-  private static CapturingNetworkTestHandler installEnv() {
+  private static CapturingNetworkTestHandler installEnvironment() {
     CapturingNetworkTestHandler network = CapturingNetworkTestHandler.install();
     PlayerStateEvents.clearAll();
     QuestProgressSync.register();
     return network;
   }
 
-  private static void teardownEnv(
+  private static void teardownEnvironment(
       UUID playerUuid,
       CapturingNetworkTestHandler network,
       Map<ResourceLocation, QuestDefinition> previous) {

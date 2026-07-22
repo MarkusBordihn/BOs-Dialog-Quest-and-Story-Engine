@@ -1,0 +1,26 @@
+{
+  "schema": 1,
+  "layout": "dqse:holopad",
+  "logical_width": 320,
+  "logical_height": 240,
+  "anchor": "center",
+  "areas": {
+    "title": {"x": 18, "y": 16, "width": 284, "height": 14},
+    "text": {"x": 18, "y": 34, "width": 284, "height": 116},
+    "choices": {"x": 50, "y": 168, "width": 220, "height": 44},
+    "display": {"x": 50, "y": 168, "width": 220, "height": 44},
+    "page": {"x": 18, "y": 214, "width": 284, "height": 10}
+  },
+  "colors": {
+    "accent": "#FFCB6B",
+    "on_surface": "#FFB02E",
+    "on_surface_muted": "#B07E28"
+  },
+  "options": {
+    "title_alignment": "left",
+    "text_alignment": "left",
+    "page_turn_style": "fade",
+    "show_page_numbers": true,
+    "show_close_button": true
+  }
+}

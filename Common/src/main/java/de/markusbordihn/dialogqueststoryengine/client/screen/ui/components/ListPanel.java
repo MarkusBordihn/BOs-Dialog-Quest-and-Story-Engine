@@ -43,20 +43,20 @@ public class ListPanel<T> extends ScrollPanel {
   }
 
   public List<T> getItems() {
-    return items;
+    return this.items;
   }
 
   public void setItems(List<T> items) {
     this.items.clear();
     this.items.addAll(items);
     this.selectedIndex = -1;
-    setScrollY(0);
-    this.contentHeight = items.size() * entryHeight + padding;
+    this.setScrollY(0);
+    this.contentHeight = items.size() * this.entryHeight + this.padding;
   }
 
   public void setEntryHeight(int entryHeight) {
     this.entryHeight = entryHeight;
-    this.contentHeight = items.size() * entryHeight + padding;
+    this.contentHeight = this.items.size() * entryHeight + this.padding;
   }
 
   public void setOnSelect(Consumer<T> onSelect) {
@@ -68,11 +68,13 @@ public class ListPanel<T> extends ScrollPanel {
   }
 
   public T getSelected() {
-    return selectedIndex >= 0 && selectedIndex < items.size() ? items.get(selectedIndex) : null;
+    return this.selectedIndex >= 0 && this.selectedIndex < this.items.size()
+        ? this.items.get(this.selectedIndex)
+        : null;
   }
 
   public int getSelectedIndex() {
-    return selectedIndex;
+    return this.selectedIndex;
   }
 
   public void setSelectedIndex(int index) {
@@ -81,87 +83,88 @@ public class ListPanel<T> extends ScrollPanel {
 
   @Override
   public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-    if (!visible) {
+    if (!this.visible) {
       return;
     }
-    renderBackground(graphics, mouseX, mouseY, partialTick);
-    if (clipChildren) {
-      enableScissor(graphics);
+    this.renderBackground(graphics, mouseX, mouseY, partialTick);
+    if (this.clipChildren) {
+      this.enableScissor(graphics);
     }
 
     ColorPalette palette = ColorPalette.current();
     Font font = Minecraft.getInstance().font;
-    int contentX = getContentX();
-    int contentY = getContentY();
-    int listWidth = getInnerWidth() - SCROLLBAR_INSET;
+    int contentX = this.getContentX();
+    int contentY = this.getContentY();
+    int listWidth = this.getInnerWidth() - SCROLLBAR_INSET;
 
-    for (int i = 0; i < items.size(); i++) {
-      int entryY = contentY + i * entryHeight;
-      if (entryY + entryHeight < getY() || entryY > getY() + height) {
+    for (int i = 0; i < this.items.size(); i++) {
+      int entryY = contentY + i * this.entryHeight;
+      if (entryY + this.entryHeight < this.getY() || entryY > this.getY() + this.height) {
         continue;
       }
 
-      int bgColor;
-      if (i == selectedIndex) {
-        bgColor = palette.listHighlight();
+      int backgroundColor;
+      if (i == this.selectedIndex) {
+        backgroundColor = palette.listHighlight();
       } else if (mouseX >= contentX
           && mouseX < contentX + listWidth
           && mouseY >= entryY
-          && mouseY < entryY + entryHeight) {
-        bgColor = palette.listHover();
+          && mouseY < entryY + this.entryHeight) {
+        backgroundColor = palette.listHover();
       } else {
-        bgColor = (i % 2 == 0) ? palette.listStripe() : 0x00000000;
+        backgroundColor = (i % 2 == 0) ? palette.listStripe() : 0x00000000;
       }
 
-      graphics.fill(contentX, entryY, contentX + listWidth, entryY + entryHeight, bgColor);
+      graphics.fill(
+          contentX, entryY, contentX + listWidth, entryY + this.entryHeight, backgroundColor);
 
-      if (entryRenderer != null) {
-        entryRenderer.render(
+      if (this.entryRenderer != null) {
+        this.entryRenderer.render(
             graphics,
             font,
-            items.get(i),
+            this.items.get(i),
             i,
             contentX + 2,
             entryY + 1,
             listWidth - 4,
-            entryHeight - 2,
+            this.entryHeight - 2,
             palette);
       } else {
         ScaledText.draw(
             graphics,
             font,
-            items.get(i).toString(),
+            this.items.get(i).toString(),
             contentX + 4,
-            entryY + (entryHeight - font.lineHeight) / 2,
+            entryY + (this.entryHeight - font.lineHeight) / 2,
             palette.onSurface(),
             ScaledText.SCALE_SMALL);
       }
     }
 
-    if (clipChildren) {
-      disableScissor(graphics);
+    if (this.clipChildren) {
+      this.disableScissor(graphics);
     }
 
-    for (Widget child : children) {
+    for (Widget child : this.children) {
       if (child.isVisible()) {
         child.render(graphics, mouseX, mouseY, partialTick);
       }
     }
 
-    renderForeground(graphics, mouseX, mouseY, partialTick);
+    this.renderForeground(graphics, mouseX, mouseY, partialTick);
   }
 
   @Override
   protected void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
     ColorPalette palette = ColorPalette.current();
-    int x = getX();
-    int y = getY();
-    graphics.fill(x, y, x + width, y + height, palette.surface());
+    int x = this.getX();
+    int y = this.getY();
+    graphics.fill(x, y, x + this.width, y + this.height, palette.surface());
   }
 
   @Override
   public boolean mouseClicked(double mouseX, double mouseY, int button) {
-    if (!visible || !active || !isMouseOver(mouseX, mouseY)) {
+    if (!this.visible || !this.active || !this.isMouseOver(mouseX, mouseY)) {
       return false;
     }
 
@@ -169,15 +172,15 @@ public class ListPanel<T> extends ScrollPanel {
       return true;
     }
 
-    int contentX = getContentX();
-    int contentY = getContentY();
-    int listWidth = getInnerWidth() - SCROLLBAR_INSET;
+    int contentX = this.getContentX();
+    int contentY = this.getContentY();
+    int listWidth = this.getInnerWidth() - SCROLLBAR_INSET;
     if (mouseX >= contentX && mouseX < contentX + listWidth) {
-      int clickedIndex = (int) ((mouseY - contentY) / entryHeight);
-      if (clickedIndex >= 0 && clickedIndex < items.size()) {
-        selectedIndex = clickedIndex;
-        if (onSelect != null) {
-          onSelect.accept(items.get(clickedIndex));
+      int clickedIndex = (int) ((mouseY - contentY) / this.entryHeight);
+      if (clickedIndex >= 0 && clickedIndex < this.items.size()) {
+        this.selectedIndex = clickedIndex;
+        if (this.onSelect != null) {
+          this.onSelect.accept(this.items.get(clickedIndex));
         }
         return true;
       }

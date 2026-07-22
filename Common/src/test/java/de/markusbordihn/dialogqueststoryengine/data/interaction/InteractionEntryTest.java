@@ -51,22 +51,27 @@ class InteractionEntryTest {
 
   @Test
   void forBlockInteractWithRightClickUsesBlockInteractType() {
-    BlockPos pos = new BlockPos(1, 64, 1);
+    BlockPos position = new BlockPos(1, 64, 1);
     InteractionEntry entry =
         InteractionEntry.forBlockInteract(
-            TARGET_ID, pos, TargetKind.BLOCK, InteractionType.RIGHT_CLICK, "Chest", OVERWORLD);
+            TARGET_ID, position, TargetKind.BLOCK, InteractionType.RIGHT_CLICK, "Chest", OVERWORLD);
 
     assertEquals(InteractionEventType.ON_BLOCK_INTERACT, entry.eventType());
     assertEquals(TargetKind.BLOCK, entry.targetKind());
-    assertEquals(pos, entry.blockPos());
+    assertEquals(position, entry.blockPos());
   }
 
   @Test
   void forBlockInteractWithStepOnUsesStepOnType() {
-    BlockPos pos = new BlockPos(5, 64, 5);
+    BlockPos position = new BlockPos(5, 64, 5);
     InteractionEntry entry =
         InteractionEntry.forBlockInteract(
-            TARGET_ID, pos, TargetKind.BLOCK, InteractionType.STEP_ON, "Pressure Plate", OVERWORLD);
+            TARGET_ID,
+            position,
+            TargetKind.BLOCK,
+            InteractionType.STEP_ON,
+            "Pressure Plate",
+            OVERWORLD);
 
     assertEquals(InteractionEventType.ON_STEP_ON, entry.eventType());
   }
@@ -86,12 +91,12 @@ class InteractionEntryTest {
 
   @Test
   void toStringIncludesBlockPosWhenPresent() {
-    BlockPos pos = new BlockPos(10, 64, 20);
+    BlockPos position = new BlockPos(10, 64, 20);
     InteractionEntry entry =
         InteractionEntry.forBlockInteract(
-            TARGET_ID, pos, TargetKind.BLOCK, InteractionType.RIGHT_CLICK, "Door", OVERWORLD);
+            TARGET_ID, position, TargetKind.BLOCK, InteractionType.RIGHT_CLICK, "Door", OVERWORLD);
 
-    assertEquals(true, entry.toString().contains(pos.toShortString()));
+    assertEquals(true, entry.toString().contains(position.toShortString()));
   }
 
   @Test

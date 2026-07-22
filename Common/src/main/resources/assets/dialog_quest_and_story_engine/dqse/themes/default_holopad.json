@@ -1,35 +1,47 @@
 {
   "schema": 1,
-  "layout": "dialog_quest_and_story_engine:holopad",
-  "frame_texture": "dialog_quest_and_story_engine:textures/gui/holopad/frame.png",
-  "background_texture": "dialog_quest_and_story_engine:textures/gui/holopad/background.png",
-  "show_page_numbers": true,
-  "show_close_button": true,
-  "screen_width": 370,
-  "screen_height": 250,
-  "display_area": {
-    "x": 16,
-    "y": 16,
-    "width": 338,
-    "height": 100
+  "layout": "dqse:holopad",
+  "logical_width": 320,
+  "logical_height": 240,
+  "anchor": "center",
+  "areas": {
+    "title": {"x": 18, "y": 16, "width": 284, "height": 14},
+    "text": {"x": 18, "y": 34, "width": 284, "height": 116},
+    "choices": {"x": 50, "y": 168, "width": 220, "height": 44},
+    "display": {"x": 50, "y": 168, "width": 220, "height": 44},
+    "page": {"x": 18, "y": 214, "width": 284, "height": 10}
   },
-  "title_area": {
-    "x": 24,
-    "y": 101,
-    "width": 322,
-    "height": 12
+  "sprites": {
+    "background": {
+      "texture": "dialog_quest_and_story_engine:textures/gui/holopad/background.png",
+      "texture_width": 512,
+      "texture_height": 256,
+      "u": 0,
+      "v": 0,
+      "source_width": 466,
+      "source_height": 250,
+      "scaling": "stretch"
+    },
+    "frame": {
+      "texture": "dialog_quest_and_story_engine:textures/gui/holopad/frame.png",
+      "texture_width": 512,
+      "texture_height": 256,
+      "u": 0,
+      "v": 0,
+      "source_width": 466,
+      "source_height": 250,
+      "scaling": "stretch"
+    }
   },
-  "title_alignment": "center",
-  "text_area": {
-    "x": 14,
-    "y": 121,
-    "width": 334,
-    "height": 104
+  "colors": {
+    "accent": "#35E0D5",
+    "on_surface": "#C8D0D0",
+    "on_surface_muted": "#7E8A8A"
   },
-  "choice_area": {
-    "x": 54,
-    "y": 39,
-    "width": 262,
-    "height": 56
+  "options": {
+    "title_alignment": "center",
+    "text_alignment": "left",
+    "show_page_numbers": true,
+    "show_close_button": true
   }
 }

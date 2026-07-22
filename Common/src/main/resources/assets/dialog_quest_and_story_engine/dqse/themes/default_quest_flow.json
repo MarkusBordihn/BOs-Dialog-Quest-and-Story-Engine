@@ -1,0 +1,22 @@
+{
+  "schema": 1,
+  "layout": "dqse:quest_flow",
+  "logical_width": 320,
+  "logical_height": 240,
+  "anchor": "center",
+  "areas": {
+    "stages": {"x": 8, "y": 24, "width": 304, "height": 60},
+    "detail": {"x": 8, "y": 110, "width": 304, "height": 52},
+    "legend": {"x": 8, "y": 168, "width": 304, "height": 20},
+    "footer": {"x": 8, "y": 196, "width": 304, "height": 18}
+  },
+  "colors": {
+    "accent": "#FFD54F",
+    "success": "#8DE55E",
+    "locked": "#8A9297",
+    "on_surface": "#E8E8E8"
+  },
+  "options": {
+    "background_mode": "opaque"
+  }
+}

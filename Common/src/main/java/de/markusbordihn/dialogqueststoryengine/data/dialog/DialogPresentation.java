@@ -25,7 +25,7 @@ import net.minecraft.resources.ResourceLocation;
 public record DialogPresentation(
     Optional<ResourceLocation> portrait,
     Optional<ResourceLocation> scene,
-    Optional<String> mood,
+    Optional<DialogMood> mood,
     Optional<ResourceLocation> theme) {
 
   public static final DialogPresentation EMPTY =

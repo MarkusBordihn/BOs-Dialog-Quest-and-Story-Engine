@@ -49,7 +49,7 @@ public class ToggleButton extends AbstractButton {
   }
 
   public boolean isToggled() {
-    return toggled;
+    return this.toggled;
   }
 
   public void setToggled(boolean toggled) {
@@ -58,37 +58,37 @@ public class ToggleButton extends AbstractButton {
 
   @Override
   public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-    if (!visible) {
+    if (!this.visible) {
       return;
     }
 
     ColorPalette palette = ColorPalette.current();
-    int x = getX();
-    int y = getY();
-    hovered = isMouseOver(mouseX, mouseY);
+    int x = this.getX();
+    int y = this.getY();
+    this.hovered = this.isMouseOver(mouseX, mouseY);
 
-    fillRoundedRect(graphics, x, y, width, height, resolveBgColor(palette));
-    drawBorderRoundedBevel(graphics, x, y, width, height, palette.outline());
+    fillRoundedRect(graphics, x, y, this.width, this.height, this.resolveBackgroundColor(palette));
+    drawBorderRoundedBevel(graphics, x, y, this.width, this.height, palette.outline());
 
     Font font = Minecraft.getInstance().font;
-    String label = toggled ? labelOn : labelOff;
+    String label = this.toggled ? this.labelOn : this.labelOff;
     ScaledText.drawCentered(
         graphics,
         font,
         label,
-        x + width / 2,
-        y + (height - font.lineHeight) / 2 + 1,
-        resolveTextColor(palette),
+        x + this.width / 2,
+        y + (this.height - font.lineHeight) / 2 + 1,
+        this.resolveTextColor(palette),
         ScaledText.SCALE_NORMAL);
   }
 
   @Override
   public boolean mouseClicked(double mouseX, double mouseY, int button) {
-    if (active && visible && button == 0 && isMouseOver(mouseX, mouseY)) {
-      toggled = !toggled;
-      pressed = false;
-      if (onToggle != null) {
-        onToggle.accept(this);
+    if (this.active && this.visible && button == 0 && this.isMouseOver(mouseX, mouseY)) {
+      this.toggled = !this.toggled;
+      this.pressed = false;
+      if (this.onToggle != null) {
+        this.onToggle.accept(this);
       }
       return true;
     }

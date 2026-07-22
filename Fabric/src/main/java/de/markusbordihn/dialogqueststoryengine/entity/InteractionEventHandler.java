@@ -42,16 +42,20 @@ public class InteractionEventHandler {
 
     UseEntityCallback.EVENT.register(
         (player, world, hand, entity, hitResult) -> {
-          if (!world.isClientSide() && hand == InteractionHand.MAIN_HAND) {
-            InteractionEvents.handleRightClickEntity(player, entity);
+          if (!world.isClientSide()
+              && hand == InteractionHand.MAIN_HAND
+              && InteractionEvents.handleRightClickEntity(player, entity)) {
+            return InteractionResult.SUCCESS;
           }
           return InteractionResult.PASS;
         });
 
     UseBlockCallback.EVENT.register(
         (player, world, hand, hitResult) -> {
-          if (!world.isClientSide() && hand == InteractionHand.MAIN_HAND) {
-            InteractionEvents.handleRightClickBlock(player, hitResult.getBlockPos(), world);
+          if (!world.isClientSide()
+              && hand == InteractionHand.MAIN_HAND
+              && InteractionEvents.handleRightClickBlock(player, hitResult.getBlockPos(), world)) {
+            return InteractionResult.SUCCESS;
           }
           return InteractionResult.PASS;
         });

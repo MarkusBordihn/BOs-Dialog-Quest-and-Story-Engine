@@ -32,10 +32,10 @@ public record ThemeArea(int x, int y, int width, int height) {
   }
 
   public int right() {
-    return x + width;
+    return this.x + this.width;
   }
 
   public int bottom() {
-    return y + height;
+    return this.y + this.height;
   }
 }

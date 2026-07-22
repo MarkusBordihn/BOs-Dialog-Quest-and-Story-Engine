@@ -23,16 +23,14 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import de.markusbordihn.dialogqueststoryengine.data.ContentType;
+import de.markusbordihn.dialogqueststoryengine.data.interaction.ActionType;
 import de.markusbordihn.dialogqueststoryengine.data.issue.ContentIssue;
 import de.markusbordihn.dialogqueststoryengine.data.issue.IssueCode;
-import de.markusbordihn.dialogqueststoryengine.logic.action.types.GiveItemAction;
-import de.markusbordihn.dialogqueststoryengine.logic.action.types.OpenDialogAction;
-import de.markusbordihn.dialogqueststoryengine.logic.action.types.RunCommandAction;
-import de.markusbordihn.dialogqueststoryengine.logic.action.types.RunFunctionAction;
 import de.markusbordihn.dialogqueststoryengine.registry.ActionHandler;
 import de.markusbordihn.dialogqueststoryengine.registry.Registries;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -43,14 +41,31 @@ public final class ActionParser {
 
   private static final String KEY_TYPE = "type";
 
-  private static final Map<String, ResourceLocation> SHORTHAND_KEYS =
-      Map.of(
-          "item", GiveItemAction.TYPE_ID,
-          "dialog", OpenDialogAction.TYPE_ID,
-          "function", RunFunctionAction.TYPE_ID,
-          "command", RunCommandAction.TYPE_ID);
+  private static final Map<String, ResourceLocation> SHORTHAND_KEYS;
+  private static final Set<String> AMBIGUOUS_KEYS;
 
-  private static final Set<String> AMBIGUOUS_KEYS = Set.of("quest", "story", "fact");
+  static {
+    Map<String, List<ActionType>> byShorthand = new LinkedHashMap<>();
+    for (ActionType type : ActionType.values()) {
+      for (String shorthand : type.shorthandKeys()) {
+        byShorthand.computeIfAbsent(shorthand, key -> new ArrayList<>()).add(type);
+      }
+    }
+
+    Map<String, ResourceLocation> shorthandKeys = new LinkedHashMap<>();
+    Set<String> ambiguousKeys = new LinkedHashSet<>();
+    byShorthand.forEach(
+        (shorthand, owners) -> {
+          if (owners.size() > 1) {
+            ambiguousKeys.add(shorthand);
+          } else {
+            owners.get(0).typeId().ifPresent(typeId -> shorthandKeys.put(shorthand, typeId));
+          }
+        });
+
+    SHORTHAND_KEYS = Map.copyOf(shorthandKeys);
+    AMBIGUOUS_KEYS = Set.copyOf(ambiguousKeys);
+  }
 
   private ActionParser() {}
 

@@ -20,6 +20,7 @@
 package de.markusbordihn.dialogqueststoryengine.network.message;
 
 import de.markusbordihn.dialogqueststoryengine.Constants;
+import de.markusbordihn.dialogqueststoryengine.client.screen.ClientActionDiagnostics;
 import de.markusbordihn.dialogqueststoryengine.client.screen.InteractionConfigScreen;
 import de.markusbordihn.dialogqueststoryengine.client.screen.InteractionOverviewScreen;
 import de.markusbordihn.dialogqueststoryengine.client.screen.InteractionSelectScreen;
@@ -28,6 +29,7 @@ import de.markusbordihn.dialogqueststoryengine.client.screen.ui.BaseScreen;
 import de.markusbordihn.dialogqueststoryengine.client.screen.ui.components.BreadcrumbBar;
 import de.markusbordihn.dialogqueststoryengine.data.interaction.InteractionEntry;
 import de.markusbordihn.dialogqueststoryengine.data.interaction.TargetKind;
+import de.markusbordihn.dialogqueststoryengine.interaction.ActionDiagnostics;
 import de.markusbordihn.dialogqueststoryengine.network.NetworkMessageRecord;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -43,11 +45,17 @@ public record InteractionListMessage(
     UUID targetId,
     TargetKind targetKind,
     ResourceLocation dimension,
-    BlockPos blockPos)
+    BlockPos blockPos,
+    List<String> diagnostics)
     implements NetworkMessageRecord {
 
   public static final ResourceLocation MESSAGE_ID =
       ResourceLocation.tryParse(Constants.MOD_ID + ":interaction_list");
+
+  public InteractionListMessage {
+    entries = entries != null ? entries : Collections.emptyList();
+    diagnostics = diagnostics != null ? diagnostics : Collections.emptyList();
+  }
 
   public InteractionListMessage(
       List<InteractionEntry> entries,
@@ -55,38 +63,44 @@ public record InteractionListMessage(
       TargetKind targetKind,
       ResourceLocation dimension,
       BlockPos blockPos) {
-    this.entries = entries != null ? entries : Collections.emptyList();
-    this.targetId = targetId;
-    this.targetKind = targetKind;
-    this.dimension = dimension;
-    this.blockPos = blockPos;
+    this(entries, targetId, targetKind, dimension, blockPos, ActionDiagnostics.formatFor(targetId));
   }
 
   public static InteractionListMessage create(FriendlyByteBuf buffer) {
     int count = buffer.readInt();
     List<InteractionEntry> entries = new ArrayList<>(count);
     for (int i = 0; i < count; i++) {
-      entries.add(InteractionEntry.readFromBuf(buffer));
+      entries.add(InteractionEntry.readFromBuffer(buffer));
     }
     UUID targetId = buffer.readUUID();
     TargetKind targetKind = buffer.readEnum(TargetKind.class);
     ResourceLocation dimension = buffer.readResourceLocation();
     BlockPos blockPos = buffer.readBoolean() ? buffer.readBlockPos() : null;
-    return new InteractionListMessage(entries, targetId, targetKind, dimension, blockPos);
+    int diagnosticCount = buffer.readInt();
+    List<String> diagnostics = new ArrayList<>(diagnosticCount);
+    for (int i = 0; i < diagnosticCount; i++) {
+      diagnostics.add(buffer.readUtf());
+    }
+    return new InteractionListMessage(
+        entries, targetId, targetKind, dimension, blockPos, diagnostics);
   }
 
   @Override
   public void write(FriendlyByteBuf buffer) {
-    buffer.writeInt(entries.size());
-    for (InteractionEntry entry : entries) {
-      entry.writeToBuf(buffer);
+    buffer.writeInt(this.entries.size());
+    for (InteractionEntry entry : this.entries) {
+      entry.writeToBuffer(buffer);
     }
-    buffer.writeUUID(targetId);
-    buffer.writeEnum(targetKind);
-    buffer.writeResourceLocation(dimension);
-    buffer.writeBoolean(blockPos != null);
-    if (blockPos != null) {
-      buffer.writeBlockPos(blockPos);
+    buffer.writeUUID(this.targetId);
+    buffer.writeEnum(this.targetKind);
+    buffer.writeResourceLocation(this.dimension);
+    buffer.writeBoolean(this.blockPos != null);
+    if (this.blockPos != null) {
+      buffer.writeBlockPos(this.blockPos);
+    }
+    buffer.writeInt(this.diagnostics.size());
+    for (String diagnostic : this.diagnostics) {
+      buffer.writeUtf(diagnostic);
     }
   }
 
@@ -97,8 +111,10 @@ public record InteractionListMessage(
 
   @Override
   public void handleClient() {
+    ClientActionDiagnostics.set(this.targetId, this.diagnostics);
     InteractionEntry templateEntry =
-        InteractionEntry.createTemplate(targetId, targetKind, blockPos, dimension);
+        InteractionEntry.createTemplate(
+            this.targetId, this.targetKind, this.blockPos, this.dimension);
     String targetLabel = InteractionConfigScreen.targetContextLabel(templateEntry);
 
     List<BreadcrumbBar.Segment> baseAncestors =
@@ -107,7 +123,7 @@ public record InteractionListMessage(
             new BreadcrumbBar.Segment("Interactions", InteractionOverviewScreen::open));
 
     Minecraft minecraft = Minecraft.getInstance();
-    if (entries.isEmpty()) {
+    if (this.entries.isEmpty()) {
       minecraft.execute(
           () -> {
             if (minecraft.screen instanceof BaseScreen.ScreenWrapper) {
@@ -116,18 +132,23 @@ public record InteractionListMessage(
             new InteractionConfigScreen(templateEntry, true, baseAncestors, targetLabel)
                 .openScreen();
           });
-    } else if (entries.size() == 1) {
+    } else if (this.entries.size() == 1) {
       minecraft.execute(
           () -> {
             if (minecraft.screen instanceof BaseScreen.ScreenWrapper) {
               return;
             }
-            new InteractionConfigScreen(entries.get(0), false, baseAncestors, targetLabel)
+            new InteractionConfigScreen(this.entries.get(0), false, baseAncestors, targetLabel)
                 .openScreen();
           });
     } else {
       InteractionSelectScreen.openWithEntries(
-          entries, targetId, targetKind, dimension, blockPos, baseAncestors);
+          this.entries,
+          this.targetId,
+          this.targetKind,
+          this.dimension,
+          this.blockPos,
+          baseAncestors);
     }
   }
 }

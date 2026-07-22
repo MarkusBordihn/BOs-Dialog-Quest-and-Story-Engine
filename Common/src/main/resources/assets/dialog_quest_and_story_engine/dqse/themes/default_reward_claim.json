@@ -1,0 +1,22 @@
+{
+  "schema": 1,
+  "layout": "dqse:reward_claim",
+  "logical_width": 320,
+  "logical_height": 240,
+  "anchor": "center",
+  "areas": {
+    "title": {"x": 46, "y": 48, "width": 228, "height": 30},
+    "rewards": {"x": 66, "y": 90, "width": 188, "height": 60},
+    "confirm": {"x": 66, "y": 158, "width": 188, "height": 22},
+    "status": {"x": 46, "y": 212, "width": 228, "height": 12}
+  },
+  "colors": {
+    "accent": "#FFD54F",
+    "success": "#2EB86E",
+    "error": "#FF5555",
+    "on_surface": "#EDEDEF"
+  },
+  "options": {
+    "background_mode": "dim"
+  }
+}

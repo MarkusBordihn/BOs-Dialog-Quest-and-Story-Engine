@@ -47,8 +47,8 @@ class HasItemConditionTest {
   void evaluate_nullPlayer_returnsFalse() {
     HasItemCondition condition =
         new HasItemCondition(new ResourceLocation("minecraft", "diamond"), 1);
-    ConditionContext ctx = ConditionContext.ofTest(new PlayerState(UUID.randomUUID()));
-    assertFalse(condition.evaluate(ctx));
+    ConditionContext context = ConditionContext.ofTest(new PlayerState(UUID.randomUUID()));
+    assertFalse(condition.evaluate(context));
   }
 
   @Test

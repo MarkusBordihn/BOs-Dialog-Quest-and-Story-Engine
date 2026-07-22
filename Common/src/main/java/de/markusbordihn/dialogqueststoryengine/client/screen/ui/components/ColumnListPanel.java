@@ -23,20 +23,27 @@ import de.markusbordihn.dialogqueststoryengine.client.screen.ui.Panel;
 import de.markusbordihn.dialogqueststoryengine.client.screen.ui.color.ColorPalette;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 
 public class ColumnListPanel<T> extends Panel {
 
   private static final int HEADER_HEIGHT = 14;
+  private static final int SEARCH_HEIGHT = 18;
 
   private final List<Column> columns = new ArrayList<>();
+  private List<T> allItems = new ArrayList<>();
   private List<T> items = new ArrayList<>();
   private int entryHeight = 18;
   private Consumer<T> onSelect;
   private Renderer<T> entryRenderer;
   private ListPanel<T> listPanel;
+  private Function<T, String> searchTextFunction;
+  private TextInput searchField;
+  private String query = "";
 
   public ColumnListPanel(int posX, int posY, int width, int height) {
     super(posX, posY, width, height);
@@ -60,8 +67,28 @@ public class ColumnListPanel<T> extends Panel {
     this.entryRenderer = renderer;
   }
 
+  public void setSearchable(Function<T, String> searchTextFunction) {
+    this.searchTextFunction = searchTextFunction;
+  }
+
   public void setItems(List<T> newItems) {
-    this.items = new ArrayList<>(newItems);
+    this.allItems = new ArrayList<>(newItems);
+    applyFilter();
+  }
+
+  private void applyFilter() {
+    if (this.searchTextFunction == null || this.query.isBlank()) {
+      this.items = new ArrayList<>(this.allItems);
+    } else {
+      String needle = this.query.toLowerCase(Locale.ROOT);
+      this.items = new ArrayList<>();
+      for (T item : this.allItems) {
+        String text = this.searchTextFunction.apply(item);
+        if (text != null && text.toLowerCase(Locale.ROOT).contains(needle)) {
+          this.items.add(item);
+        }
+      }
+    }
     if (this.listPanel != null) {
       this.listPanel.setItems(this.items);
     }
@@ -86,29 +113,49 @@ public class ColumnListPanel<T> extends Panel {
 
   @Override
   protected void addWidgets() {
-    int[] columnOffsets = buildColumnOffsets();
+    int top = 0;
+    if (this.searchTextFunction != null) {
+      this.searchField =
+          new TextInput(
+              0,
+              0,
+              this.width,
+              14,
+              value -> {
+                this.query = value;
+                this.applyFilter();
+              });
+      this.searchField.setSuggestion(TextComponent.of("search.placeholder").getString());
+      this.searchField.setValue(this.query);
+      this.addWidget(this.searchField);
+      top = SEARCH_HEIGHT;
+    }
+
+    int[] columnOffsets = this.buildColumnOffsets();
     for (int i = 0; i < this.columns.size(); i++) {
-      addWidget(
+      this.addWidget(
           new Label(
               columnOffsets[i],
-              0,
+              top,
               this.columns.get(i).labelKey(),
               0,
               ScaledText.SCALE_SMALL,
               Label.Alignment.LEFT));
     }
-    addWidget(new Separator(0, 12, this.width, true));
+    this.addWidget(new Separator(0, top + 12, this.width, true));
 
-    this.listPanel = new ListPanel<>(0, HEADER_HEIGHT, this.width, this.height - HEADER_HEIGHT);
+    int listTop = top + HEADER_HEIGHT;
+    this.listPanel = new ListPanel<>(0, listTop, this.width, this.height - listTop);
     this.listPanel.setEntryHeight(this.entryHeight);
     if (this.onSelect != null) {
       this.listPanel.setOnSelect(this.onSelect);
     }
     this.listPanel.setEntryRenderer(
         (graphics, font, entry, index, x, y, width, height, palette) ->
-            renderEntry(graphics, font, entry, index, x, y, width, height, palette, columnOffsets));
+            this.renderEntry(
+                graphics, font, entry, index, x, y, width, height, palette, columnOffsets));
     this.listPanel.setItems(this.items);
-    addWidget(this.listPanel);
+    this.addWidget(this.listPanel);
   }
 
   private int[] buildColumnOffsets() {

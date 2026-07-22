@@ -19,7 +19,7 @@
 
 package de.markusbordihn.dialogqueststoryengine.data.quest.content;
 
-import java.util.Locale;
+import de.markusbordihn.dialogqueststoryengine.data.json.EnumKeys;
 import java.util.Optional;
 
 public enum CompletionPolicy {
@@ -27,14 +27,6 @@ public enum CompletionPolicy {
   ANY_STEP;
 
   public static Optional<CompletionPolicy> fromKey(String key) {
-    if (key == null) {
-      return Optional.empty();
-    }
-
-    try {
-      return Optional.of(valueOf(key.toUpperCase(Locale.ROOT)));
-    } catch (IllegalArgumentException e) {
-      return Optional.empty();
-    }
+    return EnumKeys.byName(CompletionPolicy.class, key);
   }
 }

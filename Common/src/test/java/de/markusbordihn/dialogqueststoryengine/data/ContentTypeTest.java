@@ -58,12 +58,17 @@ class ContentTypeTest {
   @Test
   void allFourDataPackContentTypesPresent() {
     boolean hasDialog =
-        Arrays.stream(ContentType.values()).anyMatch(t -> t.name().equals("DIALOG"));
-    boolean hasQuest = Arrays.stream(ContentType.values()).anyMatch(t -> t.name().equals("QUEST"));
+        Arrays.stream(ContentType.values())
+            .anyMatch(contentType -> contentType.name().equals("DIALOG"));
+    boolean hasQuest =
+        Arrays.stream(ContentType.values())
+            .anyMatch(contentType -> contentType.name().equals("QUEST"));
     boolean hasInteractiveStory =
-        Arrays.stream(ContentType.values()).anyMatch(t -> t.name().equals("INTERACTIVE_STORY"));
+        Arrays.stream(ContentType.values())
+            .anyMatch(contentType -> contentType.name().equals("INTERACTIVE_STORY"));
     boolean hasInteraction =
-        Arrays.stream(ContentType.values()).anyMatch(t -> t.name().equals("INTERACTION"));
+        Arrays.stream(ContentType.values())
+            .anyMatch(contentType -> contentType.name().equals("INTERACTION"));
 
     assertTrue(hasDialog && hasQuest && hasInteractiveStory && hasInteraction);
   }

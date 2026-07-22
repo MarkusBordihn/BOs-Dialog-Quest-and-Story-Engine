@@ -22,22 +22,19 @@ package de.markusbordihn.dialogqueststoryengine.client.dialog;
 import de.markusbordihn.dialogqueststoryengine.Constants;
 import de.markusbordihn.dialogqueststoryengine.client.screen.dialog.DialogScreen;
 import de.markusbordihn.dialogqueststoryengine.client.screen.dialog.DialogSessionData;
+import de.markusbordihn.dialogqueststoryengine.client.screen.theme.LayoutContentKind;
+import de.markusbordihn.dialogqueststoryengine.client.screen.theme.LayoutScreenRegistry;
 import de.markusbordihn.dialogqueststoryengine.data.theme.Theme;
 import de.markusbordihn.dialogqueststoryengine.network.message.session.DialogSessionPacket;
 import de.markusbordihn.dialogqueststoryengine.network.message.session.DialogSessionPacketType;
-import de.markusbordihn.dialogqueststoryengine.theme.ThemeClientRegistry;
 import java.util.UUID;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 public final class ClientDialogOpener {
 
-  public static final ResourceLocation DEFAULT_DIALOG_THEME_ID =
+  private static final ResourceLocation DEFAULT_DIALOG_THEME_ID =
       new ResourceLocation(Constants.MOD_ID, "default_dialog");
-
-  private static final Logger log = LogManager.getLogger(Constants.LOG_NAME);
 
   private ClientDialogOpener() {}
 
@@ -67,19 +64,7 @@ public final class ClientDialogOpener {
 
   private static void openFromPacket(DialogSessionPacket packet) {
     Theme theme =
-        ThemeClientRegistry.getOrDefault(DEFAULT_DIALOG_THEME_ID)
-            .orElseGet(
-                () -> {
-                  log.warn(
-                      "{} No theme found for dialog {}, not even default_dialog",
-                      Constants.LOG_PREFIX,
-                      packet.dialogId());
-                  return null;
-                });
-
-    if (theme == null) {
-      return;
-    }
+        LayoutScreenRegistry.resolveTheme(DEFAULT_DIALOG_THEME_ID, LayoutContentKind.DIALOG);
 
     DialogScreen.open(
         new DialogSessionData(

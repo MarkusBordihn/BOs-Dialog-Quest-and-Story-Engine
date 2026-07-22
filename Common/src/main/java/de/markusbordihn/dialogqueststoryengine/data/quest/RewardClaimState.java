@@ -19,18 +19,14 @@
 
 package de.markusbordihn.dialogqueststoryengine.data.quest;
 
+import de.markusbordihn.dialogqueststoryengine.data.json.EnumKeys;
+
 public enum RewardClaimState {
   NONE,
   AVAILABLE,
   CLAIMED;
 
   public static RewardClaimState fromName(String name) {
-    for (RewardClaimState state : values()) {
-      if (state.name().equals(name)) {
-        return state;
-      }
-    }
-
-    return NONE;
+    return EnumKeys.byName(RewardClaimState.class, name).orElse(NONE);
   }
 }

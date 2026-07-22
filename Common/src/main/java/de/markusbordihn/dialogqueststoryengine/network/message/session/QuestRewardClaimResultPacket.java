@@ -45,7 +45,8 @@ public record QuestRewardClaimResultPacket(
   public static QuestRewardClaimResultPacket create(FriendlyByteBuf buffer) {
     ResourceLocation questId = buffer.readResourceLocation();
     Optional<QuestRewardClaimReason> reason =
-        buffer.readOptional(buf -> buf.readEnum(QuestRewardClaimReason.class));
+        buffer.readOptional(
+            optionalBuffer -> optionalBuffer.readEnum(QuestRewardClaimReason.class));
     return new QuestRewardClaimResultPacket(questId, reason);
   }
 

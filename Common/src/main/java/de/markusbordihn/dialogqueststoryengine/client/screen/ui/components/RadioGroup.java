@@ -40,35 +40,35 @@ public class RadioGroup extends Panel {
   }
 
   public void addButton(RadioButton button) {
-    button.groupIndex = buttons.size();
+    button.groupIndex = this.buttons.size();
     button.ownerGroup = this;
     if (button.isSelected()) {
-      if (selectedIndex >= 0) {
-        buttons.get(selectedIndex).setSelected(false);
+      if (this.selectedIndex >= 0) {
+        this.buttons.get(this.selectedIndex).setSelected(false);
       }
-      selectedIndex = button.groupIndex;
+      this.selectedIndex = button.groupIndex;
     }
-    buttons.add(button);
-    addWidget(button);
+    this.buttons.add(button);
+    this.addWidget(button);
   }
 
   public void selectIndex(int index) {
-    if (index < 0 || index >= buttons.size()) {
+    if (index < 0 || index >= this.buttons.size()) {
       return;
     }
 
-    if (selectedIndex >= 0 && selectedIndex < buttons.size()) {
-      buttons.get(selectedIndex).setSelected(false);
+    if (this.selectedIndex >= 0 && this.selectedIndex < this.buttons.size()) {
+      this.buttons.get(this.selectedIndex).setSelected(false);
     }
-    selectedIndex = index;
-    buttons.get(index).setSelected(true);
-    if (onSelect != null) {
-      onSelect.accept(index);
+    this.selectedIndex = index;
+    this.buttons.get(index).setSelected(true);
+    if (this.onSelect != null) {
+      this.onSelect.accept(index);
     }
   }
 
   public int getSelectedIndex() {
-    return selectedIndex;
+    return this.selectedIndex;
   }
 
   public void setOnSelect(Consumer<Integer> onSelect) {
@@ -76,12 +76,12 @@ public class RadioGroup extends Panel {
   }
 
   public void layoutVertical(int startX, int gap) {
-    int y = startY;
-    for (RadioButton btn : buttons) {
-      btn.setPosition(startX, y);
+    int y = this.startY;
+    for (RadioButton button : this.buttons) {
+      button.setPosition(startX, y);
       y += ITEM_HEIGHT + gap;
     }
-    contentHeight = y;
+    this.contentHeight = y;
   }
 
   public void setStartY(int startY) {
@@ -89,6 +89,6 @@ public class RadioGroup extends Panel {
   }
 
   public List<RadioButton> getButtons() {
-    return buttons;
+    return this.buttons;
   }
 }

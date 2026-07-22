@@ -37,9 +37,9 @@ class CompleteQuestActionTest {
   void execute_activeQuest_becomesCompleted() {
     PlayerState playerState = new PlayerState(UUID.randomUUID());
     playerState.getOrCreateQuest(QUEST_ID, QuestState.ACTIVE);
-    ActionContext ctx = ActionContext.ofTest(playerState);
+    ActionContext context = ActionContext.ofTest(playerState);
 
-    new CompleteQuestAction(QUEST_ID).execute(ctx);
+    new CompleteQuestAction(QUEST_ID).execute(context);
 
     assertEquals(QuestState.COMPLETED, playerState.getQuest(QUEST_ID).state());
   }
@@ -48,10 +48,10 @@ class CompleteQuestActionTest {
   void execute_alreadyCompleted_isIdempotent() {
     PlayerState playerState = new PlayerState(UUID.randomUUID());
     playerState.getOrCreateQuest(QUEST_ID, QuestState.COMPLETED);
-    ActionContext ctx = ActionContext.ofTest(playerState);
+    ActionContext context = ActionContext.ofTest(playerState);
 
-    new CompleteQuestAction(QUEST_ID).execute(ctx);
-    new CompleteQuestAction(QUEST_ID).execute(ctx);
+    new CompleteQuestAction(QUEST_ID).execute(context);
+    new CompleteQuestAction(QUEST_ID).execute(context);
 
     assertEquals(QuestState.COMPLETED, playerState.getQuest(QUEST_ID).state());
   }
@@ -59,9 +59,9 @@ class CompleteQuestActionTest {
   @Test
   void execute_questNotInPlayerState_doesNotCrash() {
     PlayerState playerState = new PlayerState(UUID.randomUUID());
-    ActionContext ctx = ActionContext.ofTest(playerState);
+    ActionContext context = ActionContext.ofTest(playerState);
 
-    new CompleteQuestAction(QUEST_ID).execute(ctx);
+    new CompleteQuestAction(QUEST_ID).execute(context);
 
     assertNull(playerState.getQuest(QUEST_ID));
   }

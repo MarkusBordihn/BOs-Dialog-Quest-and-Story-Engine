@@ -60,7 +60,7 @@ public final class ContextProvider implements ContextValueProvider {
 
   @Override
   public Component resolve(ContextArgument argument, NarrativeContextResolution resolution) {
-    String key = argument.param(PARAM_KEY);
+    String key = argument.parameter(PARAM_KEY);
     if (key == null) {
       return Component.empty();
     }
@@ -80,7 +80,7 @@ public final class ContextProvider implements ContextValueProvider {
 
   @Override
   public Optional<String> validate(ContextArgument argument) {
-    String key = argument.param(PARAM_KEY);
+    String key = argument.parameter(PARAM_KEY);
     if (key == null) {
       return Optional.of("missing required '" + PARAM_KEY + "' parameter");
     }

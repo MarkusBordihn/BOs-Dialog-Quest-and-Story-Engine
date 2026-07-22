@@ -33,8 +33,8 @@ class ActionListTest {
 
   @Test
   void empty_isSafe() {
-    ActionContext ctx = ActionContext.ofTest(new PlayerState(UUID.randomUUID()));
-    ActionList.EMPTY.execute(ctx);
+    ActionContext context = ActionContext.ofTest(new PlayerState(UUID.randomUUID()));
+    ActionList.EMPTY.execute(context);
     assertTrue(ActionList.EMPTY.isEmpty());
   }
 
@@ -42,10 +42,11 @@ class ActionListTest {
   void execute_actionsRunInOrder() {
     AtomicInteger counter = new AtomicInteger(0);
     ActionList list =
-        new ActionList(List.of(ctx -> counter.set(1), ctx -> counter.set(counter.get() + 10)));
-    ActionContext ctx = ActionContext.ofTest(new PlayerState(UUID.randomUUID()));
+        new ActionList(
+            List.of(context -> counter.set(1), context -> counter.set(counter.get() + 10)));
+    ActionContext context = ActionContext.ofTest(new PlayerState(UUID.randomUUID()));
 
-    list.execute(ctx);
+    list.execute(context);
 
     assertEquals(11, counter.get());
   }
@@ -56,13 +57,13 @@ class ActionListTest {
     ActionList list =
         new ActionList(
             List.of(
-                ctx -> {
+                context -> {
                   throw new RuntimeException("intentional test error");
                 },
-                ctx -> counter.incrementAndGet()));
-    ActionContext ctx = ActionContext.ofTest(new PlayerState(UUID.randomUUID()));
+                context -> counter.incrementAndGet()));
+    ActionContext context = ActionContext.ofTest(new PlayerState(UUID.randomUUID()));
 
-    list.execute(ctx);
+    list.execute(context);
 
     assertEquals(1, counter.get());
   }

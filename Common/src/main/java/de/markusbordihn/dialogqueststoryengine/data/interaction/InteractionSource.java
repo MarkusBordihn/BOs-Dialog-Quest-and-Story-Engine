@@ -19,27 +19,14 @@
 
 package de.markusbordihn.dialogqueststoryengine.data.interaction;
 
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
+import de.markusbordihn.dialogqueststoryengine.data.json.EnumKeys;
 
 public enum InteractionSource {
   WAND,
   DATAPACK,
   API;
 
-  private static final Map<String, InteractionSource> BY_NAME = new HashMap<>();
-
-  static {
-    for (InteractionSource source : values()) {
-      BY_NAME.put(source.name().toLowerCase(Locale.ROOT), source);
-    }
-  }
-
   public static InteractionSource fromName(String name) {
-    if (name == null) {
-      return null;
-    }
-    return BY_NAME.get(name.toLowerCase(Locale.ROOT));
+    return EnumKeys.byName(InteractionSource.class, name).orElse(null);
   }
 }

@@ -1,0 +1,22 @@
+{
+  "schema": 1,
+  "layout": "dqse:journal_panel",
+  "logical_width": 320,
+  "logical_height": 240,
+  "anchor": "center",
+  "areas": {
+    "tabs": {"x": 8, "y": 8, "width": 304, "height": 26},
+    "index": {"x": 12, "y": 56, "width": 116, "height": 146},
+    "detail": {"x": 134, "y": 56, "width": 178, "height": 146},
+    "objectives": {"x": 142, "y": 120, "width": 162, "height": 60},
+    "footer": {"x": 12, "y": 208, "width": 300, "height": 20}
+  },
+  "colors": {
+    "accent": "#5A6EA8",
+    "on_surface": "#1E1E1E",
+    "on_surface_muted": "#6E6E6E"
+  },
+  "options": {
+    "background_mode": "opaque"
+  }
+}

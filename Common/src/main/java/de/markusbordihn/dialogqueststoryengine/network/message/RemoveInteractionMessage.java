@@ -38,13 +38,13 @@ public record RemoveInteractionMessage(InteractionEntry entry) implements Networ
   private static final Logger log = LogManager.getLogger(Constants.LOG_NAME);
 
   public static RemoveInteractionMessage create(FriendlyByteBuf buffer) {
-    InteractionEntry entry = InteractionEntry.readFromBuf(buffer);
+    InteractionEntry entry = InteractionEntry.readFromBuffer(buffer);
     return new RemoveInteractionMessage(entry);
   }
 
   @Override
   public void write(FriendlyByteBuf buffer) {
-    entry.writeToBuf(buffer);
+    this.entry.writeToBuffer(buffer);
   }
 
   @Override
@@ -59,12 +59,12 @@ public record RemoveInteractionMessage(InteractionEntry entry) implements Networ
       return;
     }
     InteractionSavedData data = InteractionSavedData.get(serverPlayer.server);
-    if (data.hasInteraction(entry.targetId(), entry.eventType())) {
-      data.unregister(entry.targetId(), entry.eventType());
+    if (data.hasInteraction(this.entry.targetId(), this.entry.eventType())) {
+      data.unregister(this.entry.targetId(), this.entry.eventType());
       serverPlayer.sendSystemMessage(
-          Component.literal("✖ Removed interaction '" + entry.label() + "'.")
+          Component.literal("✖ Removed interaction '" + this.entry.label() + "'.")
               .withStyle(ChatFormatting.YELLOW));
-      log.info("Player {} removed interaction: {}", serverPlayer.getName().getString(), entry);
+      log.info("Player {} removed interaction: {}", serverPlayer.getName().getString(), this.entry);
     }
   }
 }

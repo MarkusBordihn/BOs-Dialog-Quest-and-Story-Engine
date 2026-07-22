@@ -19,7 +19,7 @@
 
 package de.markusbordihn.dialogqueststoryengine.data.quest.content;
 
-import java.util.Locale;
+import de.markusbordihn.dialogqueststoryengine.data.json.EnumKeys;
 import java.util.Optional;
 
 public enum PrerequisiteMode {
@@ -27,14 +27,6 @@ public enum PrerequisiteMode {
   ANY;
 
   public static Optional<PrerequisiteMode> fromKey(String key) {
-    if (key == null) {
-      return Optional.empty();
-    }
-
-    try {
-      return Optional.of(valueOf(key.toUpperCase(Locale.ROOT)));
-    } catch (IllegalArgumentException e) {
-      return Optional.empty();
-    }
+    return EnumKeys.byName(PrerequisiteMode.class, key);
   }
 }

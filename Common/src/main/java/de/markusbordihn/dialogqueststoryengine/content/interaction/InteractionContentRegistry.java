@@ -19,6 +19,7 @@
 
 package de.markusbordihn.dialogqueststoryengine.content.interaction;
 
+import de.markusbordihn.dialogqueststoryengine.data.interaction.InteractionEventType;
 import de.markusbordihn.dialogqueststoryengine.data.interaction.content.InteractionDefinition;
 import java.util.Collection;
 import java.util.List;
@@ -44,8 +45,7 @@ public final class InteractionContentRegistry {
     return entries.values();
   }
 
-  public static List<InteractionDefinition> allForEvent(
-      de.markusbordihn.dialogqueststoryengine.data.interaction.InteractionEventType eventType) {
+  public static List<InteractionDefinition> allForEvent(InteractionEventType eventType) {
     return entries.values().stream().filter(definition -> definition.event() == eventType).toList();
   }
 

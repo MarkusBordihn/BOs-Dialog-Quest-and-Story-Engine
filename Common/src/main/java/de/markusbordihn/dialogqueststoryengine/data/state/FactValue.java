@@ -19,6 +19,7 @@
 
 package de.markusbordihn.dialogqueststoryengine.data.state;
 
+import de.markusbordihn.dialogqueststoryengine.data.json.EnumKeys;
 import java.util.OptionalDouble;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
@@ -106,12 +107,7 @@ public sealed interface FactValue
     RESOURCE_LOCATION;
 
     public static Type fromName(String name) {
-      for (Type type : values()) {
-        if (type.name().equals(name)) {
-          return type;
-        }
-      }
-      return null;
+      return EnumKeys.byName(Type.class, name).orElse(null);
     }
   }
 

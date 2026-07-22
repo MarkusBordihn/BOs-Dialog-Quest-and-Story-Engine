@@ -19,10 +19,12 @@
 
 package de.markusbordihn.dialogqueststoryengine.client.screen.dialog;
 
+import de.markusbordihn.dialogqueststoryengine.client.screen.theme.ChoiceListLayout;
 import de.markusbordihn.dialogqueststoryengine.client.story.StoryScreen;
 import de.markusbordihn.dialogqueststoryengine.client.story.TypewriterAnimator;
-import de.markusbordihn.dialogqueststoryengine.data.theme.ScreenLayout;
 import de.markusbordihn.dialogqueststoryengine.data.theme.Theme;
+import de.markusbordihn.dialogqueststoryengine.data.theme.ThemeArea;
+import de.markusbordihn.dialogqueststoryengine.data.theme.layout.DialogLayout;
 import de.markusbordihn.dialogqueststoryengine.network.NetworkHandlerManager;
 import de.markusbordihn.dialogqueststoryengine.network.message.session.ClientCloseSessionPacket;
 import de.markusbordihn.dialogqueststoryengine.network.message.session.SubmitChoicePacket;
@@ -37,21 +39,17 @@ import net.minecraft.network.chat.Style;
 
 public class DialogScreen extends StoryScreen {
 
-  private static final int COLOR_SPEAKER = 0x00FFFF;
-
-  private final Theme theme;
   private final TypewriterAnimator animator = new TypewriterAnimator();
   private DialogSessionData sessionData;
 
-  private ScreenLayout layout;
+  private DialogLayout layout;
   private List<Button> choiceButtons = new ArrayList<>();
   private boolean awaitingResponse;
   private boolean sessionActive = true;
 
   private DialogScreen(DialogSessionData sessionData, Theme theme) {
-    super(Component.empty());
+    super(Component.empty(), theme);
     this.sessionData = sessionData;
-    this.theme = theme;
   }
 
   public static void open(DialogSessionData sessionData, Theme theme) {
@@ -80,8 +78,8 @@ public class DialogScreen extends StoryScreen {
             choiceLabels,
             revision);
     this.awaitingResponse = false;
-    rebuildChoiceButtons();
-    startAnimator();
+    this.rebuildChoiceButtons();
+    this.startAnimator();
   }
 
   public void onServerRejection() {
@@ -90,10 +88,10 @@ public class DialogScreen extends StoryScreen {
   }
 
   @Override
-  protected void init() {
-    this.layout = ScreenLayout.from(this.theme, this.width, this.height);
-    rebuildChoiceButtons();
-    startAnimator();
+  protected void initThemed() {
+    this.layout = new DialogLayout(this.resolvedLayout);
+    this.rebuildChoiceButtons();
+    this.startAnimator();
   }
 
   @Override
@@ -102,13 +100,11 @@ public class DialogScreen extends StoryScreen {
   }
 
   @Override
-  public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-    renderDimBackground(graphics);
-    renderScreenTexture(graphics, this.layout.backgroundTexture(), this.layout);
-    renderScreenTexture(graphics, this.layout.frameTexture(), this.layout);
-    renderSpeakerName(graphics);
-    renderRevealedText(graphics, this.layout, this.animator);
-    super.render(graphics, mouseX, mouseY, partialTick);
+  protected void renderThemed(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+    this.renderViewportSprite(graphics, this.layout.background());
+    this.renderViewportSprite(graphics, this.layout.frame());
+    this.renderSpeakerName(graphics);
+    this.renderRevealedText(graphics, this.layout.text(), this.animator, this.layout.textColor());
   }
 
   @Override
@@ -144,7 +140,7 @@ public class DialogScreen extends StoryScreen {
         .getSplitter()
         .splitLines(
             Component.translatable(this.sessionData.textKey()),
-            this.layout.textArea().width(),
+            this.layout.text().width(),
             Style.EMPTY)
         .forEach(line -> wrappedLines.add(line.getString()));
     this.animator.start(wrappedLines);
@@ -162,35 +158,39 @@ public class DialogScreen extends StoryScreen {
 
     if (allowedChoiceIds.isEmpty()) {
       if (this.layout.showCloseButton()) {
-        addCloseButtonWidget();
+        this.addCloseButtonWidget();
       }
       return;
     }
 
-    int buttonWidth = this.layout.choiceButtonWidth();
+    ThemeArea choices = this.layout.choices();
+    int buttonWidth = choices.width();
 
     for (int i = 0; i < allowedChoiceIds.size(); i++) {
       String choiceId = allowedChoiceIds.get(i);
       String labelKey = this.sessionData.choiceLabels().getOrDefault(choiceId, choiceId);
       int buttonY =
-          this.layout.choiceButtonY(
-              i, allowedChoiceIds.size(), CHOICE_BUTTON_HEIGHT, CHOICE_BUTTON_SPACING);
+          ChoiceListLayout.buttonY(
+              choices, i, allowedChoiceIds.size(), CHOICE_BUTTON_HEIGHT, CHOICE_BUTTON_SPACING);
 
       Button button =
-          Button.builder(Component.translatable(labelKey), pressed -> onChoiceClicked(choiceId))
-              .pos(this.layout.choiceButtonX(buttonWidth), buttonY)
+          Button.builder(
+                  Component.translatable(labelKey), pressed -> this.onChoiceClicked(choiceId))
+              .pos(ChoiceListLayout.buttonX(choices, buttonWidth), buttonY)
               .size(buttonWidth, CHOICE_BUTTON_HEIGHT)
               .build();
 
       this.choiceButtons.add(button);
-      addRenderableWidget(button);
+      this.addRenderableWidget(button);
     }
   }
 
   private void addCloseButtonWidget() {
-    int buttonWidth = Math.min(80, this.layout.choiceButtonWidth());
-    int buttonX = this.layout.choiceButtonX(buttonWidth);
-    int buttonY = this.layout.choiceButtonY(0, 1, CHOICE_BUTTON_HEIGHT, CHOICE_BUTTON_SPACING);
+    ThemeArea choices = this.layout.choices();
+    int buttonWidth = Math.min(80, choices.width());
+    int buttonX = ChoiceListLayout.buttonX(choices, buttonWidth);
+    int buttonY =
+        ChoiceListLayout.buttonY(choices, 0, 1, CHOICE_BUTTON_HEIGHT, CHOICE_BUTTON_SPACING);
 
     Button button =
         Button.builder(
@@ -201,7 +201,7 @@ public class DialogScreen extends StoryScreen {
             .build();
 
     this.choiceButtons.add(button);
-    addRenderableWidget(button);
+    this.addRenderableWidget(button);
   }
 
   private void onChoiceClicked(String choiceId) {
@@ -218,8 +218,9 @@ public class DialogScreen extends StoryScreen {
     }
 
     Component speaker = Component.translatable(this.sessionData.speakerKey());
-    int speakerX = this.layout.titleX(this.font.width(speaker));
-    int speakerY = this.layout.titleY(this.font.lineHeight);
-    graphics.drawString(this.font, speaker, speakerX, speakerY, COLOR_SPEAKER, false);
+    ThemeArea speakerArea = this.layout.speaker();
+    int speakerX = alignedX(speakerArea, this.layout.speakerAlignment(), this.font.width(speaker));
+    int speakerY = centeredY(speakerArea, this.font.lineHeight);
+    graphics.drawString(this.font, speaker, speakerX, speakerY, this.layout.accentColor(), false);
   }
 }

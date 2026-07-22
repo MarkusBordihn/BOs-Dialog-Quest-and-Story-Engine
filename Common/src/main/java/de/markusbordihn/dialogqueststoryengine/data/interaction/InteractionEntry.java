@@ -38,7 +38,8 @@ public record InteractionEntry(
     String label,
     ResourceLocation dimension,
     BlockPos blockPos,
-    ActionDataSet actionDataSet) {
+    ActionDataSet actionDataSet,
+    boolean cancelDefaultAction) {
 
   private static final Logger log = LogManager.getLogger(Constants.LOG_NAME);
 
@@ -54,6 +55,30 @@ public record InteractionEntry(
   private static final String TAG_BLOCK_Y = "BlockY";
   private static final String TAG_BLOCK_Z = "BlockZ";
   private static final String TAG_HAS_BLOCK_POS = "HasBlockPos";
+  private static final String TAG_CANCEL_DEFAULT = "CancelDefaultAction";
+
+  public InteractionEntry(
+      InteractionSource source,
+      InteractionEventType eventType,
+      UUID targetId,
+      TargetKind targetKind,
+      InteractionType interactionType,
+      String label,
+      ResourceLocation dimension,
+      BlockPos blockPos,
+      ActionDataSet actionDataSet) {
+    this(
+        source,
+        eventType,
+        targetId,
+        targetKind,
+        interactionType,
+        label,
+        dimension,
+        blockPos,
+        actionDataSet,
+        false);
+  }
 
   public static InteractionEntry forEntityInteract(
       UUID targetId, InteractionType interactionType, String label, ResourceLocation dimension) {
@@ -164,23 +189,25 @@ public record InteractionEntry(
           label,
           dimension,
           blockPos,
-          actionDataSet);
+          actionDataSet,
+          tag.getBoolean(TAG_CANCEL_DEFAULT));
     } catch (Exception e) {
       log.warn("Failed to load interaction entry: {}", e.getMessage());
       return null;
     }
   }
 
-  public static InteractionEntry readFromBuf(FriendlyByteBuf buf) {
-    InteractionSource source = buf.readEnum(InteractionSource.class);
-    InteractionEventType eventType = buf.readEnum(InteractionEventType.class);
-    UUID targetId = buf.readUUID();
-    TargetKind targetKind = buf.readEnum(TargetKind.class);
-    InteractionType interactionType = buf.readEnum(InteractionType.class);
-    String label = buf.readUtf();
-    ResourceLocation dimension = buf.readResourceLocation();
-    BlockPos blockPos = buf.readBoolean() ? buf.readBlockPos() : null;
-    ActionDataSet actionDataSet = ActionDataSet.readFromBuf(buf);
+  public static InteractionEntry readFromBuffer(FriendlyByteBuf buffer) {
+    InteractionSource source = buffer.readEnum(InteractionSource.class);
+    InteractionEventType eventType = buffer.readEnum(InteractionEventType.class);
+    UUID targetId = buffer.readUUID();
+    TargetKind targetKind = buffer.readEnum(TargetKind.class);
+    InteractionType interactionType = buffer.readEnum(InteractionType.class);
+    String label = buffer.readUtf();
+    ResourceLocation dimension = buffer.readResourceLocation();
+    BlockPos blockPos = buffer.readBoolean() ? buffer.readBlockPos() : null;
+    ActionDataSet actionDataSet = ActionDataSet.readFromBuffer(buffer);
+    boolean cancelDefaultAction = buffer.readBoolean();
     return new InteractionEntry(
         source,
         eventType,
@@ -190,17 +217,27 @@ public record InteractionEntry(
         label,
         dimension,
         blockPos,
-        actionDataSet);
+        actionDataSet,
+        cancelDefaultAction);
   }
 
   public InteractionEntry withEdits(InteractionType updatedInteractionType, String updatedLabel) {
-    return withEdits(updatedInteractionType, updatedLabel, this.actionDataSet);
+    return this.withEdits(updatedInteractionType, updatedLabel, this.actionDataSet);
   }
 
   public InteractionEntry withEdits(
       InteractionType updatedInteractionType,
       String updatedLabel,
       ActionDataSet updatedActionDataSet) {
+    return this.withEdits(
+        updatedInteractionType, updatedLabel, updatedActionDataSet, this.cancelDefaultAction);
+  }
+
+  public InteractionEntry withEdits(
+      InteractionType updatedInteractionType,
+      String updatedLabel,
+      ActionDataSet updatedActionDataSet,
+      boolean updatedCancelDefaultAction) {
     InteractionEventType updatedEventType =
         resolveEventType(this.targetKind, updatedInteractionType);
     return new InteractionEntry(
@@ -212,64 +249,74 @@ public record InteractionEntry(
         updatedLabel,
         this.dimension,
         this.blockPos,
-        updatedActionDataSet);
+        updatedActionDataSet,
+        updatedCancelDefaultAction);
   }
 
   public CompoundTag save() {
     CompoundTag tag = new CompoundTag();
-    tag.putString(TAG_SOURCE, source.name());
+    tag.putString(TAG_SOURCE, this.source.name());
     tag.putString(TAG_EVENT_TYPE, this.eventType.name());
-    tag.putUUID(TAG_TARGET_ID, targetId);
-    tag.putString(TAG_TARGET_KIND, targetKind.name());
-    tag.putString(TAG_INTERACTION_TYPE, interactionType.name());
-    tag.putString(TAG_LABEL, label);
-    tag.putString(TAG_DIMENSION, dimension.toString());
-    if (blockPos != null) {
+    tag.putUUID(TAG_TARGET_ID, this.targetId);
+    tag.putString(TAG_TARGET_KIND, this.targetKind.name());
+    tag.putString(TAG_INTERACTION_TYPE, this.interactionType.name());
+    tag.putString(TAG_LABEL, this.label);
+    tag.putString(TAG_DIMENSION, this.dimension.toString());
+    if (this.blockPos != null) {
       tag.putBoolean(TAG_HAS_BLOCK_POS, true);
-      tag.putInt(TAG_BLOCK_X, blockPos.getX());
-      tag.putInt(TAG_BLOCK_Y, blockPos.getY());
-      tag.putInt(TAG_BLOCK_Z, blockPos.getZ());
+      tag.putInt(TAG_BLOCK_X, this.blockPos.getX());
+      tag.putInt(TAG_BLOCK_Y, this.blockPos.getY());
+      tag.putInt(TAG_BLOCK_Z, this.blockPos.getZ());
     } else {
       tag.putBoolean(TAG_HAS_BLOCK_POS, false);
     }
-    if (!actionDataSet.isEmpty()) {
-      tag.put(TAG_ACTION_DATA, actionDataSet.save());
+    if (!this.actionDataSet.isEmpty()) {
+      tag.put(TAG_ACTION_DATA, this.actionDataSet.save());
+    }
+    if (this.cancelDefaultAction) {
+      tag.putBoolean(TAG_CANCEL_DEFAULT, true);
     }
     return tag;
   }
 
-  public void writeToBuf(FriendlyByteBuf buf) {
-    buf.writeEnum(source);
-    buf.writeEnum(eventType);
-    buf.writeUUID(targetId);
-    buf.writeEnum(targetKind);
-    buf.writeEnum(interactionType);
-    buf.writeUtf(label);
-    buf.writeResourceLocation(dimension);
-    boolean hasPos = blockPos != null;
-    buf.writeBoolean(hasPos);
+  public void writeToBuffer(FriendlyByteBuf buffer) {
+    buffer.writeEnum(this.source);
+    buffer.writeEnum(this.eventType);
+    buffer.writeUUID(this.targetId);
+    buffer.writeEnum(this.targetKind);
+    buffer.writeEnum(this.interactionType);
+    buffer.writeUtf(this.label);
+    buffer.writeResourceLocation(this.dimension);
+    boolean hasPos = this.blockPos != null;
+    buffer.writeBoolean(hasPos);
     if (hasPos) {
-      buf.writeBlockPos(blockPos);
+      buffer.writeBlockPos(this.blockPos);
     }
-    actionDataSet.writeToBuf(buf);
+    this.actionDataSet.writeToBuffer(buffer);
+    buffer.writeBoolean(this.cancelDefaultAction);
   }
 
   @Override
   public String toString() {
-    String shortId = targetId.toString().substring(0, 8);
-    if (blockPos != null) {
+    String shortId = this.targetId.toString().substring(0, 8);
+    if (this.blockPos != null) {
       return String.format(
           "[%s/%s] %s '%s' at %s (ID: %s) in %s",
-          source,
+          this.source,
           this.eventType.resourceLocation().getPath(),
-          targetKind,
-          label,
-          blockPos.toShortString(),
+          this.targetKind,
+          this.label,
+          this.blockPos.toShortString(),
           shortId,
-          dimension);
+          this.dimension);
     }
     return String.format(
         "[%s/%s] %s '%s' (ID: %s) in %s",
-        source, this.eventType.resourceLocation().getPath(), targetKind, label, shortId, dimension);
+        this.source,
+        this.eventType.resourceLocation().getPath(),
+        this.targetKind,
+        this.label,
+        shortId,
+        this.dimension);
   }
 }

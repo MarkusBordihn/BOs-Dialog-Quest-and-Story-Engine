@@ -50,31 +50,31 @@ public final class GridLayout {
   }
 
   public int cellWidth() {
-    return (totalWidth - columnGap * (columns - 1)) / columns;
+    return (this.totalWidth - this.columnGap * (this.columns - 1)) / this.columns;
   }
 
-  public int cellX(int col) {
-    return originX + col * (cellWidth() + columnGap);
+  public int cellX(int column) {
+    return this.originX + column * (this.cellWidth() + this.columnGap);
   }
 
   public int cellY(int row, int rowHeight) {
-    return originY + row * (rowHeight + rowGap);
+    return this.originY + row * (rowHeight + this.rowGap);
   }
 
-  public void fill(Widget widget, int col, int row, int rowHeight) {
-    widget.setPosition(cellX(col), cellY(row, rowHeight));
-    widget.setSize(cellWidth(), rowHeight);
+  public void fill(Widget widget, int column, int row, int rowHeight) {
+    widget.setPosition(this.cellX(column), this.cellY(row, rowHeight));
+    widget.setSize(this.cellWidth(), rowHeight);
   }
 
-  public int getX(int col) {
-    return cellX(col);
+  public int getX(int column) {
+    return this.cellX(column);
   }
 
   public int getY(int row, int rowHeight) {
-    return cellY(row, rowHeight);
+    return this.cellY(row, rowHeight);
   }
 
   public int getWidth() {
-    return cellWidth();
+    return this.cellWidth();
   }
 }

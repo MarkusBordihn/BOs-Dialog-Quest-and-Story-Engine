@@ -32,11 +32,9 @@ public class GameTestHelpers {
 
   private GameTestHelpers() {}
 
-  /**
-   * Mirrors {@link GameTestHelper#makeMockServerPlayerInLevel()} but backs the connection with a
-   * live {@link EmbeddedChannel}. The vanilla helper leaves the connection channel-less, which
-   * makes the Forge post-login network sync fail with a {@code Connection.channel()} NPE.
-   */
+  // Mirrors GameTestHelper#makeMockServerPlayerInLevel() but backs the connection with a live
+  // EmbeddedChannel. The vanilla helper leaves the connection channel-less, which makes the Forge
+  // post-login network sync fail with a Connection.channel() NPE.
   public static ServerPlayer mockConnectedServerPlayer(GameTestHelper helper) {
     ServerLevel level = helper.getLevel();
     ServerPlayer serverPlayer =

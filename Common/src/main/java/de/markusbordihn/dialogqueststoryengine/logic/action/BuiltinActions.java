@@ -31,6 +31,7 @@ import de.markusbordihn.dialogqueststoryengine.logic.action.types.OpenStoryActio
 import de.markusbordihn.dialogqueststoryengine.logic.action.types.RemoveFactAction;
 import de.markusbordihn.dialogqueststoryengine.logic.action.types.RunCommandAction;
 import de.markusbordihn.dialogqueststoryengine.logic.action.types.RunFunctionAction;
+import de.markusbordihn.dialogqueststoryengine.logic.action.types.SendMessageAction;
 import de.markusbordihn.dialogqueststoryengine.logic.action.types.SetFactAction;
 import de.markusbordihn.dialogqueststoryengine.logic.action.types.StartQuestAction;
 import de.markusbordihn.dialogqueststoryengine.logic.action.types.UnlockStoryAction;
@@ -55,6 +56,7 @@ public final class BuiltinActions {
     Registries.ACTIONS.register(GiveExperienceAction.TYPE_ID, GiveExperienceAction::parse);
     Registries.ACTIONS.register(RunFunctionAction.TYPE_ID, RunFunctionAction::parse);
     Registries.ACTIONS.register(RunCommandAction.TYPE_ID, RunCommandAction::parse);
+    Registries.ACTIONS.register(SendMessageAction.TYPE_ID, SendMessageAction::parse);
     Registries.ACTIONS.register(CloseSessionAction.TYPE_ID, CloseSessionAction::parse);
   }
 }

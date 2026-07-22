@@ -19,27 +19,21 @@
 
 package de.markusbordihn.dialogqueststoryengine.data.interaction;
 
-import java.util.HashMap;
+import de.markusbordihn.dialogqueststoryengine.data.json.EnumKeys;
 import java.util.Locale;
-import java.util.Map;
 
 public enum InteractionType {
   RIGHT_CLICK,
   STEP_ON,
   OPEN_HOLOPAD;
 
-  private static final Map<String, InteractionType> BY_NAME = new HashMap<>();
-
-  static {
-    for (InteractionType type : values()) {
-      BY_NAME.put(type.name().toLowerCase(Locale.ROOT), type);
-    }
-  }
+  private final String key = this.name().toLowerCase(Locale.ROOT);
 
   public static InteractionType fromName(String name) {
-    if (name == null) {
-      return null;
-    }
-    return BY_NAME.get(name.toLowerCase(Locale.ROOT));
+    return EnumKeys.byName(InteractionType.class, name).orElse(null);
+  }
+
+  public String key() {
+    return this.key;
   }
 }

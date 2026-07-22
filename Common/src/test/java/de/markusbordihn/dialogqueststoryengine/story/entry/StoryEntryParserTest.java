@@ -45,7 +45,7 @@ class StoryEntryParserTest {
   @Test
   void happyPath() {
     JsonObject input =
-        json(
+        this.json(
             """
         {
           "schema": 1,
@@ -74,7 +74,7 @@ class StoryEntryParserTest {
   @Test
   void missingSchemaProducesError() {
     JsonObject input =
-        json(
+        this.json(
             """
         {
           "type": "holopad",
@@ -94,7 +94,7 @@ class StoryEntryParserTest {
   @Test
   void unsupportedSchemaProducesError() {
     JsonObject input =
-        json(
+        this.json(
             """
         {
           "schema": 99,
@@ -114,7 +114,7 @@ class StoryEntryParserTest {
   @Test
   void unknownTypeProducesError() {
     JsonObject input =
-        json(
+        this.json(
             """
         {
           "schema": 1,
@@ -134,7 +134,7 @@ class StoryEntryParserTest {
   @Test
   void missingTitleKeyProducesError() {
     JsonObject input =
-        json(
+        this.json(
             """
         {
           "schema": 1,
@@ -153,7 +153,7 @@ class StoryEntryParserTest {
   @Test
   void invalidThemeResourceLocationProducesError() {
     JsonObject input =
-        json(
+        this.json(
             """
         {
           "schema": 1,
@@ -173,7 +173,7 @@ class StoryEntryParserTest {
   @Test
   void emptyPagesArrayProducesError() {
     JsonObject input =
-        json(
+        this.json(
             """
         {
           "schema": 1,

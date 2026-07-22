@@ -19,6 +19,8 @@
 
 package de.markusbordihn.dialogqueststoryengine.data.quest;
 
+import de.markusbordihn.dialogqueststoryengine.data.json.EnumKeys;
+
 public enum QuestState {
   NOT_STARTED,
   ACTIVE,
@@ -26,11 +28,6 @@ public enum QuestState {
   FAILED;
 
   public static QuestState fromName(String name) {
-    for (QuestState state : values()) {
-      if (state.name().equals(name)) {
-        return state;
-      }
-    }
-    return null;
+    return EnumKeys.byName(QuestState.class, name).orElse(null);
   }
 }

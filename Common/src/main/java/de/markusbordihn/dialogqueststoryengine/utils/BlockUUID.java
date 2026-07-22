@@ -29,8 +29,15 @@ public final class BlockUUID {
 
   private BlockUUID() {}
 
-  public static UUID fromBlockPos(ResourceKey<Level> dimension, BlockPos pos) {
-    String key = dimension.location() + ":" + pos.getX() + "," + pos.getY() + "," + pos.getZ();
+  public static UUID fromBlockPos(ResourceKey<Level> dimension, BlockPos blockPos) {
+    String key =
+        dimension.location()
+            + ":"
+            + blockPos.getX()
+            + ","
+            + blockPos.getY()
+            + ","
+            + blockPos.getZ();
     return UUID.nameUUIDFromBytes(key.getBytes(StandardCharsets.UTF_8));
   }
 }

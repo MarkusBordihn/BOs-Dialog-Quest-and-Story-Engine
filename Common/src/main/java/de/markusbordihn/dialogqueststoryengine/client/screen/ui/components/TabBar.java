@@ -41,8 +41,8 @@ public class TabBar extends Widget {
   }
 
   public void addTab(String label, Panel contentPanel) {
-    tabs.add(new Tab(label, contentPanel));
-    updateTabVisibility();
+    this.tabs.add(new Tab(label, contentPanel));
+    this.updateTabVisibility();
   }
 
   public void setOnTabChanged(Consumer<Integer> onTabChanged) {
@@ -50,61 +50,61 @@ public class TabBar extends Widget {
   }
 
   public int getSelectedIndex() {
-    return selectedIndex;
+    return this.selectedIndex;
   }
 
   public void setSelectedIndex(int index) {
-    if (index >= 0 && index < tabs.size()) {
-      selectedIndex = index;
-      updateTabVisibility();
-      if (onTabChanged != null) {
-        onTabChanged.accept(index);
+    if (index >= 0 && index < this.tabs.size()) {
+      this.selectedIndex = index;
+      this.updateTabVisibility();
+      if (this.onTabChanged != null) {
+        this.onTabChanged.accept(index);
       }
     }
   }
 
   public Panel getSelectedPanel() {
-    if (selectedIndex >= 0 && selectedIndex < tabs.size()) {
-      return tabs.get(selectedIndex).panel;
+    if (this.selectedIndex >= 0 && this.selectedIndex < this.tabs.size()) {
+      return this.tabs.get(this.selectedIndex).panel;
     }
 
     return null;
   }
 
   private void updateTabVisibility() {
-    for (int i = 0; i < tabs.size(); i++) {
-      tabs.get(i).panel.setVisible(i == selectedIndex);
+    for (int i = 0; i < this.tabs.size(); i++) {
+      this.tabs.get(i).panel.setVisible(i == this.selectedIndex);
     }
   }
 
   @Override
   public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-    if (!visible || tabs.isEmpty()) {
+    if (!this.visible || this.tabs.isEmpty()) {
       return;
     }
 
     ColorPalette palette = ColorPalette.current();
     Font font = Minecraft.getInstance().font;
-    int x = getX();
-    int y = getY();
-    int tabWidth = width / tabs.size();
+    int x = this.getX();
+    int y = this.getY();
+    int tabWidth = this.width / this.tabs.size();
 
-    for (int i = 0; i < tabs.size(); i++) {
+    for (int i = 0; i < this.tabs.size(); i++) {
       int tabX = x + i * tabWidth;
-      boolean isSelected = i == selectedIndex;
+      boolean isSelected = i == this.selectedIndex;
       boolean isHovered =
-          mouseX >= tabX && mouseX < tabX + tabWidth && mouseY >= y && mouseY < y + tabHeight;
+          mouseX >= tabX && mouseX < tabX + tabWidth && mouseY >= y && mouseY < y + this.tabHeight;
 
-      int bgColor;
+      int backgroundColor;
       if (isSelected) {
-        bgColor = palette.surface();
+        backgroundColor = palette.surface();
       } else if (isHovered) {
-        bgColor = palette.surfaceContainerHigh();
+        backgroundColor = palette.surfaceContainerHigh();
       } else {
-        bgColor = palette.surfaceContainer();
+        backgroundColor = palette.surfaceContainer();
       }
 
-      graphics.fill(tabX, y, tabX + tabWidth, y + tabHeight, bgColor);
+      graphics.fill(tabX, y, tabX + tabWidth, y + this.tabHeight, backgroundColor);
 
       if (isSelected) {
         graphics.fill(tabX + 1, y, tabX + tabWidth - 1, y + 2, palette.listHighlight());
@@ -113,19 +113,21 @@ public class TabBar extends Widget {
       int borderLight = lighten(palette.outline(), 0.30f);
       int borderDark = darken(palette.outline(), 0.20f);
       graphics.fill(tabX + 1, y, tabX + tabWidth - 1, y + 1, borderLight);
-      graphics.fill(tabX, y + 1, tabX + 1, y + tabHeight - 1, borderLight);
-      graphics.fill(tabX + tabWidth - 1, y + 1, tabX + tabWidth, y + tabHeight - 1, borderDark);
+      graphics.fill(tabX, y + 1, tabX + 1, y + this.tabHeight - 1, borderLight);
+      graphics.fill(
+          tabX + tabWidth - 1, y + 1, tabX + tabWidth, y + this.tabHeight - 1, borderDark);
       if (!isSelected) {
-        graphics.fill(tabX + 1, y + tabHeight - 1, tabX + tabWidth - 1, y + tabHeight, borderDark);
+        graphics.fill(
+            tabX + 1, y + this.tabHeight - 1, tabX + tabWidth - 1, y + this.tabHeight, borderDark);
       }
 
       int textColor = isSelected ? palette.onSurface() : palette.onSurfaceLow();
       ScaledText.drawCentered(
           graphics,
           font,
-          tabs.get(i).label,
+          this.tabs.get(i).label,
           tabX + tabWidth / 2,
-          y + (tabHeight - font.lineHeight) / 2 + 1,
+          y + (this.tabHeight - font.lineHeight) / 2 + 1,
           textColor,
           ScaledText.SCALE_SMALL);
     }
@@ -133,19 +135,19 @@ public class TabBar extends Widget {
 
   @Override
   public boolean mouseClicked(double mouseX, double mouseY, int button) {
-    if (!visible || !active || button != 0) {
+    if (!this.visible || !this.active || button != 0) {
       return false;
     }
-    int x = getX();
-    int y = getY();
-    if (mouseY < y || mouseY >= y + tabHeight) {
+    int x = this.getX();
+    int y = this.getY();
+    if (mouseY < y || mouseY >= y + this.tabHeight) {
       return false;
     }
-    int tabWidth = width / tabs.size();
-    for (int i = 0; i < tabs.size(); i++) {
+    int tabWidth = this.width / this.tabs.size();
+    for (int i = 0; i < this.tabs.size(); i++) {
       int tabX = x + i * tabWidth;
       if (mouseX >= tabX && mouseX < tabX + tabWidth) {
-        setSelectedIndex(i);
+        this.setSelectedIndex(i);
         return true;
       }
     }

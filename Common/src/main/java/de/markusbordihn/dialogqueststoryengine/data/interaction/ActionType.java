@@ -19,32 +19,62 @@
 
 package de.markusbordihn.dialogqueststoryengine.data.interaction;
 
-import java.util.HashMap;
+import de.markusbordihn.dialogqueststoryengine.Constants;
+import de.markusbordihn.dialogqueststoryengine.data.json.EnumKeys;
 import java.util.Locale;
-import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import net.minecraft.resources.ResourceLocation;
 
 public enum ActionType {
-  NONE,
-  OPEN_STORY,
-  OPEN_INTERACTIVE_STORY,
-  START_DIALOG,
-  GIVE_QUEST,
-  TRIGGER_EVENT,
-  RUN_COMMAND,
-  SET_FACT;
+  NONE(false),
+  OPEN_STORY("story"),
+  OPEN_INTERACTIVE_STORY(false),
+  OPEN_DIALOG("dialog"),
+  START_QUEST("quest"),
+  COMPLETE_QUEST("quest"),
+  FAIL_QUEST("quest"),
+  ADVANCE_QUEST_STEP("quest"),
+  UNLOCK_STORY("story"),
+  MARK_STORY_READ("story"),
+  SET_FACT("fact"),
+  REMOVE_FACT("fact"),
+  GIVE_ITEM("item"),
+  GIVE_EXPERIENCE(),
+  RUN_COMMAND("command"),
+  RUN_FUNCTION("function"),
+  SEND_MESSAGE("message");
 
-  private static final Map<String, ActionType> BY_NAME = new HashMap<>();
+  private final Set<String> shorthandKeys;
+  private final String key;
+  private final Optional<ResourceLocation> typeId;
 
-  static {
-    for (ActionType type : values()) {
-      BY_NAME.put(type.name().toLowerCase(Locale.ROOT), type);
-    }
+  ActionType(String... shorthandKeys) {
+    this(true, shorthandKeys);
+  }
+
+  ActionType(boolean registeredAction, String... shorthandKeys) {
+    this.shorthandKeys = Set.of(shorthandKeys);
+    this.key = this.name().toLowerCase(Locale.ROOT);
+    this.typeId =
+        registeredAction
+            ? Optional.of(new ResourceLocation(Constants.MOD_NAMESPACE, this.key))
+            : Optional.empty();
   }
 
   public static ActionType fromName(String name) {
-    if (name == null) {
-      return null;
-    }
-    return BY_NAME.getOrDefault(name.toLowerCase(Locale.ROOT), NONE);
+    return EnumKeys.byName(ActionType.class, name).orElse(NONE);
+  }
+
+  public String key() {
+    return this.key;
+  }
+
+  public Set<String> shorthandKeys() {
+    return this.shorthandKeys;
+  }
+
+  public Optional<ResourceLocation> typeId() {
+    return this.typeId;
   }
 }

@@ -115,8 +115,8 @@ public record QuestDisplayCatalogEntry(
     buffer.writeCollection(this.visiblePrerequisiteIds, FriendlyByteBuf::writeResourceLocation);
     buffer.writeOptional(this.rewardTitleKey, FriendlyByteBuf::writeUtf);
     buffer.writeOptional(this.rewardDescriptionKey, FriendlyByteBuf::writeUtf);
-    buffer.writeCollection(this.rewardEntries, (buf, entry) -> entry.write(buf));
+    buffer.writeCollection(this.rewardEntries, (targetBuffer, entry) -> entry.write(targetBuffer));
     buffer.writeVarInt(this.sortOrder);
-    buffer.writeCollection(this.steps, (buf, entry) -> entry.write(buf));
+    buffer.writeCollection(this.steps, (targetBuffer, entry) -> entry.write(targetBuffer));
   }
 }

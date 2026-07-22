@@ -75,8 +75,8 @@ public final class QuestDisplayCatalogService {
     List<ResourceLocation> visiblePrerequisites = new ArrayList<>();
     for (ResourceLocation prerequisite : definition.logic().prerequisites().quests()) {
       QuestContentRegistry.get(prerequisite)
-          .filter(prereq -> isVisible(player, playerState, prereq))
-          .ifPresent(prereq -> visiblePrerequisites.add(prerequisite));
+          .filter(prerequisiteDefinition -> isVisible(player, playerState, prerequisiteDefinition))
+          .ifPresent(prerequisiteDefinition -> visiblePrerequisites.add(prerequisite));
     }
 
     return new QuestDisplayCatalogEntry(

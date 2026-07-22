@@ -27,9 +27,9 @@ import net.minecraft.client.gui.GuiGraphics;
 
 public class ToggleSwitch extends AbstractButton {
 
-  private static final int TRACK_W = 22;
-  private static final int TRACK_H = 14;
-  private static final int THUMB_D = 10;
+  private static final int TRACK_WIDTH = 22;
+  private static final int TRACK_HEIGHT = 14;
+  private static final int THUMB_DIAMETER = 10;
   private static final int LABEL_GAP = 6;
 
   private boolean toggled;
@@ -42,15 +42,15 @@ public class ToggleSwitch extends AbstractButton {
 
   public ToggleSwitch(
       int posX, int posY, String label, boolean initialState, Consumer<Boolean> onChange) {
-    super(posX, posY, TRACK_W, TRACK_H);
+    super(posX, posY, TRACK_WIDTH, TRACK_HEIGHT);
     this.label = label;
     this.toggled = initialState;
     this.onChange = onChange;
-    updateWidth();
+    this.updateWidth();
   }
 
   public boolean isToggled() {
-    return toggled;
+    return this.toggled;
   }
 
   public void setToggled(boolean toggled) {
@@ -58,12 +58,12 @@ public class ToggleSwitch extends AbstractButton {
   }
 
   public String getLabel() {
-    return label;
+    return this.label;
   }
 
   public void setLabel(String label) {
     this.label = label;
-    updateWidth();
+    this.updateWidth();
   }
 
   public void setOnChange(Consumer<Boolean> onChange) {
@@ -72,67 +72,77 @@ public class ToggleSwitch extends AbstractButton {
 
   @Override
   protected void onPress() {
-    toggled = !toggled;
-    if (onChange != null) {
-      onChange.accept(toggled);
+    this.toggled = !this.toggled;
+    if (this.onChange != null) {
+      this.onChange.accept(this.toggled);
     }
   }
 
   @Override
   public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-    if (!visible) {
+    if (!this.visible) {
       return;
     }
 
     ColorPalette palette = ColorPalette.current();
-    int x = getX();
-    int y = getY();
-    hovered = isMouseOver(mouseX, mouseY);
+    int x = this.getX();
+    int y = this.getY();
+    this.hovered = this.isMouseOver(mouseX, mouseY);
 
     int trackColor;
-    if (!active) {
+    if (!this.active) {
       trackColor = palette.surfaceContainerLow();
-    } else if (toggled) {
-      trackColor = hovered ? darken(palette.primary(), 0.15f) : palette.primary();
+    } else if (this.toggled) {
+      trackColor = this.hovered ? darken(palette.primary(), 0.15f) : palette.primary();
     } else {
-      trackColor = hovered ? palette.surfaceContainerHigh() : palette.outline();
+      trackColor = this.hovered ? palette.surfaceContainerHigh() : palette.outline();
     }
-    fillRoundedRect(graphics, x, y, TRACK_W, TRACK_H, trackColor);
-    if (!toggled || !active) {
+    fillRoundedRect(graphics, x, y, TRACK_WIDTH, TRACK_HEIGHT, trackColor);
+    if (!this.toggled || !this.active) {
       drawBorderRounded(
-          graphics, x, y, TRACK_W, TRACK_H, active ? palette.outline() : palette.onSurfaceLow());
+          graphics,
+          x,
+          y,
+          TRACK_WIDTH,
+          TRACK_HEIGHT,
+          this.active ? palette.outline() : palette.onSurfaceLow());
     }
 
-    int thumbPad = (TRACK_H - THUMB_D) / 2;
-    int thumbX = toggled ? x + TRACK_W - THUMB_D - thumbPad : x + thumbPad;
-    fillRoundedRect(
-        graphics,
-        thumbX,
-        y + thumbPad,
-        THUMB_D,
-        THUMB_D,
-        active ? (toggled ? palette.onPrimary() : palette.surface()) : palette.onSurfaceLow());
+    int thumbPadding = (TRACK_HEIGHT - THUMB_DIAMETER) / 2;
+    int thumbX = this.toggled ? x + TRACK_WIDTH - THUMB_DIAMETER - thumbPadding : x + thumbPadding;
+    int thumbColor;
+    if (!this.active) {
+      thumbColor = palette.onSurfaceLow();
+    } else if (this.toggled) {
+      thumbColor = palette.onPrimary();
+    } else {
+      thumbColor = palette.surface();
+    }
+    fillRoundedRect(graphics, thumbX, y + thumbPadding, THUMB_DIAMETER, THUMB_DIAMETER, thumbColor);
 
-    if (label != null && !label.isEmpty()) {
+    if (this.label != null && !this.label.isEmpty()) {
       Font font = Minecraft.getInstance().font;
-      int textColor = active ? palette.onSurface() : palette.onSurfaceLow();
+      int textColor = this.active ? palette.onSurface() : palette.onSurfaceLow();
       ScaledText.draw(
           graphics,
           font,
-          label,
-          x + TRACK_W + LABEL_GAP,
-          y + (TRACK_H - ScaledText.getScaledHeight(font, ScaledText.SCALE_BODY)) / 2,
+          this.label,
+          x + TRACK_WIDTH + LABEL_GAP,
+          y + (TRACK_HEIGHT - ScaledText.getScaledHeight(font, ScaledText.SCALE_BODY)) / 2,
           textColor,
           ScaledText.SCALE_BODY);
     }
   }
 
   private void updateWidth() {
-    if (label != null && !label.isEmpty()) {
+    if (this.label != null && !this.label.isEmpty()) {
       Font font = Minecraft.getInstance().font;
-      width = TRACK_W + LABEL_GAP + ScaledText.getScaledWidth(font, label, ScaledText.SCALE_BODY);
+      this.width =
+          TRACK_WIDTH
+              + LABEL_GAP
+              + ScaledText.getScaledWidth(font, this.label, ScaledText.SCALE_BODY);
     } else {
-      width = TRACK_W;
+      this.width = TRACK_WIDTH;
     }
   }
 }

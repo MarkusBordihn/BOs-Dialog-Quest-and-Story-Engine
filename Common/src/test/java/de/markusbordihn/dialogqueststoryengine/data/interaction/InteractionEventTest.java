@@ -69,8 +69,14 @@ class InteractionEventTest {
   }
 
   @Test
+  void fromNameIsCaseInsensitive() {
+    assertEquals(
+        InteractionEventType.ON_ENTITY_INTERACT,
+        InteractionEventType.fromName("on_entity_interact"));
+  }
+
+  @Test
   void fromNameReturnsNullForUnknown() {
     assertNull(InteractionEventType.fromName("UNKNOWN_EVENT"));
-    assertNull(InteractionEventType.fromName("on_entity_interact"));
   }
 }

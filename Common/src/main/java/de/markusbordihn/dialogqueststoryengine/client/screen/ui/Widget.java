@@ -107,15 +107,15 @@ public class Widget {
   }
 
   public int getX() {
-    return parent != null ? parent.getContentX() + posX : posX;
+    return this.parent != null ? this.parent.getContentX() + this.posX : this.posX;
   }
 
   public int getY() {
-    return parent != null ? parent.getContentY() + posY : posY;
+    return this.parent != null ? this.parent.getContentY() + this.posY : this.posY;
   }
 
   public int getWidth() {
-    return width;
+    return this.width;
   }
 
   public void setWidth(int width) {
@@ -123,7 +123,7 @@ public class Widget {
   }
 
   public int getHeight() {
-    return height;
+    return this.height;
   }
 
   public void setHeight(int height) {
@@ -141,7 +141,7 @@ public class Widget {
   }
 
   public boolean isVisible() {
-    return visible;
+    return this.visible;
   }
 
   public void setVisible(boolean visible) {
@@ -149,7 +149,7 @@ public class Widget {
   }
 
   public boolean isActive() {
-    return active;
+    return this.active;
   }
 
   public void setActive(boolean active) {
@@ -157,7 +157,7 @@ public class Widget {
   }
 
   public String getTooltipText() {
-    return tooltipText;
+    return this.tooltipText;
   }
 
   public void setTooltip(String text) {
@@ -165,7 +165,7 @@ public class Widget {
   }
 
   public Panel getParent() {
-    return parent;
+    return this.parent;
   }
 
   public void setParent(Panel parent) {
@@ -173,9 +173,9 @@ public class Widget {
   }
 
   public boolean isMouseOver(double mouseX, double mouseY) {
-    int x = getX();
-    int y = getY();
-    return mouseX >= x && mouseX < x + width && mouseY >= y && mouseY < y + height;
+    int x = this.getX();
+    int y = this.getY();
+    return mouseX >= x && mouseX < x + this.width && mouseY >= y && mouseY < y + this.height;
   }
 
   public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {}

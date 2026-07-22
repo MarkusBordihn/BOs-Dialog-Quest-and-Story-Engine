@@ -180,12 +180,12 @@ public final class InteractionHighlightRenderer {
   private static AABB getAABB(InteractionEntry entry, Map<UUID, Entity> entityMap, Player player) {
     if ((entry.targetKind() == TargetKind.BLOCK || entry.targetKind() == TargetKind.BLOCK_ENTITY)
         && entry.blockPos() != null) {
-      BlockPos pos = entry.blockPos();
-      if (player.blockPosition().distSqr(pos) > MAX_RENDER_DISTANCE_SQ) {
+      BlockPos blockPosition = entry.blockPos();
+      if (player.blockPosition().distSqr(blockPosition) > MAX_RENDER_DISTANCE_SQ) {
         return null;
       }
 
-      return new AABB(pos);
+      return new AABB(blockPosition);
     } else if (entry.targetKind() == TargetKind.ENTITY) {
       Entity entity = entityMap.get(entry.targetId());
       if (entity != null) {

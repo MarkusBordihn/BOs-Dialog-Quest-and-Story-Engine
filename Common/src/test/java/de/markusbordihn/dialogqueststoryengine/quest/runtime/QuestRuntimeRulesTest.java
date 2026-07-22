@@ -151,8 +151,8 @@ class QuestRuntimeRulesTest {
     QuestTestFixtures.installDefinitions(quests);
 
     PlayerStateService.onPlayerDataLoaded(PLAYER, new CompoundTag());
-    playerState = PlayerStateService.get(PLAYER).orElseThrow();
-    PlayerStateEvents.addQuestChangedListener((uuid, change) -> changes.add(change));
+    this.playerState = PlayerStateService.get(PLAYER).orElseThrow();
+    PlayerStateEvents.addQuestChangedListener((uuid, change) -> this.changes.add(change));
   }
 
   @AfterEach
@@ -161,14 +161,14 @@ class QuestRuntimeRulesTest {
     PlayerStateService.onPlayerLoggedOut(PLAYER);
     PlayerStateEvents.clearAll();
     QuestTestFixtures.clear();
-    changes.clear();
+    this.changes.clear();
   }
 
   @Test
   void stepWithRequiresStartsLocked() {
     QuestService.startQuest(PLAYER, CHAIN);
 
-    QuestProgress quest = playerState.getQuest(CHAIN);
+    QuestProgress quest = this.playerState.getQuest(CHAIN);
     assertEquals(StepState.ACTIVE, quest.steps().get("step_a").state());
     assertEquals(StepState.LOCKED, quest.steps().get("step_b").state());
   }
@@ -176,17 +176,17 @@ class QuestRuntimeRulesTest {
   @Test
   void dependentActivatesWhenRequirementCompletesInOneDelta() {
     QuestService.startQuest(PLAYER, CHAIN);
-    changes.clear();
+    this.changes.clear();
 
     QuestService.progressStep(PLAYER, CHAIN, "step_a", 1);
 
-    QuestProgress quest = playerState.getQuest(CHAIN);
+    QuestProgress quest = this.playerState.getQuest(CHAIN);
     assertEquals(StepState.COMPLETED, quest.steps().get("step_a").state());
     assertEquals(StepState.ACTIVE, quest.steps().get("step_b").state());
     assertEquals(QuestState.ACTIVE, quest.state());
 
-    assertEquals(1, changes.size());
-    Map<String, StepProgress> delta = changes.get(0).changedSteps();
+    assertEquals(1, this.changes.size());
+    Map<String, StepProgress> delta = this.changes.get(0).changedSteps();
     assertTrue(delta.containsKey("step_a"), "delta should include the completed step");
     assertTrue(delta.containsKey("step_b"), "delta should include the newly activated dependent");
   }
@@ -197,22 +197,22 @@ class QuestRuntimeRulesTest {
     QuestService.progressStep(PLAYER, CHAIN, "step_a", 1);
     QuestService.progressStep(PLAYER, CHAIN, "step_b", 1);
 
-    assertEquals(QuestState.COMPLETED, playerState.getQuest(CHAIN).state());
+    assertEquals(QuestState.COMPLETED, this.playerState.getQuest(CHAIN).state());
   }
 
   @Test
   void anyStepCompletionSkipsRemainingSteps() {
     QuestService.startQuest(PLAYER, ANY);
-    changes.clear();
+    this.changes.clear();
 
     QuestService.progressStep(PLAYER, ANY, "step_x", 1);
 
-    QuestProgress quest = playerState.getQuest(ANY);
+    QuestProgress quest = this.playerState.getQuest(ANY);
     assertEquals(QuestState.COMPLETED, quest.state());
     assertEquals(StepState.COMPLETED, quest.steps().get("step_x").state());
     assertEquals(StepState.SKIPPED, quest.steps().get("step_y").state());
     assertTrue(
-        changes.get(0).changedSteps().containsKey("step_y"), "SKIPPED step must be in delta");
+        this.changes.get(0).changedSteps().containsKey("step_y"), "SKIPPED step must be in delta");
   }
 
   @Test
@@ -220,7 +220,7 @@ class QuestRuntimeRulesTest {
     Optional<QuestChangeResult> result = QuestService.startQuest(PLAYER, GATE_B);
 
     assertTrue(result.isEmpty());
-    assertFalse(playerState.hasQuest(GATE_B));
+    assertFalse(this.playerState.hasQuest(GATE_B));
   }
 
   @Test
@@ -231,7 +231,7 @@ class QuestRuntimeRulesTest {
     Optional<QuestChangeResult> result = QuestService.startQuest(PLAYER, GATE_B);
 
     assertTrue(result.isPresent());
-    assertEquals(QuestState.ACTIVE, playerState.getQuest(GATE_B).state());
+    assertEquals(QuestState.ACTIVE, this.playerState.getQuest(GATE_B).state());
   }
 
   @Test
@@ -248,22 +248,22 @@ class QuestRuntimeRulesTest {
     QuestService.failQuest(PLAYER, RESTART_FALSE);
 
     assertTrue(QuestService.startQuest(PLAYER, RESTART_FALSE).isEmpty());
-    assertEquals(QuestState.FAILED, playerState.getQuest(RESTART_FALSE).state());
+    assertEquals(QuestState.FAILED, this.playerState.getQuest(RESTART_FALSE).state());
 
     assertTrue(QuestService.forceStartQuest(PLAYER, RESTART_FALSE).isPresent());
-    assertEquals(QuestState.ACTIVE, playerState.getQuest(RESTART_FALSE).state());
+    assertEquals(QuestState.ACTIVE, this.playerState.getQuest(RESTART_FALSE).state());
   }
 
   @Test
   void restartAfterFailureTrueDiscardsPreviousProgress() {
     QuestService.startQuest(PLAYER, RESTART_TRUE);
     QuestService.progressStep(PLAYER, RESTART_TRUE, "only", 1);
-    assertEquals(QuestState.COMPLETED, playerState.getQuest(RESTART_TRUE).state());
+    assertEquals(QuestState.COMPLETED, this.playerState.getQuest(RESTART_TRUE).state());
 
-    playerState.putQuestDirect(RESTART_TRUE, new QuestProgress(QuestState.FAILED));
+    this.playerState.putQuestDirect(RESTART_TRUE, new QuestProgress(QuestState.FAILED));
 
     assertTrue(QuestService.startQuest(PLAYER, RESTART_TRUE).isPresent());
-    QuestProgress restarted = playerState.getQuest(RESTART_TRUE);
+    QuestProgress restarted = this.playerState.getQuest(RESTART_TRUE);
     assertEquals(QuestState.ACTIVE, restarted.state());
     assertEquals(0, restarted.steps().get("only").progress());
   }
@@ -271,14 +271,17 @@ class QuestRuntimeRulesTest {
   @Test
   void availabilityDerivesLockedThenAvailable() {
     assertEquals(
-        QuestAvailability.LOCKED, QuestAvailabilityService.availabilityFor(playerState, GATE_B));
+        QuestAvailability.LOCKED,
+        QuestAvailabilityService.availabilityFor(this.playerState, GATE_B));
 
     QuestService.startQuest(PLAYER, GATE_A);
     QuestService.completeQuest(PLAYER, GATE_A);
 
     assertEquals(
-        QuestAvailability.AVAILABLE, QuestAvailabilityService.availabilityFor(playerState, GATE_B));
+        QuestAvailability.AVAILABLE,
+        QuestAvailabilityService.availabilityFor(this.playerState, GATE_B));
     assertEquals(
-        QuestAvailability.COMPLETED, QuestAvailabilityService.availabilityFor(playerState, GATE_A));
+        QuestAvailability.COMPLETED,
+        QuestAvailabilityService.availabilityFor(this.playerState, GATE_A));
   }
 }

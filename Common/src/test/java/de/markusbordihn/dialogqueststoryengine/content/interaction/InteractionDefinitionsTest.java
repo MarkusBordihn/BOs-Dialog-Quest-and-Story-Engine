@@ -77,13 +77,13 @@ class InteractionDefinitionsTest {
 
   @Test
   void toEntryPopulatesBlockData() {
-    BlockPos pos = new BlockPos(10, 64, -5);
+    BlockPos blockPos = new BlockPos(10, 64, -5);
     InteractionDefinition definition =
         new InteractionDefinition(
             TEST_ID,
             1,
             InteractionEventType.ON_BLOCK_INTERACT,
-            new InteractionBinding.BlockBinding(pos, OVERWORLD),
+            new InteractionBinding.BlockBinding(blockPos, OVERWORLD),
             ConditionGroup.ALWAYS_TRUE,
             ActionList.EMPTY);
 
@@ -91,6 +91,6 @@ class InteractionDefinitionsTest {
 
     assertTrue(entry.isPresent());
     assertEquals(OVERWORLD, entry.get().dimension());
-    assertEquals(pos, entry.get().blockPos());
+    assertEquals(blockPos, entry.get().blockPos());
   }
 }

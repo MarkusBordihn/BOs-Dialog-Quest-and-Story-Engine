@@ -39,19 +39,19 @@ public class Panel extends Widget {
   }
 
   public int getContentX() {
-    return getX() + padding - scrollX;
+    return this.getX() + this.padding - this.scrollX;
   }
 
   public int getContentY() {
-    return getY() + padding - scrollY;
+    return this.getY() + this.padding - this.scrollY;
   }
 
   public int getInnerWidth() {
-    return width - padding * 2;
+    return this.width - this.padding * 2;
   }
 
   public int getInnerHeight() {
-    return height - padding * 2;
+    return this.height - this.padding * 2;
   }
 
   public void setPadding(int padding) {
@@ -60,38 +60,38 @@ public class Panel extends Widget {
 
   public void addWidget(Widget widget) {
     widget.setParent(this);
-    children.add(widget);
+    this.children.add(widget);
   }
 
   public void removeWidget(Widget widget) {
-    children.remove(widget);
+    this.children.remove(widget);
     widget.setParent(null);
-    if (focusedChild == widget) {
-      focusedChild = null;
+    if (this.focusedChild == widget) {
+      this.focusedChild = null;
     }
   }
 
   public void clearWidgets() {
-    for (Widget child : children) {
+    for (Widget child : this.children) {
       child.setParent(null);
     }
-    children.clear();
-    focusedChild = null;
+    this.children.clear();
+    this.focusedChild = null;
   }
 
   public List<Widget> getChildren() {
-    return children;
+    return this.children;
   }
 
   public void refreshWidgets() {
-    clearWidgets();
-    addWidgets();
-    for (Widget child : children) {
+    this.clearWidgets();
+    this.addWidgets();
+    for (Widget child : this.children) {
       if (child instanceof Panel panel) {
         panel.refreshWidgets();
       }
     }
-    alignWidgets();
+    this.alignWidgets();
   }
 
   protected void addWidgets() {}
@@ -100,28 +100,28 @@ public class Panel extends Widget {
 
   public void alignVertical(int startY, int spacing) {
     int y = startY;
-    for (Widget child : children) {
+    for (Widget child : this.children) {
       if (child.isVisible()) {
         child.posY = y;
         y += child.getHeight() + spacing;
       }
     }
-    contentHeight = y;
+    this.contentHeight = y;
   }
 
   public void alignHorizontal(int startX, int spacing) {
     int x = startX;
-    for (Widget child : children) {
+    for (Widget child : this.children) {
       if (child.isVisible()) {
         child.posX = x;
         x += child.getWidth() + spacing;
       }
     }
-    contentWidth = x;
+    this.contentWidth = x;
   }
 
   public int getScrollX() {
-    return scrollX;
+    return this.scrollX;
   }
 
   public void setScrollX(int scrollX) {
@@ -129,35 +129,35 @@ public class Panel extends Widget {
   }
 
   public int getScrollY() {
-    return scrollY;
+    return this.scrollY;
   }
 
   public void setScrollY(int scrollY) {
-    this.scrollY = Math.max(0, Math.min(scrollY, getMaxScrollY()));
+    this.scrollY = Math.max(0, Math.min(scrollY, this.getMaxScrollY()));
   }
 
   public int getMaxScrollY() {
-    return Math.max(0, contentHeight - getInnerHeight());
+    return Math.max(0, this.contentHeight - this.getInnerHeight());
   }
 
   @Override
   public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-    if (!visible) {
+    if (!this.visible) {
       return;
     }
-    renderBackground(graphics, mouseX, mouseY, partialTick);
-    if (clipChildren) {
-      enableScissor(graphics);
+    this.renderBackground(graphics, mouseX, mouseY, partialTick);
+    if (this.clipChildren) {
+      this.enableScissor(graphics);
     }
-    for (Widget child : children) {
+    for (Widget child : this.children) {
       if (child.isVisible()) {
         child.render(graphics, mouseX, mouseY, partialTick);
       }
     }
-    if (clipChildren) {
-      disableScissor(graphics);
+    if (this.clipChildren) {
+      this.disableScissor(graphics);
     }
-    renderForeground(graphics, mouseX, mouseY, partialTick);
+    this.renderForeground(graphics, mouseX, mouseY, partialTick);
   }
 
   protected void renderBackground(
@@ -167,9 +167,9 @@ public class Panel extends Widget {
       GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {}
 
   protected void enableScissor(GuiGraphics graphics) {
-    int x = getX();
-    int y = getY();
-    graphics.enableScissor(x, y, x + width, y + height);
+    int x = this.getX();
+    int y = this.getY();
+    graphics.enableScissor(x, y, x + this.width, y + this.height);
   }
 
   protected void disableScissor(GuiGraphics graphics) {
@@ -178,15 +178,15 @@ public class Panel extends Widget {
 
   @Override
   public boolean mouseClicked(double mouseX, double mouseY, int button) {
-    if (!visible || !active) {
+    if (!this.visible || !this.active) {
       return false;
     }
 
-    for (int i = children.size() - 1; i >= 0; i--) {
-      Widget child = children.get(i);
+    for (int i = this.children.size() - 1; i >= 0; i--) {
+      Widget child = this.children.get(i);
       if (child.isVisible() && child.isActive() && child.isMouseOver(mouseX, mouseY)) {
         if (child.mouseClicked(mouseX, mouseY, button)) {
-          focusedChild = child;
+          this.focusedChild = child;
           return true;
         }
       }
@@ -197,12 +197,12 @@ public class Panel extends Widget {
 
   @Override
   public boolean mouseReleased(double mouseX, double mouseY, int button) {
-    if (focusedChild != null && focusedChild.mouseReleased(mouseX, mouseY, button)) {
+    if (this.focusedChild != null && this.focusedChild.mouseReleased(mouseX, mouseY, button)) {
       return true;
     }
 
-    for (int i = children.size() - 1; i >= 0; i--) {
-      Widget child = children.get(i);
+    for (int i = this.children.size() - 1; i >= 0; i--) {
+      Widget child = this.children.get(i);
       if (child.isVisible() && child.isActive() && child.mouseReleased(mouseX, mouseY, button)) {
         return true;
       }
@@ -214,8 +214,8 @@ public class Panel extends Widget {
   @Override
   public boolean mouseDragged(
       double mouseX, double mouseY, int button, double dragX, double dragY) {
-    if (focusedChild != null) {
-      return focusedChild.mouseDragged(mouseX, mouseY, button, dragX, dragY);
+    if (this.focusedChild != null) {
+      return this.focusedChild.mouseDragged(mouseX, mouseY, button, dragX, dragY);
     }
 
     return false;
@@ -223,12 +223,12 @@ public class Panel extends Widget {
 
   @Override
   public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
-    if (!visible || !active || !isMouseOver(mouseX, mouseY)) {
+    if (!this.visible || !this.active || !this.isMouseOver(mouseX, mouseY)) {
       return false;
     }
 
-    for (int i = children.size() - 1; i >= 0; i--) {
-      Widget child = children.get(i);
+    for (int i = this.children.size() - 1; i >= 0; i--) {
+      Widget child = this.children.get(i);
       if (child.isVisible()
           && child.isActive()
           && child.isMouseOver(mouseX, mouseY)
@@ -237,8 +237,8 @@ public class Panel extends Widget {
       }
     }
 
-    if (getMaxScrollY() > 0) {
-      setScrollY(scrollY - (int) (delta * 10));
+    if (this.getMaxScrollY() > 0) {
+      this.setScrollY(this.scrollY - (int) (delta * 10));
       return true;
     }
     return false;
@@ -246,17 +246,17 @@ public class Panel extends Widget {
 
   @Override
   public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-    return focusedChild != null && focusedChild.keyPressed(keyCode, scanCode, modifiers);
+    return this.focusedChild != null && this.focusedChild.keyPressed(keyCode, scanCode, modifiers);
   }
 
   @Override
   public boolean charTyped(char codePoint, int modifiers) {
-    return focusedChild != null && focusedChild.charTyped(codePoint, modifiers);
+    return this.focusedChild != null && this.focusedChild.charTyped(codePoint, modifiers);
   }
 
   @Override
   public void tick() {
-    for (Widget child : children) {
+    for (Widget child : this.children) {
       child.tick();
     }
   }

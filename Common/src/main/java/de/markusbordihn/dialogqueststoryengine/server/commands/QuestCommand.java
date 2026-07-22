@@ -22,6 +22,7 @@ package de.markusbordihn.dialogqueststoryengine.server.commands;
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import de.markusbordihn.dialogqueststoryengine.api.quest.QuestManager;
 import de.markusbordihn.dialogqueststoryengine.commands.Command;
+import de.markusbordihn.dialogqueststoryengine.commands.suggestion.ContentIdSuggestions;
 import de.markusbordihn.dialogqueststoryengine.data.quest.StepProgress;
 import de.markusbordihn.dialogqueststoryengine.state.PlayerStateService;
 import de.markusbordihn.dialogqueststoryengine.state.QuestProgress;
@@ -44,6 +45,7 @@ public class QuestCommand extends Command {
             Commands.literal("start")
                 .then(
                     Commands.argument("id", ResourceLocationArgument.id())
+                        .suggests(ContentIdSuggestions.QUESTS)
                         .executes(
                             context ->
                                 executeStart(
@@ -62,6 +64,7 @@ public class QuestCommand extends Command {
             Commands.literal("complete")
                 .then(
                     Commands.argument("id", ResourceLocationArgument.id())
+                        .suggests(ContentIdSuggestions.QUESTS)
                         .executes(
                             context ->
                                 executeComplete(
@@ -80,6 +83,7 @@ public class QuestCommand extends Command {
             Commands.literal("state")
                 .then(
                     Commands.argument("id", ResourceLocationArgument.id())
+                        .suggests(ContentIdSuggestions.QUESTS)
                         .executes(
                             context ->
                                 executeState(

@@ -22,6 +22,7 @@ package de.markusbordihn.dialogqueststoryengine.commands.manager;
 import com.mojang.brigadier.CommandDispatcher;
 import de.markusbordihn.dialogqueststoryengine.Constants;
 import de.markusbordihn.dialogqueststoryengine.server.commands.BindCommand;
+import de.markusbordihn.dialogqueststoryengine.server.commands.BlockActionCommand;
 import de.markusbordihn.dialogqueststoryengine.server.commands.ClearCommand;
 import de.markusbordihn.dialogqueststoryengine.server.commands.DebugCommand;
 import de.markusbordihn.dialogqueststoryengine.server.commands.DialogCommand;
@@ -61,6 +62,7 @@ public final class CommandManager {
             .then(QuestCommand.register())
             .then(FactCommand.register())
             .then(HolopadCommand.register())
+            .then(BlockActionCommand.register())
             .then(DebugCommand.register()));
   }
 }

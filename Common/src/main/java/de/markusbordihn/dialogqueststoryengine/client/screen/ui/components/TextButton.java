@@ -44,7 +44,7 @@ public class TextButton extends AbstractButton {
   }
 
   public Component getLabel() {
-    return label;
+    return this.label;
   }
 
   public void setLabel(String label) {
@@ -61,33 +61,33 @@ public class TextButton extends AbstractButton {
 
   @Override
   public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-    if (!visible) {
+    if (!this.visible) {
       return;
     }
 
     ColorPalette palette = ColorPalette.current();
-    int x = getX();
-    int y = getY();
-    hovered = isMouseOver(mouseX, mouseY);
+    int x = this.getX();
+    int y = this.getY();
+    this.hovered = this.isMouseOver(mouseX, mouseY);
 
-    fillRoundedRect(graphics, x, y, width, height, resolveBgColor(palette));
-    drawBorderRoundedBevel(graphics, x, y, width, height, palette.outline());
+    fillRoundedRect(graphics, x, y, this.width, this.height, this.resolveBackgroundColor(palette));
+    drawBorderRoundedBevel(graphics, x, y, this.width, this.height, palette.outline());
 
     Font font = Minecraft.getInstance().font;
     ScaledText.drawCentered(
         graphics,
         font,
-        label,
-        x + width / 2,
-        y + (height - font.lineHeight) / 2 + 1,
-        resolveTextColor(palette),
+        this.label,
+        x + this.width / 2,
+        y + (this.height - font.lineHeight) / 2 + 1,
+        this.resolveTextColor(palette),
         ScaledText.SCALE_NORMAL);
   }
 
   @Override
   protected void onPress() {
-    if (onPressCallback != null) {
-      onPressCallback.accept(this);
+    if (this.onPressCallback != null) {
+      this.onPressCallback.accept(this);
     }
   }
 }

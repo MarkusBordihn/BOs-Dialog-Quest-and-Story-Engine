@@ -41,7 +41,9 @@
           "properties": {
             "portrait": {"type": "string", "pattern": "^[a-z0-9_.-]+:[a-z0-9_./-]+$"},
             "scene": {"type": "string", "pattern": "^[a-z0-9_.-]+:[a-z0-9_./-]+$"},
-            "mood": {"type": "string"},
+            "mood": {
+              "type": "string", "enum": ["neutral", "happy", "sad", "angry", "surprised", "afraid"]
+            },
             "theme": {"type": "string", "pattern": "^[a-z0-9_.-]+:[a-z0-9_./-]+$"}
           }
         },

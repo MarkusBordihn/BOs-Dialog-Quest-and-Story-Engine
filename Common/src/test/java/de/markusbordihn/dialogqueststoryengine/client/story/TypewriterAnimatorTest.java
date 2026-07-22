@@ -163,7 +163,7 @@ class TypewriterAnimatorTest {
 
   @Test
   void defaultCharsPerTickIsTwo() {
-    assertEquals(2, TypewriterAnimator.DEFAULT_CHARS_PER_TICK);
+    assertEquals(2, TypewriterAnimator.DEFAULT_CHARACTERS_PER_TICK);
     TypewriterAnimator animator = new TypewriterAnimator();
     animator.start(List.of("ABCD"));
     animator.tick();

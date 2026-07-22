@@ -34,9 +34,9 @@ class UnlockStoryActionTest {
   @Test
   void execute_storyBecomesUnlocked() {
     PlayerState playerState = new PlayerState(UUID.randomUUID());
-    ActionContext ctx = ActionContext.ofTest(playerState);
+    ActionContext context = ActionContext.ofTest(playerState);
 
-    new UnlockStoryAction(STORY_ID).execute(ctx);
+    new UnlockStoryAction(STORY_ID).execute(context);
 
     assertTrue(playerState.stories().isUnlocked(STORY_ID));
   }
@@ -44,10 +44,10 @@ class UnlockStoryActionTest {
   @Test
   void execute_calledTwice_isIdempotent() {
     PlayerState playerState = new PlayerState(UUID.randomUUID());
-    ActionContext ctx = ActionContext.ofTest(playerState);
+    ActionContext context = ActionContext.ofTest(playerState);
 
-    new UnlockStoryAction(STORY_ID).execute(ctx);
-    new UnlockStoryAction(STORY_ID).execute(ctx);
+    new UnlockStoryAction(STORY_ID).execute(context);
+    new UnlockStoryAction(STORY_ID).execute(context);
 
     assertTrue(playerState.stories().isUnlocked(STORY_ID));
   }

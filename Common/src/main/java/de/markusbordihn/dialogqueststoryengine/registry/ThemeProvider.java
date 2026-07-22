@@ -19,4 +19,28 @@
 
 package de.markusbordihn.dialogqueststoryengine.registry;
 
-public interface ThemeProvider {}
+import de.markusbordihn.dialogqueststoryengine.data.issue.ContentIssue;
+import de.markusbordihn.dialogqueststoryengine.data.theme.ResolvedLayout;
+import de.markusbordihn.dialogqueststoryengine.data.theme.Theme;
+import de.markusbordihn.dialogqueststoryengine.data.theme.ThemeLayoutContract;
+import de.markusbordihn.dialogqueststoryengine.data.theme.ThemeViewport;
+import de.markusbordihn.dialogqueststoryengine.theme.ThemeContractValidator;
+import java.util.List;
+import net.minecraft.resources.ResourceLocation;
+
+public interface ThemeProvider {
+
+  ResourceLocation layoutId();
+
+  ThemeLayoutContract contract();
+
+  Theme fallbackTheme();
+
+  default List<ContentIssue> validate(Theme theme, String file) {
+    return ThemeContractValidator.validate(theme, contract(), file);
+  }
+
+  default ResolvedLayout resolve(Theme theme, ThemeViewport viewport) {
+    return ResolvedLayout.of(theme, contract(), viewport);
+  }
+}

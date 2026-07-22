@@ -27,10 +27,12 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import de.markusbordihn.dialogqueststoryengine.data.issue.IssueCode;
 import de.markusbordihn.dialogqueststoryengine.data.json.ParseResult;
+import de.markusbordihn.dialogqueststoryengine.data.theme.BuiltinLayouts;
 import de.markusbordihn.dialogqueststoryengine.data.theme.Theme;
-import de.markusbordihn.dialogqueststoryengine.data.theme.ThemeLayout;
 import de.markusbordihn.dialogqueststoryengine.data.theme.ThemeTextAlignment;
+import de.markusbordihn.dialogqueststoryengine.registry.Registries;
 import net.minecraft.resources.ResourceLocation;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 class ThemeParserTest {
@@ -39,65 +41,75 @@ class ThemeParserTest {
   private static final ResourceLocation TEST_ID = new ResourceLocation("test", "theme_a");
   private static final String TEST_FILE = "test.json";
 
+  @BeforeAll
+  static void registerProviders() {
+    if (!Registries.THEMES.contains(BuiltinLayouts.HOLOPAD)) {
+      BuiltinThemeProviders.register();
+    }
+  }
+
+  private static boolean hasCode(ParseResult<Theme> result, IssueCode code) {
+    return result.issues().stream().anyMatch(issue -> issue.code() == code);
+  }
+
+  private static String holopadWith(String body) {
+    return "{\"schema\": 1, \"layout\": \"dqse:holopad\", \"logical_width\": 320, "
+        + "\"logical_height\": 240, "
+        + body.strip()
+        + "}";
+  }
+
   private JsonObject json(String raw) {
     return GSON.fromJson(raw, JsonObject.class);
   }
 
   @Test
   void happyPath() {
-    JsonObject input =
-        json(
-            """
-        {
-          "schema": 1,
-          "layout": "dialog_quest_and_story_engine:holopad",
-          "frame_texture": "test:textures/frame.png",
-          "background_texture": "test:textures/background.png",
-          "show_page_numbers": true,
-          "show_close_button": false,
-          "display_area": { "x": 1, "y": 2, "width": 300, "height": 100 },
-          "title_area": { "x": 10, "y": 104, "width": 280, "height": 12 },
-          "title_alignment": "center",
-          "text_area": { "x": 10, "y": 120, "width": 100, "height": 80 },
-          "choice_area": { "x": 40, "y": 30, "width": 220, "height": 60 }
-        }
-        """);
-
-    ParseResult<Theme> result = ThemeParser.parse(TEST_ID, TEST_FILE, input);
+    ParseResult<Theme> result =
+        ThemeParser.parse(
+            TEST_ID,
+            TEST_FILE,
+            this.json(
+                """
+            {
+              "schema": 1,
+              "layout": "dqse:holopad",
+              "logical_width": 320,
+              "logical_height": 240,
+              "areas": {
+                "text": {"x": 24, "y": 44, "width": 272, "height": 78},
+                "choices": {"x": 60, "y": 128, "width": 200, "height": 62}
+              },
+              "colors": {"accent": "#35E0D5"},
+              "options": {"title_alignment": "center", "show_page_numbers": true}
+            }
+            """));
 
     assertTrue(result.isSuccess());
-    assertTrue(result.issues().isEmpty());
     Theme theme = result.value().orElseThrow();
-    assertEquals(ThemeLayout.HOLOPAD, theme.layout());
-    assertTrue(theme.showPageNumbers());
-    assertFalse(theme.showCloseButton());
-    assertEquals(1, theme.displayArea().x());
-    assertEquals(ThemeTextAlignment.CENTER, theme.titleAlignment());
-    assertEquals(10, theme.textArea().x());
-    assertEquals(80, theme.textArea().height());
-    assertEquals(220, theme.choiceArea().width());
+    assertEquals(BuiltinLayouts.HOLOPAD, theme.layoutId());
+    assertEquals(320, theme.logicalWidth());
+    assertTrue(theme.areas().containsKey("text"));
+    assertEquals(0xFF35E0D5, theme.colors().get("accent"));
+    assertEquals(ThemeTextAlignment.CENTER, theme.options().get("title_alignment"));
+    assertEquals(Boolean.TRUE, theme.options().get("show_page_numbers"));
   }
 
   @Test
   void missingSchemaProducesError() {
-    JsonObject input =
-        json(
-            """
-        {
-          "layout": "dialog_quest_and_story_engine:holopad",
-          "frame_texture": "test:textures/frame.png",
-          "background_texture": "test:textures/background.png",
-          "show_page_numbers": true,
-          "show_close_button": true,
-          "display_area": { "x": 0, "y": 0, "width": 100, "height": 40 },
-          "title_area": { "x": 0, "y": 40, "width": 100, "height": 12 },
-          "title_alignment": "left",
-          "text_area": { "x": 0, "y": 52, "width": 100, "height": 80 },
-          "choice_area": { "x": 0, "y": 132, "width": 100, "height": 40 }
-        }
-        """);
-
-    ParseResult<Theme> result = ThemeParser.parse(TEST_ID, TEST_FILE, input);
+    ParseResult<Theme> result =
+        ThemeParser.parse(
+            TEST_ID,
+            TEST_FILE,
+            this.json(
+                """
+            {
+              "layout": "dqse:holopad",
+              "logical_width": 320,
+              "logical_height": 240,
+              "areas": {"text": {"x": 0, "y": 0, "width": 100, "height": 40}}
+            }
+            """));
 
     assertFalse(result.isSuccess());
     assertEquals(IssueCode.MISSING_SCHEMA, result.issues().get(0).code());
@@ -105,104 +117,165 @@ class ThemeParserTest {
 
   @Test
   void unknownLayoutProducesError() {
-    JsonObject input =
-        json(
-            """
-        {
-          "schema": 1,
-          "layout": "test:nonexistent_layout",
-          "frame_texture": "test:textures/frame.png",
-          "background_texture": "test:textures/background.png",
-          "show_page_numbers": true,
-          "show_close_button": true,
-          "display_area": { "x": 0, "y": 0, "width": 100, "height": 40 },
-          "title_area": { "x": 0, "y": 40, "width": 100, "height": 12 },
-          "title_alignment": "left",
-          "text_area": { "x": 0, "y": 52, "width": 100, "height": 80 },
-          "choice_area": { "x": 0, "y": 132, "width": 100, "height": 40 }
-        }
-        """);
-
-    ParseResult<Theme> result = ThemeParser.parse(TEST_ID, TEST_FILE, input);
+    ParseResult<Theme> result =
+        ThemeParser.parse(
+            TEST_ID,
+            TEST_FILE,
+            this.json(
+                """
+            {
+              "schema": 1,
+              "layout": "test:nonexistent_layout",
+              "logical_width": 320,
+              "logical_height": 240,
+              "areas": {"text": {"x": 0, "y": 0, "width": 100, "height": 40}}
+            }
+            """));
 
     assertFalse(result.isSuccess());
     assertEquals(IssueCode.UNKNOWN_THEME_LAYOUT, result.issues().get(0).code());
   }
 
   @Test
-  void missingTextAreaFieldProducesError() {
-    JsonObject input =
-        json(
-            """
-        {
-          "schema": 1,
-          "layout": "dialog_quest_and_story_engine:holopad",
-          "frame_texture": "test:textures/frame.png",
-          "background_texture": "test:textures/background.png",
-          "show_page_numbers": true,
-          "show_close_button": true,
-          "display_area": { "x": 0, "y": 0, "width": 100, "height": 40 },
-          "title_area": { "x": 0, "y": 40, "width": 100, "height": 12 },
-          "title_alignment": "left",
-          "choice_area": { "x": 0, "y": 132, "width": 100, "height": 40 }
-        }
-        """);
-
-    ParseResult<Theme> result = ThemeParser.parse(TEST_ID, TEST_FILE, input);
+  void missingRequiredAreaProducesError() {
+    ParseResult<Theme> result =
+        ThemeParser.parse(
+            TEST_ID,
+            TEST_FILE,
+            this.json(
+                holopadWith(
+                    """
+            "areas": {"choices": {"x": 60, "y": 128, "width": 200, "height": 62}}
+            """)));
 
     assertFalse(result.isSuccess());
-    assertEquals(IssueCode.MISSING_FIELD, result.issues().get(0).code());
+    assertTrue(hasCode(result, IssueCode.MISSING_THEME_SLOT));
   }
 
   @Test
-  void invalidThemeAreaDimensionsProduceError() {
-    JsonObject input =
-        json(
-            """
-        {
-          "schema": 1,
-          "layout": "dialog_quest_and_story_engine:holopad",
-          "frame_texture": "test:textures/frame.png",
-          "background_texture": "test:textures/background.png",
-          "show_page_numbers": true,
-          "show_close_button": true,
-          "display_area": { "x": 0, "y": 0, "width": 100, "height": 40 },
-          "title_area": { "x": 0, "y": 40, "width": 100, "height": 12 },
-          "title_alignment": "left",
-          "text_area": { "x": 0, "y": 52, "width": 0, "height": 80 },
-          "choice_area": { "x": 0, "y": 132, "width": 100, "height": 40 }
-        }
-        """);
-
-    ParseResult<Theme> result = ThemeParser.parse(TEST_ID, TEST_FILE, input);
+  void unknownSlotProducesError() {
+    ParseResult<Theme> result =
+        ThemeParser.parse(
+            TEST_ID,
+            TEST_FILE,
+            this.json(
+                holopadWith(
+                    """
+            "areas": {
+              "text": {"x": 24, "y": 44, "width": 272, "height": 78},
+              "choices": {"x": 60, "y": 128, "width": 200, "height": 62},
+              "bogus": {"x": 0, "y": 0, "width": 10, "height": 10}
+            }
+            """)));
 
     assertFalse(result.isSuccess());
-    assertEquals(IssueCode.INVALID_FIELD_TYPE, result.issues().get(0).code());
+    assertTrue(hasCode(result, IssueCode.UNKNOWN_THEME_SLOT));
   }
 
   @Test
-  void invalidTitleAlignmentProducesError() {
-    JsonObject input =
-        json(
-            """
-        {
-          "schema": 1,
-          "layout": "dialog_quest_and_story_engine:holopad",
-          "frame_texture": "test:textures/frame.png",
-          "background_texture": "test:textures/background.png",
-          "show_page_numbers": true,
-          "show_close_button": true,
-          "display_area": { "x": 0, "y": 0, "width": 100, "height": 40 },
-          "title_area": { "x": 0, "y": 40, "width": 100, "height": 12 },
-          "title_alignment": "middle",
-          "text_area": { "x": 0, "y": 52, "width": 100, "height": 80 },
-          "choice_area": { "x": 0, "y": 132, "width": 100, "height": 40 }
-        }
-        """);
-
-    ParseResult<Theme> result = ThemeParser.parse(TEST_ID, TEST_FILE, input);
+  void areaOutOfBoundsProducesError() {
+    ParseResult<Theme> result =
+        ThemeParser.parse(
+            TEST_ID,
+            TEST_FILE,
+            this.json(
+                holopadWith(
+                    """
+            "areas": {
+              "text": {"x": 24, "y": 44, "width": 400, "height": 78},
+              "choices": {"x": 60, "y": 128, "width": 200, "height": 62}
+            }
+            """)));
 
     assertFalse(result.isSuccess());
-    assertEquals(IssueCode.INVALID_FIELD_TYPE, result.issues().get(0).code());
+    assertTrue(hasCode(result, IssueCode.THEME_AREA_OUT_OF_BOUNDS));
+  }
+
+  @Test
+  void invalidNineSliceSpriteProducesError() {
+    ParseResult<Theme> result =
+        ThemeParser.parse(
+            TEST_ID,
+            TEST_FILE,
+            this.json(
+                holopadWith(
+                    """
+            "areas": {
+              "text": {"x": 24, "y": 44, "width": 272, "height": 78},
+              "choices": {"x": 60, "y": 128, "width": 200, "height": 62}
+            },
+            "sprites": {
+              "frame": {
+                "texture": "test:textures/frame.png",
+                "texture_width": 512, "texture_height": 256,
+                "source_width": 16, "source_height": 16,
+                "scaling": "nine_slice",
+                "border": 8
+              }
+            }
+            """)));
+
+    assertFalse(result.isSuccess());
+    assertTrue(hasCode(result, IssueCode.INVALID_THEME_SPRITE));
+  }
+
+  @Test
+  void invalidColorProducesError() {
+    ParseResult<Theme> result =
+        ThemeParser.parse(
+            TEST_ID,
+            TEST_FILE,
+            this.json(
+                holopadWith(
+                    """
+            "areas": {
+              "text": {"x": 24, "y": 44, "width": 272, "height": 78},
+              "choices": {"x": 60, "y": 128, "width": 200, "height": 62}
+            },
+            "colors": {"accent": "#ZZZZZZ"}
+            """)));
+
+    assertFalse(result.isSuccess());
+    assertTrue(hasCode(result, IssueCode.INVALID_THEME_COLOR));
+  }
+
+  @Test
+  void unknownOptionKeyProducesError() {
+    ParseResult<Theme> result =
+        ThemeParser.parse(
+            TEST_ID,
+            TEST_FILE,
+            this.json(
+                holopadWith(
+                    """
+            "areas": {
+              "text": {"x": 24, "y": 44, "width": 272, "height": 78},
+              "choices": {"x": 60, "y": 128, "width": 200, "height": 62}
+            },
+            "options": {"bogus_option": "value"}
+            """)));
+
+    assertFalse(result.isSuccess());
+    assertTrue(hasCode(result, IssueCode.INVALID_THEME_OPTION));
+  }
+
+  @Test
+  void invalidOptionValueProducesError() {
+    ParseResult<Theme> result =
+        ThemeParser.parse(
+            TEST_ID,
+            TEST_FILE,
+            this.json(
+                holopadWith(
+                    """
+            "areas": {
+              "text": {"x": 24, "y": 44, "width": 272, "height": 78},
+              "choices": {"x": 60, "y": 128, "width": 200, "height": 62}
+            },
+            "options": {"title_alignment": "diagonal"}
+            """)));
+
+    assertFalse(result.isSuccess());
+    assertTrue(hasCode(result, IssueCode.INVALID_THEME_OPTION));
   }
 }

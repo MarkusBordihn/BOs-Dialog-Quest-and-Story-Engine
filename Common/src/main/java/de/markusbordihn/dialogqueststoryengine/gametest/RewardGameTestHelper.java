@@ -61,7 +61,7 @@ public class RewardGameTestHelper {
   public static void automaticRewardGrantedOnCompletion(GameTestHelper helper) {
     ServerPlayer player = GameTestHelpers.mockConnectedServerPlayer(helper);
     UUID playerUuid = player.getUUID();
-    CapturingNetworkTestHandler network = installEnv();
+    CapturingNetworkTestHandler network = installEnvironment();
     Map<ResourceLocation, QuestDefinition> previous =
         QuestRegistryTestSupport.install(rewardQuests());
     try {
@@ -81,14 +81,14 @@ public class RewardGameTestHelper {
           RewardClaimState.CLAIMED,
           network.last(QuestDeltaPacket.class).rewardClaimState());
     } finally {
-      teardownEnv(playerUuid, network, previous);
+      teardownEnvironment(playerUuid, network, previous);
     }
   }
 
   public static void manualRewardClaimSucceeds(GameTestHelper helper) {
     ServerPlayer player = GameTestHelpers.mockConnectedServerPlayer(helper);
     UUID playerUuid = player.getUUID();
-    CapturingNetworkTestHandler network = installEnv();
+    CapturingNetworkTestHandler network = installEnvironment();
     Map<ResourceLocation, QuestDefinition> previous =
         QuestRegistryTestSupport.install(rewardQuests());
     try {
@@ -117,14 +117,14 @@ public class RewardGameTestHelper {
           RewardClaimState.CLAIMED,
           playerState.getQuest(MANUAL).rewardClaimState());
     } finally {
-      teardownEnv(playerUuid, network, previous);
+      teardownEnvironment(playerUuid, network, previous);
     }
   }
 
   public static void inventoryFullRejectsClaim(GameTestHelper helper) {
     ServerPlayer player = GameTestHelpers.mockConnectedServerPlayer(helper);
     UUID playerUuid = player.getUUID();
-    CapturingNetworkTestHandler network = installEnv();
+    CapturingNetworkTestHandler network = installEnvironment();
     Map<ResourceLocation, QuestDefinition> previous =
         QuestRegistryTestSupport.install(rewardQuests());
     try {
@@ -150,14 +150,14 @@ public class RewardGameTestHelper {
           RewardClaimState.AVAILABLE,
           playerState.getQuest(MANUAL).rewardClaimState());
     } finally {
-      teardownEnv(playerUuid, network, previous);
+      teardownEnvironment(playerUuid, network, previous);
     }
   }
 
   public static void secondClaimRejectedAsNotAvailable(GameTestHelper helper) {
     ServerPlayer player = GameTestHelpers.mockConnectedServerPlayer(helper);
     UUID playerUuid = player.getUUID();
-    CapturingNetworkTestHandler network = installEnv();
+    CapturingNetworkTestHandler network = installEnvironment();
     Map<ResourceLocation, QuestDefinition> previous =
         QuestRegistryTestSupport.install(rewardQuests());
     try {
@@ -176,14 +176,14 @@ public class RewardGameTestHelper {
           Optional.of(QuestRewardClaimReason.REWARDS_NOT_AVAILABLE),
           network.last(QuestRewardClaimResultPacket.class).reason());
     } finally {
-      teardownEnv(playerUuid, network, previous);
+      teardownEnvironment(playerUuid, network, previous);
     }
   }
 
   public static void staleRevisionRejected(GameTestHelper helper) {
     ServerPlayer player = GameTestHelpers.mockConnectedServerPlayer(helper);
     UUID playerUuid = player.getUUID();
-    CapturingNetworkTestHandler network = installEnv();
+    CapturingNetworkTestHandler network = installEnvironment();
     Map<ResourceLocation, QuestDefinition> previous =
         QuestRegistryTestSupport.install(rewardQuests());
     try {
@@ -205,18 +205,18 @@ public class RewardGameTestHelper {
           "Stale claim also resends the current delta",
           network.has(QuestDeltaPacket.class));
     } finally {
-      teardownEnv(playerUuid, network, previous);
+      teardownEnvironment(playerUuid, network, previous);
     }
   }
 
-  private static CapturingNetworkTestHandler installEnv() {
+  private static CapturingNetworkTestHandler installEnvironment() {
     CapturingNetworkTestHandler network = CapturingNetworkTestHandler.install();
     PlayerStateEvents.clearAll();
     QuestProgressSync.register();
     return network;
   }
 
-  private static void teardownEnv(
+  private static void teardownEnvironment(
       UUID playerUuid,
       CapturingNetworkTestHandler network,
       Map<ResourceLocation, QuestDefinition> previous) {

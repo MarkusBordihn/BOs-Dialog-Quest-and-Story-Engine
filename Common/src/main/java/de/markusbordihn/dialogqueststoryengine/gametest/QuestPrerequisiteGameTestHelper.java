@@ -56,7 +56,7 @@ public class QuestPrerequisiteGameTestHelper {
   public static void dependentStepActivatesInDelta(GameTestHelper helper) {
     ServerPlayer player = GameTestHelpers.mockConnectedServerPlayer(helper);
     UUID playerUuid = player.getUUID();
-    CapturingNetworkTestHandler network = installEnv();
+    CapturingNetworkTestHandler network = installEnvironment();
     Map<ResourceLocation, QuestDefinition> previous =
         QuestRegistryTestSupport.install(testQuests());
     try {
@@ -90,14 +90,14 @@ public class QuestPrerequisiteGameTestHelper {
           StepState.ACTIVE,
           delta.changedSteps().get("step_b").state());
     } finally {
-      teardownEnv(playerUuid, network, previous);
+      teardownEnvironment(playerUuid, network, previous);
     }
   }
 
   public static void anyStepSkipsRemainingInDelta(GameTestHelper helper) {
     ServerPlayer player = GameTestHelpers.mockConnectedServerPlayer(helper);
     UUID playerUuid = player.getUUID();
-    CapturingNetworkTestHandler network = installEnv();
+    CapturingNetworkTestHandler network = installEnvironment();
     Map<ResourceLocation, QuestDefinition> previous =
         QuestRegistryTestSupport.install(testQuests());
     try {
@@ -118,18 +118,18 @@ public class QuestPrerequisiteGameTestHelper {
           StepState.SKIPPED,
           delta.changedSteps().get("step_y").state());
     } finally {
-      teardownEnv(playerUuid, network, previous);
+      teardownEnvironment(playerUuid, network, previous);
     }
   }
 
-  private static CapturingNetworkTestHandler installEnv() {
+  private static CapturingNetworkTestHandler installEnvironment() {
     CapturingNetworkTestHandler network = CapturingNetworkTestHandler.install();
     PlayerStateEvents.clearAll();
     QuestProgressSync.register();
     return network;
   }
 
-  private static void teardownEnv(
+  private static void teardownEnvironment(
       UUID playerUuid,
       CapturingNetworkTestHandler network,
       Map<ResourceLocation, QuestDefinition> previous) {

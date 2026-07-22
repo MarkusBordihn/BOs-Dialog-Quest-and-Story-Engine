@@ -27,10 +27,10 @@ import net.minecraft.resources.ResourceLocation;
 public class IconButton extends AbstractButton {
 
   private ResourceLocation texture;
-  private int texU;
-  private int texV;
-  private int texWidth;
-  private int texHeight;
+  private int textureU;
+  private int textureV;
+  private int textureWidth;
+  private int textureHeight;
   private Consumer<IconButton> onPressCallback;
 
   public IconButton(
@@ -39,52 +39,59 @@ public class IconButton extends AbstractButton {
       int width,
       int height,
       ResourceLocation texture,
-      int texU,
-      int texV,
-      int texWidth,
-      int texHeight,
+      int textureU,
+      int textureV,
+      int textureWidth,
+      int textureHeight,
       Consumer<IconButton> onPress) {
     super(posX, posY, width, height);
     this.texture = texture;
-    this.texU = texU;
-    this.texV = texV;
-    this.texWidth = texWidth;
-    this.texHeight = texHeight;
+    this.textureU = textureU;
+    this.textureV = textureV;
+    this.textureWidth = textureWidth;
+    this.textureHeight = textureHeight;
     this.onPressCallback = onPress;
   }
 
-  public void setTexture(ResourceLocation texture, int u, int v, int w, int h) {
+  public void setTexture(ResourceLocation texture, int u, int v, int width, int height) {
     this.texture = texture;
-    this.texU = u;
-    this.texV = v;
-    this.texWidth = w;
-    this.texHeight = h;
+    this.textureU = u;
+    this.textureV = v;
+    this.textureWidth = width;
+    this.textureHeight = height;
   }
 
   @Override
   public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-    if (!visible) {
+    if (!this.visible) {
       return;
     }
     ColorPalette palette = ColorPalette.current();
-    int x = getX();
-    int y = getY();
-    hovered = isMouseOver(mouseX, mouseY);
+    int x = this.getX();
+    int y = this.getY();
+    this.hovered = this.isMouseOver(mouseX, mouseY);
 
-    fillRoundedRect(graphics, x, y, width, height, resolveBgColor(palette));
-    drawBorderRoundedBevel(graphics, x, y, width, height, palette.outline());
+    fillRoundedRect(graphics, x, y, this.width, this.height, this.resolveBackgroundColor(palette));
+    drawBorderRoundedBevel(graphics, x, y, this.width, this.height, palette.outline());
 
-    if (texture != null) {
-      int iconX = x + (width - texWidth) / 2;
-      int iconY = y + (height - texHeight) / 2;
-      graphics.blit(texture, iconX, iconY, texU, texV, texWidth, texHeight);
+    if (this.texture != null) {
+      int iconX = x + (this.width - this.textureWidth) / 2;
+      int iconY = y + (this.height - this.textureHeight) / 2;
+      graphics.blit(
+          this.texture,
+          iconX,
+          iconY,
+          this.textureU,
+          this.textureV,
+          this.textureWidth,
+          this.textureHeight);
     }
   }
 
   @Override
   protected void onPress() {
-    if (onPressCallback != null) {
-      onPressCallback.accept(this);
+    if (this.onPressCallback != null) {
+      this.onPressCallback.accept(this);
     }
   }
 }

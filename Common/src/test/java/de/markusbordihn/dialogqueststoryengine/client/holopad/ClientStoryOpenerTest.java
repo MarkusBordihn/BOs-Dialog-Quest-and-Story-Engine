@@ -21,13 +21,18 @@ package de.markusbordihn.dialogqueststoryengine.client.holopad;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
+import de.markusbordihn.dialogqueststoryengine.client.screen.theme.BuiltinLayoutScreens;
 import de.markusbordihn.dialogqueststoryengine.data.story.StoryEntry;
 import de.markusbordihn.dialogqueststoryengine.data.story.StoryEntryType;
+import de.markusbordihn.dialogqueststoryengine.data.theme.BuiltinLayouts;
+import de.markusbordihn.dialogqueststoryengine.registry.Registries;
 import de.markusbordihn.dialogqueststoryengine.story.entry.StoryEntryClientRegistry;
+import de.markusbordihn.dialogqueststoryengine.theme.BuiltinThemeProviders;
 import de.markusbordihn.dialogqueststoryengine.theme.ThemeClientRegistry;
 import java.util.List;
 import java.util.UUID;
 import net.minecraft.resources.ResourceLocation;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -36,6 +41,14 @@ class ClientStoryOpenerTest {
   private static final ResourceLocation UNKNOWN_STORY = new ResourceLocation("test", "missing");
   private static final ResourceLocation KNOWN_STORY = new ResourceLocation("test", "known");
   private static final ResourceLocation KNOWN_THEME = new ResourceLocation("test", "theme");
+
+  @BeforeAll
+  static void registerLayouts() {
+    if (!Registries.THEMES.contains(BuiltinLayouts.HOLOPAD)) {
+      BuiltinThemeProviders.register();
+    }
+    BuiltinLayoutScreens.register();
+  }
 
   @BeforeEach
   void clearRegistries() {

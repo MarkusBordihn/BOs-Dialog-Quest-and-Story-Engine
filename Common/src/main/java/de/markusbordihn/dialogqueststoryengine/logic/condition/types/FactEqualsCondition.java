@@ -31,7 +31,6 @@ import de.markusbordihn.dialogqueststoryengine.data.state.FactValue;
 import de.markusbordihn.dialogqueststoryengine.logic.condition.Condition;
 import de.markusbordihn.dialogqueststoryengine.logic.condition.ConditionContext;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import net.minecraft.resources.ResourceLocation;
 
@@ -75,8 +74,7 @@ public record FactEqualsCondition(FactScope scope, String fact, FactValue expect
       issues.add(ContentIssue.of(IssueCode.MISSING_FIELD, contentType, id, filePath, "scope"));
       return null;
     }
-    String scopeString = json.get("scope").getAsString().toUpperCase(Locale.ROOT);
-    FactScope scope = FactScope.fromName(scopeString);
+    FactScope scope = FactScope.fromName(json.get("scope").getAsString());
     if (scope == null) {
       issues.add(
           ContentIssue.of(
@@ -140,9 +138,9 @@ public record FactEqualsCondition(FactScope scope, String fact, FactValue expect
       return FactValue.of(primitive.getAsBoolean());
     }
     if (primitive.isNumber()) {
-      double d = primitive.getAsDouble();
-      long l = (long) d;
-      return d == l ? FactValue.of(l) : FactValue.of(d);
+      double numeric = primitive.getAsDouble();
+      long asLong = (long) numeric;
+      return numeric == asLong ? FactValue.of(asLong) : FactValue.of(numeric);
     }
     return FactValue.of(primitive.getAsString());
   }

@@ -83,29 +83,31 @@ public class Label extends Widget {
 
   private void recalculateSize() {
     Font font = Minecraft.getInstance().font;
-    this.width = ScaledText.getScaledWidth(font, text, scale);
-    this.height = ScaledText.getScaledHeight(font, scale);
+    this.width = ScaledText.getScaledWidth(font, this.text, this.scale);
+    this.height = ScaledText.getScaledHeight(font, this.scale);
   }
 
   @Override
   public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-    if (!visible || text == null || text.getString().isEmpty()) {
+    if (!this.visible || this.text == null || this.text.getString().isEmpty()) {
       return;
     }
 
     Font font = Minecraft.getInstance().font;
-    int effectiveColor = color != 0 ? color : ColorPalette.current().onSurface();
-    int x = getX();
-    int y = getY();
+    int effectiveColor = this.color != 0 ? this.color : ColorPalette.current().onSurface();
+    int x = this.getX();
+    int y = this.getY();
 
-    switch (alignment) {
+    switch (this.alignment) {
       case CENTER ->
-          ScaledText.drawCentered(graphics, font, text, x + width / 2, y, effectiveColor, scale);
+          ScaledText.drawCentered(
+              graphics, font, this.text, x + this.width / 2, y, effectiveColor, this.scale);
       case RIGHT -> {
-        int textW = ScaledText.getScaledWidth(font, text, scale);
-        ScaledText.draw(graphics, font, text, x + width - textW, y, effectiveColor, scale);
+        int textWidth = ScaledText.getScaledWidth(font, this.text, this.scale);
+        ScaledText.draw(
+            graphics, font, this.text, x + this.width - textWidth, y, effectiveColor, this.scale);
       }
-      default -> ScaledText.draw(graphics, font, text, x, y, effectiveColor, scale);
+      default -> ScaledText.draw(graphics, font, this.text, x, y, effectiveColor, this.scale);
     }
   }
 

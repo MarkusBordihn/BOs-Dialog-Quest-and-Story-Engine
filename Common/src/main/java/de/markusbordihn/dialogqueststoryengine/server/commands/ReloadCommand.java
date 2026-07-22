@@ -23,8 +23,10 @@ import com.mojang.brigadier.builder.ArgumentBuilder;
 import de.markusbordihn.dialogqueststoryengine.commands.Command;
 import java.util.Collection;
 import java.util.stream.Collectors;
+import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.packs.repository.Pack;
 
@@ -50,9 +52,8 @@ public class ReloadCommand extends Command {
         .exceptionally(
             exception -> {
               source.sendFailure(
-                  net.minecraft.network.chat.Component.literal(
-                          "Reload failed: " + exception.getMessage())
-                      .withStyle(net.minecraft.ChatFormatting.RED));
+                  Component.literal("Reload failed: " + exception.getMessage())
+                      .withStyle(ChatFormatting.RED));
               return null;
             });
     return 1;

@@ -64,14 +64,14 @@ public final class StoryEntryParser {
       return ParseResult.failure(issues);
     }
 
-    Optional<String> typeStr =
+    Optional<String> typeString =
         JsonFieldReader.readString(
             jsonObject, FIELD_TYPE, ContentType.STORY_ENTRY, id, filePath, issues);
-    if (typeStr.isEmpty()) {
+    if (typeString.isEmpty()) {
       return ParseResult.failure(issues);
     }
 
-    Optional<StoryEntryType> type = StoryEntryType.fromKey(typeStr.get());
+    Optional<StoryEntryType> type = StoryEntryType.fromKey(typeString.get());
     if (type.isEmpty()) {
       issues.add(
           ContentIssue.of(
@@ -80,7 +80,7 @@ public final class StoryEntryParser {
               id,
               filePath,
               FIELD_TYPE,
-              Map.of("value", typeStr.get())));
+              Map.of("value", typeString.get())));
       return ParseResult.failure(issues);
     }
 

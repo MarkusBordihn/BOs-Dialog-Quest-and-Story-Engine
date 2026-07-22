@@ -51,6 +51,7 @@ public record StartQuestAction(ResourceLocation questId) implements Action {
           ContentIssue.of(IssueCode.MISSING_FIELD, contentType, contentId, filePath, "quest"));
       return Action.NOOP;
     }
+
     ResourceLocation questId = ResourceLocation.tryParse(jsonObject.get("quest").getAsString());
     if (questId == null) {
       issues.add(
@@ -63,6 +64,7 @@ public record StartQuestAction(ResourceLocation questId) implements Action {
               Map.of("value", jsonObject.get("quest").getAsString())));
       return Action.NOOP;
     }
+
     return new StartQuestAction(questId);
   }
 

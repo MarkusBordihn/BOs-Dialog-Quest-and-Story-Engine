@@ -56,40 +56,40 @@ class FactEqualsConditionTest {
   void evaluate_matchingBooleanFact_returnsTrue() {
     FactEqualsCondition condition =
         new FactEqualsCondition(FactScope.PLAYER, "has_key", FactValue.of(true));
-    ConditionContext ctx = contextWithFact(FactScope.PLAYER, "has_key", FactValue.of(true));
-    assertTrue(condition.evaluate(ctx));
+    ConditionContext context = contextWithFact(FactScope.PLAYER, "has_key", FactValue.of(true));
+    assertTrue(condition.evaluate(context));
   }
 
   @Test
   void evaluate_mismatchedBooleanFact_returnsFalse() {
     FactEqualsCondition condition =
         new FactEqualsCondition(FactScope.PLAYER, "has_key", FactValue.of(true));
-    ConditionContext ctx = contextWithFact(FactScope.PLAYER, "has_key", FactValue.of(false));
-    assertFalse(condition.evaluate(ctx));
+    ConditionContext context = contextWithFact(FactScope.PLAYER, "has_key", FactValue.of(false));
+    assertFalse(condition.evaluate(context));
   }
 
   @Test
   void evaluate_missingFact_returnsFalse() {
     FactEqualsCondition condition =
         new FactEqualsCondition(FactScope.PLAYER, "missing_key", FactValue.of(42L));
-    ConditionContext ctx = ConditionContext.ofTest(new PlayerState(UUID.randomUUID()));
-    assertFalse(condition.evaluate(ctx));
+    ConditionContext context = ConditionContext.ofTest(new PlayerState(UUID.randomUUID()));
+    assertFalse(condition.evaluate(context));
   }
 
   @Test
   void evaluate_strictTypeMismatch_returnsFalse() {
     FactEqualsCondition condition =
         new FactEqualsCondition(FactScope.PLAYER, "coins", FactValue.of(42L));
-    ConditionContext ctx = contextWithFact(FactScope.PLAYER, "coins", FactValue.of("42"));
-    assertFalse(condition.evaluate(ctx));
+    ConditionContext context = contextWithFact(FactScope.PLAYER, "coins", FactValue.of("42"));
+    assertFalse(condition.evaluate(context));
   }
 
   @Test
   void evaluate_matchingLongFact_returnsTrue() {
     FactEqualsCondition condition =
         new FactEqualsCondition(FactScope.PLAYER, "coins", FactValue.of(100L));
-    ConditionContext ctx = contextWithFact(FactScope.PLAYER, "coins", FactValue.of(100L));
-    assertTrue(condition.evaluate(ctx));
+    ConditionContext context = contextWithFact(FactScope.PLAYER, "coins", FactValue.of(100L));
+    assertTrue(condition.evaluate(context));
   }
 
   @Test
@@ -105,8 +105,8 @@ class FactEqualsConditionTest {
         FactEqualsCondition.parse(json, ContentType.DIALOG, CONTENT_ID, "test.json", issues);
 
     assertTrue(issues.isEmpty());
-    ConditionContext ctx = contextWithFact(FactScope.PLAYER, "has_key", FactValue.of(true));
-    assertTrue(condition.evaluate(ctx));
+    ConditionContext context = contextWithFact(FactScope.PLAYER, "has_key", FactValue.of(true));
+    assertTrue(condition.evaluate(context));
   }
 
   @Test
@@ -122,8 +122,8 @@ class FactEqualsConditionTest {
         FactEqualsCondition.parse(json, ContentType.DIALOG, CONTENT_ID, "test.json", issues);
 
     assertTrue(issues.isEmpty());
-    ConditionContext ctx = contextWithFact(FactScope.PLAYER, "coins", FactValue.of(42L));
-    assertTrue(condition.evaluate(ctx));
+    ConditionContext context = contextWithFact(FactScope.PLAYER, "coins", FactValue.of(42L));
+    assertTrue(condition.evaluate(context));
   }
 
   @Test
@@ -139,8 +139,8 @@ class FactEqualsConditionTest {
         FactEqualsCondition.parse(json, ContentType.DIALOG, CONTENT_ID, "test.json", issues);
 
     assertTrue(issues.isEmpty());
-    ConditionContext ctx = contextWithFact(FactScope.PLAYER, "health", FactValue.of(3.14));
-    assertTrue(condition.evaluate(ctx));
+    ConditionContext context = contextWithFact(FactScope.PLAYER, "health", FactValue.of(3.14));
+    assertTrue(condition.evaluate(context));
   }
 
   @Test
@@ -186,7 +186,7 @@ class FactEqualsConditionTest {
         FactEqualsCondition.parse(json, ContentType.DIALOG, CONTENT_ID, "test.json", issues);
 
     assertTrue(issues.isEmpty());
-    ConditionContext ctx = contextWithFact(FactScope.PLAYER, "flag", FactValue.of(true));
-    assertTrue(condition.evaluate(ctx));
+    ConditionContext context = contextWithFact(FactScope.PLAYER, "flag", FactValue.of(true));
+    assertTrue(condition.evaluate(context));
   }
 }

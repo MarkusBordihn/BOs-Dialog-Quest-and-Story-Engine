@@ -83,6 +83,10 @@ public record RunCommandAction(String command, int permissionLevel) implements A
             .replace(
                 "{dimension}", actionContext.player().level().dimension().location().toString());
 
+    if (resolved.startsWith("/")) {
+      resolved = resolved.substring(1);
+    }
+
     if (!SecurityConfig.isCommandAllowed(resolved)) {
       log.warn(
           "{} run_command: command '{}' is not in the whitelist - skipping",

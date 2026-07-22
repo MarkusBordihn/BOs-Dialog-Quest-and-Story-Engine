@@ -39,7 +39,7 @@ class SessionStateTransitionTest {
 
   @Test
   void newSessionIsOpen() {
-    DialogSession session = newSession();
+    DialogSession session = this.newSession();
 
     assertTrue(session.isOpen());
     assertEquals(SessionState.OPEN, session.state());
@@ -48,7 +48,7 @@ class SessionStateTransitionTest {
 
   @Test
   void bumpRevisionIncrementsRevision() {
-    DialogSession session = newSession();
+    DialogSession session = this.newSession();
 
     session.bumpRevision();
     assertEquals(1, session.revision());
@@ -59,7 +59,7 @@ class SessionStateTransitionTest {
 
   @Test
   void closeTransitionsToClosedState() {
-    DialogSession session = newSession();
+    DialogSession session = this.newSession();
 
     session.close();
 
@@ -69,7 +69,7 @@ class SessionStateTransitionTest {
 
   @Test
   void invalidateTransitionsToInvalidatedState() {
-    DialogSession session = newSession();
+    DialogSession session = this.newSession();
 
     session.invalidate();
 

@@ -19,12 +19,16 @@
 
 package de.markusbordihn.dialogqueststoryengine.client.screen;
 
+import com.google.gson.JsonObject;
 import de.markusbordihn.dialogqueststoryengine.Constants;
 import de.markusbordihn.dialogqueststoryengine.client.screen.ui.BaseScreen;
 import de.markusbordihn.dialogqueststoryengine.client.screen.ui.Panel;
 import de.markusbordihn.dialogqueststoryengine.client.screen.ui.color.ColorPalette;
 import de.markusbordihn.dialogqueststoryengine.client.screen.ui.components.BreadcrumbBar;
+import de.markusbordihn.dialogqueststoryengine.client.screen.ui.components.Checkbox;
+import de.markusbordihn.dialogqueststoryengine.client.screen.ui.components.ConfirmModal;
 import de.markusbordihn.dialogqueststoryengine.client.screen.ui.components.Label;
+import de.markusbordihn.dialogqueststoryengine.client.screen.ui.components.MessageListModal;
 import de.markusbordihn.dialogqueststoryengine.client.screen.ui.components.ScaledText;
 import de.markusbordihn.dialogqueststoryengine.client.screen.ui.components.SelectBox;
 import de.markusbordihn.dialogqueststoryengine.client.screen.ui.components.SelectOption;
@@ -32,17 +36,23 @@ import de.markusbordihn.dialogqueststoryengine.client.screen.ui.components.Separ
 import de.markusbordihn.dialogqueststoryengine.client.screen.ui.components.TextButton;
 import de.markusbordihn.dialogqueststoryengine.client.screen.ui.components.TextComponent;
 import de.markusbordihn.dialogqueststoryengine.client.screen.ui.components.TextInput;
+import de.markusbordihn.dialogqueststoryengine.content.dialog.DialogClientRegistry;
+import de.markusbordihn.dialogqueststoryengine.content.quest.QuestClientRegistry;
 import de.markusbordihn.dialogqueststoryengine.data.action.ActionDataEntry;
 import de.markusbordihn.dialogqueststoryengine.data.action.ActionDataSet;
 import de.markusbordihn.dialogqueststoryengine.data.interaction.ActionType;
 import de.markusbordihn.dialogqueststoryengine.data.interaction.InteractionEntry;
+import de.markusbordihn.dialogqueststoryengine.data.interaction.InteractionEventType;
 import de.markusbordihn.dialogqueststoryengine.network.NetworkHandlerManager;
 import de.markusbordihn.dialogqueststoryengine.network.message.SaveInteractionMessage;
+import de.markusbordihn.dialogqueststoryengine.story.entry.StoryEntryClientRegistry;
+import de.markusbordihn.dialogqueststoryengine.theme.ThemeClientRegistry;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -55,19 +65,31 @@ public class ActionEditorScreen extends BaseScreen {
 
   private final InteractionEntry entry;
   private final ActionDataSet editableActionDataSet;
-  private final CompoundTag originalActionDataTag;
   private final Consumer<InteractionEntry> onSaveCallback;
+  private CompoundTag originalActionDataTag;
   private ActionType selectedNewType = ActionType.OPEN_STORY;
   private Panel configPanel;
   private TextButton addActionButton;
   private TextButton saveButton;
   private TextButton cancelButton;
 
-  private TextInput field1Input;
-  private TextInput field2Input;
+  private FieldControl field1Control;
+  private FieldControl field2Control;
   private ActionDataEntry editingAction;
   private String editField1Prefill = null;
   private String editField2Prefill = null;
+  private boolean cancelDefaultAction;
+  private boolean originalCancelDefaultAction;
+
+  private TextInput priorityInput;
+  private int draftPriority;
+  private ConditionEditorSpecs.Kind conditionKind = ConditionEditorSpecs.Kind.NONE;
+  private Panel conditionPanel;
+  private FieldControl conditionField1Control;
+  private FieldControl conditionField2Control;
+  private String conditionField1Prefill = null;
+  private String conditionField2Prefill = null;
+  private String rawUnrecognizedCondition = "";
 
   public ActionEditorScreen(
       InteractionEntry entry,
@@ -76,80 +98,122 @@ public class ActionEditorScreen extends BaseScreen {
     this.entry = entry;
     this.editableActionDataSet = entry.actionDataSet().copy();
     this.originalActionDataTag = entry.actionDataSet().save();
+    this.cancelDefaultAction = entry.cancelDefaultAction();
+    this.originalCancelDefaultAction = entry.cancelDefaultAction();
     this.onSaveCallback = onSaveCallback;
-    setBreadcrumb(ancestors, "Actions");
-    setScreenType(ScreenType.ACTIONS);
+    this.setBreadcrumb(ancestors, "Actions");
+    this.setScreenType(ScreenType.ACTIONS);
   }
 
   public ActionEditorScreen(InteractionEntry entry, List<BreadcrumbBar.Segment> ancestors) {
     this(entry, ancestors, null);
   }
 
+  private static List<String> idsFor(ActionEditorSpecs.RefSource ref) {
+    return switch (ref) {
+      case STORY ->
+          StoryEntryClientRegistry.ids().stream()
+              .map(ResourceLocation::toString)
+              .sorted()
+              .collect(Collectors.toList());
+      case DIALOG ->
+          DialogClientRegistry.ids().stream()
+              .map(ResourceLocation::toString)
+              .sorted()
+              .collect(Collectors.toList());
+      case QUEST ->
+          QuestClientRegistry.ids().stream()
+              .map(ResourceLocation::toString)
+              .sorted()
+              .collect(Collectors.toList());
+      case THEME ->
+          ThemeClientRegistry.ids().stream()
+              .map(ResourceLocation::toString)
+              .sorted()
+              .collect(Collectors.toList());
+      case ITEM ->
+          BuiltInRegistries.ITEM.keySet().stream()
+              .map(ResourceLocation::toString)
+              .sorted()
+              .collect(Collectors.toList());
+      case NONE -> List.of();
+    };
+  }
+
   @Override
   protected Component getTitle() {
-    String eventTypeName = entry.eventType().name();
+    String eventTypeName = this.entry.eventType().name();
     String shortType = eventTypeName.startsWith("ON_") ? eventTypeName.substring(3) : eventTypeName;
-    return TextComponent.of("Action Editor - " + entry.label() + " (" + shortType + ")");
+    return TextComponent.of("Action Editor - " + this.entry.label() + " (" + shortType + ")");
   }
 
   @Override
   public void onScreenInit(int screenWidth, int screenHeight) {
-    setSizeCentered(360, 260);
-    refreshWidgets();
+    this.setSizeCentered(380, 340);
+    this.refreshWidgets();
   }
 
   @Override
   protected void addWidgets() {
-    int innerWidth = getInnerWidth();
+    int innerWidth = this.getInnerWidth();
     int row = 0;
     int rowHeight = 22;
 
-    for (ActionDataEntry existing : editableActionDataSet.entries()) {
+    if (ClientActionDiagnostics.has(this.entry.targetId())) {
+      int count = ClientActionDiagnostics.get(this.entry.targetId()).size();
+      TextButton warnButton =
+          new TextButton(
+              innerWidth - 110,
+              row,
+              110,
+              16,
+              "⚠ " + count + " issues",
+              button -> this.openDiagnosticsModal());
+      warnButton.setTooltip(TextComponent.of("diagnostics.tooltip").getString());
+      this.addWidget(warnButton);
+      row += 20;
+    }
+
+    for (ActionDataEntry existing : this.editableActionDataSet.entries()) {
       int capturedRow = row;
-      String summary = formatActionSummary(existing);
-      addWidget(
+      String summary = this.formatActionSummary(existing);
+      this.addWidget(
           new Label(0, capturedRow + 4, summary, 0, ScaledText.SCALE_SMALL, Label.Alignment.LEFT));
-      addWidget(
+      this.addWidget(
           new TextButton(
               innerWidth - 104,
               capturedRow,
               52,
               16,
               "button.edit",
-              btn -> {
-                prefillFromEntry(existing);
-                editingAction = existing;
-                refreshWidgets();
+              button -> {
+                this.prefillFromEntry(existing);
+                this.editingAction = existing;
+                this.refreshWidgets();
               }));
-      addWidget(
+      this.addWidget(
           new TextButton(
               innerWidth - 50,
               capturedRow,
               48,
               16,
               "button.remove",
-              btn -> {
-                editableActionDataSet.remove(existing.id());
-                if (editingAction != null && editingAction.id().equals(existing.id())) {
-                  clearCurrentActionDraft();
-                }
-                refreshWidgets();
-              }));
+              button -> this.confirmRemoveAction(existing)));
       row += rowHeight;
     }
 
-    if (!editableActionDataSet.entries().isEmpty()) {
-      addWidget(new Separator(0, row, innerWidth, true));
+    if (!this.editableActionDataSet.entries().isEmpty()) {
+      this.addWidget(new Separator(0, row, innerWidth, true));
       row += 8;
     }
 
-    addWidget(
+    this.addWidget(
         new Label(
             0, row + 4, "field.action_type", 0, ScaledText.SCALE_SMALL, Label.Alignment.LEFT));
     List<SelectOption<ActionType>> actionOptions =
         Arrays.stream(ActionType.values())
-            .filter(t -> t != ActionType.NONE)
-            .map(t -> SelectOption.of(formatActionName(t), t))
+            .filter(actionType -> actionType != ActionType.NONE)
+            .map(actionType -> SelectOption.of(this.formatActionName(actionType), actionType))
             .collect(Collectors.toList());
     SelectBox<ActionType> actionSelect =
         new SelectBox<>(
@@ -159,257 +223,452 @@ public class ActionEditorScreen extends BaseScreen {
             16,
             actionOptions,
             actionType -> {
-              selectedNewType = actionType;
-              editingAction = null;
-              field1Input = null;
-              field2Input = null;
-              refreshConfigPanel();
-              refreshWidgets();
+              this.captureDraftInputs();
+              this.selectedNewType = actionType;
+              this.editingAction = null;
+              this.field1Control = null;
+              this.field2Control = null;
+              this.refreshWidgets();
             },
             this::openOverlay,
             this::closeOverlay);
-    actionSelect.selectByValue(selectedNewType);
-    addWidget(actionSelect);
+    actionSelect.selectByValue(this.selectedNewType);
+    this.addWidget(actionSelect);
     row += rowHeight + 4;
 
-    configPanel =
+    this.configPanel =
         new Panel(0, row, innerWidth, 46) {
           @Override
           protected void renderBackground(
               GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
             ColorPalette palette = ColorPalette.current();
-            int panelX = getX();
-            int panelY = getY();
+            int panelX = this.getX();
+            int panelY = this.getY();
             graphics.fill(
-                panelX, panelY, panelX + getWidth(), panelY + getHeight(), palette.background());
+                panelX,
+                panelY,
+                panelX + this.getWidth(),
+                panelY + this.getHeight(),
+                palette.background());
           }
 
           @Override
           protected void addWidgets() {
-            field1Input = null;
-            field2Input = null;
-            populateConfigPanel(this);
-            applyPrefills();
+            ActionEditorScreen.this.field1Control = null;
+            ActionEditorScreen.this.field2Control = null;
+            ActionEditorScreen.this.populateConfigPanel(this);
+            ActionEditorScreen.this.applyPrefills();
           }
         };
-    configPanel.setParent(this);
-    populateConfigPanel(configPanel);
-    addWidget(configPanel);
+    this.configPanel.setParent(this);
+    this.populateConfigPanel(this.configPanel);
+    this.addWidget(this.configPanel);
     row += 50;
 
-    int addBtnWidth = 60;
-    addActionButton =
-        new TextButton(
-            (innerWidth - addBtnWidth) / 2,
+    this.addWidget(
+        new Label(0, row + 4, "field.priority", 0, ScaledText.SCALE_SMALL, Label.Alignment.LEFT));
+    this.priorityInput = new TextInput(86, row, 50, 14, value -> this.updateButtonStates());
+    this.priorityInput.setSuggestion("0");
+    this.priorityInput.setMaxLength(6);
+    this.priorityInput.setValue(String.valueOf(this.draftPriority));
+    this.addWidget(this.priorityInput);
+    row += 20;
+
+    this.addWidget(
+        new Label(0, row + 4, "field.condition", 0, ScaledText.SCALE_SMALL, Label.Alignment.LEFT));
+    List<SelectOption<ConditionEditorSpecs.Kind>> conditionOptions =
+        Arrays.stream(ConditionEditorSpecs.Kind.values())
+            .map(kind -> SelectOption.of(TextComponent.of(kind.labelKey()).getString(), kind))
+            .collect(Collectors.toList());
+    SelectBox<ConditionEditorSpecs.Kind> conditionSelect =
+        new SelectBox<>(
+            86,
             row,
-            addBtnWidth,
+            Math.min(innerWidth - 86, 180),
             16,
-            editingAction != null ? "button.update" : "button.add",
-            btn -> addCurrentAction());
-    addWidget(addActionButton);
+            conditionOptions,
+            kind -> {
+              this.captureDraftInputs();
+              this.conditionKind = kind;
+              this.conditionField1Prefill = null;
+              this.conditionField2Prefill = null;
+              this.rawUnrecognizedCondition = "";
+              this.refreshConditionPanel();
+              this.updateButtonStates();
+            },
+            this::openOverlay,
+            this::closeOverlay);
+    conditionSelect.selectByValue(this.conditionKind);
+    this.addWidget(conditionSelect);
+    row += 20;
+
+    this.conditionPanel =
+        new Panel(0, row, innerWidth, 40) {
+          @Override
+          protected void renderBackground(
+              GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+            ColorPalette palette = ColorPalette.current();
+            graphics.fill(
+                this.getX(),
+                this.getY(),
+                this.getX() + this.getWidth(),
+                this.getY() + this.getHeight(),
+                palette.background());
+          }
+
+          @Override
+          protected void addWidgets() {
+            ActionEditorScreen.this.conditionField1Control = null;
+            ActionEditorScreen.this.conditionField2Control = null;
+            ActionEditorScreen.this.populateConditionPanel(this);
+            ActionEditorScreen.this.applyConditionPrefills();
+          }
+        };
+    this.conditionPanel.setParent(this);
+    this.populateConditionPanel(this.conditionPanel);
+    this.addWidget(this.conditionPanel);
+    row += 44;
+
+    int addButtonWidth = 60;
+    this.addActionButton =
+        new TextButton(
+            (innerWidth - addButtonWidth) / 2,
+            row,
+            addButtonWidth,
+            16,
+            this.editingAction != null ? "button.update" : "button.add",
+            button -> this.addCurrentAction());
+    this.addWidget(this.addActionButton);
     row += 24;
 
-    addWidget(new Separator(0, row, innerWidth, true));
+    if (this.supportsCancelDefault()) {
+      this.addWidget(new Separator(0, row, innerWidth, true));
+      row += 8;
+      this.addWidget(
+          new Checkbox(
+              0,
+              row,
+              "field.cancel_default_action",
+              this.cancelDefaultAction,
+              checked -> {
+                this.cancelDefaultAction = checked;
+                this.updateButtonStates();
+              }));
+      row += 20;
+    }
+
+    this.addWidget(new Separator(0, row, innerWidth, true));
     row += 8;
 
     int buttonWidth = 70;
-    int btnSpacing = 8;
-    int buttonStartX = (innerWidth - (buttonWidth * 2 + btnSpacing)) / 2;
-    saveButton =
-        new TextButton(buttonStartX, row, buttonWidth, 20, "button.save", btn -> saveAndClose());
-    addWidget(saveButton);
-    cancelButton =
+    int buttonSpacing = 8;
+    int buttonStartX = (innerWidth - (buttonWidth * 2 + buttonSpacing)) / 2;
+    this.saveButton =
         new TextButton(
-            buttonStartX + buttonWidth + btnSpacing,
+            buttonStartX, row, buttonWidth, 20, "button.save", button -> this.saveAndClose());
+    this.addWidget(this.saveButton);
+    this.cancelButton =
+        new TextButton(
+            buttonStartX + buttonWidth + buttonSpacing,
             row,
             buttonWidth,
             20,
             "button.cancel",
-            btn -> closeScreen());
-    addWidget(cancelButton);
-    updateButtonStates();
-  }
-
-  private void refreshConfigPanel() {
-    if (configPanel != null) {
-      configPanel.clearWidgets();
-      field1Input = null;
-      field2Input = null;
-      populateConfigPanel(configPanel);
-    }
+            button -> this.closeScreen());
+    this.addWidget(this.cancelButton);
+    this.updateButtonStates();
   }
 
   private void populateConfigPanel(Panel panel) {
     int y = 4;
-    int panelWidth = panel.getWidth();
-    int fieldWidth = panelWidth - 90;
-    switch (selectedNewType) {
-      case OPEN_STORY -> {
-        panel.addWidget(
-            new Label(4, y + 3, "field.story_id", 0, ScaledText.SCALE_SMALL, Label.Alignment.LEFT));
-        field1Input = new TextInput(86, y, fieldWidth, 14, val -> updateButtonStates());
-        field1Input.setSuggestion("dqse:my_story");
-        field1Input.setMaxLength(200);
-        panel.addWidget(field1Input);
-        y += 18;
-        panel.addWidget(
-            new Label(
-                4, y + 3, "field.theme_override", 0, ScaledText.SCALE_SMALL, Label.Alignment.LEFT));
-        field2Input = new TextInput(86, y, fieldWidth, 14, val -> updateButtonStates());
-        field2Input.setSuggestion("(optional)");
-        field2Input.setMaxLength(200);
-        panel.addWidget(field2Input);
-      }
-      case OPEN_INTERACTIVE_STORY -> {
-        panel.addWidget(
-            new Label(4, y + 3, "field.story_id", 0, ScaledText.SCALE_SMALL, Label.Alignment.LEFT));
-        field1Input = new TextInput(86, y, fieldWidth, 14, val -> updateButtonStates());
-        field1Input.setSuggestion("dqse:my_interactive_story");
-        field1Input.setMaxLength(200);
-        panel.addWidget(field1Input);
-      }
-      case RUN_COMMAND -> {
-        panel.addWidget(
-            new Label(4, y + 3, "field.command", 0, ScaledText.SCALE_SMALL, Label.Alignment.LEFT));
-        field1Input = new TextInput(86, y, fieldWidth, 14, val -> updateButtonStates());
-        field1Input.setSuggestion("/say hello");
-        field1Input.setMaxLength(256);
-        panel.addWidget(field1Input);
-      }
-      case SET_FACT -> {
-        panel.addWidget(
-            new Label(4, y + 3, "field.fact_id", 0, ScaledText.SCALE_SMALL, Label.Alignment.LEFT));
-        field1Input = new TextInput(86, y, fieldWidth, 14, val -> updateButtonStates());
-        field1Input.setSuggestion("dqse:my_fact");
-        field1Input.setMaxLength(200);
-        panel.addWidget(field1Input);
-        y += 18;
-        panel.addWidget(
-            new Label(
-                4, y + 3, "field.fact_value", 0, ScaledText.SCALE_SMALL, Label.Alignment.LEFT));
-        field2Input = new TextInput(86, y, fieldWidth, 14, val -> updateButtonStates());
-        field2Input.setSuggestion("true");
-        field2Input.setMaxLength(128);
-        panel.addWidget(field2Input);
-      }
-      default -> {
-        panel.addWidget(
-            new Label(
-                4, y, "action.default.hint", 0, ScaledText.SCALE_SMALL, Label.Alignment.LEFT));
-      }
+    int fieldWidth = panel.getWidth() - 90;
+    ActionEditorSpecs.Spec spec = ActionEditorSpecs.get(this.selectedNewType);
+    if (spec == null || (spec.field1() == null && spec.field2() == null)) {
+      panel.addWidget(
+          new Label(4, y, "action.default.hint", 0, ScaledText.SCALE_SMALL, Label.Alignment.LEFT));
+      return;
     }
+
+    if (spec.field1() != null) {
+      this.field1Control = this.addField(panel, spec.field1(), y, fieldWidth);
+      y += 18;
+    }
+    if (spec.field2() != null) {
+      this.field2Control = this.addField(panel, spec.field2(), y, fieldWidth);
+    }
+  }
+
+  private FieldControl addField(Panel panel, ActionEditorSpecs.Field field, int y, int fieldWidth) {
+    return this.addField(
+        panel, field.labelKey(), field.suggestion(), field.maxLength(), field.ref(), y, fieldWidth);
+  }
+
+  private FieldControl addField(
+      Panel panel,
+      String labelKey,
+      String suggestion,
+      int maxLength,
+      ActionEditorSpecs.RefSource ref,
+      int y,
+      int fieldWidth) {
+    panel.addWidget(new Label(4, y + 3, labelKey, 0, ScaledText.SCALE_SMALL, Label.Alignment.LEFT));
+
+    List<String> options = idsFor(ref);
+    if (ref != ActionEditorSpecs.RefSource.NONE && !options.isEmpty()) {
+      List<SelectOption<String>> selectOptions =
+          options.stream().map(id -> SelectOption.of(id, id)).collect(Collectors.toList());
+      SelectBox<String> select =
+          new SelectBox<>(
+              86,
+              y,
+              fieldWidth,
+              14,
+              selectOptions,
+              value -> this.updateButtonStates(),
+              this::openOverlay,
+              this::closeOverlay);
+      select.setSearchable(true);
+      panel.addWidget(select);
+      return new SelectFieldControl(select);
+    }
+
+    TextInput input = new TextInput(86, y, fieldWidth, 14, value -> this.updateButtonStates());
+    input.setSuggestion(suggestion);
+    input.setMaxLength(maxLength);
+    panel.addWidget(input);
+    return new TextFieldControl(input);
+  }
+
+  private void refreshConditionPanel() {
+    if (this.conditionPanel != null) {
+      this.conditionPanel.clearWidgets();
+      this.conditionField1Control = null;
+      this.conditionField2Control = null;
+      this.populateConditionPanel(this.conditionPanel);
+    }
+  }
+
+  private void populateConditionPanel(Panel panel) {
+    int y = 4;
+    int fieldWidth = panel.getWidth() - 90;
+    ConditionEditorSpecs.Spec spec = ConditionEditorSpecs.get(this.conditionKind);
+    this.conditionField1Control = null;
+    this.conditionField2Control = null;
+    if (spec == null || (spec.field1() == null && spec.field2() == null)) {
+      return;
+    }
+    if (spec.field1() != null) {
+      ConditionEditorSpecs.Field field = spec.field1();
+      this.conditionField1Control =
+          this.addField(
+              panel,
+              field.labelKey(),
+              field.suggestion(),
+              field.maxLength(),
+              field.ref(),
+              y,
+              fieldWidth);
+      y += 18;
+    }
+    if (spec.field2() != null) {
+      ConditionEditorSpecs.Field field = spec.field2();
+      this.conditionField2Control =
+          this.addField(
+              panel,
+              field.labelKey(),
+              field.suggestion(),
+              field.maxLength(),
+              field.ref(),
+              y,
+              fieldWidth);
+    }
+  }
+
+  private void applyConditionPrefills() {
+    if (this.conditionField1Prefill != null && this.conditionField1Control != null) {
+      this.conditionField1Control.setValue(this.conditionField1Prefill);
+      this.conditionField1Prefill = null;
+    }
+    if (this.conditionField2Prefill != null && this.conditionField2Control != null) {
+      this.conditionField2Control.setValue(this.conditionField2Prefill);
+      this.conditionField2Prefill = null;
+    }
+  }
+
+  private void captureDraftInputs() {
+    if (this.priorityInput != null) {
+      this.draftPriority = this.parsePriority(this.priorityInput.getValue());
+    }
+    if (this.conditionField1Control != null) {
+      this.conditionField1Prefill = this.conditionField1Control.getValue();
+    }
+    if (this.conditionField2Control != null) {
+      this.conditionField2Prefill = this.conditionField2Control.getValue();
+    }
+  }
+
+  private int parsePriority(String value) {
+    try {
+      return Integer.parseInt(value.trim());
+    } catch (NumberFormatException exception) {
+      return 0;
+    }
+  }
+
+  private String buildConditionJson() {
+    if (this.conditionKind == ConditionEditorSpecs.Kind.NONE) {
+      return this.rawUnrecognizedCondition;
+    }
+    ConditionEditorSpecs.Spec spec = ConditionEditorSpecs.get(this.conditionKind);
+    if (spec == null) {
+      return "";
+    }
+    String value1 =
+        this.conditionField1Control != null ? this.conditionField1Control.getValue().trim() : "";
+    String value2 =
+        this.conditionField2Control != null ? this.conditionField2Control.getValue().trim() : "";
+    return spec.build().apply(value1, value2);
   }
 
   private void addCurrentAction() {
-    ActionDataEntry action = createCurrentAction(true);
+    ActionDataEntry action = this.createCurrentAction(true);
     if (action == null) {
-      updateButtonStates();
+      this.updateButtonStates();
       return;
     }
 
-    if (editingAction != null) {
-      editableActionDataSet.replace(action);
+    if (this.editingAction != null) {
+      this.editableActionDataSet.replace(action);
     } else {
-      editableActionDataSet.add(action);
+      this.editableActionDataSet.add(action);
     }
-    clearCurrentActionDraft();
-    refreshWidgets();
+    this.clearCurrentActionDraft();
+    this.refreshWidgets();
   }
 
   private ActionDataEntry createCurrentAction(boolean logInvalid) {
-    String value1 = field1Input != null ? field1Input.getValue().trim() : "";
-    String value2 = field2Input != null ? field2Input.getValue().trim() : "";
-    ActionDataEntry action = null;
-    switch (selectedNewType) {
-      case OPEN_STORY -> {
-        ResourceLocation storyId = ResourceLocation.tryParse(value1);
-        if (storyId == null) {
-          if (logInvalid && !value1.isEmpty()) {
-            log.warn("{} ActionEditorScreen: invalid storyId '{}'", Constants.LOG_PREFIX, value1);
-          }
-          return null;
-        }
-        ResourceLocation themeOverrideId =
-            value2.isEmpty() ? null : ResourceLocation.tryParse(value2);
-        action = ActionDataEntry.openStory(storyId, themeOverrideId);
+    String value1 = this.field1Control != null ? this.field1Control.getValue().trim() : "";
+    String value2 = this.field2Control != null ? this.field2Control.getValue().trim() : "";
+    ActionEditorSpecs.Spec spec = ActionEditorSpecs.get(this.selectedNewType);
+    ActionDataEntry action = spec != null ? spec.build().apply(value1, value2) : null;
+
+    if (action == null) {
+      if (logInvalid && !value1.isEmpty()) {
+        log.warn(
+            "{} ActionEditorScreen: invalid input for action {}",
+            Constants.LOG_PREFIX,
+            this.selectedNewType);
       }
-      case OPEN_INTERACTIVE_STORY -> {
-        ResourceLocation storyId = ResourceLocation.tryParse(value1);
-        if (storyId == null) {
-          return null;
-        }
-        action = ActionDataEntry.openInteractiveStory(storyId);
-      }
-      case RUN_COMMAND -> {
-        if (!value1.isEmpty()) {
-          action = ActionDataEntry.runCommand(value1);
-        }
-      }
-      case SET_FACT -> {
-        ResourceLocation factId = ResourceLocation.tryParse(value1);
-        if (factId == null || value2.isEmpty()) {
-          return null;
-        }
-        action = ActionDataEntry.setFact(factId, value2);
-      }
-      default ->
-          log.warn(
-              "{} ActionEditorScreen: unsupported action type {}",
-              Constants.LOG_PREFIX,
-              selectedNewType);
+      return null;
     }
 
-    if (action == null || editingAction == null) {
-      return action;
-    }
-
-    return new ActionDataEntry(editingAction.id(), action.type(), action.data().copy());
+    int priority =
+        this.priorityInput != null
+            ? this.parsePriority(this.priorityInput.getValue())
+            : this.draftPriority;
+    String condition = this.buildConditionJson();
+    ActionDataEntry base =
+        this.editingAction != null
+            ? new ActionDataEntry(this.editingAction.id(), action.type(), action.data().copy())
+            : action;
+    return base.withConditionAndPriority(condition, priority);
   }
 
   private void saveAndClose() {
-    if (!hasUnsavedChanges()) {
+    if (!this.hasUnsavedChanges()) {
       return;
     }
 
-    commitPendingCurrentAction();
+    this.commitPendingCurrentAction();
+    this.persistInteraction();
+    this.closeScreen();
+  }
+
+  private void persistInteraction() {
     InteractionEntry updatedEntry =
-        entry.withEdits(entry.interactionType(), entry.label(), editableActionDataSet);
+        this.entry.withEdits(
+            this.entry.interactionType(),
+            this.entry.label(),
+            this.editableActionDataSet,
+            this.cancelDefaultAction);
     NetworkHandlerManager.sendToServer(new SaveInteractionMessage(updatedEntry));
     if (this.onSaveCallback != null) {
       this.onSaveCallback.accept(updatedEntry);
     }
-    closeScreen();
+    this.originalActionDataTag = this.editableActionDataSet.save();
+    this.originalCancelDefaultAction = this.cancelDefaultAction;
+  }
+
+  private void openDiagnosticsModal() {
+    MessageListModal modal =
+        new MessageListModal(
+            this.screenWidth,
+            this.screenHeight,
+            "diagnostics.title",
+            ClientActionDiagnostics.get(this.entry.targetId()),
+            this::closeModal);
+    this.openModal(modal);
+  }
+
+  private void confirmRemoveAction(ActionDataEntry action) {
+    ConfirmModal modal =
+        new ConfirmModal(
+            this.screenWidth,
+            this.screenHeight,
+            "confirm.delete_action.title",
+            "confirm.delete_action.message",
+            this.formatActionSummary(action),
+            "button.delete",
+            () -> {
+              this.editableActionDataSet.remove(action.id());
+              if (this.editingAction != null && this.editingAction.id().equals(action.id())) {
+                this.clearCurrentActionDraft();
+              }
+              this.persistInteraction();
+              this.closeModal();
+              this.refreshWidgets();
+            },
+            this::closeModal);
+    this.openModal(modal);
   }
 
   private void commitPendingCurrentAction() {
-    ActionDataEntry action = createCurrentAction(false);
-    if (action == null || (editingAction != null && actionsEqual(action, editingAction))) {
+    ActionDataEntry action = this.createCurrentAction(false);
+    if (action == null
+        || (this.editingAction != null && this.actionsEqual(action, this.editingAction))) {
       return;
     }
 
-    if (editingAction != null) {
-      editableActionDataSet.replace(action);
+    if (this.editingAction != null) {
+      this.editableActionDataSet.replace(action);
     } else {
-      editableActionDataSet.add(action);
+      this.editableActionDataSet.add(action);
     }
-    clearCurrentActionDraft();
+    this.clearCurrentActionDraft();
   }
 
   private boolean hasUnsavedChanges() {
-    return hasActionDataChanges() || hasPendingCurrentActionChange();
+    return this.hasActionDataChanges()
+        || this.hasPendingCurrentActionChange()
+        || this.cancelDefaultAction != this.originalCancelDefaultAction;
+  }
+
+  private boolean supportsCancelDefault() {
+    return this.entry.eventType() == InteractionEventType.ON_BLOCK_INTERACT
+        || this.entry.eventType() == InteractionEventType.ON_ENTITY_INTERACT;
   }
 
   private boolean hasActionDataChanges() {
-    return !editableActionDataSet.save().equals(originalActionDataTag);
+    return !this.editableActionDataSet.save().equals(this.originalActionDataTag);
   }
 
   private boolean hasPendingCurrentActionChange() {
-    ActionDataEntry action = createCurrentAction(false);
+    ActionDataEntry action = this.createCurrentAction(false);
     if (action == null) {
       return false;
     }
 
-    return editingAction == null || !actionsEqual(action, editingAction);
+    return this.editingAction == null || !this.actionsEqual(action, this.editingAction);
   }
 
   private boolean actionsEqual(ActionDataEntry first, ActionDataEntry second) {
@@ -417,87 +676,156 @@ public class ActionEditorScreen extends BaseScreen {
   }
 
   private void clearCurrentActionDraft() {
-    editingAction = null;
-    editField1Prefill = null;
-    editField2Prefill = null;
-    field1Input = null;
-    field2Input = null;
+    this.editingAction = null;
+    this.editField1Prefill = null;
+    this.editField2Prefill = null;
+    this.field1Control = null;
+    this.field2Control = null;
+    this.draftPriority = 0;
+    this.conditionKind = ConditionEditorSpecs.Kind.NONE;
+    this.conditionField1Prefill = null;
+    this.conditionField2Prefill = null;
+    this.conditionField1Control = null;
+    this.conditionField2Control = null;
+    this.rawUnrecognizedCondition = "";
+    if (this.priorityInput != null) {
+      this.priorityInput.setValue("0");
+    }
   }
 
   private void updateButtonStates() {
-    if (addActionButton != null) {
-      addActionButton.setActive(createCurrentAction(false) != null);
+    if (this.addActionButton != null) {
+      this.addActionButton.setActive(this.createCurrentAction(false) != null);
     }
-    boolean hasUnsavedChanges = hasUnsavedChanges();
-    if (saveButton != null) {
-      saveButton.setActive(hasUnsavedChanges);
+    boolean hasUnsavedChanges = this.hasUnsavedChanges();
+    if (this.saveButton != null) {
+      this.saveButton.setActive(hasUnsavedChanges);
     }
-    if (cancelButton != null) {
-      cancelButton.setActive(hasUnsavedChanges);
+    if (this.cancelButton != null) {
+      this.cancelButton.setActive(hasUnsavedChanges);
     }
   }
 
   @Override
   public void tick() {
     super.tick();
-    updateButtonStates();
+    this.updateButtonStates();
   }
 
   private String formatActionSummary(ActionDataEntry action) {
-    String typeName = formatActionName(action.type());
-    return switch (action.type()) {
-      case OPEN_STORY -> typeName + ": " + action.storyId();
-      case OPEN_INTERACTIVE_STORY -> typeName + ": " + action.storyId();
-      case RUN_COMMAND -> typeName + ": " + action.command();
-      case SET_FACT -> typeName + ": " + action.factId() + " = " + action.factValue();
-      default -> typeName;
-    };
+    String typeName = this.formatActionName(action.type());
+    ActionEditorSpecs.Spec spec = ActionEditorSpecs.get(action.type());
+    String detail = spec != null ? spec.summary().apply(action) : null;
+    String base = detail == null || detail.isBlank() ? typeName : typeName + ": " + detail;
+    return base + this.formatGating(action);
+  }
+
+  private String formatGating(ActionDataEntry action) {
+    StringBuilder extra = new StringBuilder();
+    if (action.priority() != 0) {
+      extra.append("  [P").append(action.priority()).append("]");
+    }
+    if (!action.condition().isBlank()) {
+      extra.append("  [").append(this.conditionSummary(action.condition())).append("]");
+    }
+    return extra.toString();
+  }
+
+  private String conditionSummary(String conditionJson) {
+    ConditionEditorSpecs.Kind kind = ConditionEditorSpecs.kindOf(conditionJson);
+    JsonObject json = ConditionEditorSpecs.parse(conditionJson);
+    ConditionEditorSpecs.Spec spec = ConditionEditorSpecs.get(kind);
+    if (kind == ConditionEditorSpecs.Kind.NONE || spec == null || json == null) {
+      return "if custom";
+    }
+    return "if " + spec.summary().apply(json);
   }
 
   private String formatActionName(ActionType type) {
     StringBuilder builder = new StringBuilder();
     boolean capitalize = true;
-    for (char c : type.name().replace('_', ' ').toCharArray()) {
-      if (c == ' ') {
+    for (char character : type.name().replace('_', ' ').toCharArray()) {
+      if (character == ' ') {
         builder.append(' ');
         capitalize = true;
       } else if (capitalize) {
-        builder.append(Character.toUpperCase(c));
+        builder.append(Character.toUpperCase(character));
         capitalize = false;
       } else {
-        builder.append(Character.toLowerCase(c));
+        builder.append(Character.toLowerCase(character));
       }
     }
     return builder.toString();
   }
 
   private void prefillFromEntry(ActionDataEntry action) {
-    selectedNewType = action.type();
-    switch (action.type()) {
-      case OPEN_STORY -> {
-        editField1Prefill = action.storyId() != null ? action.storyId().toString() : "";
-        editField2Prefill =
-            action.themeOverrideId() != null ? action.themeOverrideId().toString() : "";
-      }
-      case OPEN_INTERACTIVE_STORY ->
-          editField1Prefill = action.storyId() != null ? action.storyId().toString() : "";
-      case RUN_COMMAND -> editField1Prefill = action.command();
-      case SET_FACT -> {
-        editField1Prefill = action.factId() != null ? action.factId().toString() : "";
-        editField2Prefill = action.factValue();
-      }
-      default -> {}
+    this.selectedNewType = action.type();
+    ActionEditorSpecs.Spec spec = ActionEditorSpecs.get(action.type());
+    if (spec != null) {
+      this.editField1Prefill = spec.field1() != null ? spec.read1().apply(action) : null;
+      this.editField2Prefill = spec.field2() != null ? spec.read2().apply(action) : null;
     }
+
+    this.draftPriority = action.priority();
+    String condition = action.condition();
+    this.conditionKind = ConditionEditorSpecs.kindOf(condition);
+    this.rawUnrecognizedCondition =
+        this.conditionKind == ConditionEditorSpecs.Kind.NONE
+                && condition != null
+                && !condition.isBlank()
+            ? condition
+            : "";
+    JsonObject conditionObject = ConditionEditorSpecs.parse(condition);
+    ConditionEditorSpecs.Spec conditionSpec = ConditionEditorSpecs.get(this.conditionKind);
+    this.conditionField1Prefill =
+        conditionSpec != null && conditionSpec.field1() != null && conditionObject != null
+            ? conditionSpec.read1().apply(conditionObject)
+            : null;
+    this.conditionField2Prefill =
+        conditionSpec != null && conditionSpec.field2() != null && conditionObject != null
+            ? conditionSpec.read2().apply(conditionObject)
+            : null;
   }
 
   private void applyPrefills() {
-    if (editField1Prefill != null && field1Input != null) {
-      field1Input.setValue(editField1Prefill);
-      editField1Prefill = null;
+    if (this.editField1Prefill != null && this.field1Control != null) {
+      this.field1Control.setValue(this.editField1Prefill);
+      this.editField1Prefill = null;
     }
-    if (editField2Prefill != null && field2Input != null) {
-      field2Input.setValue(editField2Prefill);
-      editField2Prefill = null;
+    if (this.editField2Prefill != null && this.field2Control != null) {
+      this.field2Control.setValue(this.editField2Prefill);
+      this.editField2Prefill = null;
+    }
+  }
+
+  private interface FieldControl {
+    String getValue();
+
+    void setValue(String value);
+  }
+
+  private record TextFieldControl(TextInput input) implements FieldControl {
+    @Override
+    public String getValue() {
+      return this.input.getValue().trim();
+    }
+
+    @Override
+    public void setValue(String value) {
+      this.input.setValue(value);
+    }
+  }
+
+  private record SelectFieldControl(SelectBox<String> select) implements FieldControl {
+    @Override
+    public String getValue() {
+      String value = this.select.getSelectedValue();
+      return value != null ? value : "";
+    }
+
+    @Override
+    public void setValue(String value) {
+      this.select.selectByValue(value);
     }
   }
 }

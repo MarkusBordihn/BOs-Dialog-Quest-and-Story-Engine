@@ -66,7 +66,7 @@ public final class InteractiveStoryContentParser {
       return ParseResult.failure(issues);
     }
 
-    Optional<String> displayStr =
+    Optional<String> displayString =
         JsonFieldReader.readString(
             jsonObject,
             FIELD_DISPLAY_STORY_ID,
@@ -74,13 +74,13 @@ public final class InteractiveStoryContentParser {
             id,
             filePath,
             issues);
-    if (displayStr.isEmpty()) {
+    if (displayString.isEmpty()) {
       return ParseResult.failure(issues);
     }
 
     ResourceLocation displayId;
     try {
-      displayId = new ResourceLocation(displayStr.get());
+      displayId = new ResourceLocation(displayString.get());
     } catch (ResourceLocationException e) {
       issues.add(
           ContentIssue.of(
@@ -89,7 +89,7 @@ public final class InteractiveStoryContentParser {
               id,
               filePath,
               FIELD_DISPLAY_STORY_ID,
-              Map.of("value", displayStr.get())));
+              Map.of("value", displayString.get())));
       return ParseResult.failure(issues);
     }
 

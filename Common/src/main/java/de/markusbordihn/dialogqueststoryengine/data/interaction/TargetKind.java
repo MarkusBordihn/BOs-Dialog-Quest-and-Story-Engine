@@ -19,6 +19,9 @@
 
 package de.markusbordihn.dialogqueststoryengine.data.interaction;
 
+import de.markusbordihn.dialogqueststoryengine.data.json.EnumKeys;
+import java.util.Locale;
+
 public enum TargetKind {
   ENTITY(0.2f, 1.0f, 0.2f, 0xFF55FF55),
   BLOCK(1.0f, 0.2f, 0.2f, 0xFFFF5555),
@@ -28,6 +31,7 @@ public enum TargetKind {
   private final float green;
   private final float blue;
   private final int labelColor;
+  private final String key = this.name().toLowerCase(Locale.ROOT);
 
   TargetKind(float red, float green, float blue, int labelColor) {
     this.red = red;
@@ -37,30 +41,26 @@ public enum TargetKind {
   }
 
   public static TargetKind fromName(String name) {
-    if (name == null) {
-      return null;
-    }
-    for (TargetKind kind : values()) {
-      if (kind.name().equalsIgnoreCase(name)) {
-        return kind;
-      }
-    }
-    return null;
+    return EnumKeys.byName(TargetKind.class, name).orElse(null);
+  }
+
+  public String key() {
+    return this.key;
   }
 
   public float getRed() {
-    return red;
+    return this.red;
   }
 
   public float getGreen() {
-    return green;
+    return this.green;
   }
 
   public float getBlue() {
-    return blue;
+    return this.blue;
   }
 
   public int getLabelColor() {
-    return labelColor;
+    return this.labelColor;
   }
 }

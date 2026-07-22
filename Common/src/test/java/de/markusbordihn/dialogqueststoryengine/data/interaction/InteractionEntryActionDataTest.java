@@ -36,13 +36,18 @@ class InteractionEntryActionDataTest {
 
   private static final UUID TARGET_ID = UUID.fromString("22222222-2222-2222-2222-222222222222");
   private static final ResourceLocation OVERWORLD = new ResourceLocation("minecraft", "overworld");
-  private static final BlockPos POS = new BlockPos(10, 64, 10);
+  private static final BlockPos POSITION = new BlockPos(10, 64, 10);
 
   @Test
   void forBlockInteractHasEmptyActionDataSetByDefault() {
     InteractionEntry entry =
         InteractionEntry.forBlockInteract(
-            TARGET_ID, POS, TargetKind.BLOCK, InteractionType.OPEN_HOLOPAD, "Holopad", OVERWORLD);
+            TARGET_ID,
+            POSITION,
+            TargetKind.BLOCK,
+            InteractionType.OPEN_HOLOPAD,
+            "Holopad",
+            OVERWORLD);
 
     assertNotNull(entry.actionDataSet());
     assertTrue(entry.actionDataSet().isEmpty());
@@ -55,7 +60,12 @@ class InteractionEntryActionDataTest {
 
     InteractionEntry entry =
         InteractionEntry.forBlockInteract(
-            TARGET_ID, POS, TargetKind.BLOCK, InteractionType.OPEN_HOLOPAD, "Holopad", OVERWORLD);
+            TARGET_ID,
+            POSITION,
+            TargetKind.BLOCK,
+            InteractionType.OPEN_HOLOPAD,
+            "Holopad",
+            OVERWORLD);
     InteractionEntry updated =
         entry.withEdits(InteractionType.OPEN_HOLOPAD, "Updated", actionDataSet);
 
@@ -72,7 +82,7 @@ class InteractionEntryActionDataTest {
     InteractionEntry entry =
         InteractionEntry.forBlockInteract(
                 TARGET_ID,
-                POS,
+                POSITION,
                 TargetKind.BLOCK,
                 InteractionType.OPEN_HOLOPAD,
                 "Holopad",
@@ -91,7 +101,7 @@ class InteractionEntryActionDataTest {
   void nbtRoundTripEmptyActionDataSetOmitsTag() {
     InteractionEntry entry =
         InteractionEntry.forBlockInteract(
-            TARGET_ID, POS, TargetKind.BLOCK, InteractionType.RIGHT_CLICK, "Block", OVERWORLD);
+            TARGET_ID, POSITION, TargetKind.BLOCK, InteractionType.RIGHT_CLICK, "Block", OVERWORLD);
 
     CompoundTag tag = entry.save();
     assertFalse(tag.contains("ActionData"));
@@ -105,7 +115,12 @@ class InteractionEntryActionDataTest {
   void holopadInteractionTypeResolvesToOnHolopadUseEvent() {
     InteractionEntry entry =
         InteractionEntry.forBlockInteract(
-            TARGET_ID, POS, TargetKind.BLOCK, InteractionType.OPEN_HOLOPAD, "Holopad", OVERWORLD);
+            TARGET_ID,
+            POSITION,
+            TargetKind.BLOCK,
+            InteractionType.OPEN_HOLOPAD,
+            "Holopad",
+            OVERWORLD);
 
     assertEquals(InteractionEventType.ON_HOLOPAD_USE, entry.eventType());
   }

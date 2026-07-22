@@ -40,7 +40,8 @@ public record QuestStepContext(
 
   public void progress(int amount) {
     if (this.player instanceof ServerPlayer serverPlayer) {
-      QuestService.progressStep(actionContext(serverPlayer), this.questId, this.step.id(), amount);
+      QuestService.progressStep(
+          this.actionContext(serverPlayer), this.questId, this.step.id(), amount);
     } else {
       QuestService.progressStep(
           this.playerState.playerUuid(), this.questId, this.step.id(), amount);
@@ -50,7 +51,7 @@ public record QuestStepContext(
   public void setProgress(int value) {
     if (this.player instanceof ServerPlayer serverPlayer) {
       QuestService.setStepProgress(
-          actionContext(serverPlayer), this.questId, this.step.id(), value);
+          this.actionContext(serverPlayer), this.questId, this.step.id(), value);
     } else {
       QuestService.setStepProgress(
           this.playerState.playerUuid(), this.questId, this.step.id(), value);

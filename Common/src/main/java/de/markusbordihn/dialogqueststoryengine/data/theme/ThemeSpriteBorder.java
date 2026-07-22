@@ -19,31 +19,29 @@
 
 package de.markusbordihn.dialogqueststoryengine.data.theme;
 
-import de.markusbordihn.dialogqueststoryengine.Constants;
-import java.util.Optional;
-import net.minecraft.resources.ResourceLocation;
+public record ThemeSpriteBorder(int left, int top, int right, int bottom) {
 
-public enum ThemeLayout {
-  DIALOG(new ResourceLocation(Constants.MOD_ID, "dialog")),
-  HOLOPAD(new ResourceLocation(Constants.MOD_ID, "holopad"));
+  public static final ThemeSpriteBorder ZERO = new ThemeSpriteBorder(0, 0, 0, 0);
 
-  private final ResourceLocation id;
-
-  ThemeLayout(ResourceLocation id) {
-    this.id = id;
-  }
-
-  public static Optional<ThemeLayout> fromResourceLocation(ResourceLocation resourceLocation) {
-    for (ThemeLayout layout : values()) {
-      if (layout.id.equals(resourceLocation)) {
-        return Optional.of(layout);
-      }
+  public ThemeSpriteBorder {
+    if (left < 0 || top < 0 || right < 0 || bottom < 0) {
+      throw new IllegalArgumentException(
+          "ThemeSpriteBorder values must be >= 0, got: "
+              + left
+              + ", "
+              + top
+              + ", "
+              + right
+              + ", "
+              + bottom);
     }
-
-    return Optional.empty();
   }
 
-  public ResourceLocation id() {
-    return this.id;
+  public static ThemeSpriteBorder all(int value) {
+    return new ThemeSpriteBorder(value, value, value, value);
+  }
+
+  public boolean isEmpty() {
+    return this.left == 0 && this.top == 0 && this.right == 0 && this.bottom == 0;
   }
 }

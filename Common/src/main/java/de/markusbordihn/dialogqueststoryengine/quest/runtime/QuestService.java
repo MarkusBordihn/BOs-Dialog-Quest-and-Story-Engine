@@ -101,12 +101,13 @@ public final class QuestService {
 
   private static Optional<QuestChangeResult> startQuest(
       PlayerState playerState, ResourceLocation questId, boolean force) {
-    Optional<QuestDefinition> definitionOpt = QuestContentRegistry.get(questId);
-    if (definitionOpt.isEmpty()) {
+    Optional<QuestDefinition> definitionOptional = QuestContentRegistry.get(questId);
+    if (definitionOptional.isEmpty()) {
       log.warn("{} startQuest: quest '{}' is not loaded.", Constants.LOG_PREFIX, questId);
       return Optional.empty();
     }
-    QuestDefinition definition = definitionOpt.get();
+
+    QuestDefinition definition = definitionOptional.get();
 
     QuestProgress existing = playerState.getQuest(questId);
     if (existing != null) {

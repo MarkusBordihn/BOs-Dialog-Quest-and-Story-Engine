@@ -49,9 +49,9 @@ class SetFactActionTest {
   @Test
   void execute_playerScope_setsFactOnPlayerState() {
     PlayerState playerState = new PlayerState(UUID.randomUUID());
-    ActionContext ctx = ActionContext.ofTest(playerState);
+    ActionContext context = ActionContext.ofTest(playerState);
 
-    new SetFactAction(FactScope.PLAYER, "coins", FactValue.of(42L)).execute(ctx);
+    new SetFactAction(FactScope.PLAYER, "coins", FactValue.of(42L)).execute(context);
 
     assertEquals(FactValue.of(42L), playerState.getFact(FactScope.PLAYER, "coins"));
   }
@@ -59,9 +59,9 @@ class SetFactActionTest {
   @Test
   void execute_nonPlayerScope_doesNotSetFact() {
     PlayerState playerState = new PlayerState(UUID.randomUUID());
-    ActionContext ctx = ActionContext.ofTest(playerState);
+    ActionContext context = ActionContext.ofTest(playerState);
 
-    new SetFactAction(FactScope.WORLD, "global_event", FactValue.of(true)).execute(ctx);
+    new SetFactAction(FactScope.WORLD, "global_event", FactValue.of(true)).execute(context);
 
     assertNull(playerState.getFact(FactScope.WORLD, "global_event"));
   }

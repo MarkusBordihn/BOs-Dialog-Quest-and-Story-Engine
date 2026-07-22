@@ -19,6 +19,8 @@
 
 package de.markusbordihn.dialogqueststoryengine.data.state;
 
+import de.markusbordihn.dialogqueststoryengine.data.json.EnumKeys;
+
 public enum FactScope {
   PLAYER,
   WORLD,
@@ -27,11 +29,6 @@ public enum FactScope {
   PROFILE;
 
   public static FactScope fromName(String name) {
-    for (FactScope scope : values()) {
-      if (scope.name().equals(name)) {
-        return scope;
-      }
-    }
-    return null;
+    return EnumKeys.byName(FactScope.class, name).orElse(null);
   }
 }

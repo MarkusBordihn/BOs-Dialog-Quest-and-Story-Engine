@@ -51,7 +51,10 @@ class ShippedSchemaTest {
               "assets/dqse_example/dqse/story_entries/builtin_intro.json"),
           new SchemaFixture(
               "schemas/theme/theme.schema.json",
-              "assets/dqse_example/dqse/themes/builtin_holopad.json"));
+              "assets/dqse_example/dqse/themes/builtin_holopad.json"),
+          new SchemaFixture(
+              "schemas/theme/theme.schema.json",
+              "assets/dqse_example/dqse/themes/portrait_duo_dialog.json"));
 
   private static JsonObject load(String classpathPath) {
     try (InputStream stream =

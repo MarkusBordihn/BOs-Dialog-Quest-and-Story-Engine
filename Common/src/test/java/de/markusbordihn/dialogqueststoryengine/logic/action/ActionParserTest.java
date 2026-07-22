@@ -49,7 +49,8 @@ class ActionParserTest {
   static void registerHandlers() {
     BuiltinActions.register();
     Registries.ACTIONS.register(
-        new ResourceLocation("test", "custom_action"), (json, ct, id, fp, issues) -> Action.NOOP);
+        new ResourceLocation("test", "custom_action"),
+        (json, contentType, id, filePath, issues) -> Action.NOOP);
   }
 
   private static List<ContentIssue> noIssues() {

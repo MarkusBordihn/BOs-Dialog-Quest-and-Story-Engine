@@ -54,6 +54,7 @@ public record GiveItemAction(ResourceLocation itemId, int count) implements Acti
           ContentIssue.of(IssueCode.MISSING_FIELD, contentType, contentId, filePath, "item"));
       return Action.NOOP;
     }
+
     ResourceLocation itemId = ResourceLocation.tryParse(jsonObject.get("item").getAsString());
     if (itemId == null) {
       issues.add(
@@ -85,11 +86,13 @@ public record GiveItemAction(ResourceLocation itemId, int count) implements Acti
     if (actionContext.player() == null) {
       return;
     }
+
     Item item = BuiltInRegistries.ITEM.getOptional(this.itemId).orElse(null);
     if (item == null) {
       log.warn("{} give_item: unknown item '{}' - skipping", Constants.LOG_PREFIX, this.itemId);
       return;
     }
+
     ItemStack stack = new ItemStack(item, this.count);
     if (!actionContext.player().getInventory().add(stack)) {
       actionContext.player().drop(stack, false);

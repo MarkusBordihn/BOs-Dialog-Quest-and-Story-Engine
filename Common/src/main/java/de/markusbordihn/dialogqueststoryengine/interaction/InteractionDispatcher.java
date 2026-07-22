@@ -37,7 +37,7 @@ public final class InteractionDispatcher {
             entry -> {
               InteractionRegistry.dispatch(
                   new InteractionContext(entry, player, player.serverLevel()));
-              return true;
+              return entry.cancelDefaultAction();
             })
         .orElse(false);
   }

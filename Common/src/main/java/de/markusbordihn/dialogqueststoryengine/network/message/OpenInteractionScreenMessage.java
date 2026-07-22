@@ -47,8 +47,8 @@ public record OpenInteractionScreenMessage(UUID targetId, InteractionEventType e
 
   @Override
   public void write(FriendlyByteBuf buffer) {
-    buffer.writeUUID(targetId);
-    buffer.writeEnum(eventType);
+    buffer.writeUUID(this.targetId);
+    buffer.writeEnum(this.eventType);
   }
 
   @Override
@@ -63,12 +63,12 @@ public record OpenInteractionScreenMessage(UUID targetId, InteractionEventType e
       return;
     }
     InteractionEntry match =
-        InteractionSavedData.get(serverPlayer.server).getInteraction(targetId, eventType);
+        InteractionSavedData.get(serverPlayer.server).getInteraction(this.targetId, this.eventType);
     if (match != null) {
       NetworkHandlerManager.sendToPlayer(
           serverPlayer, new InteractionScreenDataMessage(match, false));
     } else {
-      log.warn("No interaction found for target {} with type {}.", targetId, eventType);
+      log.warn("No interaction found for target {} with type {}.", this.targetId, this.eventType);
     }
   }
 }

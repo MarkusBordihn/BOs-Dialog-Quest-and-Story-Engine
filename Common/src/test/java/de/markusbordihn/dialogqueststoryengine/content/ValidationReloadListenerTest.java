@@ -29,6 +29,7 @@ import de.markusbordihn.dialogqueststoryengine.data.issue.IssueCode;
 import de.markusbordihn.dialogqueststoryengine.registry.ContentValidator;
 import de.markusbordihn.dialogqueststoryengine.registry.Registries;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
@@ -87,8 +88,8 @@ class ValidationReloadListenerTest {
     PreparableReloadListener.PreparationBarrier barrier =
         new PreparableReloadListener.PreparationBarrier() {
           @Override
-          public <T> java.util.concurrent.CompletableFuture<T> wait(T value) {
-            return java.util.concurrent.CompletableFuture.completedFuture(value);
+          public <T> CompletableFuture<T> wait(T value) {
+            return CompletableFuture.completedFuture(value);
           }
         };
     PreparableReloadListener listener = new ValidationReloadListener();

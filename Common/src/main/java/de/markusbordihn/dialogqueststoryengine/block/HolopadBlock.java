@@ -68,7 +68,7 @@ public class HolopadBlock extends HorizontalDirectionalBlock {
 
   @Override
   public VoxelShape getShape(
-      BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+      BlockState state, BlockGetter level, BlockPos blockPos, CollisionContext context) {
     return SHAPE;
   }
 
@@ -76,7 +76,7 @@ public class HolopadBlock extends HorizontalDirectionalBlock {
   public InteractionResult use(
       BlockState state,
       Level level,
-      BlockPos pos,
+      BlockPos blockPos,
       Player player,
       InteractionHand hand,
       BlockHitResult hit) {
@@ -87,7 +87,7 @@ public class HolopadBlock extends HorizontalDirectionalBlock {
     boolean dispatched =
         InteractionDispatcher.dispatchFor(
             level.getServer(),
-            BlockUUID.fromBlockPos(level.dimension(), pos),
+            BlockUUID.fromBlockPos(level.dimension(), blockPos),
             InteractionEventType.ON_HOLOPAD_USE,
             (ServerPlayer) player);
 

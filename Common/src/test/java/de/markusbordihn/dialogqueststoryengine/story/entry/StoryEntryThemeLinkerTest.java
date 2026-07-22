@@ -22,19 +22,25 @@ package de.markusbordihn.dialogqueststoryengine.story.entry;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import de.markusbordihn.dialogqueststoryengine.client.screen.theme.BuiltinLayoutScreens;
 import de.markusbordihn.dialogqueststoryengine.data.issue.ContentIssueTracker;
 import de.markusbordihn.dialogqueststoryengine.data.issue.IssueCode;
 import de.markusbordihn.dialogqueststoryengine.data.story.StoryEntry;
 import de.markusbordihn.dialogqueststoryengine.data.story.StoryEntryType;
 import de.markusbordihn.dialogqueststoryengine.data.story.StoryPage;
+import de.markusbordihn.dialogqueststoryengine.data.theme.BuiltinLayouts;
 import de.markusbordihn.dialogqueststoryengine.data.theme.Theme;
+import de.markusbordihn.dialogqueststoryengine.data.theme.ThemeAnchor;
 import de.markusbordihn.dialogqueststoryengine.data.theme.ThemeArea;
-import de.markusbordihn.dialogqueststoryengine.data.theme.ThemeLayout;
-import de.markusbordihn.dialogqueststoryengine.data.theme.ThemeTextAlignment;
+import de.markusbordihn.dialogqueststoryengine.data.theme.ThemeScaleLimits;
+import de.markusbordihn.dialogqueststoryengine.registry.Registries;
+import de.markusbordihn.dialogqueststoryengine.theme.BuiltinThemeProviders;
 import de.markusbordihn.dialogqueststoryengine.theme.ThemeClientRegistry;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import net.minecraft.resources.ResourceLocation;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -44,6 +50,14 @@ class StoryEntryThemeLinkerTest {
   private static final ResourceLocation THEME_ID = new ResourceLocation("test", "theme_a");
   private static final ResourceLocation MISSING_THEME_ID =
       new ResourceLocation("test", "nonexistent_theme");
+
+  @BeforeAll
+  static void registerLayouts() {
+    if (!Registries.THEMES.contains(BuiltinLayouts.HOLOPAD)) {
+      BuiltinThemeProviders.register();
+    }
+    BuiltinLayoutScreens.register();
+  }
 
   private static StoryEntry buildStoryEntry(ResourceLocation id, ResourceLocation themeId) {
     return new StoryEntry(
@@ -61,18 +75,35 @@ class StoryEntryThemeLinkerTest {
         UUID.randomUUID(),
         id,
         1,
-        ThemeLayout.HOLOPAD,
-        new ResourceLocation("test", "textures/frame.png"),
-        new ResourceLocation("test", "textures/background.png"),
-        true,
-        true,
-        new ThemeArea(0, 0, 100, 40),
-        new ThemeArea(0, 40, 100, 12),
-        ThemeTextAlignment.LEFT,
-        new ThemeArea(0, 52, 100, 80),
-        new ThemeArea(0, 132, 100, 40),
-        0,
-        0);
+        BuiltinLayouts.HOLOPAD,
+        320,
+        240,
+        ThemeScaleLimits.DEFAULT,
+        ThemeAnchor.CENTER,
+        Map.of(
+            "text", new ThemeArea(24, 44, 272, 78),
+            "choices", new ThemeArea(60, 128, 200, 62)),
+        Map.of(),
+        Map.of(),
+        Map.of());
+  }
+
+  private static Theme buildDialogTheme(ResourceLocation id) {
+    return new Theme(
+        UUID.randomUUID(),
+        id,
+        1,
+        BuiltinLayouts.DIALOG,
+        427,
+        240,
+        ThemeScaleLimits.DEFAULT,
+        ThemeAnchor.CENTER,
+        Map.of(
+            "text", new ThemeArea(76, 156, 343, 30),
+            "choices", new ThemeArea(16, 190, 395, 40)),
+        Map.of(),
+        Map.of(),
+        Map.of());
   }
 
   @BeforeEach
@@ -123,5 +154,16 @@ class StoryEntryThemeLinkerTest {
 
     assertEquals(
         MISSING_THEME_ID.toString(), ContentIssueTracker.issues().get(0).details().get("theme_id"));
+  }
+
+  @Test
+  void storyReferencingNonStoryLayoutIsFlagged() {
+    ThemeClientRegistry.put(buildDialogTheme(THEME_ID));
+    StoryEntryClientRegistry.put(buildStoryEntry(STORY_ID, THEME_ID));
+
+    StoryEntryThemeLinker.validate();
+
+    assertEquals(1, ContentIssueTracker.issues().size());
+    assertEquals(IssueCode.THEME_LAYOUT_MISMATCH, ContentIssueTracker.issues().get(0).code());
   }
 }

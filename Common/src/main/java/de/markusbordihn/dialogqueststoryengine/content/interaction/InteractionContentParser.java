@@ -144,8 +144,8 @@ public final class InteractionContentParser {
       return null;
     }
 
-    String kindStr = bindingJson.get(FIELD_BINDING_KIND).getAsString();
-    Optional<InteractionBindingKind> kind = InteractionBindingKind.fromKey(kindStr);
+    String kindKey = bindingJson.get(FIELD_BINDING_KIND).getAsString();
+    Optional<InteractionBindingKind> kind = InteractionBindingKind.fromKey(kindKey);
     if (kind.isEmpty()) {
       issues.add(
           ContentIssue.of(
@@ -154,7 +154,7 @@ public final class InteractionContentParser {
               id,
               filePath,
               FIELD_BINDING + "." + FIELD_BINDING_KIND,
-              Map.of("value", kindStr)));
+              Map.of("value", kindKey)));
       return null;
     }
 
@@ -177,27 +177,27 @@ public final class InteractionContentParser {
             id,
             filePath,
             FIELD_BINDING + "." + FIELD_BINDING_KIND,
-            Map.of("value", kindStr, "note", "not yet supported in V1")));
+            Map.of("value", kindKey, "note", "not yet supported in V1")));
 
     return null;
   }
 
   private static InteractionBinding.EntityBinding parseEntityBinding(
       JsonObject bindingJson, ResourceLocation id, String filePath, List<ContentIssue> issues) {
-    Optional<String> targetIdStr =
+    Optional<String> targetIdString =
         JsonFieldReader.readString(
             bindingJson, FIELD_TARGET_ID, ContentType.INTERACTION, id, filePath, issues);
-    Optional<String> dimensionStr =
+    Optional<String> dimensionString =
         JsonFieldReader.readString(
             bindingJson, FIELD_DIMENSION, ContentType.INTERACTION, id, filePath, issues);
 
-    if (targetIdStr.isEmpty() || dimensionStr.isEmpty()) {
+    if (targetIdString.isEmpty() || dimensionString.isEmpty()) {
       return null;
     }
 
     UUID targetId;
     try {
-      targetId = UUID.fromString(targetIdStr.get());
+      targetId = UUID.fromString(targetIdString.get());
     } catch (IllegalArgumentException e) {
       issues.add(
           ContentIssue.of(
@@ -206,13 +206,13 @@ public final class InteractionContentParser {
               id,
               filePath,
               FIELD_BINDING + "." + FIELD_TARGET_ID,
-              Map.of("value", targetIdStr.get())));
+              Map.of("value", targetIdString.get())));
       return null;
     }
 
     ResourceLocation dimension;
     try {
-      dimension = new ResourceLocation(dimensionStr.get());
+      dimension = new ResourceLocation(dimensionString.get());
     } catch (ResourceLocationException e) {
       issues.add(
           ContentIssue.of(
@@ -221,7 +221,7 @@ public final class InteractionContentParser {
               id,
               filePath,
               FIELD_BINDING + "." + FIELD_DIMENSION,
-              Map.of("value", dimensionStr.get())));
+              Map.of("value", dimensionString.get())));
       return null;
     }
 
@@ -230,17 +230,17 @@ public final class InteractionContentParser {
 
   private static InteractionBinding.BlockBinding parseBlockBinding(
       JsonObject bindingJson, ResourceLocation id, String filePath, List<ContentIssue> issues) {
-    Optional<String> dimensionStr =
+    Optional<String> dimensionString =
         JsonFieldReader.readString(
             bindingJson, FIELD_DIMENSION, ContentType.INTERACTION, id, filePath, issues);
 
-    if (dimensionStr.isEmpty()) {
+    if (dimensionString.isEmpty()) {
       return null;
     }
 
     ResourceLocation dimension;
     try {
-      dimension = new ResourceLocation(dimensionStr.get());
+      dimension = new ResourceLocation(dimensionString.get());
     } catch (ResourceLocationException e) {
       issues.add(
           ContentIssue.of(
@@ -249,7 +249,7 @@ public final class InteractionContentParser {
               id,
               filePath,
               FIELD_BINDING + "." + FIELD_DIMENSION,
-              Map.of("value", dimensionStr.get())));
+              Map.of("value", dimensionString.get())));
       return null;
     }
 

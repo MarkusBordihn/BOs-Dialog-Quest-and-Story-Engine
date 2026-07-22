@@ -50,32 +50,32 @@ class QuestStateConditionTest {
   void evaluate_questInExpectedState_returnsTrue() {
     PlayerState playerState = new PlayerState(UUID.randomUUID());
     playerState.getOrCreateQuest(QUEST_ID, QuestState.ACTIVE);
-    ConditionContext ctx = ConditionContext.ofTest(playerState);
+    ConditionContext context = ConditionContext.ofTest(playerState);
 
     QuestStateCondition condition = new QuestStateCondition(QUEST_ID, QuestState.ACTIVE);
-    assertTrue(condition.evaluate(ctx));
+    assertTrue(condition.evaluate(context));
   }
 
   @Test
   void evaluate_questInDifferentState_returnsFalse() {
     PlayerState playerState = new PlayerState(UUID.randomUUID());
     playerState.getOrCreateQuest(QUEST_ID, QuestState.ACTIVE);
-    ConditionContext ctx = ConditionContext.ofTest(playerState);
+    ConditionContext context = ConditionContext.ofTest(playerState);
 
     QuestStateCondition condition = new QuestStateCondition(QUEST_ID, QuestState.COMPLETED);
-    assertFalse(condition.evaluate(ctx));
+    assertFalse(condition.evaluate(context));
   }
 
   @Test
   void evaluate_questMissing_treatedAsNotStarted() {
-    ConditionContext ctx = ConditionContext.ofTest(new PlayerState(UUID.randomUUID()));
+    ConditionContext context = ConditionContext.ofTest(new PlayerState(UUID.randomUUID()));
 
     QuestStateCondition notStartedCondition =
         new QuestStateCondition(QUEST_ID, QuestState.NOT_STARTED);
-    assertTrue(notStartedCondition.evaluate(ctx));
+    assertTrue(notStartedCondition.evaluate(context));
 
     QuestStateCondition activeCondition = new QuestStateCondition(QUEST_ID, QuestState.ACTIVE);
-    assertFalse(activeCondition.evaluate(ctx));
+    assertFalse(activeCondition.evaluate(context));
   }
 
   @Test

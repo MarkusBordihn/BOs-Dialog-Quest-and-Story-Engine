@@ -45,7 +45,7 @@ public class InteractionStore {
   public InteractionStore() {}
 
   public InteractionStore(CompoundTag tag) {
-    load(tag);
+    this.load(tag);
   }
 
   public void register(InteractionEntry entry) {
@@ -53,7 +53,7 @@ public class InteractionStore {
         this.entries.computeIfAbsent(entry.targetId(), targetId -> new ArrayList<>());
     list.removeIf(existing -> existing.eventType().equals(entry.eventType()));
     list.add(entry);
-    invalidateCache();
+    this.invalidateCache();
     log.info("Registered interaction: {}", entry);
   }
 
@@ -67,7 +67,7 @@ public class InteractionStore {
       this.entries.remove(targetId);
     }
     if (removed) {
-      invalidateCache();
+      this.invalidateCache();
       log.info("Unregistered interaction {} for target {}", eventType, targetId);
     }
     return removed;
@@ -79,13 +79,13 @@ public class InteractionStore {
       return 0;
     }
     int count = list.size();
-    invalidateCache();
+    this.invalidateCache();
     log.info("Unregistered all {} interaction(s) for target {}", count, targetId);
     return count;
   }
 
   public boolean hasInteraction(UUID targetId, InteractionEventType eventType) {
-    return getInteraction(targetId, eventType) != null;
+    return this.getInteraction(targetId, eventType) != null;
   }
 
   public InteractionEntry getInteraction(UUID targetId, InteractionEventType eventType) {
@@ -138,7 +138,7 @@ public class InteractionStore {
 
   public void clearAll() {
     this.entries.clear();
-    invalidateCache();
+    this.invalidateCache();
     log.info("Cleared all interaction mappings.");
   }
 
@@ -165,7 +165,7 @@ public class InteractionStore {
         }
       }
     }
-    invalidateCache();
+    this.invalidateCache();
     log.info("Loaded {} interaction mapping(s).", this.totalSize);
   }
 

@@ -33,15 +33,15 @@ public record InteractionScreenDataMessage(InteractionEntry entry, boolean isNew
       ResourceLocation.tryParse(Constants.MOD_ID + ":interaction_screen_data");
 
   public static InteractionScreenDataMessage create(FriendlyByteBuf buffer) {
-    InteractionEntry entry = InteractionEntry.readFromBuf(buffer);
+    InteractionEntry entry = InteractionEntry.readFromBuffer(buffer);
     boolean isNew = buffer.readBoolean();
     return new InteractionScreenDataMessage(entry, isNew);
   }
 
   @Override
   public void write(FriendlyByteBuf buffer) {
-    entry.writeToBuf(buffer);
-    buffer.writeBoolean(isNew);
+    this.entry.writeToBuffer(buffer);
+    buffer.writeBoolean(this.isNew);
   }
 
   @Override
@@ -51,6 +51,6 @@ public record InteractionScreenDataMessage(InteractionEntry entry, boolean isNew
 
   @Override
   public void handleClient() {
-    InteractionConfigScreen.openWithData(entry, isNew);
+    InteractionConfigScreen.openWithData(this.entry, this.isNew);
   }
 }

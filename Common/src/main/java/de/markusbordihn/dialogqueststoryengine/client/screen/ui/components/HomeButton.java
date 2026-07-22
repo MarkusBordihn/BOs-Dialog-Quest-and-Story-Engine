@@ -37,30 +37,41 @@ public class HomeButton extends AbstractButton {
 
   @Override
   public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-    if (!visible) {
+    if (!this.visible) {
       return;
     }
 
     ColorPalette palette = ColorPalette.current();
-    int x = getX();
-    int y = getY();
-    hovered = isMouseOver(mouseX, mouseY);
+    int x = this.getX();
+    int y = this.getY();
+    this.hovered = this.isMouseOver(mouseX, mouseY);
 
-    int bgColor = hovered ? palette.primaryVariant() : palette.surfaceContainer();
-    fillRoundedRect(graphics, x, y, width, height, bgColor);
+    int backgroundColor = this.hovered ? palette.primaryVariant() : palette.surfaceContainer();
+    fillRoundedRect(graphics, x, y, this.width, this.height, backgroundColor);
     drawBorderRounded(
-        graphics, x, y, width, height, hovered ? palette.primary() : palette.outline());
+        graphics,
+        x,
+        y,
+        this.width,
+        this.height,
+        this.hovered ? palette.primary() : palette.outline());
 
     Font font = Minecraft.getInstance().font;
-    int textColor = hovered ? palette.onPrimary() : palette.onSurface();
+    int textColor = this.hovered ? palette.onPrimary() : palette.onSurface();
     ScaledText.drawCentered(
-        graphics, font, HOME_ICON, x + width / 2 + 1, y + 3, textColor, ScaledText.SCALE_NORMAL);
+        graphics,
+        font,
+        HOME_ICON,
+        x + this.width / 2 + 1,
+        y + 3,
+        textColor,
+        ScaledText.SCALE_NORMAL);
   }
 
   @Override
   protected void onPress() {
-    if (onHomeAction != null) {
-      onHomeAction.run();
+    if (this.onHomeAction != null) {
+      this.onHomeAction.run();
     }
   }
 }

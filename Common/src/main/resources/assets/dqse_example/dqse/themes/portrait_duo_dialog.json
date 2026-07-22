@@ -1,0 +1,39 @@
+{
+  "schema": 1,
+  "layout": "dqse:dialog",
+  "logical_width": 427,
+  "logical_height": 240,
+  "anchor": "center",
+  "areas": {
+    "portrait": {"x": 361, "y": 136, "width": 48, "height": 48},
+    "speaker": {"x": 16, "y": 140, "width": 337, "height": 12},
+    "text": {"x": 16, "y": 156, "width": 337, "height": 30},
+    "choices": {"x": 103, "y": 190, "width": 220, "height": 44}
+  },
+  "sprites": {
+    "frame": {
+      "texture": "dialog_quest_and_story_engine:textures/gui/holopad/frame.png",
+      "texture_width": 512,
+      "texture_height": 256,
+      "u": 0,
+      "v": 0,
+      "source_width": 64,
+      "source_height": 64,
+      "scaling": "nine_slice",
+      "border": 8
+    }
+  },
+  "colors": {
+    "accent": "#FFE08A",
+    "on_surface": "#F4F4F8",
+    "on_surface_muted": "#8B97C8"
+  },
+  "options": {
+    "speaker_alignment": "left",
+    "text_alignment": "left",
+    "portrait_side": "right",
+    "button_style": "bracket",
+    "background_mode": "dim",
+    "show_close_button": true
+  }
+}

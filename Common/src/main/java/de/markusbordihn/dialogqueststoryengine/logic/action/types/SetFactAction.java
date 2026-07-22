@@ -31,7 +31,6 @@ import de.markusbordihn.dialogqueststoryengine.data.state.FactValue;
 import de.markusbordihn.dialogqueststoryengine.logic.action.Action;
 import de.markusbordihn.dialogqueststoryengine.logic.action.ActionContext;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import net.minecraft.resources.ResourceLocation;
 import org.apache.logging.log4j.LogManager;
@@ -56,8 +55,7 @@ public record SetFactAction(FactScope scope, String fact, FactValue value) imple
       return Action.NOOP;
     }
 
-    FactScope scope =
-        FactScope.fromName(jsonObject.get("scope").getAsString().toUpperCase(Locale.ROOT));
+    FactScope scope = FactScope.fromName(jsonObject.get("scope").getAsString());
     if (scope == null) {
       issues.add(
           ContentIssue.of(

@@ -36,7 +36,7 @@ import net.minecraft.network.chat.Component;
 public class ThemeOverviewScreen extends BaseScreen {
 
   public ThemeOverviewScreen(List<BreadcrumbBar.Segment> ancestors) {
-    setBreadcrumb(ancestors, "Themes");
+    this.setBreadcrumb(ancestors, "Themes");
   }
 
   public static void open(List<BreadcrumbBar.Segment> ancestors) {
@@ -55,22 +55,24 @@ public class ThemeOverviewScreen extends BaseScreen {
 
   @Override
   public void onScreenInit(int screenWidth, int screenHeight) {
-    setSizeCentered(400, 260);
-    refreshWidgets();
+    this.setSizeCentered(400, 260);
+    this.refreshWidgets();
   }
 
   @Override
   protected void addWidgets() {
-    ColumnListPanel<Theme> table = new ColumnListPanel<>(0, 0, getInnerWidth(), getInnerHeight());
+    ColumnListPanel<Theme> table =
+        new ColumnListPanel<>(0, 0, this.getInnerWidth(), this.getInnerHeight());
     table.addColumn("column.id", 0.75f);
     table.addColumn("column.layout", 0.25f);
     table.setEntryHeight(20);
     table.setEntryRenderer(this::renderEntry);
+    table.setSearchable(theme -> theme.id() + " " + theme.layoutId());
     table.setItems(
         ThemeClientRegistry.ids().stream()
             .map(id -> ThemeClientRegistry.get(id).orElseThrow())
             .toList());
-    addWidget(table);
+    this.addWidget(table);
   }
 
   private void renderEntry(
@@ -96,7 +98,7 @@ public class ThemeOverviewScreen extends BaseScreen {
     ScaledText.draw(
         graphics,
         font,
-        theme.layout().name(),
+        theme.layoutId().getPath(),
         x + columnOffsets[1],
         y + 3,
         palette.onSurfaceLow(),

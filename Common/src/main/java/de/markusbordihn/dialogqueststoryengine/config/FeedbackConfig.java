@@ -1,0 +1,59 @@
+/*
+ * Copyright 2025 Markus Bordihn
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+
+package de.markusbordihn.dialogqueststoryengine.config;
+
+import java.nio.file.Path;
+import java.util.Properties;
+
+public final class FeedbackConfig extends Config {
+
+  private static final String CONFIG_FILE = "dialog_quest_and_story_engine-feedback.properties";
+  private static final String CONFIG_HEADER =
+      """
+      Dialog, Quest and Story Engine - Feedback Configuration
+
+      quest_chat_feedback: When true, quest starts, step progress, completion and failure are
+        announced to the player in chat. (default: true)
+      """;
+  private static final String KEY_QUEST_CHAT_FEEDBACK = "quest_chat_feedback";
+  private static final boolean DEFAULT_QUEST_CHAT_FEEDBACK = true;
+
+  private static volatile boolean questChatFeedback = DEFAULT_QUEST_CHAT_FEEDBACK;
+
+  private FeedbackConfig() {}
+
+  public static void load(Path configDirectory) {
+    Path configFile = configDirectory.resolve(CONFIG_FILE);
+    Properties properties = readConfigFile(configFile);
+    Properties unmodifiedProperties = (Properties) properties.clone();
+
+    configure(parseConfigValue(properties, KEY_QUEST_CHAT_FEEDBACK, DEFAULT_QUEST_CHAT_FEEDBACK));
+
+    updateConfigFileIfChanged(configFile, CONFIG_HEADER, properties, unmodifiedProperties);
+  }
+
+  public static void configure(boolean questChatFeedback) {
+    FeedbackConfig.questChatFeedback = questChatFeedback;
+  }
+
+  public static boolean isQuestChatFeedback() {
+    return questChatFeedback;
+  }
+}

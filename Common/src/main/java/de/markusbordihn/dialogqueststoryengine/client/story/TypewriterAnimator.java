@@ -25,30 +25,31 @@ import java.util.List;
 
 public class TypewriterAnimator {
 
-  public static final int DEFAULT_CHARS_PER_TICK = 2;
+  public static final int DEFAULT_CHARACTERS_PER_TICK = 2;
 
-  private final int charsPerTick;
+  private final int charactersPerTick;
   private List<String> lines = List.of();
   private int lineIndex;
-  private int charIndex;
+  private int characterIndex;
   private PlaybackState state = PlaybackState.IDLE;
 
   public TypewriterAnimator() {
-    this.charsPerTick = DEFAULT_CHARS_PER_TICK;
+    this.charactersPerTick = DEFAULT_CHARACTERS_PER_TICK;
   }
 
-  public TypewriterAnimator(int charsPerTick) {
-    if (charsPerTick < 1) {
-      throw new IllegalArgumentException("charsPerTick must be >= 1, got: " + charsPerTick);
+  public TypewriterAnimator(int charactersPerTick) {
+    if (charactersPerTick < 1) {
+      throw new IllegalArgumentException(
+          "charactersPerTick must be >= 1, got: " + charactersPerTick);
     }
 
-    this.charsPerTick = charsPerTick;
+    this.charactersPerTick = charactersPerTick;
   }
 
   public void start(List<String> inputLines) {
     this.lines = List.copyOf(inputLines);
     this.lineIndex = 0;
-    this.charIndex = 0;
+    this.characterIndex = 0;
     this.state = this.lines.isEmpty() ? PlaybackState.COMPLETE : PlaybackState.PLAYING;
     advancePastEmptyLines();
   }
@@ -58,15 +59,15 @@ public class TypewriterAnimator {
       return;
     }
 
-    int remaining = this.charsPerTick;
+    int remaining = this.charactersPerTick;
     while (remaining > 0 && this.state == PlaybackState.PLAYING) {
       String currentLine = this.lines.get(this.lineIndex);
-      int availableInLine = currentLine.length() - this.charIndex;
+      int availableInLine = currentLine.length() - this.characterIndex;
 
       if (availableInLine <= remaining) {
         remaining -= availableInLine;
         this.lineIndex++;
-        this.charIndex = 0;
+        this.characterIndex = 0;
 
         if (this.lineIndex >= this.lines.size()) {
           this.state = PlaybackState.COMPLETE;
@@ -75,7 +76,7 @@ public class TypewriterAnimator {
 
         advancePastEmptyLines();
       } else {
-        this.charIndex += remaining;
+        this.characterIndex += remaining;
         remaining = 0;
       }
     }
@@ -83,7 +84,7 @@ public class TypewriterAnimator {
 
   public void skip() {
     this.lineIndex = this.lines.size();
-    this.charIndex = 0;
+    this.characterIndex = 0;
     this.state = this.lines.isEmpty() ? PlaybackState.IDLE : PlaybackState.COMPLETE;
   }
 
@@ -108,7 +109,7 @@ public class TypewriterAnimator {
       return "";
     }
 
-    return this.lines.get(this.lineIndex).substring(0, this.charIndex);
+    return this.lines.get(this.lineIndex).substring(0, this.characterIndex);
   }
 
   public boolean isComplete() {

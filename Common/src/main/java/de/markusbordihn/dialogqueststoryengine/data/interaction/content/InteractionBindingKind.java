@@ -19,7 +19,7 @@
 
 package de.markusbordihn.dialogqueststoryengine.data.interaction.content;
 
-import java.util.Locale;
+import de.markusbordihn.dialogqueststoryengine.data.json.EnumKeys;
 import java.util.Optional;
 
 public enum InteractionBindingKind {
@@ -32,14 +32,6 @@ public enum InteractionBindingKind {
   UNBOUND;
 
   public static Optional<InteractionBindingKind> fromKey(String key) {
-    if (key == null) {
-      return Optional.empty();
-    }
-
-    try {
-      return Optional.of(valueOf(key.toUpperCase(Locale.ROOT)));
-    } catch (IllegalArgumentException e) {
-      return Optional.empty();
-    }
+    return EnumKeys.byName(InteractionBindingKind.class, key);
   }
 }

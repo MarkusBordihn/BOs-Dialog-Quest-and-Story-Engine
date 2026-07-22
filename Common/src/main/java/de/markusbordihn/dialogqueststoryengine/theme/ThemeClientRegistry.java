@@ -21,6 +21,7 @@ package de.markusbordihn.dialogqueststoryengine.theme;
 
 import de.markusbordihn.dialogqueststoryengine.Constants;
 import de.markusbordihn.dialogqueststoryengine.data.theme.Theme;
+import de.markusbordihn.dialogqueststoryengine.theme.provider.BuiltinFallbackThemes;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -31,9 +32,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public final class ThemeClientRegistry {
-
-  public static final ResourceLocation DEFAULT_THEME_ID =
-      new ResourceLocation(Constants.MOD_ID, "default_holopad");
 
   private static final Logger log = LogManager.getLogger(Constants.LOG_NAME);
   private static final Map<ResourceLocation, Theme> entries = new LinkedHashMap<>();
@@ -53,8 +51,10 @@ public final class ThemeClientRegistry {
     return Optional.ofNullable(entries.get(id));
   }
 
-  public static Optional<Theme> getOrDefault(ResourceLocation id) {
-    return get(id).or(() -> get(DEFAULT_THEME_ID));
+  public static Theme resolve(ResourceLocation id, ResourceLocation expectedLayoutId) {
+    return get(id)
+        .filter(theme -> theme.layoutId().equals(expectedLayoutId))
+        .orElseGet(() -> BuiltinFallbackThemes.forLayout(expectedLayoutId));
   }
 
   public static boolean contains(ResourceLocation id) {

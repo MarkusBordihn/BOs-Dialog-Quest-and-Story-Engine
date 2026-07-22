@@ -124,7 +124,7 @@ class QuestDisplayCatalogTest {
     quests.put(QUEST_B, questB());
     QuestTestFixtures.installDefinitions(quests);
     PlayerStateService.onPlayerDataLoaded(PLAYER, new CompoundTag());
-    playerState = PlayerStateService.get(PLAYER).orElseThrow();
+    this.playerState = PlayerStateService.get(PLAYER).orElseThrow();
   }
 
   @AfterEach
@@ -140,7 +140,7 @@ class QuestDisplayCatalogTest {
     QuestService.startQuest(PLAYER, QUEST_A);
 
     QuestDisplayCatalogEntry entry =
-        QuestDisplayCatalogService.buildEntry(null, playerState, definition(QUEST_A));
+        QuestDisplayCatalogService.buildEntry(null, this.playerState, definition(QUEST_A));
 
     assertEquals("quest_category.test.category", entry.categoryKey());
     assertEquals("quest.test.quest_a.step.step_a", entry.steps().get(0).descriptionKey());
@@ -152,13 +152,13 @@ class QuestDisplayCatalogTest {
     QuestService.startQuest(PLAYER, QUEST_A);
 
     QuestDisplayCatalogEntry locked =
-        QuestDisplayCatalogService.buildEntry(null, playerState, definition(QUEST_B));
+        QuestDisplayCatalogService.buildEntry(null, this.playerState, definition(QUEST_B));
     assertEquals(List.of(QUEST_A), locked.visiblePrerequisiteIds());
     assertEquals(QuestAvailability.LOCKED, locked.derivedAvailability());
 
     QuestService.completeQuest(PLAYER, QUEST_A);
     QuestDisplayCatalogEntry available =
-        QuestDisplayCatalogService.buildEntry(null, playerState, definition(QUEST_B));
+        QuestDisplayCatalogService.buildEntry(null, this.playerState, definition(QUEST_B));
     assertEquals(QuestAvailability.AVAILABLE, available.derivedAvailability());
   }
 
@@ -166,7 +166,7 @@ class QuestDisplayCatalogTest {
   void catalogEntryRoundTripsThroughBuffer() {
     QuestService.startQuest(PLAYER, QUEST_A);
     QuestDisplayCatalogEntry original =
-        QuestDisplayCatalogService.buildEntry(null, playerState, definition(QUEST_B));
+        QuestDisplayCatalogService.buildEntry(null, this.playerState, definition(QUEST_B));
 
     FriendlyByteBuf buffer = new FriendlyByteBuf(Unpooled.buffer());
     original.write(buffer);

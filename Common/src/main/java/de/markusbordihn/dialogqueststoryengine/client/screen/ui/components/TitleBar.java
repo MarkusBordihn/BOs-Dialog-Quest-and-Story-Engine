@@ -31,48 +31,48 @@ public class TitleBar extends Widget {
   public static final int HEIGHT = 16;
 
   private final Supplier<String> titleGetter;
-  private final CloseButton closeBtn;
+  private final CloseButton closeButton;
 
   public TitleBar(int posX, int posY, int width, Supplier<String> titleGetter, Runnable onClose) {
     super(posX, posY, width, HEIGHT);
     this.titleGetter = titleGetter;
-    this.closeBtn = new CloseButton(0, 0, onClose);
+    this.closeButton = new CloseButton(0, 0, onClose);
   }
 
   @Override
   public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-    if (!visible) {
+    if (!this.visible) {
       return;
     }
 
     ColorPalette palette = ColorPalette.current();
-    int x = getX();
-    int y = getY();
+    int x = this.getX();
+    int y = this.getY();
 
-    graphics.fill(x + 1, y + 1, x + width - 1, y + HEIGHT, palette.titleBar());
-    graphics.fill(x + 1, y + HEIGHT, x + width - 1, y + HEIGHT + 1, palette.outline());
+    graphics.fill(x + 1, y + 1, x + this.width - 1, y + HEIGHT, palette.titleBar());
+    graphics.fill(x + 1, y + HEIGHT, x + this.width - 1, y + HEIGHT + 1, palette.outline());
 
     Font font = Minecraft.getInstance().font;
     ScaledText.draw(
         graphics,
         font,
-        titleGetter.get(),
+        this.titleGetter.get(),
         x + 6,
         y + 4,
         palette.onTitleBar(),
         ScaledText.SCALE_SMALL);
 
-    closeBtn.setPosition(x + width - 15, y + 2);
-    closeBtn.render(graphics, mouseX, mouseY, partialTick);
+    this.closeButton.setPosition(x + this.width - 15, y + 2);
+    this.closeButton.render(graphics, mouseX, mouseY, partialTick);
   }
 
   @Override
   public boolean mouseClicked(double mouseX, double mouseY, int button) {
-    return closeBtn.mouseClicked(mouseX, mouseY, button);
+    return this.closeButton.mouseClicked(mouseX, mouseY, button);
   }
 
   @Override
   public boolean mouseReleased(double mouseX, double mouseY, int button) {
-    return closeBtn.mouseReleased(mouseX, mouseY, button);
+    return this.closeButton.mouseReleased(mouseX, mouseY, button);
   }
 }

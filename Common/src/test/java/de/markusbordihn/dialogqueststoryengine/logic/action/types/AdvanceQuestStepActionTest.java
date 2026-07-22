@@ -41,9 +41,9 @@ class AdvanceQuestStepActionTest {
     PlayerState playerState = new PlayerState(UUID.randomUUID());
     QuestProgress questProgress = playerState.getOrCreateQuest(QUEST_ID, QuestState.ACTIVE);
     questProgress.putStep(STEP_ID, StepProgress.active(5));
-    ActionContext ctx = ActionContext.ofTest(playerState);
+    ActionContext context = ActionContext.ofTest(playerState);
 
-    new AdvanceQuestStepAction(QUEST_ID, STEP_ID, 2).execute(ctx);
+    new AdvanceQuestStepAction(QUEST_ID, STEP_ID, 2).execute(context);
 
     assertEquals(2, questProgress.steps().get(STEP_ID).progress());
     assertEquals(StepState.ACTIVE, questProgress.steps().get(STEP_ID).state());
@@ -54,9 +54,9 @@ class AdvanceQuestStepActionTest {
     PlayerState playerState = new PlayerState(UUID.randomUUID());
     QuestProgress questProgress = playerState.getOrCreateQuest(QUEST_ID, QuestState.ACTIVE);
     questProgress.putStep(STEP_ID, StepProgress.active(3));
-    ActionContext ctx = ActionContext.ofTest(playerState);
+    ActionContext context = ActionContext.ofTest(playerState);
 
-    new AdvanceQuestStepAction(QUEST_ID, STEP_ID, 3).execute(ctx);
+    new AdvanceQuestStepAction(QUEST_ID, STEP_ID, 3).execute(context);
 
     assertEquals(StepState.COMPLETED, questProgress.steps().get(STEP_ID).state());
   }
@@ -66,9 +66,9 @@ class AdvanceQuestStepActionTest {
     PlayerState playerState = new PlayerState(UUID.randomUUID());
     QuestProgress questProgress = playerState.getOrCreateQuest(QUEST_ID, QuestState.ACTIVE);
     questProgress.putStep(STEP_ID, new StepProgress(StepState.LOCKED, 0, 3));
-    ActionContext ctx = ActionContext.ofTest(playerState);
+    ActionContext context = ActionContext.ofTest(playerState);
 
-    new AdvanceQuestStepAction(QUEST_ID, STEP_ID, 1).execute(ctx);
+    new AdvanceQuestStepAction(QUEST_ID, STEP_ID, 1).execute(context);
 
     assertEquals(StepState.LOCKED, questProgress.steps().get(STEP_ID).state());
     assertEquals(0, questProgress.steps().get(STEP_ID).progress());
@@ -79,9 +79,9 @@ class AdvanceQuestStepActionTest {
     PlayerState playerState = new PlayerState(UUID.randomUUID());
     QuestProgress questProgress = playerState.getOrCreateQuest(QUEST_ID, QuestState.ACTIVE);
     questProgress.putStep(STEP_ID, StepProgress.active(0));
-    ActionContext ctx = ActionContext.ofTest(playerState);
+    ActionContext context = ActionContext.ofTest(playerState);
 
-    new AdvanceQuestStepAction(QUEST_ID, STEP_ID, 1).execute(ctx);
+    new AdvanceQuestStepAction(QUEST_ID, STEP_ID, 1).execute(context);
 
     assertEquals(StepState.COMPLETED, questProgress.steps().get(STEP_ID).state());
   }
@@ -89,17 +89,17 @@ class AdvanceQuestStepActionTest {
   @Test
   void execute_questNotInPlayerState_doesNotCrash() {
     PlayerState playerState = new PlayerState(UUID.randomUUID());
-    ActionContext ctx = ActionContext.ofTest(playerState);
+    ActionContext context = ActionContext.ofTest(playerState);
 
-    new AdvanceQuestStepAction(QUEST_ID, STEP_ID, 1).execute(ctx);
+    new AdvanceQuestStepAction(QUEST_ID, STEP_ID, 1).execute(context);
   }
 
   @Test
   void execute_stepNotInQuest_doesNotCrash() {
     PlayerState playerState = new PlayerState(UUID.randomUUID());
     playerState.getOrCreateQuest(QUEST_ID, QuestState.ACTIVE);
-    ActionContext ctx = ActionContext.ofTest(playerState);
+    ActionContext context = ActionContext.ofTest(playerState);
 
-    new AdvanceQuestStepAction(QUEST_ID, "nonexistent_step", 1).execute(ctx);
+    new AdvanceQuestStepAction(QUEST_ID, "nonexistent_step", 1).execute(context);
   }
 }

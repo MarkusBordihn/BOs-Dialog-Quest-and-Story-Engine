@@ -29,7 +29,6 @@ import de.markusbordihn.dialogqueststoryengine.logic.condition.Condition;
 import de.markusbordihn.dialogqueststoryengine.logic.condition.ConditionContext;
 import de.markusbordihn.dialogqueststoryengine.state.QuestProgress;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import net.minecraft.resources.ResourceLocation;
 
@@ -68,8 +67,7 @@ public record QuestStateCondition(ResourceLocation questId, QuestState expectedS
       return Condition.NEVER;
     }
 
-    String stateString = json.get("state").getAsString().toUpperCase(Locale.ROOT);
-    QuestState expectedState = QuestState.fromName(stateString);
+    QuestState expectedState = QuestState.fromName(json.get("state").getAsString());
     if (expectedState == null) {
       issues.add(
           ContentIssue.of(

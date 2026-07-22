@@ -46,8 +46,8 @@ public class MainScreen extends BaseScreen {
   };
 
   public MainScreen() {
-    setBreadcrumb(List.of(), "Home");
-    setScreenType(ScreenType.MAIN);
+    this.setBreadcrumb(List.of(), "Home");
+    this.setScreenType(ScreenType.MAIN);
   }
 
   public static void open() {
@@ -66,34 +66,36 @@ public class MainScreen extends BaseScreen {
 
   @Override
   public void onScreenInit(int screenWidth, int screenHeight) {
-    setSizeCentered(480, 360);
-    refreshWidgets();
+    this.setSizeCentered(480, 360);
+    this.refreshWidgets();
   }
 
   @Override
   protected void addWidgets() {
-    int innerWidth = getInnerWidth();
+    int innerWidth = this.getInnerWidth();
     int row = 0;
 
-    addWidget(new Label(0, row + 2, SUBTITLE, 0, ScaledText.SCALE_SMALL, Label.Alignment.LEFT));
+    this.addWidget(
+        new Label(0, row + 2, SUBTITLE, 0, ScaledText.SCALE_SMALL, Label.Alignment.LEFT));
     row += 16;
 
     int rowGap = 6;
     int maxRows = (int) Math.ceil(SECTIONS.length / 2.0);
-    int tileHeight = Math.min(40, (getInnerHeight() - row - (maxRows - 1) * rowGap) / maxRows);
+    int tileHeight = Math.min(40, (this.getInnerHeight() - row - (maxRows - 1) * rowGap) / maxRows);
     GridLayout grid = GridLayout.of(0, row, innerWidth, 2, 8, rowGap);
 
     for (int i = 0; i < SECTIONS.length; i++) {
-      int col = i % 2;
+      int column = i % 2;
       int gridRow = i / 2;
       String sectionLabel = SECTIONS[i][0];
       TextButton tile =
-          new TextButton(0, 0, 0, tileHeight, sectionLabel, btn -> openSection(sectionLabel));
-      grid.fill(tile, col, gridRow, tileHeight);
-      addWidget(tile);
-      addWidget(
+          new TextButton(
+              0, 0, 0, tileHeight, sectionLabel, button -> this.openSection(sectionLabel));
+      grid.fill(tile, column, gridRow, tileHeight);
+      this.addWidget(tile);
+      this.addWidget(
           new Label(
-              grid.getX(col) + 4,
+              grid.getX(column) + 4,
               grid.getY(gridRow, tileHeight) + tileHeight - 12,
               SECTIONS[i][1],
               0,
@@ -103,7 +105,7 @@ public class MainScreen extends BaseScreen {
   }
 
   private void openSection(String section) {
-    List<BreadcrumbBar.Segment> ancestors = buildChildAncestors("Home");
+    List<BreadcrumbBar.Segment> ancestors = this.buildChildAncestors("Home");
     switch (section) {
       case "Interactions" -> new InteractionOverviewScreen(ancestors).openScreen();
       case "Dialogs" -> new DialogOverviewScreen(ancestors).openScreen();

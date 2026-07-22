@@ -36,7 +36,7 @@ import net.minecraft.network.chat.Component;
 public class DialogOverviewScreen extends BaseScreen {
 
   public DialogOverviewScreen(List<BreadcrumbBar.Segment> ancestors) {
-    setBreadcrumb(ancestors, "Dialogs");
+    this.setBreadcrumb(ancestors, "Dialogs");
   }
 
   public static void open(List<BreadcrumbBar.Segment> ancestors) {
@@ -55,24 +55,27 @@ public class DialogOverviewScreen extends BaseScreen {
 
   @Override
   public void onScreenInit(int screenWidth, int screenHeight) {
-    setSizeCentered(400, 260);
-    refreshWidgets();
+    this.setSizeCentered(400, 260);
+    this.refreshWidgets();
   }
 
   @Override
   protected void addWidgets() {
     ColumnListPanel<DialogDefinition> table =
-        new ColumnListPanel<>(0, 0, getInnerWidth(), getInnerHeight());
+        new ColumnListPanel<>(0, 0, this.getInnerWidth(), this.getInnerHeight());
     table.addColumn("column.id", 0.5f);
     table.addColumn("column.start_node", 0.3f);
     table.addColumn("column.nodes", 0.2f);
     table.setEntryHeight(20);
     table.setEntryRenderer(this::renderEntry);
+    table.setOnSelect(
+        definition -> ClientCommandSender.send("dqse dialog open " + definition.id()));
+    table.setSearchable(definition -> definition.id() + " " + definition.startNode());
     table.setItems(
         DialogClientRegistry.ids().stream()
             .map(id -> DialogClientRegistry.get(id).orElseThrow())
             .toList());
-    addWidget(table);
+    this.addWidget(table);
   }
 
   private void renderEntry(

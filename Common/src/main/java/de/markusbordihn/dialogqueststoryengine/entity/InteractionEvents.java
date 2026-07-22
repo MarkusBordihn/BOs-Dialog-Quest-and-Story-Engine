@@ -78,10 +78,10 @@ public final class InteractionEvents {
     lastPlayerBlockLocations.clear();
   }
 
-  public static void handleRightClickEntity(Player player, Entity target) {
+  public static boolean handleRightClickEntity(Player player, Entity target) {
     if (player.level().isClientSide()
         || player.getMainHandItem().getItem() instanceof InteractionWandItem) {
-      return;
+      return false;
     }
 
     QuestStepEvents.handleEntityInteract(player, target);
@@ -92,32 +92,32 @@ public final class InteractionEvents {
     if (BindManager.isBinding(player)) {
       handleBind(
           serverPlayer, targetId, TargetKind.ENTITY, null, target.level().dimension().location());
-      return;
+      return false;
     }
-    InteractionDispatcher.dispatchFor(
+    return InteractionDispatcher.dispatchFor(
         serverPlayer.server, targetId, InteractionEventType.ON_ENTITY_INTERACT, serverPlayer);
   }
 
-  public static void handleRightClickBlock(Player player, BlockPos pos, Level level) {
+  public static boolean handleRightClickBlock(Player player, BlockPos blockPos, Level level) {
     if (level.isClientSide() || player.getMainHandItem().getItem() instanceof InteractionWandItem) {
-      return;
+      return false;
     }
 
     ServerPlayer serverPlayer = (ServerPlayer) player;
-    UUID targetId = BlockUUID.fromBlockPos(level.dimension(), pos);
+    UUID targetId = BlockUUID.fromBlockPos(level.dimension(), blockPos);
 
     if (BindManager.isBinding(player)) {
       TargetKind kind =
-          level.getBlockEntity(pos) != null ? TargetKind.BLOCK_ENTITY : TargetKind.BLOCK;
-      handleBind(serverPlayer, targetId, kind, pos, level.dimension().location());
-      return;
+          level.getBlockEntity(blockPos) != null ? TargetKind.BLOCK_ENTITY : TargetKind.BLOCK;
+      handleBind(serverPlayer, targetId, kind, blockPos, level.dimension().location());
+      return false;
     }
 
-    InteractionDispatcher.dispatchFor(
+    return InteractionDispatcher.dispatchFor(
         serverPlayer.server, targetId, InteractionEventType.ON_BLOCK_INTERACT, serverPlayer);
   }
 
-  public static void handleStepOnBlock(Entity entity, BlockPos pos, Level level) {
+  public static void handleStepOnBlock(Entity entity, BlockPos blockPos, Level level) {
     if (level.isClientSide() || !(entity instanceof Player player)) {
       return;
     }
@@ -125,7 +125,7 @@ public final class InteractionEvents {
     ServerPlayer serverPlayer = (ServerPlayer) player;
     InteractionDispatcher.dispatchFor(
         serverPlayer.server,
-        BlockUUID.fromBlockPos(level.dimension(), pos),
+        BlockUUID.fromBlockPos(level.dimension(), blockPos),
         InteractionEventType.ON_STEP_ON,
         serverPlayer);
   }
@@ -149,7 +149,7 @@ public final class InteractionEvents {
                             + eventType.resourceLocation().getPath()
                             + " trigger from "
                             + targetKind
-                            + locationStr(blockPos)
+                            + locationString(blockPos)
                             + ".")
                     .withStyle(ChatFormatting.YELLOW)
                 : Component.literal(
@@ -157,7 +157,7 @@ public final class InteractionEvents {
                             + eventType.resourceLocation().getPath()
                             + " trigger found on "
                             + targetKind
-                            + locationStr(blockPos)
+                            + locationString(blockPos)
                             + ".")
                     .withStyle(ChatFormatting.RED));
       } else {
@@ -169,11 +169,11 @@ public final class InteractionEvents {
                             + count
                             + " trigger(s) from "
                             + targetKind
-                            + locationStr(blockPos)
+                            + locationString(blockPos)
                             + ".")
                     .withStyle(ChatFormatting.YELLOW)
                 : Component.literal(
-                        "No INTERACTIONS found on " + targetKind + locationStr(blockPos) + ".")
+                        "No INTERACTIONS found on " + targetKind + locationString(blockPos) + ".")
                     .withStyle(ChatFormatting.RED));
       }
     } else {
@@ -197,7 +197,7 @@ public final class InteractionEvents {
                       + bindContext.label()
                       + "' on "
                       + targetKind
-                      + locationStr(blockPos)
+                      + locationString(blockPos)
                       + ".")
               .withStyle(ChatFormatting.GREEN));
       log.info("Player {} registered trigger: {}", player.getName().getString(), entry);
@@ -219,7 +219,7 @@ public final class InteractionEvents {
         : InteractionEventType.ON_BLOCK_INTERACT;
   }
 
-  private static String locationStr(BlockPos blockPos) {
+  private static String locationString(BlockPos blockPos) {
     return blockPos != null ? " at " + blockPos.toShortString() : "";
   }
 

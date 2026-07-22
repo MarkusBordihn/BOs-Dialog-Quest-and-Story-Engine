@@ -37,7 +37,7 @@ import net.minecraft.network.chat.Component;
 public class StoryOverviewScreen extends BaseScreen {
 
   public StoryOverviewScreen(List<BreadcrumbBar.Segment> ancestors) {
-    setBreadcrumb(ancestors, "Stories");
+    this.setBreadcrumb(ancestors, "Stories");
   }
 
   public static void open(List<BreadcrumbBar.Segment> ancestors) {
@@ -56,24 +56,25 @@ public class StoryOverviewScreen extends BaseScreen {
 
   @Override
   public void onScreenInit(int screenWidth, int screenHeight) {
-    setSizeCentered(400, 260);
-    refreshWidgets();
+    this.setSizeCentered(400, 260);
+    this.refreshWidgets();
   }
 
   @Override
   protected void addWidgets() {
     ColumnListPanel<StoryEntry> table =
-        new ColumnListPanel<>(0, 0, getInnerWidth(), getInnerHeight());
+        new ColumnListPanel<>(0, 0, this.getInnerWidth(), this.getInnerHeight());
     table.addColumn("column.id", 0.75f);
     table.addColumn("column.type", 0.25f);
     table.setEntryHeight(20);
     table.setEntryRenderer(this::renderEntry);
     table.setOnSelect(entry -> ClientStoryOpener.open(entry.id()));
+    table.setSearchable(entry -> entry.id() + " " + entry.type().name());
     table.setItems(
         StoryEntryClientRegistry.ids().stream()
             .map(id -> StoryEntryClientRegistry.get(id).orElseThrow())
             .toList());
-    addWidget(table);
+    this.addWidget(table);
   }
 
   private void renderEntry(

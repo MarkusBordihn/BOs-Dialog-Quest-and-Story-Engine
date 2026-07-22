@@ -19,6 +19,8 @@
 
 package de.markusbordihn.dialogqueststoryengine.data.quest;
 
+import de.markusbordihn.dialogqueststoryengine.data.json.EnumKeys;
+
 public enum StepState {
   LOCKED,
   ACTIVE,
@@ -28,11 +30,6 @@ public enum StepState {
   HIDDEN;
 
   public static StepState fromName(String name) {
-    for (StepState state : values()) {
-      if (state.name().equals(name)) {
-        return state;
-      }
-    }
-    return null;
+    return EnumKeys.byName(StepState.class, name).orElse(null);
   }
 }

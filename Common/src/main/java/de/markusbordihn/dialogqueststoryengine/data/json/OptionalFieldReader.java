@@ -76,7 +76,7 @@ public final class OptionalFieldReader {
     return element.getAsInt();
   }
 
-  public static boolean bool(
+  public static boolean booleanValue(
       JsonObject jsonObject,
       String field,
       String path,

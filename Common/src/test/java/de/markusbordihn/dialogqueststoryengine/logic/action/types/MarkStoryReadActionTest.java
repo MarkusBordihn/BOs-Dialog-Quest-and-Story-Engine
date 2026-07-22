@@ -34,9 +34,9 @@ class MarkStoryReadActionTest {
   @Test
   void execute_storyBecomesRead() {
     PlayerState playerState = new PlayerState(UUID.randomUUID());
-    ActionContext ctx = ActionContext.ofTest(playerState);
+    ActionContext context = ActionContext.ofTest(playerState);
 
-    new MarkStoryReadAction(STORY_ID).execute(ctx);
+    new MarkStoryReadAction(STORY_ID).execute(context);
 
     assertTrue(playerState.stories().isRead(STORY_ID));
   }
@@ -44,9 +44,9 @@ class MarkStoryReadActionTest {
   @Test
   void execute_markReadImpliesUnlocked() {
     PlayerState playerState = new PlayerState(UUID.randomUUID());
-    ActionContext ctx = ActionContext.ofTest(playerState);
+    ActionContext context = ActionContext.ofTest(playerState);
 
-    new MarkStoryReadAction(STORY_ID).execute(ctx);
+    new MarkStoryReadAction(STORY_ID).execute(context);
 
     assertTrue(playerState.stories().isUnlocked(STORY_ID));
   }
@@ -54,10 +54,10 @@ class MarkStoryReadActionTest {
   @Test
   void execute_calledTwice_isIdempotent() {
     PlayerState playerState = new PlayerState(UUID.randomUUID());
-    ActionContext ctx = ActionContext.ofTest(playerState);
+    ActionContext context = ActionContext.ofTest(playerState);
 
-    new MarkStoryReadAction(STORY_ID).execute(ctx);
-    new MarkStoryReadAction(STORY_ID).execute(ctx);
+    new MarkStoryReadAction(STORY_ID).execute(context);
+    new MarkStoryReadAction(STORY_ID).execute(context);
 
     assertTrue(playerState.stories().isRead(STORY_ID));
   }

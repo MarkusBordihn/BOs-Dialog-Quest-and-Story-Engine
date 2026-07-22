@@ -45,7 +45,7 @@ class QuestTrackingTest {
   void setUp() {
     QuestTestFixtures.install(QUEST_1, QUEST_2);
     PlayerStateService.onPlayerDataLoaded(PLAYER, new CompoundTag());
-    playerState = PlayerStateService.get(PLAYER).orElseThrow();
+    this.playerState = PlayerStateService.get(PLAYER).orElseThrow();
   }
 
   @AfterEach
@@ -60,7 +60,7 @@ class QuestTrackingTest {
   void firstStartedQuestIsAutoTracked() {
     QuestService.startQuest(PLAYER, QUEST_1);
 
-    assertEquals(QUEST_1, playerState.trackedQuestId());
+    assertEquals(QUEST_1, this.playerState.trackedQuestId());
   }
 
   @Test
@@ -68,7 +68,7 @@ class QuestTrackingTest {
     QuestService.startQuest(PLAYER, QUEST_1);
     QuestService.startQuest(PLAYER, QUEST_2);
 
-    assertEquals(QUEST_1, playerState.trackedQuestId());
+    assertEquals(QUEST_1, this.playerState.trackedQuestId());
   }
 
   @Test
@@ -76,7 +76,7 @@ class QuestTrackingTest {
     QuestService.startQuest(PLAYER, QUEST_1);
     QuestService.completeQuest(PLAYER, QUEST_1);
 
-    assertNull(playerState.trackedQuestId());
+    assertNull(this.playerState.trackedQuestId());
   }
 
   @Test
@@ -84,7 +84,7 @@ class QuestTrackingTest {
     QuestService.startQuest(PLAYER, QUEST_1);
     QuestService.failQuest(PLAYER, QUEST_1);
 
-    assertNull(playerState.trackedQuestId());
+    assertNull(this.playerState.trackedQuestId());
   }
 
   @Test

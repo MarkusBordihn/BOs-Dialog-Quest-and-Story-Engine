@@ -152,6 +152,27 @@ public final class JsonFieldReader {
     return Optional.of(element.getAsInt());
   }
 
+  public static Optional<Float> readFloat(
+      JsonObject jsonObject,
+      String field,
+      ContentType contentType,
+      ResourceLocation id,
+      String file,
+      List<ContentIssue> issues) {
+    if (!jsonObject.has(field)) {
+      reportMissing(contentType, id, file, field, issues);
+      return Optional.empty();
+    }
+
+    JsonElement element = jsonObject.get(field);
+    if (!element.isJsonPrimitive() || !element.getAsJsonPrimitive().isNumber()) {
+      reportInvalidType(contentType, id, file, field, "number", issues);
+      return Optional.empty();
+    }
+
+    return Optional.of(element.getAsFloat());
+  }
+
   public static Optional<Boolean> readBoolean(
       JsonObject jsonObject,
       String field,

@@ -92,7 +92,7 @@ class InteractionContentParserTest {
   @Test
   void happyPathBlock() {
     JsonObject input =
-        json(
+        this.json(
             """
         {
           "schema": 1,
@@ -114,9 +114,9 @@ class InteractionContentParserTest {
     assertInstanceOf(InteractionBinding.BlockBinding.class, result.value().get().binding());
     InteractionBinding.BlockBinding block =
         (InteractionBinding.BlockBinding) result.value().get().binding();
-    assertEquals(10, block.pos().getX());
-    assertEquals(64, block.pos().getY());
-    assertEquals(-5, block.pos().getZ());
+    assertEquals(10, block.blockPos().getX());
+    assertEquals(64, block.blockPos().getY());
+    assertEquals(-5, block.blockPos().getZ());
   }
 
   @Test
@@ -136,7 +136,7 @@ class InteractionContentParserTest {
   @Test
   void unknownEvent() {
     JsonObject input =
-        json(
+        this.json(
             """
         {
           "schema": 1,
@@ -156,7 +156,7 @@ class InteractionContentParserTest {
   @Test
   void invalidUuid() {
     JsonObject input =
-        json(
+        this.json(
             """
         {
           "schema": 1,
@@ -179,7 +179,7 @@ class InteractionContentParserTest {
   @Test
   void unknownBindingKind() {
     JsonObject input =
-        json(
+        this.json(
             """
         {
           "schema": 1,
@@ -201,7 +201,7 @@ class InteractionContentParserTest {
   @Test
   void conditionsAndActionsPreserved() {
     JsonObject input =
-        json(
+        this.json(
             """
         {
           "schema": 1,
@@ -226,7 +226,7 @@ class InteractionContentParserTest {
   @Test
   void invalidBlockPos() {
     JsonObject input =
-        json(
+        this.json(
             """
         {
           "schema": 1,

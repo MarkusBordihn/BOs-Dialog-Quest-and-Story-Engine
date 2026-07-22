@@ -40,33 +40,33 @@ class RunCommandActionTest {
 
   @Test
   void execute_commandActionsDisabled_doesNotCrash() {
-    ActionContext ctx = ActionContext.ofTest(new PlayerState(UUID.randomUUID()));
+    ActionContext context = ActionContext.ofTest(new PlayerState(UUID.randomUUID()));
 
-    assertDoesNotThrow(() -> new RunCommandAction("say hello", 2).execute(ctx));
+    assertDoesNotThrow(() -> new RunCommandAction("say hello", 2).execute(context));
   }
 
   @Test
   void execute_commandActionsEnabled_nullServerDoesNotCrash() {
     SecurityConfig.configure(true, List.of(), 2);
-    ActionContext ctx = ActionContext.ofTest(new PlayerState(UUID.randomUUID()));
+    ActionContext context = ActionContext.ofTest(new PlayerState(UUID.randomUUID()));
 
-    assertDoesNotThrow(() -> new RunCommandAction("say hello", 2).execute(ctx));
+    assertDoesNotThrow(() -> new RunCommandAction("say hello", 2).execute(context));
   }
 
   @Test
   void execute_commandActionsEnabled_nullPlayerDoesNotCrash() {
     SecurityConfig.configure(true, List.of(), 2);
-    ActionContext ctx = ActionContext.ofTest(new PlayerState(UUID.randomUUID()));
+    ActionContext context = ActionContext.ofTest(new PlayerState(UUID.randomUUID()));
 
-    assertDoesNotThrow(() -> new RunCommandAction("say hello", 2).execute(ctx));
+    assertDoesNotThrow(() -> new RunCommandAction("say hello", 2).execute(context));
   }
 
   @Test
   void execute_commandActionsEnabledWithWhitelist_unlistedCommandDoesNotCrash() {
     SecurityConfig.configure(true, List.of("say"), 2);
-    ActionContext ctx = ActionContext.ofTest(new PlayerState(UUID.randomUUID()));
+    ActionContext context = ActionContext.ofTest(new PlayerState(UUID.randomUUID()));
 
-    assertDoesNotThrow(() -> new RunCommandAction("give @s diamond 1", 2).execute(ctx));
+    assertDoesNotThrow(() -> new RunCommandAction("give @s diamond 1", 2).execute(context));
   }
 
   @Test

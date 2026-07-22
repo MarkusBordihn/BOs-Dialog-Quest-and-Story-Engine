@@ -37,19 +37,19 @@ public class BlockUuidGameTest {
 
   @GameTest(template = "gametest.3x3x3")
   public void testDeterminism(GameTestHelper helper) {
-    BlockPos pos = new BlockPos(100, 64, -200);
-    ResourceKey<Level> dim = Level.OVERWORLD;
-    UUID first = BlockUUID.fromBlockPos(dim, pos);
-    UUID second = BlockUUID.fromBlockPos(dim, pos);
+    BlockPos blockPos = new BlockPos(100, 64, -200);
+    ResourceKey<Level> dimension = Level.OVERWORLD;
+    UUID first = BlockUUID.fromBlockPos(dimension, blockPos);
+    UUID second = BlockUUID.fromBlockPos(dimension, blockPos);
     GameTestHelpers.assertEquals(helper, "Block UUID should be deterministic", first, second);
     helper.succeed();
   }
 
   @GameTest(template = "gametest.3x3x3")
   public void testUniquenessAcrossPositions(GameTestHelper helper) {
-    ResourceKey<Level> dim = Level.OVERWORLD;
-    UUID uuidA = BlockUUID.fromBlockPos(dim, new BlockPos(0, 64, 0));
-    UUID uuidB = BlockUUID.fromBlockPos(dim, new BlockPos(1, 64, 0));
+    ResourceKey<Level> dimension = Level.OVERWORLD;
+    UUID uuidA = BlockUUID.fromBlockPos(dimension, new BlockPos(0, 64, 0));
+    UUID uuidB = BlockUUID.fromBlockPos(dimension, new BlockPos(1, 64, 0));
     GameTestHelpers.assertTrue(
         helper, "Different positions should produce different UUIDs", !uuidA.equals(uuidB));
     helper.succeed();
@@ -57,9 +57,9 @@ public class BlockUuidGameTest {
 
   @GameTest(template = "gametest.3x3x3")
   public void testUniquenessAcrossDimensions(GameTestHelper helper) {
-    BlockPos pos = new BlockPos(0, 64, 0);
-    UUID overworld = BlockUUID.fromBlockPos(Level.OVERWORLD, pos);
-    UUID nether = BlockUUID.fromBlockPos(Level.NETHER, pos);
+    BlockPos blockPos = new BlockPos(0, 64, 0);
+    UUID overworld = BlockUUID.fromBlockPos(Level.OVERWORLD, blockPos);
+    UUID nether = BlockUUID.fromBlockPos(Level.NETHER, blockPos);
     GameTestHelpers.assertTrue(
         helper,
         "Same position in different dimensions should produce different UUIDs",

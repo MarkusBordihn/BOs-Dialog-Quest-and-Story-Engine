@@ -51,7 +51,7 @@ public final class NetworkHandler implements NetworkHandlerInterface {
   public <M extends NetworkMessageRecord> void registerClientNetworkMessageHandler(
       ResourceLocation messageId, Class<M> networkMessage, Function<FriendlyByteBuf, M> creator) {
     CHANNEL.registerMessage(
-        registrationId++,
+        this.registrationId++,
         networkMessage,
         NetworkMessageRecord::write,
         creator::apply,
@@ -66,7 +66,7 @@ public final class NetworkHandler implements NetworkHandlerInterface {
   public <M extends NetworkMessageRecord> void registerServerNetworkMessageHandler(
       ResourceLocation messageId, Class<M> networkMessage, Function<FriendlyByteBuf, M> creator) {
     CHANNEL.registerMessage(
-        registrationId++,
+        this.registrationId++,
         networkMessage,
         NetworkMessageRecord::write,
         creator::apply,

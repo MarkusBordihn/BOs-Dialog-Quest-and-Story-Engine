@@ -64,16 +64,17 @@ public class InteractionWandItem extends Item {
       return InteractionResult.FAIL;
     }
 
-    BlockPos pos = context.getClickedPos();
-    UUID targetId = BlockUUID.fromBlockPos(level.dimension(), pos);
+    BlockPos blockPos = context.getClickedPos();
+    UUID targetId = BlockUUID.fromBlockPos(level.dimension(), blockPos);
     TargetKind kind =
-        level.getBlockEntity(pos) != null ? TargetKind.BLOCK_ENTITY : TargetKind.BLOCK;
+        level.getBlockEntity(blockPos) != null ? TargetKind.BLOCK_ENTITY : TargetKind.BLOCK;
 
     List<InteractionEntry> existing =
         InteractionSavedData.get(((ServerPlayer) player).server).getInteractionsForTarget(targetId);
     NetworkHandlerManager.sendToPlayer(
         (ServerPlayer) player,
-        new InteractionListMessage(existing, targetId, kind, level.dimension().location(), pos));
+        new InteractionListMessage(
+            existing, targetId, kind, level.dimension().location(), blockPos));
     return InteractionResult.SUCCESS;
   }
 

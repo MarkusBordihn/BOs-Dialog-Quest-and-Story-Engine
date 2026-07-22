@@ -31,12 +31,12 @@ public class Separator extends Widget {
 
   @Override
   public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-    if (!visible) {
+    if (!this.visible) {
       return;
     }
 
-    int x = getX();
-    int y = getY();
-    graphics.fill(x, y, x + width, y + height, ColorPalette.current().outline());
+    int x = this.getX();
+    int y = this.getY();
+    graphics.fill(x, y, x + this.width, y + this.height, ColorPalette.current().outline());
   }
 }

@@ -20,6 +20,7 @@
 package de.markusbordihn.dialogqueststoryengine.data.interaction;
 
 import de.markusbordihn.dialogqueststoryengine.Constants;
+import de.markusbordihn.dialogqueststoryengine.data.json.EnumKeys;
 import java.util.Locale;
 import net.minecraft.resources.ResourceLocation;
 
@@ -31,29 +32,15 @@ public enum InteractionEventType {
   ON_HOLOPAD_USE,
   ON_EASY_NPC_INTERACT;
 
-  private final ResourceLocation resourceLocation;
-
-  InteractionEventType() {
-    this.resourceLocation =
-        new ResourceLocation(Constants.MOD_ID, this.name().toLowerCase(Locale.ROOT));
-  }
+  private final ResourceLocation resourceLocation =
+      new ResourceLocation(Constants.MOD_ID, this.name().toLowerCase(Locale.ROOT));
 
   public static InteractionEventType fromName(String name) {
-    for (InteractionEventType type : values()) {
-      if (type.name().equals(name)) {
-        return type;
-      }
-    }
-
-    return null;
+    return EnumKeys.byName(InteractionEventType.class, name).orElse(null);
   }
 
   public static InteractionEventType fromJsonKey(String key) {
-    if (key == null) {
-      return null;
-    }
-
-    return fromName(key.toUpperCase(Locale.ROOT));
+    return fromName(key);
   }
 
   public ResourceLocation resourceLocation() {

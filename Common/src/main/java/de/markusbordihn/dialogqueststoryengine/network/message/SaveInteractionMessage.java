@@ -22,6 +22,7 @@ package de.markusbordihn.dialogqueststoryengine.network.message;
 import de.markusbordihn.dialogqueststoryengine.Constants;
 import de.markusbordihn.dialogqueststoryengine.data.interaction.InteractionEntry;
 import de.markusbordihn.dialogqueststoryengine.data.saveddata.InteractionSavedData;
+import de.markusbordihn.dialogqueststoryengine.interaction.ActionDiagnostics;
 import de.markusbordihn.dialogqueststoryengine.network.NetworkMessageRecord;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.FriendlyByteBuf;
@@ -38,13 +39,13 @@ public record SaveInteractionMessage(InteractionEntry entry) implements NetworkM
   private static final Logger log = LogManager.getLogger(Constants.LOG_NAME);
 
   public static SaveInteractionMessage create(FriendlyByteBuf buffer) {
-    InteractionEntry entry = InteractionEntry.readFromBuf(buffer);
+    InteractionEntry entry = InteractionEntry.readFromBuffer(buffer);
     return new SaveInteractionMessage(entry);
   }
 
   @Override
   public void write(FriendlyByteBuf buffer) {
-    entry.writeToBuf(buffer);
+    this.entry.writeToBuffer(buffer);
   }
 
   @Override
@@ -59,11 +60,12 @@ public record SaveInteractionMessage(InteractionEntry entry) implements NetworkM
       return;
     }
     InteractionSavedData data = InteractionSavedData.get(serverPlayer.server);
-    data.unregister(entry.targetId(), entry.eventType());
-    data.register(entry);
+    data.unregister(this.entry.targetId(), this.entry.eventType());
+    data.register(this.entry);
+    ActionDiagnostics.clear(this.entry.targetId());
     serverPlayer.sendSystemMessage(
-        Component.literal("✔ Saved interaction '" + entry.label() + "'.")
+        Component.literal("✔ Saved interaction '" + this.entry.label() + "'.")
             .withStyle(ChatFormatting.GREEN));
-    log.info("Player {} saved interaction: {}", serverPlayer.getName().getString(), entry);
+    log.info("Player {} saved interaction: {}", serverPlayer.getName().getString(), this.entry);
   }
 }

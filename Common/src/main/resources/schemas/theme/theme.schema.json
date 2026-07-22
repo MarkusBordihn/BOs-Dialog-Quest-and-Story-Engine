@@ -6,17 +6,9 @@
   "required": [
     "schema",
     "layout",
-    "frame_texture",
-    "background_texture",
-    "show_page_numbers",
-    "show_close_button",
-    "screen_width",
-    "screen_height",
-    "display_area",
-    "title_area",
-    "title_alignment",
-    "text_area",
-    "choice_area"
+    "logical_width",
+    "logical_height",
+    "areas"
   ],
   "additionalProperties": false,
   "properties": {
@@ -25,19 +17,54 @@
     "layout": {
       "type": "string",
       "pattern": "^[a-z0-9_.-]+:[a-z0-9_./-]+$",
-      "description": "Theme layout ID, e.g. 'dialog_quest_and_story_engine:holopad'"
+      "description": "Layout ID resolved by a ThemeProvider, e.g. 'dqse:holopad'"
     },
-    "frame_texture": {"type": "string", "pattern": "^[a-z0-9_.-]+:[a-z0-9_./-]+$"},
-    "background_texture": {"type": "string", "pattern": "^[a-z0-9_.-]+:[a-z0-9_./-]+$"},
-    "show_page_numbers": {"type": "boolean"},
-    "show_close_button": {"type": "boolean"},
-    "screen_width": {"type": "integer", "minimum": 1},
-    "screen_height": {"type": "integer", "minimum": 1},
-    "display_area": {"$ref": "#/definitions/area"},
-    "title_area": {"$ref": "#/definitions/area"},
-    "title_alignment": {"type": "string", "enum": ["left", "center", "right"]},
-    "text_area": {"$ref": "#/definitions/area"},
-    "choice_area": {"$ref": "#/definitions/area"}
+    "logical_width": {"type": "integer", "minimum": 1},
+    "logical_height": {"type": "integer", "minimum": 1},
+    "min_scale": {"type": "number", "exclusiveMinimum": 0},
+    "max_scale": {"type": "number", "exclusiveMinimum": 0},
+    "anchor": {
+      "type": "string",
+      "enum": [
+        "center",
+        "top",
+        "bottom",
+        "left",
+        "right",
+        "top_left",
+        "top_right",
+        "bottom_left",
+        "bottom_right"
+      ]
+    },
+    "areas": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": {
+        "^[a-z0-9_]+$": {"$ref": "#/definitions/area"}
+      }
+    },
+    "sprites": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": {
+        "^[a-z0-9_]+$": {"$ref": "#/definitions/sprite"}
+      }
+    },
+    "colors": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": {
+        "^[a-z0-9_]+$": {"type": "string", "pattern": "^#([0-9a-fA-F]{6}|[0-9a-fA-F]{8})$"}
+      }
+    },
+    "options": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": {
+        "^[a-z0-9_]+$": {"type": ["string", "boolean"]}
+      }
+    }
   },
   "definitions": {
     "area": {
@@ -49,6 +76,36 @@
         "y": {"type": "integer"},
         "width": {"type": "integer", "minimum": 1},
         "height": {"type": "integer", "minimum": 1}
+      }
+    },
+    "sprite": {
+      "type": "object",
+      "required": ["texture", "texture_width", "texture_height", "source_width", "source_height"],
+      "additionalProperties": false,
+      "properties": {
+        "texture": {"type": "string", "pattern": "^[a-z0-9_.-]+:[a-z0-9_./-]+$"},
+        "texture_width": {"type": "integer", "minimum": 1},
+        "texture_height": {"type": "integer", "minimum": 1},
+        "u": {"type": "integer", "minimum": 0},
+        "v": {"type": "integer", "minimum": 0},
+        "source_width": {"type": "integer", "minimum": 1},
+        "source_height": {"type": "integer", "minimum": 1},
+        "scaling": {"type": "string", "enum": ["stretch", "tile", "nine_slice"]},
+        "border": {
+          "oneOf": [
+            {"type": "integer", "minimum": 0},
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "left": {"type": "integer", "minimum": 0},
+                "top": {"type": "integer", "minimum": 0},
+                "right": {"type": "integer", "minimum": 0},
+                "bottom": {"type": "integer", "minimum": 0}
+              }
+            }
+          ]
+        }
       }
     }
   }

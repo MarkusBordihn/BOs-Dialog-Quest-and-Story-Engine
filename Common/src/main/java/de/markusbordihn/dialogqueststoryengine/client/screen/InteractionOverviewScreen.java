@@ -43,11 +43,12 @@ public class InteractionOverviewScreen extends BaseScreen {
   private String searchFilter = "";
 
   public InteractionOverviewScreen() {
-    setBreadcrumb(List.of(new BreadcrumbBar.Segment("Home", MainScreen::open)), "Interactions");
+    this.setBreadcrumb(
+        List.of(new BreadcrumbBar.Segment("Home", MainScreen::open)), "Interactions");
   }
 
   public InteractionOverviewScreen(List<BreadcrumbBar.Segment> ancestors) {
-    setBreadcrumb(ancestors, "Interactions");
+    this.setBreadcrumb(ancestors, "Interactions");
   }
 
   public static void open() {
@@ -75,14 +76,14 @@ public class InteractionOverviewScreen extends BaseScreen {
 
   @Override
   public void onScreenInit(int screenWidth, int screenHeight) {
-    setSizeCentered(400, 300);
-    refreshWidgets();
+    this.setSizeCentered(400, 300);
+    this.refreshWidgets();
   }
 
   @Override
   protected void addWidgets() {
-    int innerWidth = getInnerWidth();
-    int innerHeight = getInnerHeight();
+    int innerWidth = this.getInnerWidth();
+    int innerHeight = this.getInnerHeight();
     int searchHeight = 16;
     int searchBarY = innerHeight - searchHeight;
 
@@ -95,16 +96,16 @@ public class InteractionOverviewScreen extends BaseScreen {
     this.table.setEntryRenderer(this::renderEntry);
     this.table.setOnSelect(
         entry -> {
-          List<BreadcrumbBar.Segment> childAncestors = buildChildAncestors("Interactions");
+          List<BreadcrumbBar.Segment> childAncestors = this.buildChildAncestors("Interactions");
           String targetLabel = InteractionConfigScreen.targetContextLabel(entry);
           InteractionConfigScreen configScreen =
               new InteractionConfigScreen(entry, false, childAncestors, targetLabel);
           configScreen.openScreen();
         });
-    addWidget(this.table);
-    updateListItems();
+    this.addWidget(this.table);
+    this.updateListItems();
 
-    addWidget(
+    this.addWidget(
         new Label(0, searchBarY + 4, "search", 0, ScaledText.SCALE_SMALL, Label.Alignment.LEFT));
     this.searchInput =
         new TextInput(
@@ -114,10 +115,10 @@ public class InteractionOverviewScreen extends BaseScreen {
             searchHeight,
             value -> {
               this.searchFilter = value;
-              updateListItems();
+              this.updateListItems();
             });
     this.searchInput.setValue(this.searchFilter);
-    addWidget(this.searchInput);
+    this.addWidget(this.searchInput);
   }
 
   private void updateListItems() {
@@ -133,8 +134,8 @@ public class InteractionOverviewScreen extends BaseScreen {
             .filter(
                 entry ->
                     entry.label().toLowerCase(Locale.ROOT).contains(filter)
-                        || entry.interactionType().name().toLowerCase(Locale.ROOT).contains(filter)
-                        || entry.targetKind().name().toLowerCase(Locale.ROOT).contains(filter))
+                        || entry.interactionType().key().contains(filter)
+                        || entry.targetKind().key().contains(filter))
             .toList());
   }
 
@@ -150,7 +151,7 @@ public class InteractionOverviewScreen extends BaseScreen {
       ColorPalette palette,
       int[] columnOffsets) {
     float scale = ScaledText.SCALE_SMALL;
-    String posStr = entry.blockPos() != null ? entry.blockPos().toShortString() : "N/A";
+    String positionText = entry.blockPos() != null ? entry.blockPos().toShortString() : "N/A";
 
     ScaledText.draw(
         graphics, font, entry.label(), x + columnOffsets[0], y + 3, palette.onSurface(), scale);
@@ -171,6 +172,6 @@ public class InteractionOverviewScreen extends BaseScreen {
         palette.onSurfaceLow(),
         scale);
     ScaledText.draw(
-        graphics, font, posStr, x + columnOffsets[3], y + 3, palette.onSurfaceLow(), scale);
+        graphics, font, positionText, x + columnOffsets[3], y + 3, palette.onSurfaceLow(), scale);
   }
 }

@@ -62,7 +62,7 @@ public class QuestCatalogGameTestHelper {
   public static void catalogUpsertPrecedesQuestDelta(GameTestHelper helper) {
     ServerPlayer player = GameTestHelpers.mockConnectedServerPlayer(helper);
     UUID playerUuid = player.getUUID();
-    CapturingNetworkTestHandler network = installEnv();
+    CapturingNetworkTestHandler network = installEnvironment();
     Map<ResourceLocation, QuestDefinition> previous = QuestRegistryTestSupport.install(quests());
     try {
       PlayerStateService.onPlayerDataLoaded(playerUuid, new CompoundTag());
@@ -78,14 +78,14 @@ public class QuestCatalogGameTestHelper {
           "Catalog upsert precedes the first quest delta",
           upsertIndex >= 0 && upsertIndex < deltaIndex);
     } finally {
-      teardownEnv(playerUuid, network, previous);
+      teardownEnvironment(playerUuid, network, previous);
     }
   }
 
   public static void revealedDependentIsLockedThenAvailable(GameTestHelper helper) {
     ServerPlayer player = GameTestHelpers.mockConnectedServerPlayer(helper);
     UUID playerUuid = player.getUUID();
-    CapturingNetworkTestHandler network = installEnv();
+    CapturingNetworkTestHandler network = installEnvironment();
     Map<ResourceLocation, QuestDefinition> previous = QuestRegistryTestSupport.install(quests());
     try {
       PlayerStateService.onPlayerDataLoaded(playerUuid, new CompoundTag());
@@ -105,14 +105,14 @@ public class QuestCatalogGameTestHelper {
           QuestAvailability.AVAILABLE,
           lastCatalogAvailability(network, GATE_B));
     } finally {
-      teardownEnv(playerUuid, network, previous);
+      teardownEnvironment(playerUuid, network, previous);
     }
   }
 
   public static void progressWithoutDisplayChangeSkipsCatalogUpsert(GameTestHelper helper) {
     ServerPlayer player = GameTestHelpers.mockConnectedServerPlayer(helper);
     UUID playerUuid = player.getUUID();
-    CapturingNetworkTestHandler network = installEnv();
+    CapturingNetworkTestHandler network = installEnvironment();
     Map<ResourceLocation, QuestDefinition> previous = QuestRegistryTestSupport.install(quests());
     try {
       PlayerStateService.onPlayerDataLoaded(playerUuid, new CompoundTag());
@@ -127,7 +127,7 @@ public class QuestCatalogGameTestHelper {
           0L,
           network.count(QuestDisplayCatalogUpsertPacket.class));
     } finally {
-      teardownEnv(playerUuid, network, previous);
+      teardownEnvironment(playerUuid, network, previous);
     }
   }
 
@@ -153,14 +153,14 @@ public class QuestCatalogGameTestHelper {
     return -1;
   }
 
-  private static CapturingNetworkTestHandler installEnv() {
+  private static CapturingNetworkTestHandler installEnvironment() {
     CapturingNetworkTestHandler network = CapturingNetworkTestHandler.install();
     PlayerStateEvents.clearAll();
     QuestProgressSync.register();
     return network;
   }
 
-  private static void teardownEnv(
+  private static void teardownEnvironment(
       UUID playerUuid,
       CapturingNetworkTestHandler network,
       Map<ResourceLocation, QuestDefinition> previous) {

@@ -35,34 +35,34 @@ public class CloseButton extends AbstractButton {
 
   @Override
   public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-    if (!visible) {
+    if (!this.visible) {
       return;
     }
     ColorPalette palette = ColorPalette.current();
-    int x = getX();
-    int y = getY();
-    hovered = isMouseOver(mouseX, mouseY);
+    int x = this.getX();
+    int y = this.getY();
+    this.hovered = this.isMouseOver(mouseX, mouseY);
 
-    int bgColor = hovered ? palette.error() : palette.surfaceContainer();
-    fillRoundedRect(graphics, x, y, width, height, bgColor);
+    int backgroundColor = this.hovered ? palette.error() : palette.surfaceContainer();
+    fillRoundedRect(graphics, x, y, this.width, this.height, backgroundColor);
     drawBorderRounded(
         graphics,
         x,
         y,
-        width,
-        height,
-        hovered ? darken(palette.error(), 0.20f) : palette.outline());
+        this.width,
+        this.height,
+        this.hovered ? darken(palette.error(), 0.20f) : palette.outline());
 
     Font font = Minecraft.getInstance().font;
-    int textColor = hovered ? palette.onError() : palette.onSurface();
+    int textColor = this.hovered ? palette.onError() : palette.onSurface();
     ScaledText.drawCentered(
-        graphics, font, "x", x + width / 2 + 1, y + 2, textColor, ScaledText.SCALE_NORMAL);
+        graphics, font, "x", x + this.width / 2 + 1, y + 2, textColor, ScaledText.SCALE_NORMAL);
   }
 
   @Override
   protected void onPress() {
-    if (onClose != null) {
-      onClose.run();
+    if (this.onClose != null) {
+      this.onClose.run();
     }
   }
 }

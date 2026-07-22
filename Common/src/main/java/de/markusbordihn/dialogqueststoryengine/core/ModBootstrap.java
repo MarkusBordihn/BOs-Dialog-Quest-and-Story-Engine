@@ -24,8 +24,10 @@ import de.markusbordihn.dialogqueststoryengine.logic.action.BuiltinActions;
 import de.markusbordihn.dialogqueststoryengine.logic.condition.BuiltinConditions;
 import de.markusbordihn.dialogqueststoryengine.logic.context.BuiltinContextValueProviders;
 import de.markusbordihn.dialogqueststoryengine.quest.reward.BuiltinRewardHandlers;
+import de.markusbordihn.dialogqueststoryengine.quest.runtime.QuestChatFeedback;
 import de.markusbordihn.dialogqueststoryengine.quest.step.BuiltinQuestSteps;
 import de.markusbordihn.dialogqueststoryengine.state.QuestProgressSync;
+import de.markusbordihn.dialogqueststoryengine.theme.BuiltinThemeProviders;
 import de.markusbordihn.dialogqueststoryengine.validation.BuiltinValidators;
 
 public final class ModBootstrap {
@@ -44,9 +46,11 @@ public final class ModBootstrap {
     BuiltinContextValueProviders.register();
     BuiltinQuestSteps.register();
     BuiltinRewardHandlers.register();
+    BuiltinThemeProviders.register();
     InteractionRegistry.registerBuiltIns();
     BuiltinValidators.register();
     QuestProgressSync.register();
+    QuestChatFeedback.register();
     initialized = true;
   }
 }

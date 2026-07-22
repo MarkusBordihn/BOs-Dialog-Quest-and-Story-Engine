@@ -19,7 +19,7 @@
 
 package de.markusbordihn.dialogqueststoryengine.data.theme;
 
-import java.util.Locale;
+import de.markusbordihn.dialogqueststoryengine.data.json.EnumKeys;
 import java.util.Optional;
 
 public enum ThemeTextAlignment {
@@ -28,14 +28,6 @@ public enum ThemeTextAlignment {
   RIGHT;
 
   public static Optional<ThemeTextAlignment> fromKey(String key) {
-    if (key == null || key.isBlank()) {
-      return Optional.empty();
-    }
-
-    try {
-      return Optional.of(valueOf(key.toUpperCase(Locale.ROOT)));
-    } catch (IllegalArgumentException e) {
-      return Optional.empty();
-    }
+    return EnumKeys.byName(ThemeTextAlignment.class, key);
   }
 }

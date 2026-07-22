@@ -28,8 +28,8 @@ import net.minecraft.client.gui.GuiGraphics;
 
 public class Slider extends Widget {
 
-  private static final int TRACK_H = 4;
-  private static final int THUMB_D = 10;
+  private static final int TRACK_HEIGHT = 4;
+  private static final int THUMB_DIAMETER = 10;
 
   private float min;
   private float max;
@@ -54,34 +54,34 @@ public class Slider extends Widget {
     this.min = min;
     this.max = max;
     this.step = step;
-    this.value = clamp(initialValue);
+    this.value = this.clamp(initialValue);
     this.onChange = onChange;
   }
 
-  private static String formatValue(float v) {
-    if (v == Math.floor(v) && !Float.isInfinite(v)) {
-      return String.valueOf((int) v);
+  private static String formatValue(float value) {
+    if (value == Math.floor(value) && !Float.isInfinite(value)) {
+      return String.valueOf((int) value);
     }
 
-    return String.format("%.1f", v);
+    return String.format("%.1f", value);
   }
 
   public float getValue() {
-    return value;
+    return this.value;
   }
 
   public void setValue(float value) {
-    this.value = clamp(value);
+    this.value = this.clamp(value);
   }
 
   public void setMin(float min) {
     this.min = min;
-    this.value = clamp(value);
+    this.value = this.clamp(this.value);
   }
 
   public void setMax(float max) {
     this.max = max;
-    this.value = clamp(value);
+    this.value = this.clamp(this.value);
   }
 
   public void setStep(float step) {
@@ -94,52 +94,61 @@ public class Slider extends Widget {
 
   @Override
   public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-    if (!visible) {
+    if (!this.visible) {
       return;
     }
 
     ColorPalette palette = ColorPalette.current();
-    int x = getX();
-    int y = getY();
-    hovered = isMouseOver(mouseX, mouseY);
+    int x = this.getX();
+    int y = this.getY();
+    this.hovered = this.isMouseOver(mouseX, mouseY);
 
-    int trackY = y + (height - TRACK_H) / 2;
+    int trackY = y + (this.height - TRACK_HEIGHT) / 2;
     fillRect(
-        graphics, x, trackY, width, TRACK_H, active ? palette.outline() : palette.onSurfaceLow());
-    int thumbX = thumbCenterX();
+        graphics,
+        x,
+        trackY,
+        this.width,
+        TRACK_HEIGHT,
+        this.active ? palette.outline() : palette.onSurfaceLow());
+    int thumbX = this.thumbCenterX();
     if (thumbX > x) {
       fillRect(
           graphics,
           x,
           trackY,
           thumbX - x,
-          TRACK_H,
-          active ? palette.primary() : palette.onSurfaceLow());
+          TRACK_HEIGHT,
+          this.active ? palette.primary() : palette.onSurfaceLow());
     }
 
-    int thumbLeft = thumbX - THUMB_D / 2;
-    int thumbTop = y + (height - THUMB_D) / 2;
-    int thumbColor =
-        active
-            ? (hovered || dragging ? darken(palette.primary(), 0.15f) : palette.primary())
-            : palette.onSurfaceLow();
-    fillRoundedRect(graphics, thumbLeft, thumbTop, THUMB_D, THUMB_D, thumbColor);
+    int thumbLeft = thumbX - THUMB_DIAMETER / 2;
+    int thumbTop = y + (this.height - THUMB_DIAMETER) / 2;
+    int thumbColor;
+    if (!this.active) {
+      thumbColor = palette.onSurfaceLow();
+    } else if (this.hovered || this.dragging) {
+      thumbColor = darken(palette.primary(), 0.15f);
+    } else {
+      thumbColor = palette.primary();
+    }
+    fillRoundedRect(graphics, thumbLeft, thumbTop, THUMB_DIAMETER, THUMB_DIAMETER, thumbColor);
     drawBorderRounded(
         graphics,
         thumbLeft,
         thumbTop,
-        THUMB_D,
-        THUMB_D,
-        active ? palette.primaryVariant() : palette.outline());
+        THUMB_DIAMETER,
+        THUMB_DIAMETER,
+        this.active ? palette.primaryVariant() : palette.outline());
 
-    if (active) {
+    if (this.active) {
       Font font = Minecraft.getInstance().font;
-      String label = formatValue(value);
-      int labelW = ScaledText.getScaledWidth(font, label, ScaledText.SCALE_BODY);
-      int labelX = thumbX - labelW / 2;
+      String label = formatValue(this.value);
+      int labelWidth = ScaledText.getScaledWidth(font, label, ScaledText.SCALE_BODY);
+      int labelX = thumbX - labelWidth / 2;
       int labelY = thumbTop - ScaledText.getScaledHeight(font, ScaledText.SCALE_BODY) - 2;
       if (labelY < 0) {
-        labelY = thumbTop + THUMB_D + 2;
+        labelY = thumbTop + THUMB_DIAMETER + 2;
       }
       ScaledText.draw(
           graphics, font, label, labelX, labelY, palette.onSurface(), ScaledText.SCALE_BODY);
@@ -148,9 +157,9 @@ public class Slider extends Widget {
 
   @Override
   public boolean mouseClicked(double mouseX, double mouseY, int button) {
-    if (active && visible && button == 0 && isMouseOver(mouseX, mouseY)) {
-      dragging = true;
-      setValueFromX((int) mouseX);
+    if (this.active && this.visible && button == 0 && this.isMouseOver(mouseX, mouseY)) {
+      this.dragging = true;
+      this.setValueFromX((int) mouseX);
       return true;
     }
 
@@ -159,8 +168,8 @@ public class Slider extends Widget {
 
   @Override
   public boolean mouseReleased(double mouseX, double mouseY, int button) {
-    if (dragging && button == 0) {
-      dragging = false;
+    if (this.dragging && button == 0) {
+      this.dragging = false;
       return true;
     }
 
@@ -170,8 +179,8 @@ public class Slider extends Widget {
   @Override
   public boolean mouseDragged(
       double mouseX, double mouseY, int button, double dragX, double dragY) {
-    if (dragging && active) {
-      setValueFromX((int) mouseX);
+    if (this.dragging && this.active) {
+      this.setValueFromX((int) mouseX);
       return true;
     }
 
@@ -180,11 +189,11 @@ public class Slider extends Widget {
 
   @Override
   public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
-    if (active && visible && isMouseOver(mouseX, mouseY)) {
-      float newVal = clamp(value + (float) delta * step);
-      if (newVal != value) {
-        value = newVal;
-        fireChange();
+    if (this.active && this.visible && this.isMouseOver(mouseX, mouseY)) {
+      float newValue = this.clamp(this.value + (float) delta * this.step);
+      if (newValue != this.value) {
+        this.value = newValue;
+        this.fireChange();
       }
       return true;
     }
@@ -193,30 +202,30 @@ public class Slider extends Widget {
   }
 
   private int thumbCenterX() {
-    int x = getX();
-    float ratio = (max == min) ? 0f : (value - min) / (max - min);
-    return x + (int) (ratio * width);
+    int x = this.getX();
+    float ratio = (this.max == this.min) ? 0f : (this.value - this.min) / (this.max - this.min);
+    return x + (int) (ratio * this.width);
   }
 
   private void setValueFromX(int mouseX) {
-    int x = getX();
-    float ratio = Math.max(0f, Math.min(1f, (mouseX - x) / (float) width));
-    float raw = min + ratio * (max - min);
-    float snapped = (step > 0) ? Math.round(raw / step) * step : raw;
-    float clamped = clamp(snapped);
-    if (clamped != value) {
-      value = clamped;
-      fireChange();
+    int x = this.getX();
+    float ratio = Math.max(0f, Math.min(1f, (mouseX - x) / (float) this.width));
+    float raw = this.min + ratio * (this.max - this.min);
+    float snapped = (this.step > 0) ? Math.round(raw / this.step) * this.step : raw;
+    float clamped = this.clamp(snapped);
+    if (clamped != this.value) {
+      this.value = clamped;
+      this.fireChange();
     }
   }
 
-  private float clamp(float v) {
-    return Math.max(min, Math.min(max, v));
+  private float clamp(float rawValue) {
+    return Math.max(this.min, Math.min(this.max, rawValue));
   }
 
   private void fireChange() {
-    if (onChange != null) {
-      onChange.accept(value);
+    if (this.onChange != null) {
+      this.onChange.accept(this.value);
     }
   }
 }

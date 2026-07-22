@@ -61,7 +61,7 @@ public abstract class AbstractJsonContentLoader<T> extends SimpleJsonResourceRel
   protected abstract String contentName();
 
   protected String contentNamePlural() {
-    return contentName() + "s";
+    return this.contentName() + "s";
   }
 
   protected void beforeLoad() {}
@@ -71,33 +71,33 @@ public abstract class AbstractJsonContentLoader<T> extends SimpleJsonResourceRel
       Map<ResourceLocation, JsonElement> jsonEntries,
       ResourceManager resourceManager,
       ProfilerFiller profiler) {
-    ContentIssueTracker.clearFor(contentType());
-    beforeLoad();
+    ContentIssueTracker.clearFor(this.contentType());
+    this.beforeLoad();
 
     Map<ResourceLocation, T> loaded = new LinkedHashMap<>();
     for (Map.Entry<ResourceLocation, JsonElement> fileEntry : jsonEntries.entrySet()) {
       ResourceLocation resourceLocation = fileEntry.getKey();
-      String filePath = buildFilePath(resourceLocation);
+      String filePath = this.buildFilePath(resourceLocation);
 
       if (!fileEntry.getValue().isJsonObject()) {
         ContentIssueTracker.record(
             ContentIssue.of(
-                IssueCode.JSON_PARSE_FAILED, contentType(), resourceLocation, filePath, null));
+                IssueCode.JSON_PARSE_FAILED, this.contentType(), resourceLocation, filePath, null));
         log.error(
             "{} {} {} - root element is not a JSON object, skipping.",
             Constants.LOG_PREFIX,
-            capitalizedName(),
+            this.capitalizedName(),
             resourceLocation);
         continue;
       }
 
       ParseResult<T> result =
           ContentParserGuard.parse(
-              contentType(),
+              this.contentType(),
               resourceLocation,
               filePath,
               fileEntry.getValue().getAsJsonObject(),
-              json -> parse(resourceLocation, filePath, json));
+              json -> this.parse(resourceLocation, filePath, json));
 
       result.issues().forEach(ContentIssueTracker::record);
 
@@ -107,22 +107,22 @@ public abstract class AbstractJsonContentLoader<T> extends SimpleJsonResourceRel
         log.error(
             "{} Skipped {} {} - see issues above for details.",
             Constants.LOG_PREFIX,
-            contentName(),
+            this.contentName(),
             resourceLocation);
       }
     }
 
-    commit(loaded);
+    this.commit(loaded);
 
     log.info(
         "{} Loaded {} {}.",
         Constants.LOG_PREFIX,
         loaded.size(),
-        loaded.size() == 1 ? contentName() : contentNamePlural());
+        loaded.size() == 1 ? this.contentName() : this.contentNamePlural());
   }
 
   private String buildFilePath(ResourceLocation resourceLocation) {
-    return resourceRoot
+    return this.resourceRoot
         + "/"
         + resourceLocation.getNamespace()
         + "/"
@@ -133,7 +133,7 @@ public abstract class AbstractJsonContentLoader<T> extends SimpleJsonResourceRel
   }
 
   private String capitalizedName() {
-    String name = contentName();
+    String name = this.contentName();
     return name.isEmpty() ? name : Character.toUpperCase(name.charAt(0)) + name.substring(1);
   }
 }

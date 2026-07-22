@@ -27,8 +27,8 @@ public final class Tooltip {
 
   private static final int HORIZONTAL_OFFSET = 12;
   private static final int VERTICAL_OFFSET = 16;
-  private static final int PADDING_H = 5;
-  private static final int PADDING_V = 4;
+  private static final int PADDING_HORIZONTAL = 5;
+  private static final int PADDING_VERTICAL = 4;
 
   private Tooltip() {}
 
@@ -38,22 +38,22 @@ public final class Tooltip {
       String text,
       int mouseX,
       int mouseY,
-      int screenW,
-      int screenH) {
+      int screenWidth,
+      int screenHeight) {
     if (text == null || text.isEmpty()) {
       return;
     }
 
     ColorPalette palette = ColorPalette.current();
-    int boxWidth = font.width(text) + PADDING_H * 2;
-    int boxHeight = font.lineHeight + PADDING_V * 2;
+    int boxWidth = font.width(text) + PADDING_HORIZONTAL * 2;
+    int boxHeight = font.lineHeight + PADDING_VERTICAL * 2;
 
     int boxX = mouseX + HORIZONTAL_OFFSET;
     int boxY = mouseY + VERTICAL_OFFSET;
-    if (boxX + boxWidth > screenW - 4) {
+    if (boxX + boxWidth > screenWidth - 4) {
       boxX = mouseX - boxWidth - 4;
     }
-    if (boxY + boxHeight > screenH - 4) {
+    if (boxY + boxHeight > screenHeight - 4) {
       boxY = mouseY - boxHeight - 4;
     }
     boxX = Math.max(2, boxX);
@@ -65,6 +65,7 @@ public final class Tooltip {
     graphics.fill(boxX, boxY + boxHeight - 1, boxX + boxWidth, boxY + boxHeight, palette.outline());
     graphics.fill(boxX, boxY, boxX + 1, boxY + boxHeight, palette.outline());
     graphics.fill(boxX + boxWidth - 1, boxY, boxX + boxWidth, boxY + boxHeight, palette.outline());
-    graphics.drawString(font, text, boxX + PADDING_H, boxY + PADDING_V, palette.onSurface(), false);
+    graphics.drawString(
+        font, text, boxX + PADDING_HORIZONTAL, boxY + PADDING_VERTICAL, palette.onSurface(), false);
   }
 }

@@ -52,7 +52,7 @@ public final class LocalizedTextParser {
       String filePath,
       List<ContentIssue> issues) {
     String keyField = name + SUFFIX_KEY;
-    String argsField = name + SUFFIX_ARGS;
+    String argumentsField = name + SUFFIX_ARGS;
     boolean hasLiteral = isString(parent, name);
     boolean hasKey = isString(parent, keyField);
 
@@ -64,14 +64,14 @@ public final class LocalizedTextParser {
 
     if (hasKey) {
       List<ContextArgument> arguments =
-          parseArguments(parent, argsField, contentType, id, filePath, issues);
+          parseArguments(parent, argumentsField, contentType, id, filePath, issues);
       return Optional.of(LocalizedTextSource.keyed(parent.get(keyField).getAsString(), arguments));
     }
 
-    if (parent.has(argsField)) {
+    if (parent.has(argumentsField)) {
       issues.add(
           ContentIssue.of(
-              IssueCode.LOCALIZED_ARGS_WITHOUT_KEY, contentType, id, filePath, argsField));
+              IssueCode.LOCALIZED_ARGS_WITHOUT_KEY, contentType, id, filePath, argumentsField));
     }
 
     if (hasLiteral) {
@@ -86,19 +86,19 @@ public final class LocalizedTextParser {
 
   private static List<ContextArgument> parseArguments(
       JsonObject parent,
-      String argsField,
+      String argumentsField,
       ContentType contentType,
       ResourceLocation id,
       String filePath,
       List<ContentIssue> issues) {
     List<ContextArgument> arguments = new ArrayList<>();
-    if (!parent.has(argsField) || !parent.get(argsField).isJsonArray()) {
+    if (!parent.has(argumentsField) || !parent.get(argumentsField).isJsonArray()) {
       return arguments;
     }
 
-    var array = parent.getAsJsonArray(argsField);
+    var array = parent.getAsJsonArray(argumentsField);
     for (int i = 0; i < array.size(); i++) {
-      String path = argsField + "[" + i + "]";
+      String path = argumentsField + "[" + i + "]";
       JsonElement element = array.get(i);
       if (!element.isJsonObject()) {
         issues.add(
@@ -147,17 +147,17 @@ public final class LocalizedTextParser {
       return Optional.empty();
     }
 
-    Map<String, String> params = new LinkedHashMap<>();
+    Map<String, String> parameters = new LinkedHashMap<>();
     for (Map.Entry<String, JsonElement> entry : argumentJson.entrySet()) {
       if (entry.getKey().equals(FIELD_TYPE)) {
         continue;
       }
       if (entry.getValue().isJsonPrimitive()) {
-        params.put(entry.getKey(), entry.getValue().getAsString());
+        parameters.put(entry.getKey(), entry.getValue().getAsString());
       }
     }
 
-    ContextArgument argument = new ContextArgument(type, params);
+    ContextArgument argument = new ContextArgument(type, parameters);
     return Registries.CONTEXT_VALUES
         .get(type)
         .map(

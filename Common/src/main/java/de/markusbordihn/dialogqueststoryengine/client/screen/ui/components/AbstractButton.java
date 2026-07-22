@@ -31,12 +31,12 @@ public abstract class AbstractButton extends Widget {
     super(posX, posY, width, height);
   }
 
-  protected int resolveBgColor(ColorPalette palette) {
-    if (!active) {
+  protected int resolveBackgroundColor(ColorPalette palette) {
+    if (!this.active) {
       return palette.surfaceContainerLow();
     }
 
-    if (pressed || hovered) {
+    if (this.pressed || this.hovered) {
       return palette.surfaceContainerHigh();
     }
 
@@ -44,15 +44,15 @@ public abstract class AbstractButton extends Widget {
   }
 
   protected int resolveTextColor(ColorPalette palette) {
-    return active ? palette.onSurface() : palette.onSurfaceLow();
+    return this.active ? palette.onSurface() : palette.onSurfaceLow();
   }
 
   protected void onPress() {}
 
   @Override
   public boolean mouseClicked(double mouseX, double mouseY, int button) {
-    if (active && visible && button == 0 && isMouseOver(mouseX, mouseY)) {
-      pressed = true;
+    if (this.active && this.visible && button == 0 && this.isMouseOver(mouseX, mouseY)) {
+      this.pressed = true;
       return true;
     }
 
@@ -61,10 +61,10 @@ public abstract class AbstractButton extends Widget {
 
   @Override
   public boolean mouseReleased(double mouseX, double mouseY, int button) {
-    if (pressed && button == 0) {
-      pressed = false;
-      if (isMouseOver(mouseX, mouseY)) {
-        onPress();
+    if (this.pressed && button == 0) {
+      this.pressed = false;
+      if (this.isMouseOver(mouseX, mouseY)) {
+        this.onPress();
       }
       return true;
     }

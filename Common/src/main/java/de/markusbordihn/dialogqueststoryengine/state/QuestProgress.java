@@ -71,12 +71,12 @@ public final class QuestProgress {
 
   public void setState(QuestState newState) {
     this.state = newState;
-    bump();
+    this.bump();
   }
 
   public void putStep(String stepId, StepProgress stepProgress) {
     this.steps.put(stepId, stepProgress);
-    bump();
+    this.bump();
   }
 
   public void setLastRewardedRevision(int revision) {
@@ -89,7 +89,7 @@ public final class QuestProgress {
 
   public void setRewardClaimState(RewardClaimState rewardClaimState) {
     this.rewardClaimState = rewardClaimState;
-    bump();
+    this.bump();
   }
 
   public void restoreRewardClaimState(RewardClaimState rewardClaimState) {
@@ -100,7 +100,7 @@ public final class QuestProgress {
     StepProgress current = this.steps.getOrDefault(stepId, StepProgress.locked());
     StepProgress updated = current.withProgress(current.progress() + delta);
     this.steps.put(stepId, updated);
-    bump();
+    this.bump();
     return updated;
   }
 

@@ -90,7 +90,7 @@ class InteractiveStoryContentParserTest {
   @Test
   void missingDisplayStoryId() {
     JsonObject input =
-        json(
+        this.json(
             """
         {
           "schema": 1
@@ -107,7 +107,7 @@ class InteractiveStoryContentParserTest {
   @Test
   void onOpenParsedAsRawActions() {
     JsonObject input =
-        json(
+        this.json(
             """
         {
           "schema": 1,
@@ -128,7 +128,7 @@ class InteractiveStoryContentParserTest {
   @Test
   void choiceConditionsPreserved() {
     JsonObject input =
-        json(
+        this.json(
             """
         {
           "schema": 1,

@@ -54,11 +54,11 @@ public record OpenOverviewScreenMessage(ScreenType screenType) implements Networ
 
   @Override
   public void handleClient() {
-    if (screenType == null) {
+    if (this.screenType == null) {
       MainScreen.open();
       return;
     }
-    switch (screenType) {
+    switch (this.screenType) {
       case INTERACTIONS -> InteractionOverviewScreen.open();
       case DIALOGS -> DialogOverviewScreen.open(List.of());
       case QUESTS -> QuestOverviewScreen.open(List.of());

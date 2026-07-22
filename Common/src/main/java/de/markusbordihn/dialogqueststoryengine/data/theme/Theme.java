@@ -19,6 +19,7 @@
 
 package de.markusbordihn.dialogqueststoryengine.data.theme;
 
+import java.util.Map;
 import java.util.UUID;
 import net.minecraft.resources.ResourceLocation;
 
@@ -26,15 +27,20 @@ public record Theme(
     UUID uuid,
     ResourceLocation id,
     int schema,
-    ThemeLayout layout,
-    ResourceLocation frameTexture,
-    ResourceLocation backgroundTexture,
-    boolean showPageNumbers,
-    boolean showCloseButton,
-    ThemeArea displayArea,
-    ThemeArea titleArea,
-    ThemeTextAlignment titleAlignment,
-    ThemeArea textArea,
-    ThemeArea choiceArea,
-    int screenWidth,
-    int screenHeight) {}
+    ResourceLocation layoutId,
+    int logicalWidth,
+    int logicalHeight,
+    ThemeScaleLimits scaleLimits,
+    ThemeAnchor anchor,
+    Map<String, ThemeArea> areas,
+    Map<String, ThemeSprite> sprites,
+    Map<String, Integer> colors,
+    Map<String, Object> options) {
+
+  public Theme {
+    areas = Map.copyOf(areas);
+    sprites = Map.copyOf(sprites);
+    colors = Map.copyOf(colors);
+    options = Map.copyOf(options);
+  }
+}

@@ -108,16 +108,16 @@ public class FactCommand extends Command {
 
   private static String formatFactValue(FactValue fact) {
     String display;
-    if (fact instanceof FactValue.BooleanValue b) {
-      display = String.valueOf(b.value());
-    } else if (fact instanceof FactValue.LongValue l) {
-      display = String.valueOf(l.value());
-    } else if (fact instanceof FactValue.DoubleValue d) {
-      display = String.valueOf(d.value());
-    } else if (fact instanceof FactValue.StringValue s) {
-      display = s.value();
-    } else if (fact instanceof FactValue.ResourceLocationValue rl) {
-      display = rl.value().toString();
+    if (fact instanceof FactValue.BooleanValue booleanValue) {
+      display = String.valueOf(booleanValue.value());
+    } else if (fact instanceof FactValue.LongValue longValue) {
+      display = String.valueOf(longValue.value());
+    } else if (fact instanceof FactValue.DoubleValue doubleValue) {
+      display = String.valueOf(doubleValue.value());
+    } else if (fact instanceof FactValue.StringValue stringValue) {
+      display = stringValue.value();
+    } else if (fact instanceof FactValue.ResourceLocationValue resourceLocationValue) {
+      display = resourceLocationValue.value().toString();
     } else {
       display = fact.toString();
     }

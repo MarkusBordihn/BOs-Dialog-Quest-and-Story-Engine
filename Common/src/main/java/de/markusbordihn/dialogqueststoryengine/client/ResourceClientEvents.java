@@ -20,6 +20,7 @@
 package de.markusbordihn.dialogqueststoryengine.client;
 
 import de.markusbordihn.dialogqueststoryengine.Constants;
+import de.markusbordihn.dialogqueststoryengine.client.screen.theme.BuiltinLayoutScreens;
 import de.markusbordihn.dialogqueststoryengine.story.entry.StoryEntryLoader;
 import de.markusbordihn.dialogqueststoryengine.theme.ThemeLoader;
 import java.util.function.Consumer;
@@ -35,6 +36,7 @@ public final class ResourceClientEvents {
 
   public static void registerReloadListeners(Consumer<PreparableReloadListener> registrar) {
     log.info("{} Resource Pack loaders ...", Constants.LOG_REGISTER_PREFIX);
+    BuiltinLayoutScreens.register();
     registrar.accept(new StoryEntryLoader());
     registrar.accept(new ThemeLoader());
   }

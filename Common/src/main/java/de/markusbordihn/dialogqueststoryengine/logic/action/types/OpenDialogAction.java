@@ -48,6 +48,7 @@ public record OpenDialogAction(ResourceLocation dialogId) implements Action {
           ContentIssue.of(IssueCode.MISSING_FIELD, contentType, contentId, filePath, "dialog"));
       return Action.NOOP;
     }
+
     ResourceLocation dialogId = ResourceLocation.tryParse(jsonObject.get("dialog").getAsString());
     if (dialogId == null) {
       issues.add(
@@ -60,6 +61,7 @@ public record OpenDialogAction(ResourceLocation dialogId) implements Action {
               Map.of("value", jsonObject.get("dialog").getAsString())));
       return Action.NOOP;
     }
+
     return new OpenDialogAction(dialogId);
   }
 

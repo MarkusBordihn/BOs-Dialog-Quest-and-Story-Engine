@@ -26,7 +26,7 @@ import net.minecraft.client.resources.language.I18n;
 
 public class BottomBar extends Widget {
 
-  private static final int SWITCH_H = 14;
+  private static final int SWITCH_HEIGHT = 14;
 
   private final Runnable onThemeChange;
   private final ToggleSwitch themeSwitch;
@@ -35,40 +35,43 @@ public class BottomBar extends Widget {
     super(posX, posY, width, height);
     this.onThemeChange = onThemeChange;
     this.themeSwitch =
-        new ToggleSwitch(0, 0, "Dark mode", ColorPalette.isDark(), on -> this.onThemeChange.run());
+        new ToggleSwitch(
+            0, 0, "Dark mode", ColorPalette.isDark(), toggled -> this.onThemeChange.run());
   }
 
   @Override
   public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-    if (!visible) {
+    if (!this.visible) {
       return;
     }
     ColorPalette palette = ColorPalette.current();
-    int x = getX();
-    int y = getY();
+    int x = this.getX();
+    int y = this.getY();
 
-    graphics.fill(x, y, x + width, y + height, (palette.outline() & 0x00FFFFFF) | 0x30000000);
-    graphics.fill(x, y, x + width, y + 1, palette.outline());
+    graphics.fill(
+        x, y, x + this.width, y + this.height, (palette.outline() & 0x00FFFFFF) | 0x30000000);
+    graphics.fill(x, y, x + this.width, y + 1, palette.outline());
 
     boolean dark = ColorPalette.isDark();
-    themeSwitch.setToggled(dark);
-    themeSwitch.setLabel(
+    this.themeSwitch.setToggled(dark);
+    this.themeSwitch.setLabel(
         I18n.get(
             dark
                 ? "gui.dialog_quest_and_story_engine.theme.dark"
                 : "gui.dialog_quest_and_story_engine.theme.light"));
-    int switchW = themeSwitch.getWidth();
-    themeSwitch.setPosition(x + width - switchW - 4, y + (height - SWITCH_H) / 2);
-    themeSwitch.render(graphics, mouseX, mouseY, partialTick);
+    int switchWidth = this.themeSwitch.getWidth();
+    this.themeSwitch.setPosition(
+        x + this.width - switchWidth - 4, y + (this.height - SWITCH_HEIGHT) / 2);
+    this.themeSwitch.render(graphics, mouseX, mouseY, partialTick);
   }
 
   @Override
   public boolean mouseClicked(double mouseX, double mouseY, int button) {
-    return themeSwitch.mouseClicked(mouseX, mouseY, button);
+    return this.themeSwitch.mouseClicked(mouseX, mouseY, button);
   }
 
   @Override
   public boolean mouseReleased(double mouseX, double mouseY, int button) {
-    return themeSwitch.mouseReleased(mouseX, mouseY, button);
+    return this.themeSwitch.mouseReleased(mouseX, mouseY, button);
   }
 }

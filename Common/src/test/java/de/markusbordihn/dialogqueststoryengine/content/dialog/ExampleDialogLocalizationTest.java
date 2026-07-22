@@ -79,11 +79,11 @@ class ExampleDialogLocalizationTest {
 
   @Test
   void allReferencedKeysExistInEnUs() {
-    assertAllKeysPresent("en_us.json");
+    this.assertAllKeysPresent("en_us.json");
   }
 
   @Test
   void allReferencedKeysExistInDeDe() {
-    assertAllKeysPresent("de_de.json");
+    this.assertAllKeysPresent("de_de.json");
   }
 }

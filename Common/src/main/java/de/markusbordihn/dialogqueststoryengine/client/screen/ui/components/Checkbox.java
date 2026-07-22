@@ -82,39 +82,43 @@ public class Checkbox extends AbstractButton {
 
   @Override
   protected void onPress() {
-    checked = !checked;
-    if (onChange != null) {
-      onChange.accept(checked);
+    this.checked = !this.checked;
+    if (this.onChange != null) {
+      this.onChange.accept(this.checked);
     }
   }
 
   @Override
   public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-    if (!visible) {
+    if (!this.visible) {
       return;
     }
     ColorPalette palette = ColorPalette.current();
-    int x = getX();
-    int y = getY();
-    hovered = isMouseOver(mouseX, mouseY);
+    int x = this.getX();
+    int y = this.getY();
+    this.hovered = this.isMouseOver(mouseX, mouseY);
 
-    int bgColor;
-    if (!active) {
-      bgColor = palette.surfaceContainerLow();
-    } else if (checked) {
-      bgColor = hovered ? darken(palette.primary(), 0.15f) : palette.primary();
+    int backgroundColor;
+    if (!this.active) {
+      backgroundColor = palette.surfaceContainerLow();
+    } else if (this.checked) {
+      backgroundColor = this.hovered ? darken(palette.primary(), 0.15f) : palette.primary();
     } else {
-      bgColor = hovered ? palette.surfaceContainerHigh() : palette.surfaceContainer();
+      backgroundColor = this.hovered ? palette.surfaceContainerHigh() : palette.surfaceContainer();
     }
-    fillRoundedRect(graphics, x, y, BOX_SIZE, BOX_SIZE, bgColor);
+    fillRoundedRect(graphics, x, y, BOX_SIZE, BOX_SIZE, backgroundColor);
 
-    int borderColor =
-        !active
-            ? palette.onSurfaceLow()
-            : checked ? bgColor : (hovered ? palette.primary() : palette.outline());
+    int borderColor;
+    if (!this.active) {
+      borderColor = palette.onSurfaceLow();
+    } else if (this.checked) {
+      borderColor = backgroundColor;
+    } else {
+      borderColor = this.hovered ? palette.primary() : palette.outline();
+    }
     drawBorderRounded(graphics, x, y, BOX_SIZE, BOX_SIZE, borderColor);
 
-    if (checked) {
+    if (this.checked) {
       Font font = Minecraft.getInstance().font;
       ScaledText.drawCentered(
           graphics,
@@ -122,17 +126,17 @@ public class Checkbox extends AbstractButton {
           CHECK_MARK,
           x + BOX_SIZE / 2,
           y + 2,
-          active ? palette.onPrimary() : palette.onSurfaceLow(),
+          this.active ? palette.onPrimary() : palette.onSurfaceLow(),
           ScaledText.SCALE_NORMAL);
     }
 
-    if (label != null && !label.getString().isEmpty()) {
+    if (this.label != null && !this.label.getString().isEmpty()) {
       Font font = Minecraft.getInstance().font;
-      int textColor = active ? palette.onSurface() : palette.onSurfaceLow();
+      int textColor = this.active ? palette.onSurface() : palette.onSurfaceLow();
       ScaledText.draw(
           graphics,
           font,
-          label,
+          this.label,
           x + BOX_SIZE + LABEL_GAP,
           y + (BOX_SIZE - ScaledText.getScaledHeight(font, ScaledText.SCALE_BODY)) / 2,
           textColor,
@@ -141,11 +145,12 @@ public class Checkbox extends AbstractButton {
   }
 
   private void updateWidth() {
-    if (label != null && !label.getString().isEmpty()) {
+    if (this.label != null && !this.label.getString().isEmpty()) {
       Font font = Minecraft.getInstance().font;
-      width = BOX_SIZE + LABEL_GAP + ScaledText.getScaledWidth(font, label, ScaledText.SCALE_BODY);
+      this.width =
+          BOX_SIZE + LABEL_GAP + ScaledText.getScaledWidth(font, this.label, ScaledText.SCALE_BODY);
     } else {
-      width = BOX_SIZE;
+      this.width = BOX_SIZE;
     }
   }
 }

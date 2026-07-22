@@ -117,7 +117,7 @@ class QuestContentParserTest {
   @Test
   void missingDisplay() {
     JsonObject input =
-        json(
+        this.json(
             """
         {
           "schema": 1,
@@ -136,7 +136,7 @@ class QuestContentParserTest {
   @Test
   void missingLogic() {
     JsonObject input =
-        json(
+        this.json(
             """
         {
           "schema": 1,
@@ -156,7 +156,7 @@ class QuestContentParserTest {
   @Test
   void emptyStepsWarning() {
     JsonObject input =
-        json(
+        this.json(
             """
         {
           "schema": 1,
@@ -179,7 +179,7 @@ class QuestContentParserTest {
   @Test
   void restartAfterFailureDefaultsTrue() {
     JsonObject input =
-        json(
+        this.json(
             """
         {
           "schema": 1,
@@ -204,7 +204,7 @@ class QuestContentParserTest {
   @Test
   void anyStepCompletionPolicy() {
     JsonObject input =
-        json(
+        this.json(
             """
         {
           "schema": 1,
@@ -230,7 +230,7 @@ class QuestContentParserTest {
   @Test
   void visibilityConditionParsed() {
     JsonObject input =
-        json(
+        this.json(
             """
         {
           "schema": 1,
@@ -258,7 +258,7 @@ class QuestContentParserTest {
   @Test
   void typedRewardEntriesParsed() {
     JsonObject input =
-        json(
+        this.json(
             """
         {
           "schema": 1,
@@ -295,7 +295,7 @@ class QuestContentParserTest {
   @Test
   void unregisteredRewardItemIsReported() {
     JsonObject input =
-        json(
+        this.json(
             """
         {
           "schema": 1,
@@ -328,7 +328,7 @@ class QuestContentParserTest {
   @Test
   void unknownRewardTypeIsReported() {
     JsonObject input =
-        json(
+        this.json(
             """
         {
           "schema": 1,
@@ -360,7 +360,7 @@ class QuestContentParserTest {
   @Test
   void invalidRewardAmountIsReported() {
     JsonObject input =
-        json(
+        this.json(
             """
         {
           "schema": 1,
@@ -392,7 +392,7 @@ class QuestContentParserTest {
   @Test
   void prerequisitesParsed() {
     JsonObject input =
-        json(
+        this.json(
             """
         {
           "schema": 1,
@@ -425,7 +425,7 @@ class QuestContentParserTest {
   @Test
   void stepRequiresAndDescriptionKeyParsed() {
     JsonObject input =
-        json(
+        this.json(
             """
         {
           "schema": 1,
@@ -461,7 +461,7 @@ class QuestContentParserTest {
   @Test
   void unknownStepPrerequisiteFailsParse() {
     JsonObject input =
-        json(
+        this.json(
             """
         {
           "schema": 1,
@@ -488,7 +488,7 @@ class QuestContentParserTest {
   @Test
   void selfStepPrerequisiteFailsParse() {
     JsonObject input =
-        json(
+        this.json(
             """
         {
           "schema": 1,
@@ -515,7 +515,7 @@ class QuestContentParserTest {
   @Test
   void duplicateStepPrerequisiteFailsParse() {
     JsonObject input =
-        json(
+        this.json(
             """
         {
           "schema": 1,
@@ -543,7 +543,7 @@ class QuestContentParserTest {
   @Test
   void stepPrerequisiteCycleFailsParse() {
     JsonObject input =
-        json(
+        this.json(
             """
         {
           "schema": 1,
@@ -572,7 +572,7 @@ class QuestContentParserTest {
   @Test
   void invalidRequiresTypeIsIgnoredWithIssue() {
     JsonObject input =
-        json(
+        this.json(
             """
         {
           "schema": 1,

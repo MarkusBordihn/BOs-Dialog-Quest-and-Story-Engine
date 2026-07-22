@@ -19,28 +19,13 @@
 
 package de.markusbordihn.dialogqueststoryengine.data.story;
 
+import de.markusbordihn.dialogqueststoryengine.data.json.EnumKeys;
 import java.util.Optional;
 
 public enum StoryEntryType {
-  HOLOPAD("holopad");
-
-  private final String key;
-
-  StoryEntryType(String key) {
-    this.key = key;
-  }
+  HOLOPAD;
 
   public static Optional<StoryEntryType> fromKey(String key) {
-    for (StoryEntryType type : values()) {
-      if (type.key.equalsIgnoreCase(key)) {
-        return Optional.of(type);
-      }
-    }
-
-    return Optional.empty();
-  }
-
-  public String key() {
-    return this.key;
+    return EnumKeys.byName(StoryEntryType.class, key);
   }
 }

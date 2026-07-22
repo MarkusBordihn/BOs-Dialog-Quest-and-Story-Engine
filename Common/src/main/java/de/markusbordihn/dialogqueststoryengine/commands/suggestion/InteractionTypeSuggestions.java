@@ -38,7 +38,7 @@ public class InteractionTypeSuggestions implements SuggestionProvider<CommandSou
     InteractionType[] types = InteractionType.values();
     String[] names = new String[types.length];
     for (int i = 0; i < types.length; i++) {
-      names[i] = types[i].name().toLowerCase();
+      names[i] = types[i].key();
     }
     SharedSuggestionProvider.suggest(names, builder);
     return builder.buildFuture();

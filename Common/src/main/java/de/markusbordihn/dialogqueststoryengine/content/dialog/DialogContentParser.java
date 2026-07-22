@@ -25,6 +25,7 @@ import com.google.gson.JsonObject;
 import de.markusbordihn.dialogqueststoryengine.data.ContentType;
 import de.markusbordihn.dialogqueststoryengine.data.dialog.DialogChoiceDefinition;
 import de.markusbordihn.dialogqueststoryengine.data.dialog.DialogDefinition;
+import de.markusbordihn.dialogqueststoryengine.data.dialog.DialogMood;
 import de.markusbordihn.dialogqueststoryengine.data.dialog.DialogNodeDefinition;
 import de.markusbordihn.dialogqueststoryengine.data.dialog.DialogPresentation;
 import de.markusbordihn.dialogqueststoryengine.data.issue.ContentIssue;
@@ -265,7 +266,7 @@ public final class DialogContentParser {
 
     String choicePath = FIELD_NODES + "." + nodeId + ".choices[" + index + "]";
     boolean close =
-        OptionalFieldReader.bool(
+        OptionalFieldReader.booleanValue(
             choiceJson,
             FIELD_CLOSE,
             choicePath + "." + FIELD_CLOSE,
@@ -275,7 +276,7 @@ public final class DialogContentParser {
             filePath,
             issues);
     boolean once =
-        OptionalFieldReader.bool(
+        OptionalFieldReader.booleanValue(
             choiceJson,
             FIELD_ONCE,
             choicePath + "." + FIELD_ONCE,
@@ -326,14 +327,7 @@ public final class DialogContentParser {
             id,
             filePath,
             issues),
-        OptionalFieldReader.string(
-            presentationJson,
-            FIELD_MOOD,
-            path + FIELD_MOOD,
-            ContentType.DIALOG,
-            id,
-            filePath,
-            issues),
+        parseMood(presentationJson, path, id, filePath, issues),
         OptionalFieldReader.resourceLocation(
             presentationJson,
             FIELD_THEME,
@@ -342,5 +336,38 @@ public final class DialogContentParser {
             id,
             filePath,
             issues));
+  }
+
+  private static Optional<DialogMood> parseMood(
+      JsonObject presentationJson,
+      String path,
+      ResourceLocation id,
+      String filePath,
+      List<ContentIssue> issues) {
+    Optional<String> raw =
+        OptionalFieldReader.string(
+            presentationJson,
+            FIELD_MOOD,
+            path + FIELD_MOOD,
+            ContentType.DIALOG,
+            id,
+            filePath,
+            issues);
+    if (raw.isEmpty()) {
+      return Optional.empty();
+    }
+
+    Optional<DialogMood> mood = DialogMood.fromKey(raw.get());
+    if (mood.isEmpty()) {
+      issues.add(
+          ContentIssue.of(
+              IssueCode.INVALID_FIELD_TYPE,
+              ContentType.DIALOG,
+              id,
+              filePath,
+              path + FIELD_MOOD,
+              Map.of("value", raw.get())));
+    }
+    return mood;
   }
 }

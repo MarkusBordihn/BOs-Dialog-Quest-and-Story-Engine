@@ -27,7 +27,6 @@ import de.markusbordihn.dialogqueststoryengine.data.issue.IssueCode;
 import de.markusbordihn.dialogqueststoryengine.data.state.FactScope;
 import de.markusbordihn.dialogqueststoryengine.data.state.FactValue;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import net.minecraft.resources.ResourceLocation;
 
@@ -50,8 +49,7 @@ final class FactConditionFields {
       return null;
     }
 
-    FactScope scope =
-        FactScope.fromName(json.get(FIELD_SCOPE).getAsString().toUpperCase(Locale.ROOT));
+    FactScope scope = FactScope.fromName(json.get(FIELD_SCOPE).getAsString());
     if (scope == null) {
       issues.add(
           ContentIssue.of(

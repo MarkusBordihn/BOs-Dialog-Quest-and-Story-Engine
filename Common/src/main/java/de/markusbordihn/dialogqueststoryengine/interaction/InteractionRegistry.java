@@ -53,7 +53,10 @@ public final class InteractionRegistry {
         InteractionEventType.ON_HOLOPAD_USE.resourceLocation(),
         context ->
             ActionDataExecutor.execute(
-                context.entry().actionDataSet(), context.player(), context.level().getServer()));
+                context.entry().actionDataSet(),
+                context.player(),
+                context.level().getServer(),
+                context.entry().targetId()));
     Registries.INTERACTIONS.register(
         InteractionEventType.ON_EASY_NPC_INTERACT.resourceLocation(), context -> {});
   }
@@ -72,7 +75,7 @@ public final class InteractionRegistry {
         entry.label(),
         entry.targetId(),
         player.getName().getString());
-    String posInfo = entry.blockPos() != null ? " at " + entry.blockPos().toShortString() : "";
+    String positionInfo = entry.blockPos() != null ? " at " + entry.blockPos().toShortString() : "";
     player.sendSystemMessage(
         Component.literal(
                 "\u25B6 "
@@ -82,7 +85,7 @@ public final class InteractionRegistry {
                     + " '"
                     + entry.label()
                     + "'"
-                    + posInfo)
+                    + positionInfo)
             .withStyle(ChatFormatting.GOLD));
     player.sendSystemMessage(
         Component.literal("  UUID: " + entry.targetId()).withStyle(ChatFormatting.DARK_GRAY));

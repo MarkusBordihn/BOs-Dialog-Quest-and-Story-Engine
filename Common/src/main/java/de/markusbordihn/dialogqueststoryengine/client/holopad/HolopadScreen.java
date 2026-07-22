@@ -19,12 +19,14 @@
 
 package de.markusbordihn.dialogqueststoryengine.client.holopad;
 
+import de.markusbordihn.dialogqueststoryengine.client.screen.theme.ChoiceListLayout;
 import de.markusbordihn.dialogqueststoryengine.client.story.StoryScreen;
 import de.markusbordihn.dialogqueststoryengine.client.story.TypewriterAnimator;
 import de.markusbordihn.dialogqueststoryengine.data.story.StoryEntry;
 import de.markusbordihn.dialogqueststoryengine.data.story.StoryPage;
-import de.markusbordihn.dialogqueststoryengine.data.theme.ScreenLayout;
 import de.markusbordihn.dialogqueststoryengine.data.theme.Theme;
+import de.markusbordihn.dialogqueststoryengine.data.theme.ThemeArea;
+import de.markusbordihn.dialogqueststoryengine.data.theme.layout.HolopadLayout;
 import de.markusbordihn.dialogqueststoryengine.network.NetworkHandlerManager;
 import de.markusbordihn.dialogqueststoryengine.network.message.session.ClientCloseSessionPacket;
 import de.markusbordihn.dialogqueststoryengine.network.message.session.SubmitChoicePacket;
@@ -39,24 +41,20 @@ import org.lwjgl.glfw.GLFW;
 
 public class HolopadScreen extends StoryScreen {
 
-  private static final int COLOR_TITLE = 0x00FFFF;
-  private static final int COLOR_PAGE_NUMBER = 0xAAAAAA;
   private final StoryEntry entry;
-  private final Theme theme;
   private final TypewriterAnimator animator = new TypewriterAnimator();
   private final SessionData sessionData;
-  private ScreenLayout layout;
+  private HolopadLayout layout;
   private List<List<String>> pages;
   private int currentPage;
-  private Button prevButton;
+  private Button previousButton;
   private Button nextButton;
   private Button closeButton;
   private Button replayButton;
 
   private HolopadScreen(StoryEntry entry, Theme theme, SessionData sessionData) {
-    super(Component.translatable(entry.titleKey()));
+    super(Component.translatable(entry.titleKey()), theme);
     this.entry = entry;
-    this.theme = theme;
     this.sessionData = sessionData;
   }
 
@@ -73,8 +71,9 @@ public class HolopadScreen extends StoryScreen {
   }
 
   @Override
-  protected void init() {
-    this.layout = ScreenLayout.from(this.theme, this.width, this.height);
+  protected void initThemed() {
+    this.layout = new HolopadLayout(this.resolvedLayout);
+    ThemeArea textArea = this.layout.text();
 
     ArrayList<List<String>> allPages = new ArrayList<>();
     for (StoryPage storyPage : this.entry.pages()) {
@@ -82,8 +81,8 @@ public class HolopadScreen extends StoryScreen {
           HolopadPageRenderer.paginate(
               Component.translatable(storyPage.textKey()),
               this.font,
-              this.layout.textArea().width(),
-              this.layout.textArea().height()));
+              textArea.width(),
+              textArea.height()));
     }
     this.pages = List.copyOf(allPages);
 
@@ -114,18 +113,15 @@ public class HolopadScreen extends StoryScreen {
   }
 
   @Override
-  public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-    renderDimBackground(graphics);
-    renderScreenTexture(graphics, this.layout.backgroundTexture(), this.layout);
-    renderScreenTexture(graphics, this.layout.frameTexture(), this.layout);
+  protected void renderThemed(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+    renderViewportSprite(graphics, this.layout.background());
+    renderViewportSprite(graphics, this.layout.frame());
     renderTitle(graphics);
-    renderRevealedText(graphics, this.layout, this.animator);
+    renderRevealedText(graphics, this.layout.text(), this.animator, this.layout.textColor());
 
     if (this.layout.showPageNumbers() && this.animator.isComplete()) {
       renderPageNumber(graphics);
     }
-
-    super.render(graphics, mouseX, mouseY, partialTick);
   }
 
   @Override
@@ -161,34 +157,34 @@ public class HolopadScreen extends StoryScreen {
   }
 
   private void renderTitle(GuiGraphics graphics) {
-    int titleX = this.layout.titleX(this.font.width(this.title));
-    int titleY = this.layout.titleY(this.font.lineHeight);
-    graphics.drawString(this.font, this.title, titleX, titleY, COLOR_TITLE, false);
+    ThemeArea titleArea = this.layout.title();
+    int titleX = alignedX(titleArea, this.layout.titleAlignment(), this.font.width(this.title));
+    int titleY = centeredY(titleArea, this.font.lineHeight);
+    graphics.drawString(this.font, this.title, titleX, titleY, this.layout.accentColor(), false);
   }
 
   private void renderPageNumber(GuiGraphics graphics) {
     String pageText = (this.currentPage + 1) + " / " + this.pages.size();
-    int pageX =
-        this.layout.leftPos()
-            + this.layout.textArea().x()
-            + this.layout.textArea().width()
-            - this.font.width(pageText);
-    int pageY =
-        this.layout.topPos() + this.layout.textArea().y() + this.layout.textArea().height() + 2;
-    graphics.drawString(this.font, pageText, pageX, pageY, COLOR_PAGE_NUMBER, false);
+    ThemeArea pageArea = this.layout.page().orElse(null);
+    int pageX;
+    int pageY;
+    if (pageArea != null) {
+      pageX = pageArea.x() + pageArea.width() - this.font.width(pageText);
+      pageY = centeredY(pageArea, this.font.lineHeight);
+    } else {
+      ThemeArea textArea = this.layout.text();
+      pageX = textArea.x() + textArea.width() - this.font.width(pageText);
+      pageY = textArea.y() + textArea.height() + 2;
+    }
+    graphics.drawString(this.font, pageText, pageX, pageY, this.layout.mutedColor(), false);
   }
 
   private void addReplayButton() {
+    ThemeArea display = this.layout.display();
     int buttonWidth = 80;
     int buttonHeight = 20;
-    int buttonX =
-        this.layout.leftPos()
-            + this.layout.displayArea().x()
-            + (this.layout.displayArea().width() - buttonWidth) / 2;
-    int buttonY =
-        this.layout.topPos()
-            + this.layout.displayArea().y()
-            + (this.layout.displayArea().height() - buttonHeight) / 2;
+    int buttonX = display.x() + (display.width() - buttonWidth) / 2;
+    int buttonY = display.y() + (display.height() - buttonHeight) / 2;
 
     this.replayButton =
         Button.builder(
@@ -201,35 +197,25 @@ public class HolopadScreen extends StoryScreen {
   }
 
   private void addNavigationButtons() {
-    int buttonY =
-        this.layout.topPos() + this.layout.textArea().y() + this.layout.textArea().height() + 2;
+    ThemeArea textArea = this.layout.text();
+    int buttonY = textArea.y() + textArea.height() + 2;
     int buttonWidth = 40;
     int buttonHeight = 14;
 
-    this.prevButton =
+    this.previousButton =
         Button.builder(
                 Component.translatable("gui.dialog_quest_and_story_engine.button.prev"),
                 button -> navigateTo(this.currentPage - 1))
-            .bounds(
-                this.layout.leftPos() + this.layout.textArea().x(),
-                buttonY,
-                buttonWidth,
-                buttonHeight)
+            .bounds(textArea.x(), buttonY, buttonWidth, buttonHeight)
             .build();
-    this.addRenderableWidget(this.prevButton);
+    this.addRenderableWidget(this.previousButton);
 
     this.nextButton =
         Button.builder(
                 Component.translatable("gui.dialog_quest_and_story_engine.button.next"),
                 button -> navigateTo(this.currentPage + 1))
             .bounds(
-                this.layout.leftPos()
-                    + this.layout.textArea().x()
-                    + this.layout.textArea().width()
-                    - buttonWidth,
-                buttonY,
-                buttonWidth,
-                buttonHeight)
+                textArea.x() + textArea.width() - buttonWidth, buttonY, buttonWidth, buttonHeight)
             .build();
     this.addRenderableWidget(this.nextButton);
 
@@ -237,14 +223,11 @@ public class HolopadScreen extends StoryScreen {
   }
 
   private void addCloseButtonWidget() {
+    ThemeArea textArea = this.layout.text();
     int buttonWidth = 40;
     int buttonHeight = 14;
-    int buttonY =
-        this.layout.topPos() + this.layout.textArea().y() + this.layout.textArea().height() + 2;
-    int buttonX =
-        this.layout.leftPos()
-            + this.layout.textArea().x()
-            + (this.layout.textArea().width() - buttonWidth) / 2;
+    int buttonY = textArea.y() + textArea.height() + 2;
+    int buttonX = textArea.x() + (textArea.width() - buttonWidth) / 2;
 
     this.closeButton =
         Button.builder(
@@ -278,8 +261,8 @@ public class HolopadScreen extends StoryScreen {
   }
 
   private void updateNavigationButtons() {
-    if (this.prevButton != null) {
-      this.prevButton.active = this.currentPage > 0;
+    if (this.previousButton != null) {
+      this.previousButton.active = this.currentPage > 0;
     }
 
     if (this.nextButton != null) {
@@ -307,16 +290,18 @@ public class HolopadScreen extends StoryScreen {
   }
 
   private void addChoiceButtons() {
-    int buttonWidth = this.layout.choiceButtonWidth();
+    ThemeArea choices = this.layout.choices();
+    int buttonWidth = choices.width();
     int buttonHeight = CHOICE_BUTTON_HEIGHT;
     int choiceCount = this.sessionData.allowedChoiceIds().size();
 
     int index = 0;
     for (String choiceId : this.sessionData.allowedChoiceIds()) {
       String labelKey = this.sessionData.choiceLabels().getOrDefault(choiceId, choiceId);
-      int buttonX = this.layout.choiceButtonX(buttonWidth);
+      int buttonX = ChoiceListLayout.buttonX(choices, buttonWidth);
       int buttonY =
-          this.layout.choiceButtonY(index, choiceCount, buttonHeight, CHOICE_BUTTON_SPACING);
+          ChoiceListLayout.buttonY(
+              choices, index, choiceCount, buttonHeight, CHOICE_BUTTON_SPACING);
       int revision = this.sessionData.revision();
       this.addRenderableWidget(
           Button.builder(

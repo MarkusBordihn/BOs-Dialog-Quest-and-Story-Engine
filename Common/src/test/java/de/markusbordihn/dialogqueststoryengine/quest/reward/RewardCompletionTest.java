@@ -91,7 +91,7 @@ class RewardCompletionTest {
     QuestTestFixtures.installDefinitions(quests);
 
     PlayerStateService.onPlayerDataLoaded(PLAYER, new CompoundTag());
-    playerState = PlayerStateService.get(PLAYER).orElseThrow();
+    this.playerState = PlayerStateService.get(PLAYER).orElseThrow();
   }
 
   @AfterEach
@@ -107,7 +107,7 @@ class RewardCompletionTest {
     QuestService.startQuest(PLAYER, MANUAL);
     QuestService.completeQuest(PLAYER, MANUAL);
 
-    assertEquals(RewardClaimState.AVAILABLE, playerState.getQuest(MANUAL).rewardClaimState());
+    assertEquals(RewardClaimState.AVAILABLE, this.playerState.getQuest(MANUAL).rewardClaimState());
   }
 
   @Test
@@ -115,7 +115,8 @@ class RewardCompletionTest {
     QuestService.startQuest(PLAYER, AUTOMATIC);
     QuestService.completeQuest(PLAYER, AUTOMATIC);
 
-    assertEquals(RewardClaimState.AVAILABLE, playerState.getQuest(AUTOMATIC).rewardClaimState());
+    assertEquals(
+        RewardClaimState.AVAILABLE, this.playerState.getQuest(AUTOMATIC).rewardClaimState());
   }
 
   @Test
@@ -123,6 +124,6 @@ class RewardCompletionTest {
     QuestService.startQuest(PLAYER, NO_REWARD);
     QuestService.completeQuest(PLAYER, NO_REWARD);
 
-    assertEquals(RewardClaimState.NONE, playerState.getQuest(NO_REWARD).rewardClaimState());
+    assertEquals(RewardClaimState.NONE, this.playerState.getQuest(NO_REWARD).rewardClaimState());
   }
 }

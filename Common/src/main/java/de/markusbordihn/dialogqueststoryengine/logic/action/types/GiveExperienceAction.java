@@ -63,6 +63,7 @@ public record GiveExperienceAction(int amount) implements Action {
               Map.of("value", String.valueOf(amount))));
       return Action.NOOP;
     }
+
     return new GiveExperienceAction(amount);
   }
 

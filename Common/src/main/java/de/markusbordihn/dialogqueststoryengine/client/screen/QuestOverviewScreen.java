@@ -36,7 +36,7 @@ import net.minecraft.network.chat.Component;
 public class QuestOverviewScreen extends BaseScreen {
 
   public QuestOverviewScreen(List<BreadcrumbBar.Segment> ancestors) {
-    setBreadcrumb(ancestors, "Quests");
+    this.setBreadcrumb(ancestors, "Quests");
   }
 
   public static void open(List<BreadcrumbBar.Segment> ancestors) {
@@ -55,24 +55,27 @@ public class QuestOverviewScreen extends BaseScreen {
 
   @Override
   public void onScreenInit(int screenWidth, int screenHeight) {
-    setSizeCentered(400, 260);
-    refreshWidgets();
+    this.setSizeCentered(400, 260);
+    this.refreshWidgets();
   }
 
   @Override
   protected void addWidgets() {
     ColumnListPanel<QuestDefinition> table =
-        new ColumnListPanel<>(0, 0, getInnerWidth(), getInnerHeight());
+        new ColumnListPanel<>(0, 0, this.getInnerWidth(), this.getInnerHeight());
     table.addColumn("column.id", 0.5f);
     table.addColumn("column.title_key", 0.35f);
     table.addColumn("column.rewards", 0.15f);
     table.setEntryHeight(20);
     table.setEntryRenderer(this::renderEntry);
+    table.setOnSelect(
+        definition -> ClientCommandSender.send("dqse quest start " + definition.id()));
+    table.setSearchable(definition -> definition.id() + " " + definition.display().titleKey());
     table.setItems(
         QuestClientRegistry.ids().stream()
             .map(id -> QuestClientRegistry.get(id).orElseThrow())
             .toList());
-    addWidget(table);
+    this.addWidget(table);
   }
 
   private void renderEntry(

@@ -88,8 +88,8 @@ public final class SessionManager {
 
     DialogDefinition definition = optionalDefinition.get();
     String startNode = startNodeOverride.orElse(definition.startNode());
-    DialogNodeDefinition startNodeDef = definition.nodes().get(startNode);
-    if (startNodeDef == null) {
+    DialogNodeDefinition startNodeDefinition = definition.nodes().get(startNode);
+    if (startNodeDefinition == null) {
       log.error(
           "{} openDialogSession: start node '{}' not found in dialog '{}' for player {}",
           Constants.LOG_PREFIX,
@@ -108,9 +108,10 @@ public final class SessionManager {
     PlayerState playerState = getOrCreatePlayerState(player);
     ConditionContext conditionContext = new ConditionContext(player, playerState, player.server);
     List<String> allowedChoiceIds =
-        filterAllowedChoiceIds(startNodeDef.choices(), conditionContext);
+        filterAllowedChoiceIds(startNodeDefinition.choices(), conditionContext);
 
-    Map<String, String> choiceLabels = buildChoiceLabels(startNodeDef.choices(), allowedChoiceIds);
+    Map<String, String> choiceLabels =
+        buildChoiceLabels(startNodeDefinition.choices(), allowedChoiceIds);
     NetworkHandlerManager.sendToPlayer(
         player,
         new DialogSessionPacket(
@@ -118,8 +119,8 @@ public final class SessionManager {
             DialogSessionPacketType.OPEN_DIALOG,
             dialogId,
             startNode,
-            startNodeDef.speakerKey(),
-            startNodeDef.textKey(),
+            startNodeDefinition.speakerKey(),
+            startNodeDefinition.textKey(),
             allowedChoiceIds,
             choiceLabels,
             Map.of(),
@@ -357,7 +358,7 @@ public final class SessionManager {
     }
 
     Optional<DialogChoiceDefinition> optionalChoice =
-        currentNode.choices().stream().filter(c -> c.id().equals(choiceId)).findFirst();
+        currentNode.choices().stream().filter(choice -> choice.id().equals(choiceId)).findFirst();
     if (optionalChoice.isEmpty()) {
       NetworkHandlerManager.sendToPlayer(
           player,
@@ -439,7 +440,7 @@ public final class SessionManager {
     InteractiveStoryDefinition definition = optionalDefinition.get();
 
     Optional<InteractiveStoryChoice> optionalChoice =
-        definition.choices().stream().filter(c -> c.id().equals(choiceId)).findFirst();
+        definition.choices().stream().filter(choice -> choice.id().equals(choiceId)).findFirst();
     if (optionalChoice.isEmpty()) {
       NetworkHandlerManager.sendToPlayer(
           player,

@@ -34,6 +34,7 @@ import java.io.InputStreamReader;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import net.minecraft.resources.ResourceLocation;
@@ -78,11 +79,11 @@ class ExampleDialogValidationTest {
     DialogContentRegistry.replaceAll(dialogs);
 
     assertEquals(
-        java.util.List.of(),
+        List.of(),
         new DialogNodeReferenceValidator().validate(),
         "Node reference validator should report no issues for example dialogs");
     assertEquals(
-        java.util.List.of(),
+        List.of(),
         new DialogReachabilityValidator().validate(),
         "Reachability validator should report no issues for example dialogs");
   }

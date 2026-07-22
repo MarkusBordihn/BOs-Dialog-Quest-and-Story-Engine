@@ -43,7 +43,7 @@ public class QuestProgressSyncGameTestHelper {
   public static void questMutationEmitsSingleDelta(GameTestHelper helper) {
     ServerPlayer player = GameTestHelpers.mockConnectedServerPlayer(helper);
     UUID playerUuid = player.getUUID();
-    CapturingNetworkTestHandler network = installEnv();
+    CapturingNetworkTestHandler network = installEnvironment();
     try {
       PlayerStateService.onPlayerDataLoaded(playerUuid, new CompoundTag());
       network.clear();
@@ -60,14 +60,14 @@ public class QuestProgressSyncGameTestHelper {
       GameTestHelpers.assertEquals(
           helper, "Delta state should be ACTIVE", QuestState.ACTIVE, delta.questState());
     } finally {
-      teardownEnv(playerUuid, network);
+      teardownEnvironment(playerUuid, network);
     }
   }
 
   public static void storyUnlockEmitsDelta(GameTestHelper helper) {
     ServerPlayer player = GameTestHelpers.mockConnectedServerPlayer(helper);
     UUID playerUuid = player.getUUID();
-    CapturingNetworkTestHandler network = installEnv();
+    CapturingNetworkTestHandler network = installEnvironment();
     try {
       PlayerStateService.onPlayerDataLoaded(playerUuid, new CompoundTag());
       network.clear();
@@ -84,18 +84,18 @@ public class QuestProgressSyncGameTestHelper {
           "Story delta should list the unlocked story",
           delta.unlockedStoryIds().contains(STORY));
     } finally {
-      teardownEnv(playerUuid, network);
+      teardownEnvironment(playerUuid, network);
     }
   }
 
-  private static CapturingNetworkTestHandler installEnv() {
+  private static CapturingNetworkTestHandler installEnvironment() {
     CapturingNetworkTestHandler network = CapturingNetworkTestHandler.install();
     PlayerStateEvents.clearAll();
     QuestProgressSync.register();
     return network;
   }
 
-  private static void teardownEnv(UUID playerUuid, CapturingNetworkTestHandler network) {
+  private static void teardownEnvironment(UUID playerUuid, CapturingNetworkTestHandler network) {
     network.restore();
     PlayerStateService.onPlayerLoggedOut(playerUuid);
     PlayerStateEvents.clearAll();

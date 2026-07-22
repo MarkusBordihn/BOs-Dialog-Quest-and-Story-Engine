@@ -35,7 +35,7 @@ public record OpenStorySessionPacket(
     ResourceLocation storyId,
     ResourceLocation displayStoryId,
     List<String> allowedChoiceIds,
-    Map<String, String> contextArgs,
+    Map<String, String> contextArguments,
     Map<String, String> choiceLabels,
     int revision)
     implements NetworkMessageRecord {
@@ -53,9 +53,9 @@ public record OpenStorySessionPacket(
       allowedChoiceIds.add(buffer.readUtf());
     }
     int argCount = buffer.readInt();
-    Map<String, String> contextArgs = new HashMap<>(argCount);
+    Map<String, String> contextArguments = new HashMap<>(argCount);
     for (int i = 0; i < argCount; i++) {
-      contextArgs.put(buffer.readUtf(), buffer.readUtf());
+      contextArguments.put(buffer.readUtf(), buffer.readUtf());
     }
     int labelCount = buffer.readInt();
     Map<String, String> choiceLabels = new HashMap<>(labelCount);
@@ -65,7 +65,13 @@ public record OpenStorySessionPacket(
     int revision = buffer.readInt();
 
     return new OpenStorySessionPacket(
-        sessionId, storyId, displayStoryId, allowedChoiceIds, contextArgs, choiceLabels, revision);
+        sessionId,
+        storyId,
+        displayStoryId,
+        allowedChoiceIds,
+        contextArguments,
+        choiceLabels,
+        revision);
   }
 
   @Override
@@ -75,8 +81,8 @@ public record OpenStorySessionPacket(
     buffer.writeResourceLocation(this.displayStoryId);
     buffer.writeInt(this.allowedChoiceIds.size());
     this.allowedChoiceIds.forEach(buffer::writeUtf);
-    buffer.writeInt(this.contextArgs.size());
-    this.contextArgs.forEach(
+    buffer.writeInt(this.contextArguments.size());
+    this.contextArguments.forEach(
         (key, value) -> {
           buffer.writeUtf(key);
           buffer.writeUtf(value);

@@ -60,6 +60,7 @@ public record FailQuestAction(ResourceLocation questId) implements Action {
               Map.of("value", jsonObject.get("quest").getAsString())));
       return Action.NOOP;
     }
+
     return new FailQuestAction(questId);
   }
 

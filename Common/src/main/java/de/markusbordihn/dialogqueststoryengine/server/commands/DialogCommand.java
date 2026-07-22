@@ -21,6 +21,7 @@ package de.markusbordihn.dialogqueststoryengine.server.commands;
 
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import de.markusbordihn.dialogqueststoryengine.commands.Command;
+import de.markusbordihn.dialogqueststoryengine.commands.suggestion.ContentIdSuggestions;
 import de.markusbordihn.dialogqueststoryengine.session.SessionManager;
 import java.util.Collection;
 import java.util.Optional;
@@ -42,6 +43,7 @@ public class DialogCommand extends Command {
             Commands.literal("open")
                 .then(
                     Commands.argument("id", ResourceLocationArgument.id())
+                        .suggests(ContentIdSuggestions.DIALOGS)
                         .executes(
                             context -> {
                               ResourceLocation dialogId =

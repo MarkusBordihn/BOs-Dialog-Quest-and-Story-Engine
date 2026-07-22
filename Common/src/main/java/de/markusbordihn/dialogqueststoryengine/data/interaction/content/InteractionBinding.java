@@ -42,7 +42,7 @@ public sealed interface InteractionBinding
     }
   }
 
-  record BlockBinding(BlockPos pos, ResourceLocation dimension) implements InteractionBinding {
+  record BlockBinding(BlockPos blockPos, ResourceLocation dimension) implements InteractionBinding {
     @Override
     public InteractionBindingKind kind() {
       return InteractionBindingKind.BLOCK;

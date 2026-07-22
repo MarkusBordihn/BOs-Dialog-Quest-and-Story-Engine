@@ -21,6 +21,7 @@ package de.markusbordihn.dialogqueststoryengine.server.commands;
 
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import de.markusbordihn.dialogqueststoryengine.commands.Command;
+import de.markusbordihn.dialogqueststoryengine.commands.suggestion.ContentIdSuggestions;
 import de.markusbordihn.dialogqueststoryengine.network.NetworkHandlerManager;
 import de.markusbordihn.dialogqueststoryengine.network.message.story.OpenClientStoryPacket;
 import net.minecraft.commands.CommandSourceStack;
@@ -40,6 +41,7 @@ public class StoryCommand extends Command {
             Commands.literal("open")
                 .then(
                     Commands.argument("id", ResourceLocationArgument.id())
+                        .suggests(ContentIdSuggestions.STORY_ENTRIES)
                         .executes(
                             context -> {
                               sendInfoMessage(
@@ -51,6 +53,7 @@ public class StoryCommand extends Command {
             Commands.literal("preview")
                 .then(
                     Commands.argument("id", ResourceLocationArgument.id())
+                        .suggests(ContentIdSuggestions.STORY_ENTRIES)
                         .executes(
                             context -> {
                               ResourceLocation storyId =

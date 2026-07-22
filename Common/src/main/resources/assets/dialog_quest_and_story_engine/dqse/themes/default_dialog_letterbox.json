@@ -1,0 +1,22 @@
+{
+  "schema": 1,
+  "layout": "dqse:dialog_letterbox",
+  "logical_width": 427,
+  "logical_height": 240,
+  "anchor": "center",
+  "areas": {
+    "speaker": {"x": 27, "y": 168, "width": 92, "height": 12},
+    "text": {"x": 24, "y": 190, "width": 388, "height": 40},
+    "choices": {"x": 280, "y": 114, "width": 134, "height": 52}
+  },
+  "colors": {
+    "accent": "#FFE08A",
+    "on_surface": "#F4F4F8"
+  },
+  "options": {
+    "speaker_alignment": "left",
+    "text_alignment": "left",
+    "background_mode": "letterbox",
+    "show_close_button": true
+  }
+}

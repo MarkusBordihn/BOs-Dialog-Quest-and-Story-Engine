@@ -19,69 +19,50 @@
 
 package de.markusbordihn.dialogqueststoryengine.client.story;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import de.markusbordihn.dialogqueststoryengine.data.theme.ScreenLayout;
+import de.markusbordihn.dialogqueststoryengine.client.screen.theme.ThemedScreen;
+import de.markusbordihn.dialogqueststoryengine.data.theme.Theme;
+import de.markusbordihn.dialogqueststoryengine.data.theme.ThemeArea;
 import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import org.lwjgl.glfw.GLFW;
 
-public abstract class StoryScreen extends Screen {
+public abstract class StoryScreen extends ThemedScreen {
 
-  protected static final int COLOR_TEXT = 0xFFFFFF;
-  protected static final int TEXTURE_WIDTH = 512;
-  protected static final int TEXTURE_HEIGHT = 256;
   protected static final int CHOICE_BUTTON_HEIGHT = 16;
   protected static final int CHOICE_BUTTON_SPACING = 4;
   protected static final int LINE_SPACING = 2;
 
-  protected StoryScreen(Component title) {
-    super(title);
+  protected StoryScreen(Component title, Theme theme) {
+    super(title, theme);
   }
 
   protected static void scheduleOpen(Screen screen) {
     Minecraft minecraft = Minecraft.getInstance();
+    if (minecraft == null) {
+      return;
+    }
+
     minecraft.execute(() -> minecraft.setScreen(screen));
   }
 
-  protected void renderDimBackground(GuiGraphics graphics) {
-    graphics.fillGradient(0, 0, this.width, this.height, 0xC0101010, 0xD0101010);
-  }
-
-  protected void renderScreenTexture(
-      GuiGraphics graphics, ResourceLocation texture, ScreenLayout layout) {
-    RenderSystem.setShaderTexture(0, texture);
-    graphics.blit(
-        texture,
-        layout.leftPos(),
-        layout.topPos(),
-        0,
-        0,
-        layout.screenWidth(),
-        layout.screenHeight(),
-        TEXTURE_WIDTH,
-        TEXTURE_HEIGHT);
-  }
-
   protected void renderRevealedText(
-      GuiGraphics graphics, ScreenLayout layout, TypewriterAnimator animator) {
-    int textX = layout.leftPos() + layout.textArea().x();
-    int textY = layout.topPos() + layout.textArea().y();
+      GuiGraphics graphics, ThemeArea textArea, TypewriterAnimator animator, int textColor) {
     int lineHeight = this.font.lineHeight + LINE_SPACING;
 
-    graphics.enableScissor(
-        layout.leftPos() + layout.textArea().x(),
-        layout.topPos() + layout.textArea().y(),
-        layout.leftPos() + layout.textArea().x() + layout.textArea().width(),
-        layout.topPos() + layout.textArea().y() + layout.textArea().height());
+    enableLogicalScissor(graphics, textArea);
 
     List<String> revealedLines = animator.getRevealedLines();
     for (int i = 0; i < revealedLines.size(); i++) {
       graphics.drawString(
-          this.font, revealedLines.get(i), textX, textY + i * lineHeight, COLOR_TEXT, false);
+          this.font,
+          revealedLines.get(i),
+          textArea.x(),
+          textArea.y() + i * lineHeight,
+          textColor,
+          false);
     }
 
     String partialLine = animator.getPartialLine();
@@ -89,9 +70,9 @@ public abstract class StoryScreen extends Screen {
       graphics.drawString(
           this.font,
           partialLine,
-          textX,
-          textY + revealedLines.size() * lineHeight,
-          COLOR_TEXT,
+          textArea.x(),
+          textArea.y() + revealedLines.size() * lineHeight,
+          textColor,
           false);
     }
 

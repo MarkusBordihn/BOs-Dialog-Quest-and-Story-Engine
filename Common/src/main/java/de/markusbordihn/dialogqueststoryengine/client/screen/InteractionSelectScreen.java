@@ -62,7 +62,7 @@ public class InteractionSelectScreen extends BaseScreen {
         blockPos != null
             ? targetKind.name() + " (" + blockPos.toShortString() + ")"
             : targetKind.name();
-    setBreadcrumb(ancestors, this.targetLabel);
+    this.setBreadcrumb(ancestors, this.targetLabel);
   }
 
   public static void openWithEntries(
@@ -92,42 +92,44 @@ public class InteractionSelectScreen extends BaseScreen {
 
   @Override
   public void onScreenInit(int screenWidth, int screenHeight) {
-    setSizeCentered(260, Math.min(entries.size() * 22 + 70, 220));
-    refreshWidgets();
+    this.setSizeCentered(260, Math.min(this.entries.size() * 22 + 70, 220));
+    this.refreshWidgets();
   }
 
   @Override
   protected void addWidgets() {
-    int innerWidth = getInnerWidth();
+    int innerWidth = this.getInnerWidth();
     int row = 0;
 
-    int listHeight = getInnerHeight() - 28;
+    int listHeight = this.getInnerHeight() - 28;
     ListPanel<InteractionEntry> listPanel = new ListPanel<>(0, row, innerWidth, listHeight);
     listPanel.setEntryHeight(20);
     listPanel.setEntryRenderer(this::renderEntry);
     listPanel.setOnSelect(
         entry -> {
-          List<BreadcrumbBar.Segment> childAncestors = buildChildAncestors(targetLabel);
+          List<BreadcrumbBar.Segment> childAncestors = this.buildChildAncestors(this.targetLabel);
           InteractionConfigScreen configScreen =
               new InteractionConfigScreen(entry, false, childAncestors);
           configScreen.openScreen();
         });
-    listPanel.setItems(entries);
-    addWidget(listPanel);
+    listPanel.setItems(this.entries);
+    this.addWidget(listPanel);
     row += listHeight + 4;
 
     int buttonWidth = 120;
-    addWidget(
+    this.addWidget(
         new TextButton(
             (innerWidth - buttonWidth) / 2,
             row,
             buttonWidth,
             20,
             "button.new_interaction",
-            btn -> {
+            button -> {
               InteractionEntry template =
-                  InteractionEntry.createTemplate(targetId, targetKind, blockPos, dimension);
-              List<BreadcrumbBar.Segment> childAncestors = buildChildAncestors(targetLabel);
+                  InteractionEntry.createTemplate(
+                      this.targetId, this.targetKind, this.blockPos, this.dimension);
+              List<BreadcrumbBar.Segment> childAncestors =
+                  this.buildChildAncestors(this.targetLabel);
               InteractionConfigScreen configScreen =
                   new InteractionConfigScreen(template, true, childAncestors);
               configScreen.openScreen();
@@ -145,15 +147,15 @@ public class InteractionSelectScreen extends BaseScreen {
       int height,
       ColorPalette palette) {
     float scale = ScaledText.SCALE_SMALL;
-    String typeStr = entry.interactionType().name();
-    String labelStr = entry.label().isEmpty() ? "(no label)" : entry.label();
+    String typeName = entry.interactionType().name();
+    String labelText = entry.label().isEmpty() ? "(no label)" : entry.label();
 
-    ScaledText.draw(graphics, font, typeStr, x, y + 3, palette.onSurface(), scale);
+    ScaledText.draw(graphics, font, typeName, x, y + 3, palette.onSurface(), scale);
     ScaledText.draw(
         graphics,
         font,
-        " - " + labelStr,
-        x + ScaledText.getScaledWidth(font, typeStr, scale),
+        " - " + labelText,
+        x + ScaledText.getScaledWidth(font, typeName, scale),
         y + 3,
         palette.onSurface(),
         scale);

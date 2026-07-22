@@ -22,6 +22,10 @@ package de.markusbordihn.dialogqueststoryengine.server.commands;
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import de.markusbordihn.dialogqueststoryengine.Constants;
 import de.markusbordihn.dialogqueststoryengine.commands.Command;
+import de.markusbordihn.dialogqueststoryengine.content.dialog.DialogContentRegistry;
+import de.markusbordihn.dialogqueststoryengine.content.interaction.InteractionContentRegistry;
+import de.markusbordihn.dialogqueststoryengine.content.quest.QuestContentRegistry;
+import de.markusbordihn.dialogqueststoryengine.content.story.InteractiveStoryContentRegistry;
 import de.markusbordihn.dialogqueststoryengine.data.issue.ContentIssue;
 import de.markusbordihn.dialogqueststoryengine.data.issue.ContentIssueTracker;
 import de.markusbordihn.dialogqueststoryengine.data.issue.IssueSeverity;
@@ -47,6 +51,19 @@ public class ValidateCommand extends Command {
 
   private static int executeValidate(CommandSourceStack source) {
     ValidationService.validate();
+
+    sendInfoMessage(
+        source,
+        "Validated content: "
+            + DialogContentRegistry.size()
+            + " dialog(s), "
+            + QuestContentRegistry.size()
+            + " quest(s), "
+            + InteractiveStoryContentRegistry.size()
+            + " interactive story(ies), "
+            + InteractionContentRegistry.size()
+            + " interaction(s).");
+
     List<ContentIssue> issues = ContentIssueTracker.issues();
     long errorCount = 0;
     long warningCount = 0;

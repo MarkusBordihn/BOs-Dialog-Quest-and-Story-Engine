@@ -54,11 +54,11 @@ public class ActionDataSet {
     return new ActionDataSet(loaded);
   }
 
-  public static ActionDataSet readFromBuf(FriendlyByteBuf buf) {
-    int count = buf.readInt();
+  public static ActionDataSet readFromBuffer(FriendlyByteBuf buffer) {
+    int count = buffer.readInt();
     LinkedHashSet<ActionDataEntry> loaded = new LinkedHashSet<>(count);
     for (int i = 0; i < count; i++) {
-      loaded.add(ActionDataEntry.readFromBuf(buf));
+      loaded.add(ActionDataEntry.readFromBuffer(buffer));
     }
     return new ActionDataSet(loaded);
   }
@@ -111,10 +111,10 @@ public class ActionDataSet {
     return tag;
   }
 
-  public void writeToBuf(FriendlyByteBuf buf) {
-    buf.writeInt(this.entries.size());
+  public void writeToBuffer(FriendlyByteBuf buffer) {
+    buffer.writeInt(this.entries.size());
     for (ActionDataEntry entry : this.entries) {
-      entry.writeToBuf(buf);
+      entry.writeToBuffer(buffer);
     }
   }
 

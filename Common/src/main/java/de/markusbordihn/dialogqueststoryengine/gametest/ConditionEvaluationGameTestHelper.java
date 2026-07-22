@@ -52,17 +52,17 @@ public class ConditionEvaluationGameTestHelper {
 
       Condition condition =
           new FactEqualsCondition(FactScope.PLAYER, "quest_unlocked", FactValue.of(true));
-      ConditionContext ctxBefore = ConditionContext.ofTest(playerState);
+      ConditionContext contextBefore = ConditionContext.ofTest(playerState);
 
       GameTestHelpers.assertTrue(
-          helper, "Choice should be hidden before fact is set", !condition.evaluate(ctxBefore));
+          helper, "Choice should be hidden before fact is set", !condition.evaluate(contextBefore));
 
       PlayerStateService.setFact(
           playerUuid, FactScope.PLAYER, "quest_unlocked", FactValue.of(true));
-      ConditionContext ctxAfter = ConditionContext.ofTest(playerState);
+      ConditionContext contextAfter = ConditionContext.ofTest(playerState);
 
       GameTestHelpers.assertTrue(
-          helper, "Choice should be visible after fact is set", condition.evaluate(ctxAfter));
+          helper, "Choice should be visible after fact is set", condition.evaluate(contextAfter));
     } finally {
       PlayerStateService.onPlayerLoggedOut(playerUuid);
       PlayerStateEvents.clearAll();
@@ -76,20 +76,20 @@ public class ConditionEvaluationGameTestHelper {
       PlayerState playerState = PlayerStateService.get(playerUuid).get();
 
       Condition condition = new QuestStateCondition(TEST_QUEST, QuestState.ACTIVE);
-      ConditionContext ctxNotStarted = ConditionContext.ofTest(playerState);
+      ConditionContext contextNotStarted = ConditionContext.ofTest(playerState);
 
       GameTestHelpers.assertTrue(
           helper,
           "Quest state condition should be false before quest started",
-          !condition.evaluate(ctxNotStarted));
+          !condition.evaluate(contextNotStarted));
 
       PlayerStateService.startQuest(playerUuid, TEST_QUEST);
-      ConditionContext ctxActive = ConditionContext.ofTest(playerState);
+      ConditionContext contextActive = ConditionContext.ofTest(playerState);
 
       GameTestHelpers.assertTrue(
           helper,
           "Quest state condition should be true when quest is ACTIVE",
-          condition.evaluate(ctxActive));
+          condition.evaluate(contextActive));
     } finally {
       PlayerStateService.onPlayerLoggedOut(playerUuid);
       PlayerStateEvents.clearAll();
@@ -103,23 +103,24 @@ public class ConditionEvaluationGameTestHelper {
       PlayerState playerState = PlayerStateService.get(playerUuid).get();
       PlayerStateService.setFact(playerUuid, FactScope.PLAYER, "a", FactValue.of(1L));
 
-      Condition condA = new FactEqualsCondition(FactScope.PLAYER, "a", FactValue.of(1L));
-      Condition condB = new FactEqualsCondition(FactScope.PLAYER, "b", FactValue.of(2L));
-      ConditionGroup allGroup = new ConditionGroup(GroupOperator.ALL, List.of(condA, condB));
-      ConditionContext ctx = ConditionContext.ofTest(playerState);
+      Condition conditionA = new FactEqualsCondition(FactScope.PLAYER, "a", FactValue.of(1L));
+      Condition conditionB = new FactEqualsCondition(FactScope.PLAYER, "b", FactValue.of(2L));
+      ConditionGroup allGroup =
+          new ConditionGroup(GroupOperator.ALL, List.of(conditionA, conditionB));
+      ConditionContext context = ConditionContext.ofTest(playerState);
 
       GameTestHelpers.assertTrue(
           helper,
           "ALL group should be false when only one condition is true",
-          !allGroup.evaluate(ctx));
+          !allGroup.evaluate(context));
 
       PlayerStateService.setFact(playerUuid, FactScope.PLAYER, "b", FactValue.of(2L));
-      ConditionContext ctxBothSet = ConditionContext.ofTest(playerState);
+      ConditionContext contextBothSet = ConditionContext.ofTest(playerState);
 
       GameTestHelpers.assertTrue(
           helper,
           "ALL group should be true when both conditions are true",
-          allGroup.evaluate(ctxBothSet));
+          allGroup.evaluate(contextBothSet));
     } finally {
       PlayerStateService.onPlayerLoggedOut(playerUuid);
       PlayerStateEvents.clearAll();
@@ -133,17 +134,18 @@ public class ConditionEvaluationGameTestHelper {
       PlayerState playerState = PlayerStateService.get(playerUuid).get();
       PlayerStateService.setFact(playerUuid, FactScope.PLAYER, "unlocked", FactValue.of(true));
 
-      Condition condTrue =
+      Condition conditionTrue =
           new FactEqualsCondition(FactScope.PLAYER, "unlocked", FactValue.of(true));
-      Condition condFalse =
+      Condition conditionFalse =
           new FactEqualsCondition(FactScope.PLAYER, "missing", FactValue.of(true));
-      ConditionGroup anyGroup = new ConditionGroup(GroupOperator.ANY, List.of(condTrue, condFalse));
-      ConditionContext ctx = ConditionContext.ofTest(playerState);
+      ConditionGroup anyGroup =
+          new ConditionGroup(GroupOperator.ANY, List.of(conditionTrue, conditionFalse));
+      ConditionContext context = ConditionContext.ofTest(playerState);
 
       GameTestHelpers.assertTrue(
           helper,
           "ANY group should be true when at least one condition is true",
-          anyGroup.evaluate(ctx));
+          anyGroup.evaluate(context));
     } finally {
       PlayerStateService.onPlayerLoggedOut(playerUuid);
       PlayerStateEvents.clearAll();
@@ -171,12 +173,12 @@ public class ConditionEvaluationGameTestHelper {
                   new FactEqualsCondition(FactScope.PLAYER, "f1", FactValue.of(1L)),
                   new FactEqualsCondition(FactScope.PLAYER, "missing", FactValue.of(99L))));
       ConditionGroup outer = new ConditionGroup(GroupOperator.ANY, List.of(inner1, inner2));
-      ConditionContext ctx = ConditionContext.ofTest(playerState);
+      ConditionContext context = ConditionContext.ofTest(playerState);
 
       GameTestHelpers.assertTrue(
           helper,
           "Nested ANY[ALL, ALL] should evaluate correctly two levels deep",
-          outer.evaluate(ctx));
+          outer.evaluate(context));
     } finally {
       PlayerStateService.onPlayerLoggedOut(playerUuid);
       PlayerStateEvents.clearAll();
@@ -188,12 +190,12 @@ public class ConditionEvaluationGameTestHelper {
     try {
       PlayerStateService.onPlayerDataLoaded(playerUuid, new CompoundTag());
       PlayerState playerState = PlayerStateService.get(playerUuid).get();
-      ConditionContext ctx = ConditionContext.ofTest(playerState);
+      ConditionContext context = ConditionContext.ofTest(playerState);
 
       GameTestHelpers.assertTrue(
           helper,
           "Condition.NEVER should evaluate to false without throwing",
-          !Condition.NEVER.evaluate(ctx));
+          !Condition.NEVER.evaluate(context));
     } finally {
       PlayerStateService.onPlayerLoggedOut(playerUuid);
       PlayerStateEvents.clearAll();

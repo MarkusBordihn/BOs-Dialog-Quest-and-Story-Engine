@@ -80,7 +80,7 @@ public class DialogWorkflowGameTestHelper {
     ServerPlayer player = GameTestHelpers.mockConnectedServerPlayer(helper);
     UUID playerUuid = player.getUUID();
     try {
-      installEnv(threeNodeDialog());
+      installEnvironment(threeNodeDialog());
       PlayerStateService.onPlayerDataLoaded(playerUuid, new CompoundTag());
 
       DialogSession session = SessionManager.openDialogSession(player, DIALOG_ID, Optional.empty());
@@ -105,7 +105,7 @@ public class DialogWorkflowGameTestHelper {
           helper, "Should navigate to 'end'", "end", session.currentNodeId());
       GameTestHelpers.assertEquals(helper, "Revision should bump to 2", 2, session.revision());
     } finally {
-      teardownEnv(playerUuid);
+      teardownEnvironment(playerUuid);
     }
   }
 
@@ -113,7 +113,7 @@ public class DialogWorkflowGameTestHelper {
     ServerPlayer player = GameTestHelpers.mockConnectedServerPlayer(helper);
     UUID playerUuid = player.getUUID();
     try {
-      installEnv(gatedDialog());
+      installEnvironment(gatedDialog());
       PlayerStateService.onPlayerDataLoaded(playerUuid, new CompoundTag());
 
       DialogSession session = SessionManager.openDialogSession(player, DIALOG_ID, Optional.empty());
@@ -135,7 +135,7 @@ public class DialogWorkflowGameTestHelper {
           "Gated choice should be visible after fact set",
           afterUnlock.contains("gated_choice"));
     } finally {
-      teardownEnv(playerUuid);
+      teardownEnvironment(playerUuid);
     }
   }
 
@@ -143,7 +143,7 @@ public class DialogWorkflowGameTestHelper {
     ServerPlayer player = GameTestHelpers.mockConnectedServerPlayer(helper);
     UUID playerUuid = player.getUUID();
     try {
-      installEnv(gatedDialog());
+      installEnvironment(gatedDialog());
       PlayerStateService.onPlayerDataLoaded(playerUuid, new CompoundTag());
 
       DialogSession session = SessionManager.openDialogSession(player, DIALOG_ID, Optional.empty());
@@ -154,7 +154,7 @@ public class DialogWorkflowGameTestHelper {
       GameTestHelpers.assertTrue(
           helper, "A CloseSessionPacket should be sent", hasPacket(CloseSessionPacket.class));
     } finally {
-      teardownEnv(playerUuid);
+      teardownEnvironment(playerUuid);
     }
   }
 
@@ -162,7 +162,7 @@ public class DialogWorkflowGameTestHelper {
     ServerPlayer player = GameTestHelpers.mockConnectedServerPlayer(helper);
     UUID playerUuid = player.getUUID();
     try {
-      installEnv(questDialog());
+      installEnvironment(questDialog());
       installWorkflowQuest();
       PlayerStateService.onPlayerDataLoaded(playerUuid, new CompoundTag());
 
@@ -179,7 +179,7 @@ public class DialogWorkflowGameTestHelper {
           QuestState.ACTIVE,
           PlayerStateService.get(playerUuid).get().getQuest(QUEST_ID).state());
     } finally {
-      teardownEnv(playerUuid);
+      teardownEnvironment(playerUuid);
     }
   }
 
@@ -187,7 +187,7 @@ public class DialogWorkflowGameTestHelper {
     ServerPlayer player = GameTestHelpers.mockConnectedServerPlayer(helper);
     UUID playerUuid = player.getUUID();
     try {
-      installEnv(threeNodeDialog());
+      installEnvironment(threeNodeDialog());
       PlayerStateService.onPlayerDataLoaded(playerUuid, new CompoundTag());
 
       DialogSession session = SessionManager.openDialogSession(player, DIALOG_ID, Optional.empty());
@@ -203,7 +203,7 @@ public class DialogWorkflowGameTestHelper {
       GameTestHelpers.assertTrue(
           helper, "Session should still be open after rejection", session.isOpen());
     } finally {
-      teardownEnv(playerUuid);
+      teardownEnvironment(playerUuid);
     }
   }
 
@@ -211,7 +211,7 @@ public class DialogWorkflowGameTestHelper {
     ServerPlayer player = GameTestHelpers.mockConnectedServerPlayer(helper);
     UUID playerUuid = player.getUUID();
     try {
-      installEnv(threeNodeDialog());
+      installEnvironment(threeNodeDialog());
       PlayerStateService.onPlayerDataLoaded(playerUuid, new CompoundTag());
 
       DialogSession session = SessionManager.openDialogSession(player, DIALOG_ID, Optional.empty());
@@ -226,7 +226,7 @@ public class DialogWorkflowGameTestHelper {
       GameTestHelpers.assertTrue(
           helper, "Session should still be open after rejection", session.isOpen());
     } finally {
-      teardownEnv(playerUuid);
+      teardownEnvironment(playerUuid);
     }
   }
 
@@ -234,7 +234,7 @@ public class DialogWorkflowGameTestHelper {
     ServerPlayer player = GameTestHelpers.mockConnectedServerPlayer(helper);
     UUID playerUuid = player.getUUID();
     try {
-      installEnv(threeNodeDialog());
+      installEnvironment(threeNodeDialog());
       PlayerStateService.onPlayerDataLoaded(playerUuid, new CompoundTag());
 
       DialogSession session = SessionManager.openDialogSession(player, DIALOG_ID, Optional.empty());
@@ -248,7 +248,7 @@ public class DialogWorkflowGameTestHelper {
           DialogSessionPacketType.NAVIGATE_NODE,
           lastDialogPacket().type());
     } finally {
-      teardownEnv(playerUuid);
+      teardownEnvironment(playerUuid);
     }
   }
 
@@ -256,7 +256,7 @@ public class DialogWorkflowGameTestHelper {
     ServerPlayer player = GameTestHelpers.mockConnectedServerPlayer(helper);
     UUID playerUuid = player.getUUID();
     try {
-      installEnv(questDialog());
+      installEnvironment(questDialog());
       installWorkflowQuest();
       PlayerStateService.onPlayerDataLoaded(playerUuid, new CompoundTag());
 
@@ -271,7 +271,7 @@ public class DialogWorkflowGameTestHelper {
       GameTestHelpers.assertEquals(
           helper, "Should land on 'thanks' node", "thanks", session.currentNodeId());
     } finally {
-      teardownEnv(playerUuid);
+      teardownEnvironment(playerUuid);
     }
   }
 
@@ -279,7 +279,7 @@ public class DialogWorkflowGameTestHelper {
     ServerPlayer player = GameTestHelpers.mockConnectedServerPlayer(helper);
     UUID playerUuid = player.getUUID();
     try {
-      installEnv(threeNodeDialog());
+      installEnvironment(threeNodeDialog());
       PlayerStateService.onPlayerDataLoaded(playerUuid, new CompoundTag());
 
       DialogSession session = SessionManager.openDialogSession(player, DIALOG_ID, Optional.empty());
@@ -287,7 +287,7 @@ public class DialogWorkflowGameTestHelper {
 
       GameTestHelpers.assertTrue(helper, "Close packet should end the session", !session.isOpen());
     } finally {
-      teardownEnv(playerUuid);
+      teardownEnvironment(playerUuid);
     }
   }
 
@@ -295,7 +295,7 @@ public class DialogWorkflowGameTestHelper {
     ServerPlayer player = GameTestHelpers.mockConnectedServerPlayer(helper);
     UUID playerUuid = player.getUUID();
     try {
-      installEnv(threeNodeDialog());
+      installEnvironment(threeNodeDialog());
       PlayerStateService.onPlayerDataLoaded(playerUuid, new CompoundTag());
 
       DialogSession session = SessionManager.openDialogSession(player, DIALOG_ID, Optional.empty());
@@ -309,7 +309,7 @@ public class DialogWorkflowGameTestHelper {
       GameTestHelpers.assertEquals(
           helper, "Node should be unchanged after rejection", "start", session.currentNodeId());
     } finally {
-      teardownEnv(playerUuid);
+      teardownEnvironment(playerUuid);
     }
   }
 
@@ -430,7 +430,7 @@ public class DialogWorkflowGameTestHelper {
     return network.has(type);
   }
 
-  private static void installEnv(Map<ResourceLocation, DialogDefinition> dialogs) {
+  private static void installEnvironment(Map<ResourceLocation, DialogDefinition> dialogs) {
     network = CapturingNetworkTestHandler.install();
     try {
       Method replaceAll = DialogContentRegistry.class.getDeclaredMethod("replaceAll", Map.class);
@@ -441,7 +441,7 @@ public class DialogWorkflowGameTestHelper {
     }
   }
 
-  private static void teardownEnv(UUID playerUuid) {
+  private static void teardownEnvironment(UUID playerUuid) {
     if (network != null) {
       network.restore();
       network = null;

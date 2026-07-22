@@ -21,6 +21,7 @@ package de.markusbordihn.dialogqueststoryengine.server.commands;
 
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import de.markusbordihn.dialogqueststoryengine.commands.Command;
+import de.markusbordihn.dialogqueststoryengine.commands.suggestion.ContentIdSuggestions;
 import de.markusbordihn.dialogqueststoryengine.data.action.ActionDataEntry;
 import de.markusbordihn.dialogqueststoryengine.data.action.ActionDataSet;
 import de.markusbordihn.dialogqueststoryengine.data.interaction.InteractionEntry;
@@ -58,20 +59,22 @@ public class HolopadCommand extends Command {
                     Commands.argument("pos", BlockPosArgument.blockPos())
                         .then(
                             Commands.argument("storyId", ResourceLocationArgument.id())
+                                .suggests(ContentIdSuggestions.STORY_ENTRIES)
                                 .executes(
                                     context -> {
-                                      BlockPos pos =
+                                      BlockPos blockPosition =
                                           BlockPosArgument.getLoadedBlockPos(context, "pos");
                                       ResourceLocation storyId =
                                           ResourceLocationArgument.getId(context, "storyId");
                                       return executeSetStory(
-                                          context.getSource(), pos, storyId, null);
+                                          context.getSource(), blockPosition, storyId, null);
                                     })
                                 .then(
                                     Commands.argument("themeId", ResourceLocationArgument.id())
+                                        .suggests(ContentIdSuggestions.THEMES)
                                         .executes(
                                             context -> {
-                                              BlockPos pos =
+                                              BlockPos blockPosition =
                                                   BlockPosArgument.getLoadedBlockPos(
                                                       context, "pos");
                                               ResourceLocation storyId =
@@ -81,7 +84,10 @@ public class HolopadCommand extends Command {
                                                   ResourceLocationArgument.getId(
                                                       context, "themeId");
                                               return executeSetStory(
-                                                  context.getSource(), pos, storyId, themeId);
+                                                  context.getSource(),
+                                                  blockPosition,
+                                                  storyId,
+                                                  themeId);
                                             })))))
         .then(
             Commands.literal("interactive")
@@ -89,14 +95,15 @@ public class HolopadCommand extends Command {
                     Commands.argument("pos", BlockPosArgument.blockPos())
                         .then(
                             Commands.argument("storyId", ResourceLocationArgument.id())
+                                .suggests(ContentIdSuggestions.STORY_ENTRIES)
                                 .executes(
                                     context -> {
-                                      BlockPos pos =
+                                      BlockPos blockPosition =
                                           BlockPosArgument.getLoadedBlockPos(context, "pos");
                                       ResourceLocation storyId =
                                           ResourceLocationArgument.getId(context, "storyId");
                                       return executeSetInteractive(
-                                          context.getSource(), pos, storyId);
+                                          context.getSource(), blockPosition, storyId);
                                     }))));
   }
 
@@ -106,8 +113,8 @@ public class HolopadCommand extends Command {
             Commands.argument("pos", BlockPosArgument.blockPos())
                 .executes(
                     context -> {
-                      BlockPos pos = BlockPosArgument.getLoadedBlockPos(context, "pos");
-                      return executeClear(context.getSource(), pos);
+                      BlockPos blockPosition = BlockPosArgument.getLoadedBlockPos(context, "pos");
+                      return executeClear(context.getSource(), blockPosition);
                     }));
   }
 
@@ -117,24 +124,27 @@ public class HolopadCommand extends Command {
             Commands.argument("pos", BlockPosArgument.blockPos())
                 .executes(
                     context -> {
-                      BlockPos pos = BlockPosArgument.getLoadedBlockPos(context, "pos");
-                      return executeInfo(context.getSource(), pos);
+                      BlockPos blockPosition = BlockPosArgument.getLoadedBlockPos(context, "pos");
+                      return executeInfo(context.getSource(), blockPosition);
                     }));
   }
 
   private static int executeSetStory(
-      CommandSourceStack source, BlockPos pos, ResourceLocation storyId, ResourceLocation themeId) {
+      CommandSourceStack source,
+      BlockPos blockPosition,
+      ResourceLocation storyId,
+      ResourceLocation themeId) {
     ServerLevel level = source.getLevel();
-    UUID blockId = BlockUUID.fromBlockPos(level.dimension(), pos);
+    UUID blockId = BlockUUID.fromBlockPos(level.dimension(), blockPosition);
 
     ActionDataSet actionDataSet = new ActionDataSet();
     actionDataSet.add(ActionDataEntry.openStory(storyId, themeId));
 
-    registerOrUpdate(source, blockId, pos, level, actionDataSet);
+    registerOrUpdate(source, blockId, blockPosition, level, actionDataSet);
     sendSuccessMessage(
         source,
         "Holopad at "
-            + pos.toShortString()
+            + blockPosition.toShortString()
             + " configured with story: "
             + storyId
             + (themeId != null ? " (theme: " + themeId + ")" : ""));
@@ -142,45 +152,49 @@ public class HolopadCommand extends Command {
   }
 
   private static int executeSetInteractive(
-      CommandSourceStack source, BlockPos pos, ResourceLocation storyId) {
+      CommandSourceStack source, BlockPos blockPosition, ResourceLocation storyId) {
     ServerLevel level = source.getLevel();
-    UUID blockId = BlockUUID.fromBlockPos(level.dimension(), pos);
+    UUID blockId = BlockUUID.fromBlockPos(level.dimension(), blockPosition);
 
     ActionDataSet actionDataSet = new ActionDataSet();
     actionDataSet.add(ActionDataEntry.openInteractiveStory(storyId));
 
-    registerOrUpdate(source, blockId, pos, level, actionDataSet);
+    registerOrUpdate(source, blockId, blockPosition, level, actionDataSet);
     sendSuccessMessage(
         source,
-        "Holopad at " + pos.toShortString() + " configured with interactive story: " + storyId);
+        "Holopad at "
+            + blockPosition.toShortString()
+            + " configured with interactive story: "
+            + storyId);
     return 1;
   }
 
-  private static int executeClear(CommandSourceStack source, BlockPos pos) {
+  private static int executeClear(CommandSourceStack source, BlockPos blockPosition) {
     ServerLevel level = source.getLevel();
-    UUID blockId = BlockUUID.fromBlockPos(level.dimension(), pos);
+    UUID blockId = BlockUUID.fromBlockPos(level.dimension(), blockPosition);
     InteractionSavedData data = InteractionSavedData.get(source.getServer());
 
     boolean removed = data.unregister(blockId, InteractionEventType.ON_HOLOPAD_USE);
     if (removed) {
       data.setDirty();
-      sendSuccessMessage(source, "Holopad interaction cleared at " + pos.toShortString());
+      sendSuccessMessage(source, "Holopad interaction cleared at " + blockPosition.toShortString());
     } else {
-      sendInfoMessage(source, "No holopad interaction found at " + pos.toShortString());
+      sendInfoMessage(source, "No holopad interaction found at " + blockPosition.toShortString());
     }
     return 1;
   }
 
-  private static int executeInfo(CommandSourceStack source, BlockPos pos) {
+  private static int executeInfo(CommandSourceStack source, BlockPos blockPosition) {
     ServerLevel level = source.getLevel();
-    UUID blockId = BlockUUID.fromBlockPos(level.dimension(), pos);
+    UUID blockId = BlockUUID.fromBlockPos(level.dimension(), blockPosition);
     InteractionSavedData data = InteractionSavedData.get(source.getServer());
 
     InteractionEntry entry = data.getInteraction(blockId, InteractionEventType.ON_HOLOPAD_USE);
     if (entry == null) {
-      sendInfoMessage(source, "No holopad interaction registered at " + pos.toShortString());
+      sendInfoMessage(
+          source, "No holopad interaction registered at " + blockPosition.toShortString());
     } else {
-      sendInfoMessage(source, "Holopad at " + pos.toShortString() + ": " + entry);
+      sendInfoMessage(source, "Holopad at " + blockPosition.toShortString() + ": " + entry);
     }
     return 1;
   }
@@ -188,7 +202,7 @@ public class HolopadCommand extends Command {
   private static void registerOrUpdate(
       CommandSourceStack source,
       UUID blockId,
-      BlockPos pos,
+      BlockPos blockPosition,
       ServerLevel level,
       ActionDataSet actionDataSet) {
     InteractionSavedData data = InteractionSavedData.get(source.getServer());
@@ -207,7 +221,12 @@ public class HolopadCommand extends Command {
 
     data.register(
         InteractionEntry.forBlockInteract(
-                blockId, pos, TargetKind.BLOCK, InteractionType.OPEN_HOLOPAD, label, dimension)
+                blockId,
+                blockPosition,
+                TargetKind.BLOCK,
+                InteractionType.OPEN_HOLOPAD,
+                label,
+                dimension)
             .withEdits(InteractionType.OPEN_HOLOPAD, label, actionDataSet));
     data.setDirty();
   }
